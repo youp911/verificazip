@@ -1,0 +1,13 @@
+program Alteracao;
+
+uses
+  Forms,
+  AAlteracao in 'AAlteracao.pas' {FAtualizacao};
+
+{$R *.RES}
+
+begin
+  Application.Initialize;
+  Application.CreateForm(TFAtualizacao, FAtualizacao);
+  Application.Run;
+end.
