@@ -255,7 +255,7 @@ begin
         if VpfColuna > 2 then
            break;
         inc(VpfQtdEtiquetasImpressas);
-        VpfPosicaoX := VpfColuna * 260;
+        VpfPosicaoX := VpfColuna * 265;
         ImprimeCodigoBarras(VpfPosicaoX+220,70,90,'1',2,4,50,true,AdicionaCharE('0',VpfDEtiqueta.Produto.CodProduto,12));
         ImprimeTexto(VpfPosicaoX+165,30,90,1,22,22,false,'CNPJ : '+Varia.CNPJFilial);
         ImprimeTexto(VpfPosicaoX+145,30,90,1,22,22,false,'CODIGO : '+copy(VpfDEtiqueta.Produto.NomProduto,1,Pos('MM',VpfDEtiqueta.Produto.NomProduto)));

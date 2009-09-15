@@ -32,6 +32,9 @@ type
     EConsulta: TLocalizaEdit;
     Label3: TLabel;
     GridIndice1: TGridIndice;
+    EmbalagemQTD_EMBALAGEM: TFMTBCDField;
+    DBEditColor2: TDBEditColor;
+    Label4: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);

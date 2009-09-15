@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1486;
+  CT_VersaoBanco = 1488;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -619,6 +619,19 @@ begin
         VpfErro := '1486';
         ExecutaComandoSql(Aux,'ALTER TABLE CFG_PRODUTO ADD I_MOD_EPE NUMBER(2) NULL');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1486');
+      end;
+      if VpaNumAtualizacao < 1487 Then
+      begin
+        VpfErro := '1487';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_PRODUTO ADD C_EAN_ACE CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CFG_PRODUTO SET C_EAN_ACE = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1487');
+      end;
+      if VpaNumAtualizacao < 1488 Then
+      begin
+        VpfErro := '1488';
+        ExecutaComandoSql(Aux,'ALTER TABLE EMBALAGEM ADD QTD_EMBALAGEM NUMBER(15,3)NULL ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1488');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

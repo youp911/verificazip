@@ -353,6 +353,8 @@ type
     Label93: TLabel;
     EModeloEtiquetaPequena: TComboBoxColor;
     CFGI_MOD_EPE: TFMTBCDField;
+    CFGC_EAN_ACE: TWideStringField;
+    DBCheckBox16: TDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

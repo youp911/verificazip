@@ -2,7 +2,7 @@ Unit UnEntradaMetros;
 
 Interface
 
-Uses Classes, DBTables, vcf1, SysUtils,Graphics,SQLExpr,db;
+Uses Classes, DBTables, vcf1, SysUtils,Graphics,SQLExpr, DbClient, db;
 
 Const
   LinInicial = 1;
@@ -25,29 +25,12 @@ end;
 //classe funcoes
 Type TRBFuncoesEntradaMetros = class(TRBLocalizaEntradaMetros)
   private
-    CorFonte,
-    CorTitulo,
-    CorFundoCaixa,
-    CorFonteNegativo,
-    CorFonteTituloGrade,
-    CorFonteGrade,
-    CorFundoTituloGrade,
-    CorFundoGrade,
-    CorFonteCP,
-    CorFonteTituloCP,
-    CorFundoTituloCP: TColor;
-    // fonte
-    TamanhoFonte : integer;
-    NomeFonte : string;
-    AlturaLinha : Integer;
     Tabela : TSQLQuery;
-    procedure InicializaGradeGeral(VpaGrade : TF1Book);
   public
     constructor cria(VpaBaseDados : TSqlConnection);
     destructor destroy;override;
-    procedure CarregaCores(VpaCorFonte, VpaCorFonteTituloGrade, VpaCorFonteGrade, VpaCorTitulo, VpaCorFundoTituloGrade, VpaCorFundoGrade: TColor; VpaNomFonte : string; VpaTamFonte,VpaAltLinha : Integer);
     procedure CarTituloGrade(VpaGrade : TF1Book;VpaDatInicio, VpaDatFim : TDateTime);
-    procedure CarEntradaMetros(VpaGrade : TF1Book;VpaDatInicio, VpaDatFim : TDateTime);
+    procedure CarEntradaMetros(VpaDatInicio, VpaDatFim : TDateTime);
 end;
 
 
@@ -98,29 +81,9 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesEntradaMetros.InicializaGradeGeral(VpaGrade : TF1Book);
-begin
-  FormataCelula(VpaGrade,LinInicial,LinInicial,ColInicial,ColInicial,TamanhoFonte+2,clwhite,clblue,true,
-                false,NomeFonte);
-
-//  FormataCelula(VpaGrade,ColAplicacao,ColSaldoAnterior,LinInicial,LinInicial,TamanhoFonte,CorFundoCaixa,CorFonteCaixa,true,
-//                false,NomeFonte);
-  FormataBordaCelula(VpaGrade,ColTituloGrade,ColTituloGrade+6,LinTituloGrade,LinTituloGrade+1,clBlack,false);
-  VpaGrade.SetRowHeight(LinInicial,LinInicial,AlturaLinha+100,false);
-  VpaGrade.ColWidth[ColInicial] := 500;
-  VpaGrade.ColWidth[ColTituloGrade] := 7500;
-  VpaGrade.ColWidth[ColTituloGrade+1] := 3500;
-  VpaGrade.ColWidth[ColTituloGrade+2] := 3500;
-  VpaGrade.ColWidth[ColTituloGrade+3] := 3500;
-  VpaGrade.ColWidth[ColTituloGrade+4] := 3500;
-  VpaGrade.ColWidth[ColTituloGrade+5] := 3500;
-  VpaGrade.ColWidth[ColTituloGrade+6] := 3500;
-end;
-
-{******************************************************************************}
 procedure TRBFuncoesEntradaMetros.CarTituloGrade(VpaGrade : TF1Book;VpaDatInicio, VpaDatFim : TDateTime);
 begin
-  InicializaGradeGeral(VpaGrade);
+{  InicializaGradeGeral(VpaGrade);
   FormataCelula(VpaGrade,ColTituloGrade,ColTituloGrade+6,LinTituloGrade,LinTituloGrade+1,TamanhoFonte,CorFundoTituloGrade,CorFonteTituloGrade,true,
                 false,NomeFonte);
 
@@ -134,28 +97,11 @@ begin
   VpaGrade.TextRC[LinTituloGrade+1,ColTituloGrade+3] := 'Metros';
   VpaGrade.TextRC[LinTituloGrade+1,ColTituloGrade+4] := 'Valor';
   VpaGrade.TextRC[LinTituloGrade+1,ColTituloGrade+5] := 'Metros';
-  VpaGrade.TextRC[LinTituloGrade+1,ColTituloGrade+6] := 'Valor';
+  VpaGrade.TextRC[LinTituloGrade+1,ColTituloGrade+6] := 'Valor';}
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesEntradaMetros.CarregaCores(VpaCorFonte, VpaCorFonteTituloGrade, VpaCorFonteGrade, VpaCorTitulo, VpaCorFundoTituloGrade, VpaCorFundoGrade: TColor; VpaNomFonte : string; VpaTamFonte,VpaAltLinha : Integer);
-begin
-  CorFonte := VpaCorFonte;
-  CorTitulo := VpaCorTitulo;
-  CorFonteTituloGrade := VpaCorFonteTituloGrade;
-  CorFonteGrade := VpaCorFonteGrade;
-  CorFundoTituloGrade := VpaCorFundoTituloGrade;
-  CorFundoGrade := VpaCorFundoGrade;
-
-
-  TamanhoFonte :=  VpaTamFonte;
-  NomeFonte := VpaNomFonte;
-
-  AlturaLinha := VpaAltLinha;
-end;
-
-{******************************************************************************}
-procedure TRBFuncoesEntradaMetros.CarEntradaMetros(VpaGrade : TF1Book;VpaDatInicio, VpaDatFim : TDateTime);
+procedure TRBFuncoesEntradaMetros.CarEntradaMetros(VpaDatInicio, VpaDatFim : TDateTime);
 var
   VpfMetroAmostra, VpfMetrosPedido, VpfMetrosItem, VpfMetrosTotal : Double;
   VpfValAmostra, VpfValPedido, VpfValItem, VpfValTotal : Double;
@@ -172,7 +118,7 @@ begin
       if VpfCodClassificacao <> '' then
       begin
         inc(vpflinha);
-        VpaGrade.TextRC[VpfLinha,ColTituloGrade] := VpfNomClassificacao;
+{        VpaGrade.TextRC[VpfLinha,ColTituloGrade] := VpfNomClassificacao;
         FormataCelula(VpaGrade,ColTituloGrade,ColTituloGrade,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloGrade,CorFonteTituloGrade,true,
                 false,NomeFonte);
         VpaGrade.TextRC[VpfLinha,ColTituloGrade+1] := FormatFloat('#,###,###,##0.00',VpfMetroAmostra);
@@ -180,7 +126,7 @@ begin
         VpaGrade.TextRC[VpfLinha,ColTituloGrade+3] := FormatFloat('#,###,###,##0.00',VpfMetrosPedido);
         VpaGrade.TextRC[VpfLinha,ColTituloGrade+4] := FormatFloat('#,###,###,##0.00',VpfValPedido);
         VpaGrade.TextRC[VpfLinha,ColTituloGrade+5] := FormatFloat('#,###,###,##0.00',VpfMetrosItem);
-        VpaGrade.TextRC[VpfLinha,ColTituloGrade+6] := FormatFloat('#,###,###,##0.00',VpfValItem);
+        VpaGrade.TextRC[VpfLinha,ColTituloGrade+6] := FormatFloat('#,###,###,##0.00',VpfValItem);}
       end;
       VpfMetroAmostra :=0;
       VpfMetrosPedido :=0;
@@ -202,7 +148,7 @@ begin
   if VpfCodClassificacao <> '' then
   begin
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColTituloGrade,ColTituloGrade,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloGrade,CorFonteTituloGrade,true,
+{    FormataCelula(VpaGrade,ColTituloGrade,ColTituloGrade,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloGrade,CorFonteTituloGrade,true,
                false,NomeFonte);
     VpaGrade.TextRC[VpfLinha,ColTituloGrade] := VpfNomClassificacao;
     VpaGrade.TextRC[VpfLinha,ColTituloGrade+1] := FormatFloat('#,###,###,##0.00',VpfMetroAmostra);
@@ -210,9 +156,9 @@ begin
     VpaGrade.TextRC[VpfLinha,ColTituloGrade+3] := FormatFloat('#,###,###,##0.00',VpfMetrosPedido);
     VpaGrade.TextRC[VpfLinha,ColTituloGrade+4] := FormatFloat('#,###,###,##0.00',VpfValPedido);
     VpaGrade.TextRC[VpfLinha,ColTituloGrade+5] := FormatFloat('#,###,###,##0.00',VpfMetrosItem);
-    VpaGrade.TextRC[VpfLinha,ColTituloGrade+6] := FormatFloat('#,###,###,##0.00',VpfValItem);
+    VpaGrade.TextRC[VpfLinha,ColTituloGrade+6] := FormatFloat('#,###,###,##0.00',VpfValItem);}
   end;
-  FormataBordaCelula(VpaGrade,ColTituloGrade,ColTituloGrade+6,LinTituloGrade+2,VpfLinha,clBlack,false);
+//  FormataBordaCelula(VpaGrade,ColTituloGrade,ColTituloGrade+6,LinTituloGrade+2,VpfLinha,clBlack,false);
   Tabela.close;
 end;
 

@@ -210,6 +210,7 @@ type
     GeraCdigosBarras1: TMenuItem;
     N43: TMenuItem;
     RetiraAcentuoNomeProdutos1: TMenuItem;
+    Embalagem1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -279,7 +280,7 @@ uses Constantes, UnRegistro, funsql,
   ADesenhosPendentes, AOrcamentoCompras, ANovoOrcamentoCompra,
   AConsultaLogSeparacaoConsumo, APrecoPendente, AAmostrasPendentes,
   AExcluiProdutoDuplicado, APendenciasCompras, AAgendamentos, AFiguraGRF,
-  AComposicoes, UnOrdemProducao;
+  AComposicoes, UnOrdemProducao, AEmbalagem;
 
 {$R *.DFM}
 
@@ -730,6 +731,11 @@ begin
              FFacas := tFFacas.CriarSDI(self,'',FPrincipal.VerificaPermisao('FFacas'));
              FFacas.ShowModal;
              FFacas.free;
+           end;
+    3520 : begin
+             FEmbalagem := TFEmbalagem.CriarSDI(self,'',true);
+             FEmbalagem.ShowModal;
+             FEmbalagem.free;
            end;
     3600 : begin
             FFormacaoPrecoServico := TFFormacaoPrecoServico.CriarSDI(application, '',VerificaPermisao('FFormacaoPrecoServico'));

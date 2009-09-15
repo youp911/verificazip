@@ -500,6 +500,7 @@ type
     ExigirQdMetrosQuandoDiferenteMT : Boolean;
     ReferenciaClienteCadastrarAutomatica : Boolean;
     MostrarOrdemProducaoNoAcertoEstoque : Boolean;
+    MostrarCodBarrasCorNoAcertoEstoque : Boolean;
 
 //-------------------Financeiro
     CapaLote : Boolean;            // verica capa de lote
@@ -1500,6 +1501,7 @@ begin
         ExigirQdMetrosQuandoDiferenteMT := TipoCheck( VpfTabela.fieldByName('C_DMT_OQC').AsString);
         ReferenciaClienteCadastrarAutomatica := TipoCheck( VpfTabela.fieldByName('C_REF_CLI').AsString);
         MostrarOrdemProducaoNoAcertoEstoque := TipoCheck( VpfTabela.fieldByName('C_ORP_ACE').AsString);
+        MostrarCodBarrasCorNoAcertoEstoque := TipoCheck( VpfTabela.fieldByName('C_EAN_ACE').AsString);
         EstoquePorNumeroSerie := TipoCheck( VpfTabela.fieldByName('C_EST_SER').AsString);
       end;
     end;

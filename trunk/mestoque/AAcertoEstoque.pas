@@ -80,7 +80,14 @@ type
     ETamanho: TRBEditLocaliza;
     EQtdLote: Tnumerico;
     Label18: TLabel;
-    BitBtn1: TBitBtn;
+    BImprimir: TBitBtn;
+    PCodBarrasCor: TPanelColor;
+    Label21: TLabel;
+    ECodBarras: TEditColor;
+    EEmbalagem: TRBEditLocaliza;
+    Label6: TLabel;
+    SpeedButton7: TSpeedButton;
+    Label22: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBEditLocaliza2Select(Sender: TObject);
@@ -110,7 +117,7 @@ type
       Shift: TShiftState);
     procedure PanelColor4DblClick(Sender: TObject);
     procedure CDefeitoClick(Sender: TObject);
-    procedure BitBtn1Click(Sender: TObject);
+    procedure BImprimirClick(Sender: TObject);
   private
     VprUnidadePadrao : string;
     VprSeqProduto :Integer;
@@ -156,11 +163,14 @@ begin
    PCor.Visible := config.EstoquePorCor;
    PTamanho.Visible := config.EstoquePorTamanho;
    POrdemProducao.Visible := (ConfigModulos.OrdemProducao and Config.MostrarOrdemProducaoNoAcertoEstoque);
+   PCodBarrasCor.Visible := config.MostrarCodBarrasCorNoAcertoEstoque;
    VpfTamanhoTela := 35+ PanelColor1.Height +PanelColor4.Height + PTecnico.Height;
    if config.EstoquePorCor then
    begin
      VpfTamanhoTela := VpfTamanhoTela +PCor.Height;
    end;
+   if config.MostrarCodBarrasCorNoAcertoEstoque then
+     VpfTamanhoTela := VpfTamanhoTela +PCodBarrasCor.Height;
    if Config.EstoquePorTamanho then
      VpfTamanhoTela := VpfTamanhoTela +PTamanho.Height;
 
@@ -333,7 +343,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFAcertoEstoque.BitBtn1Click(Sender: TObject);
+procedure TFAcertoEstoque.BImprimirClick(Sender: TObject);
 begin
   if varia.ModeloEtiquetaNotaEntrada in [7] then
   begin
@@ -442,6 +452,8 @@ begin
     VprUnidadePadrao := CadProduto.fieldByName('C_COD_UNI').AsString;
     EValUnitario.AValor := CadProduto.FieldByName('N_VLR_CUS').AsFloat;
     EQtdEstoque.AValor := CadProduto.FieldByName('N_QTD_PRO').AsFloat;
+    ECodBarras.Text := CadProduto.FieldByName('C_COD_BAR').AsString;
+    ECodBarras.ReadOnly := CadProduto.FieldByName('C_COD_BAR').AsString <> '';
     if config.EstoquePorNumeroSerie then
       if ETipOperacao.Text = 'E' then
         ENumSerie.Text := FunProdutos.CalculaNumeroSerie(CadProduto.FieldByName('I_NUM_LOT').AsInteger+1);

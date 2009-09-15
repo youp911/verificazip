@@ -85,13 +85,16 @@ type
       procedure DefineTabelaAnaliseFaturamentoMensal(VpaObjeto : TObject);
       procedure DefineTabelaFechamentoEstoque(VpaObjeto : TObject);
       procedure DefineTabelaCPporPlanoContas(VpaObjeto : TObject);
+      procedure DefineTabelaEntradaMetro(VpaObjeto : TObject);
       procedure ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
       procedure ImprimeRelEstoqueProdutos(VpaObjeto : TObject);
       procedure ImprimeTotaisNiveis(VpaNiveis : TList;VpaIndice : integer);
+      procedure ImprimeTotaisNiveisPlanoContas(VpaNiveis : TList;VpaIndice : integer);
       procedure ImprimeCabecalhoEstoque;
       procedure ImprimeCabecalhoQtdMinima;
       procedure ImprimeCabecalhoAnaliseFaturamento;
       procedure ImprimeCabecalhoFechamentoEstoque;
+      procedure ImprimeCabecalhoEntradaMetros;
       procedure ImprimeTituloClassificacao(VpaNiveis : TList;VpaTudo : boolean);
       function CarDNivel(VpaCodCompleto, VpaCodReduzido : String):TRBDClassificacaoRave;
       function CarregaNiveis(VpaNiveis : TList;VpaCodClassificacao : string):TRBDClassificacaoRave;
@@ -107,6 +110,7 @@ type
       procedure ImprimeRelAnaliseFaturamentoAnual(VpaObjeto : TObject);
       procedure ImprimeRelFechamentoEstoque(VpaObjeto : TObject);
       procedure ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
+      procedure ImprimeRelEntradaMetros(VpaObjeto : TObject);
 
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
@@ -121,6 +125,7 @@ type
       procedure ImprimeEstoqueFiscalProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
       procedure ImprimeFechamentoMes(VpaCodFilial : Integer;VpaCaminho, VpaNomFilial : String;VpaData : TDateTime;VpaMostarTodos : Boolean);
       procedure ImprimeContasAPagarPorPlanodeContas(VpaCodFilial : Integer; VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaCampoData, VpaNomFilial : String);
+      procedure ImprimeEntradaMetros(VpaDatInicio, VpaDatFim : TDateTime);
   end;
 implementation
 
@@ -356,6 +361,28 @@ begin
      SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //Valor total Pago
      SaveTabs(3);
      clearTabs;
+   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaEntradaMetro(VpaObjeto : TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1.0,pjleft,5.0,0.5,BOXLINEALL,0); //Familia
+     SetTab(NA,pjCenter,7,0.5,BOXLINEALL,0); //Amostra
+     SetTab(NA,pjCenter,7,0.5,BOXLINEALL,0); //Pedido
+     SetTab(NA,pjCenter,7,0.5,BOXLINEALL,0); //Total
+     SaveTabs(1);
+     clearTabs;
+     SetTab(1.0,pjleft,5.0,0.5,BOXLINEALL,0); //Familia
+     SetTab(NA,pjRight,3.5,0.5,BOXLINEALL,0); //Qtd Metros Amostra
+     SetTab(NA,pjRight,3.5,0.5,BOXLINEALL,0); //Valor Amostra
+     SetTab(NA,pjRight,3.5,0.5,BOXLINEALL,0); //Qtd Metros Pedido
+     SetTab(NA,pjRight,3.5,0.5,BOXLINEALL,0); //Valor Pedidos
+     SetTab(NA,pjRight,3.5,0.5,BOXLINEALL,0); //Qtd Metros Total
+     SetTab(NA,pjRight,3.5,0.5,BOXLINEALL,0); //Valor Total
+     SaveTabs(2);
    end;
 end;
 
@@ -649,6 +676,61 @@ begin
   end;
 end;
 
+procedure TRBFunRave.ImprimeTotaisNiveisPlanoContas(VpaNiveis : TList;VpaIndice : integer);
+var
+  VpfLaco : Integer;
+  VpfDPlanoContas : TRBDPlanoContasRave;
+  VpfValDuplicata, VpfValPago, VpfValPrevisto: Double;
+begin
+  VpfValDuplicata := 0;
+  VpfValPrevisto := 0;
+  VpfValPago := 0;
+  for Vpflaco  := VpaNiveis.count -1 downto VpaIndice  do
+  begin
+    VpfDPlanoContas := TRBDPlanoContasRave(VpaNiveis.items[VpfLaco]);
+    with RVSystem.BaseReport do
+    begin
+      if VpfLaco = 0 then
+      begin
+        SetBrush(ShadeToColor(clBlack,20),bsSolid,nil);
+        FillRect(CreateRect(MarginLeft-0.1,YPos+LineHeight-1+0.3,PageWidth-0.3,YPos+0.1));
+{        Canvas.Pen.Width := 7;
+        Canvas.Pen.Color := clBlack;
+        MoveTo(MarginLeft,YPos+0.1);
+        LineTo(PageWidth-MarginRight,YPos+0.1);}
+      end;
+      VpfDPlanoContas.ValPago := VpfDPlanoContas.ValPago + VpfValPago;
+      VpfDPlanoContas.ValDuplicata := VpfDPlanoContas.ValDuplicata + VpfValDuplicata;
+      VpfDPlanoContas.ValPrevisto := VpfDPlanoContas.ValPrevisto + VpfValPrevisto;
+      PrintTab('');
+      if VpfLaco > 0 then
+        PrintTab('Total Plano Contas : '+VpfDPlanoContas.CodPlanoCotas+'-'+VpfDPlanoContas.NomPlanoContas)
+      else
+        PrintTab('');
+      bold := true;
+      PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValPago));
+      PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValDuplicata));
+      PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValPrevisto));
+      VpfValPago := VpfDPlanoContas.ValPago;
+      VpfValDuplicata := VpfDPlanoContas.ValDuplicata;
+      VpfValPrevisto := VpfDPlanoContas.ValPrevisto;
+      newline;
+      If LinesLeft<=1 Then
+        NewPage;
+      Bold := false;
+    end;
+    VpfDPlanoContas.free;
+    VpaNiveis.delete(VpfLaco);
+  end;
+  if VpaIndice > 0  then
+  begin
+    VpfDPlanoContas := TRBDPlanoContasRave(VpaNiveis.items[VpaIndice-1]);
+    VpfDPlanoContas.ValPago := VpfDPlanoContas.ValPago + VpfValPago;
+    VpfDPlanoContas.ValDuplicata := VpfDPlanoContas.ValDuplicata + VpfValDuplicata;
+    VpfDPlanoContas.ValPrevisto := VpfDPlanoContas.ValPrevisto + VpfValPrevisto;
+  end;
+end;
+
 {******************************************************************************}
 procedure TRBFunRave.ImprimeCabecalhoEstoque;
 begin
@@ -731,18 +813,46 @@ end;
 {******************************************************************************}
 procedure TRBFunRave.ImprimeCabecalhoFechamentoEstoque;
 begin
-    with RVSystem.BaseReport do
-    begin
-      RestoreTabs(2);
-      bold := true;
-      PrintTab('Código');
-      PrintTab('Nome');
-      PrintTab('Qtd');
-      PrintTab('Valor');
-      PrintTab('Custo');
-      PrintTab('Margem');
-      Bold := false;
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(2);
+    bold := true;
+    PrintTab('Código');
+    PrintTab('Nome');
+    PrintTab('Qtd');
+    PrintTab('Valor');
+    PrintTab('Custo');
+    PrintTab('Margem');
+    Bold := false;
   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoEntradaMetros;
+begin
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(1);
+    bold := true;
+    PrintTab('');
+    PrintTab('AMOSTRA');
+    PrintTab('PEDIDO');
+    PrintTab('TOTAL');
+    Bold := false;
+
+    newline;
+    RestoreTabs(2);
+    bold := true;
+    PrintTab('  FAMÍLIA');
+    PrintTab('METROS');
+    PrintTab('VALOR');
+    PrintTab('METROS');
+    PrintTab('VALOR');
+    PrintTab('METROS');
+    PrintTab('VALOR');
+    Bold := false;
+  end;
+
 end;
 
 {******************************************************************************}
@@ -889,7 +999,7 @@ begin
     else
       if VpfCodPlanoContasAtual <> TRBDPlanoContasRave(VpaNiveis.Items[VpfNivel-1]).CodReduzido then
       begin
-        ImprimeTotaisNiveis(VpaNiveis,VpfNivel-1);
+        ImprimeTotaisNiveisPlanoContas(VpaNiveis,VpfNivel-1);
         VpfDPlanoContas := CarDNivelPlanoContas(VpfCodPlanoCompleto,VpfCodPlanoContasAtual);
         VpaNiveis.add(VpfDPlanoContas);
       end;
@@ -1294,28 +1404,28 @@ begin
         VpfDClassificacao := CarregaNiveisPlanoContas(VprNiveis,Tabela.FieldByName('C_CLA_PLA').AsString);
         ImprimeTituloClassificacao(VprNiveis,VpfPlanoContasAtual = '');
         VpfPlanoContasAtual := Tabela.FieldByName('C_CLA_PLA').AsString;
-       VpfValPago := 0;
-       VpfValDuplicata := 0;
-       PrintTab(Tabela.FieldByName('I_COD_CLI').AsString+'-'+Tabela.FieldByName('C_NOM_CLI').AsString);
-       PrintTab(Tabela.FieldByName('I_NRO_NOT').AsString);
-       PrintTab(FormatDateTime('DD/MM/YY',Tabela.FieldByName('D_DAT_VEN').AsDatetime));
-       PrintTab(FormatFloat('#,###,###,##0.00',Tabela.FieldByName('N_VLR_DUP').AsFloat));
-       if Tabela.FieldByName('D_DAT_PAG').IsNull then
-         PrintTab('')
-       else
-         PrintTab(FormatDateTime('DD/MM/YY',Tabela.FieldByName('D_DAT_PAG').AsDatetime));
-       if Tabela.FieldByName('N_VLR_PAG').IsNull then
-         PrintTab('')
-       else
-         PrintTab(FormatFloat('#,###,###,##0.00',Tabela.FieldByName('N_VLR_PAG').AsFloat));
+        VpfValPago := 0;
+        VpfValDuplicata := 0;
       end;
+      PrintTab(Tabela.FieldByName('I_COD_CLI').AsString+'-'+Tabela.FieldByName('C_NOM_CLI').AsString);
+      PrintTab(Tabela.FieldByName('I_NRO_NOT').AsString);
+      PrintTab(FormatDateTime('DD/MM/YY',Tabela.FieldByName('D_DAT_VEN').AsDatetime));
+      PrintTab(FormatFloat('#,###,###,##0.00',Tabela.FieldByName('N_VLR_DUP').AsFloat));
+      if Tabela.FieldByName('D_DAT_PAG').IsNull then
+        PrintTab('')
+      else
+        PrintTab(FormatDateTime('DD/MM/YY',Tabela.FieldByName('D_DAT_PAG').AsDatetime));
+      if Tabela.FieldByName('N_VLR_PAG').IsNull then
+        PrintTab('')
+      else
+        PrintTab(FormatFloat('#,###,###,##0.00',Tabela.FieldByName('N_VLR_PAG').AsFloat));
       VpfValPago := VpfValPago + Tabela.FieldByName('N_VLR_PAG').AsFloat;
       VpfValDuplicata := VpfValDuplicata + Tabela.FieldByName('N_VLR_DUP').AsFloat;
       Tabela.next;
     end;
 
     if VprNiveis.Count > 0  then
-      ImprimeTotaisNiveis(VprNiveis,0);
+      ImprimeTotaisNiveisPlanoContas(VprNiveis,0);
 
     newline;
     newline;
@@ -1334,6 +1444,82 @@ begin
     bold := false;
   end;
   Tabela.Close;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRelEntradaMetros(VpaObjeto : TObject);
+var
+  VpfMetroAmostra, VpfMetrosPedido, VpfMetrosItem : Double;
+  VpfTotMetroAmostra, VpfTotMetPedido, VpfMetrosTotal : Double;
+  VpfValAmostra, VpfValPedido, VpfValItem  : Double;
+  VpfTotValAmostra,VpfTotValPedido,VpfValTotal : Double;
+  VpfCodClassificacao, VpfNomClassificacao : String;
+begin
+  VpfTotMetroAmostra :=0; VpfTotMetPedido :=0;VpfMetrosTotal:=0;
+  VpfTotValAmostra := 0; VpfTotValPedido :=0;VpfValTotal:=0;
+  with RVSystem.BaseReport do begin
+    while not Tabela.Eof  do
+    begin
+      if VpfCodClassificacao <> Tabela.FieldByName('CODCLASSIFICACAO').AsString then
+      begin
+        if VpfCodClassificacao <> '' then
+        begin
+          PrintTab('  '+VpfNomClassificacao);
+          PrintTab(FormatFloat('#,###,###,##0.00',VpfMetroAmostra));
+          PrintTab(FormatFloat('#,###,###,##0.00',VpfValAmostra));
+          PrintTab(FormatFloat('#,###,###,##0.00',VpfMetrosPedido));
+          PrintTab(FormatFloat('#,###,###,##0.00',VpfValPedido));
+          PrintTab(FormatFloat('#,###,###,##0.00',VpfMetrosItem));
+          PrintTab(FormatFloat('#,###,###,##0.00',VpfValItem));
+        end;
+        VpfMetroAmostra :=0;
+        VpfMetrosPedido :=0;
+        VpfMetrosItem := 0;
+        VpfValAmostra := 0;
+        VpfValPedido :=0;
+        VpfValItem := 0;
+        VpfCodClassificacao := Tabela.FieldByName('CODCLASSIFICACAO').AsString;
+        VpfNomClassificacao := Tabela.FieldByName('C_NOM_CLA').AsString;
+        NewLine;
+        If LinesLeft<=1 Then
+          NewPage;
+      end;
+      VpfMetroAmostra := VpfMetroAmostra + Tabela.FieldByName('QTDMETROAMOSTRA').AsFloat;
+      VpfMetrosPedido := VpfMetrosPedido + Tabela.FieldByName('QTDMETROPEDIDO').AsFloat;
+      VpfMetrosItem := VpfMetrosItem + Tabela.FieldByName('QTDMETROTOTAL').AsFloat;
+      VpfValAmostra := VpfValAmostra + Tabela.FieldByName('VALAMOSTRA').AsFloat;
+      VpfValPedido := VpfValPedido + Tabela.FieldByName('VALPEDIDO').AsFloat;
+      VpfValItem := VpfValItem + Tabela.FieldByName('VALTOTAL').AsFloat;
+      VpfTotMetroAmostra := VpfTotMetroAmostra + Tabela.FieldByName('QTDMETROAMOSTRA').AsFloat;
+      VpfTotMetPedido := VpfTotMetPedido + Tabela.FieldByName('QTDMETROPEDIDO').AsFloat;
+      VpfMetrosTotal := VpfMetrosTotal + Tabela.FieldByName('QTDMETROTOTAL').AsFloat;
+      VpfTotValAmostra := VpfTotValAmostra + Tabela.FieldByName('VALAMOSTRA').AsFloat;
+      VpfTotValPedido := VpfTotValPedido + Tabela.FieldByName('VALPEDIDO').AsFloat;
+      VpfValTotal := VpfValTotal + Tabela.FieldByName('VALTOTAL').AsFloat;
+      Tabela.next;
+    end;
+    if VpfCodClassificacao <> '' then
+    begin
+      PrintTab('  '+VpfNomClassificacao);
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfMetroAmostra));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfValAmostra));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfMetrosPedido));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfValPedido));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfMetrosItem));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfValItem));
+      NewLine;
+    end;
+    bold := true;
+    PrintTab('  TOTAL');
+    PrintTab(FormatFloat('#,###,###,##0.00',VpfTotMetroAmostra));
+    PrintTab(FormatFloat('#,###,###,##0.00',VpfTotValAmostra));
+    PrintTab(FormatFloat('#,###,###,##0.00',VpfTotMetPedido));
+    PrintTab(FormatFloat('#,###,###,##0.00',VpfTotValPedido));
+    PrintTab(FormatFloat('#,###,###,##0.00',VpfMetrosTotal));
+    PrintTab(FormatFloat('#,###,###,##0.00',VpfValTotal));
+    NewLine;
+  end;
+
 end;
 
 {******************************************************************************}
@@ -1375,6 +1561,7 @@ begin
      case RvSystem.Tag of
        1,2,4,6 : ImprimeTituloClassificacao(VprNiveis,true);
        3 : ImprimeCabecalhoAnaliseFaturamento;
+       8 : ImprimeCabecalhoEntradaMetros;
      end;
    end;
 end;
@@ -1384,9 +1571,18 @@ procedure TRBFunRave.ImprimeRodape(VpaObjeto : TObject);
 begin
    with RVSystem.BaseReport do
   begin
-    MoveTo(0,28.5);
-    LineTo(21,28.5);
-    YPos := 29.0;
+    if RvSystem.SystemPrinter.Orientation = poPortrait then
+    begin
+      MoveTo(0,28.5);
+      LineTo(21,28.5);
+      YPos := 29.0;
+    end
+    else
+    begin
+      MoveTo(0,20);
+      LineTo(30,20);
+      YPos := 20.5;
+    end;
     SetFont('Arial',10);
     Bold := False;
     PrintLeft('Data Impressao : '  + FormatDatetime('DD/MM/YYYY - HH:MM:SS',NOW),0.3);
@@ -1717,7 +1913,7 @@ end;
 {******************************************************************************}
 procedure TRBFunRave.ImprimeContasAPagarPorPlanodeContas(VpaCodFilial : Integer; VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaCampoData, VpaNomFilial : String);
 begin
-  RvSystem.Tag := 6;
+  RvSystem.Tag := 7;
   FreeTObjectsList(VprNiveis);
   LimpaSQlTabela(Tabela);
   AdicionaSqltabela(Tabela,'Select  PLA.N_VLR_PRE, PLA.C_CLA_PLA, PLA.C_NOM_PLA, '+
@@ -1753,5 +1949,35 @@ begin
   RvSystem.execute;
 end;
 
+{******************************************************************************}
+procedure TRBFunRave.ImprimeEntradaMetros(VpaDatInicio, VpaDatFim : TDateTime);
+begin
+  RvSystem.Tag := 8;
+  RvSystem.SystemPrinter.Orientation := poLandScape;
+  FreeTObjectsList(VprNiveis);
+  LimpaSQlTabela(Tabela);
+  AdicionaSqlAbreTabela(Tabela,'SELECT MET.DATENTRADA, MET.CODCLASSIFICACAO, MET.QTDMETROAMOSTRA, MET.QTDMETROPEDIDO, MET.QTDMETROTOTAL, '+
+                                  ' MET.VALAMOSTRA, MET.VALPEDIDO, MET.VALTOTAL, '+
+                                  ' CLA.C_NOM_CLA '+
+                                  ' FROM  ENTRADAMETRODIARIO MET, CADCLASSIFICACAO CLA '+
+                                  ' WHERE MET.CODCLASSIFICACAO = CLA.C_COD_CLA '+
+                                  ' AND CLA.C_TIP_CLA = ''P'''+
+                                  ' ORDER BY CODCLASSIFICACAO');
+
+
+  rvSystem.onBeforePrint := DefineTabelaEntradaMetro;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelEntradaMetros;
+
+//  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Entrada de Metros';
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Período : ' +FormatDateTime('DD/MM/YYYY',VpaDatInicio)+ ' - '+FormatDateTime('DD/MM/YYYY',VpaDatFim));
+
+  VprCabecalhoDireito.Clear;
+
+  RvSystem.execute;
+end;
 
 end.
