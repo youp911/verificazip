@@ -2265,10 +2265,15 @@ begin
 
   if Config.EmiteNFe then
   begin
-    if not Entrada('Motivo Cancelamento','Motivo Cancelamento',VpfDNotaFiscal.DesMotivoCancelamentoNFE,false,clInfoBk,clGray) then
-      result := 'NÃO FOI POSSÍVEL CANCELAR A NOTA FISCAL!!!'#13'Operação cancelada pelo usuário';
-    if (result = '') and (VpfDNotaFiscal.DesMotivoCancelamentoNFE = '') then
-      result := 'MOTIVO NÃO PREENCHIDO!!!'#13'Para cancelar uma NFe é necessário informar o motivo.';
+    if DiasPorPeriodo(VpfDNotaFiscal.DatEmissao,Date) > 7  then
+      result := 'NOTA FISCAL EMITIDA A MAIS DE 7 DIAS!!!'#13'Não é permitido cancelar uma nota fiscal emitida a mais de 7 dias.';
+    if result = '' then
+    begin
+      if not Entrada('Motivo Cancelamento','Motivo Cancelamento',VpfDNotaFiscal.DesMotivoCancelamentoNFE,false,clInfoBk,clGray) then
+        result := 'NÃO FOI POSSÍVEL CANCELAR A NOTA FISCAL!!!'#13'Operação cancelada pelo usuário';
+      if (result = '') and (VpfDNotaFiscal.DesMotivoCancelamentoNFE = '') then
+        result := 'MOTIVO NÃO PREENCHIDO!!!'#13'Para cancelar uma NFe é necessário informar o motivo';
+    end;
   end;
 
   if (result = '') then

@@ -774,6 +774,15 @@ begin
   result := '';
   NFe.NotasFiscais.Clear;
   NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml');
+  NFe.Configuracoes.Certificados.NumeroSerie := varia.CertificadoNFE;
+  NFe.Configuracoes.Geral.Salvar := false;
+//    NFe.Configuracoes.Geral.FormaEmissao
+  NFe.Configuracoes.WebServices.UF := Varia.UFSefazNFE;
+  if config.NFEHomologacao then
+    Nfe.Configuracoes.WebServices.Ambiente := taHomologacao
+  else
+    Nfe.Configuracoes.WebServices.Ambiente := taProducao;
+
   NFe.Cancelamento(VpaMotivo);
   if NFe.WebServices.Cancelamento.cStat = 101 then
     VpaDNota.NumProtocoloCancelamentoNFE := NFe.WebServices.Cancelamento.Protocolo
