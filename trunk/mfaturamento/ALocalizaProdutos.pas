@@ -639,13 +639,12 @@ begin
     VpaDProdutoNota.NumOrigemProduto := CadProdutosI_ORI_PRO.AsInteger;
     if config.UtilizarClassificacaoFiscalnosProdutos then
       VpaDProdutoNota.CodClassificacaoFiscal := CadProdutosC_CLA_FIS.AsString;
-    VpaDProdutoNota.PerICMS := 0;
     VpaDProdutoNota.PerIPI := 0;
     if CadProdutosN_PER_IPI.AsFloat <> 0 then
       VpaDProdutoNota.PerIPI := CadProdutosN_PER_IPI.AsFloat;
     if CadProdutosN_RED_ICM.AsFloat <> 0 then
     begin
-      VpaDProdutoNota.PerICMS := CadProdutosN_RED_ICM.AsFloat;
+      VpaDProdutoNota.PerReducaoICMS := CadProdutosN_RED_ICM.AsFloat;
       VpaDProdutoNota.IndReducaoICMS := true;
     end
     else

@@ -1169,7 +1169,7 @@ begin
         if Aux.FieldByName('N_RED_ICM').AsFloat <> 0 then
         begin
           IndReducaoICMS := true;
-          PerICMS := Aux.FieldByName('N_RED_ICM').AsFloat;
+          PerReducaoICMS := Aux.FieldByName('N_RED_ICM').AsFloat;
         end
         else
           IndReducaoICMS := false;

@@ -29,6 +29,7 @@ Type
     ValPago,
     ValDuplicata,
     ValPrevisto : Double;
+    IndNovo : Boolean;
   end;
 
 Type
@@ -95,7 +96,9 @@ type
       procedure ImprimeCabecalhoAnaliseFaturamento;
       procedure ImprimeCabecalhoFechamentoEstoque;
       procedure ImprimeCabecalhoEntradaMetros;
+      procedure ImprimeCabecalhoPlanoContas;
       procedure ImprimeTituloClassificacao(VpaNiveis : TList;VpaTudo : boolean);
+      procedure ImprimetituloPlanoContas(VpaNiveis : TList;VpaTudo : boolean);
       function CarDNivel(VpaCodCompleto, VpaCodReduzido : String):TRBDClassificacaoRave;
       function CarregaNiveis(VpaNiveis : TList;VpaCodClassificacao : string):TRBDClassificacaoRave;
       function CarDNivelPlanoContas(VpaCodCompleto, VpaCodReduzido : String):TRBDPlanoContasRave;
@@ -348,12 +351,12 @@ begin
      SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //NomPlanoContas
      SaveTabs(1);
      clearTabs;
-     SetTab(1.5,pjLeft,4.0,0.1,Boxlinenone,0); //Fornecedor
-     SetTab(NA,pjRight,1.5,0.5,Boxlinenone,0); //nro Nota
+     SetTab(1.5,pjLeft,7.8,0.1,Boxlinenone,0); //Fornecedor
+     SetTab(NA,pjRight,1.9,0.5,Boxlinenone,0); //nro Nota
      SetTab(NA,pjCenter,2.0,0.2,Boxlinenone,0); //vencimento
-     SetTab(NA,pjRight,2,0.2,Boxlinenone,0); //Valor a pagar
+     SetTab(NA,pjRight,2.5,0.2,Boxlinenone,0); //Valor a pagar
      SetTab(NA,pjCenter,2.0,0,Boxlinenone,0); //DtPagamento
-     SetTab(NA,pjRight,2.0,0,Boxlinenone,0); //Valor  PAGO
+     SetTab(NA,pjRight,2.5,0,Boxlinenone,0); //Valor  PAGO
      SaveTabs(2);
      clearTabs;
      SetTab(1.0,pjleft,2.5,0.5,BoxlineNONE,0); //Valor Previsto
@@ -702,15 +705,18 @@ begin
       VpfDPlanoContas.ValPago := VpfDPlanoContas.ValPago + VpfValPago;
       VpfDPlanoContas.ValDuplicata := VpfDPlanoContas.ValDuplicata + VpfValDuplicata;
       VpfDPlanoContas.ValPrevisto := VpfDPlanoContas.ValPrevisto + VpfValPrevisto;
-      PrintTab('');
+      bold := true;
+      Italic := true;
       if VpfLaco > 0 then
         PrintTab('Total Plano Contas : '+VpfDPlanoContas.CodPlanoCotas+'-'+VpfDPlanoContas.NomPlanoContas)
       else
         PrintTab('');
-      bold := true;
-      PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValPago));
+      PrintTab('');
+      PrintTab('');
       PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValDuplicata));
-      PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValPrevisto));
+      PrintTab('');
+      PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValPago));
+//      PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValPrevisto));
       VpfValPago := VpfDPlanoContas.ValPago;
       VpfValDuplicata := VpfDPlanoContas.ValDuplicata;
       VpfValPrevisto := VpfDPlanoContas.ValPrevisto;
@@ -718,6 +724,7 @@ begin
       If LinesLeft<=1 Then
         NewPage;
       Bold := false;
+      Italic := false;
     end;
     VpfDPlanoContas.free;
     VpaNiveis.delete(VpfLaco);
@@ -728,6 +735,12 @@ begin
     VpfDPlanoContas.ValPago := VpfDPlanoContas.ValPago + VpfValPago;
     VpfDPlanoContas.ValDuplicata := VpfDPlanoContas.ValDuplicata + VpfValDuplicata;
     VpfDPlanoContas.ValPrevisto := VpfDPlanoContas.ValPrevisto + VpfValPrevisto;
+  end;
+  with RVSystem.BaseReport do
+  begin
+      newline;
+      if LinesLeft<=1 Then
+        NewPage;
   end;
 end;
 
@@ -828,6 +841,23 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoPlanoContas;
+begin
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(2);
+    bold := true;
+    PrintTab('Fornecedor');
+    PrintTab('Nro Nota');
+    PrintTab('Vcto');
+    PrintTab('Valor a Pagar');
+    PrintTab('Pgto');
+    PrintTab('Valor Pago');
+    Bold := false;
+  end;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeCabecalhoEntradaMetros;
 begin
   with RVSystem.BaseReport do
@@ -898,7 +928,49 @@ begin
         MarginTop := MarginTop+LineHeight;
     end;
   end;
+end;
 
+{******************************************************************************}
+procedure TRBFunRave.ImprimetituloPlanoContas(VpaNiveis : TList;VpaTudo : boolean);
+var
+  VpfLaco : Integer;
+  VpfDPlanoContas : TRBDPlanoContasRave;
+begin
+  for VpfLaco := 0 to VpaNiveis.Count - 1 do
+  begin
+    VpfDPlanoContas := TRBDPlanoContasRave(Vpaniveis.Items[VpfLaco]);
+    if (vpaTudo) or VpfDPlanoContas.IndNovo  then
+    begin
+      VpfDPlanoContas.Indnovo := false;
+      with RVSystem.BaseReport do
+      begin
+        RestoreTabs(1);
+        bold := true;
+        PrintTab(AdicionaCharE(' ','',VpfLaco*1)+VpfDPlanoContas.CodPlanoCotas);
+        PrintTab(AdicionaCharE(' ','',VpfLaco*1)+VpfDPlanoContas.NomPlanoContas);
+        Bold := false;
+        newline;
+        If LinesLeft<=1 Then
+          NewPage;
+      if VpaTudo then
+        MarginTop := MarginTop+LineHeight;
+      end;
+    end;
+  end;
+  if VpaNiveis.Count > 0 then
+  begin
+    with RVSystem.BaseReport do
+    begin
+      case RvSystem.Tag of
+       7 : ImprimeCabecalhoPlanoContas;
+      end;
+      newline;
+      If LinesLeft<=1 Then
+        NewPage;
+      if VpaTudo then
+        MarginTop := MarginTop+LineHeight;
+    end;
+  end;
 end;
 
 {******************************************************************************}
@@ -923,6 +995,7 @@ begin
   Result.ValPago := 0;
   Result.ValDuplicata :=0;
   Result.ValPrevisto :=0;
+  result.IndNovo := true;
 end;
 
 {******************************************************************************}
@@ -1402,7 +1475,7 @@ begin
         end;
 
         VpfDClassificacao := CarregaNiveisPlanoContas(VprNiveis,Tabela.FieldByName('C_CLA_PLA').AsString);
-        ImprimeTituloClassificacao(VprNiveis,VpfPlanoContasAtual = '');
+        ImprimetituloPlanoContas(VprNiveis,VpfPlanoContasAtual = '');
         VpfPlanoContasAtual := Tabela.FieldByName('C_CLA_PLA').AsString;
         VpfValPago := 0;
         VpfValDuplicata := 0;
@@ -1419,6 +1492,10 @@ begin
         PrintTab('')
       else
         PrintTab(FormatFloat('#,###,###,##0.00',Tabela.FieldByName('N_VLR_PAG').AsFloat));
+
+      NewLine;
+      If LinesLeft<=1 Then
+        NewPage;
       VpfValPago := VpfValPago + Tabela.FieldByName('N_VLR_PAG').AsFloat;
       VpfValDuplicata := VpfValDuplicata + Tabela.FieldByName('N_VLR_DUP').AsFloat;
       Tabela.next;

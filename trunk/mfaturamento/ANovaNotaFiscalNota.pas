@@ -960,7 +960,7 @@ begin
         VprDProdutoNota.UnidadeParentes := ValidaUnidade.UnidadesParentes(VprDProdutoNota.UMOriginal);
         VprProdutoAnterior := VprDProdutoNota.CodProduto;
         if VprDProdutoNota.IndReducaoICMS then
-          GProdutos.Cells[12,GProdutos.ALinha] := FormatFloat('0.00%',VprDProdutoNota.PerICMS);
+          GProdutos.Cells[13,GProdutos.ALinha] := FormatFloat('0.00%',(VprDNota.ValICMSPadrao * VprDProdutoNota.PerReducaoICMS)/100);
 
         GProdutos.Cells[1,GProdutos.ALinha] := VprDProdutoNota.CodProduto;
         GProdutos.Cells[2,GProdutos.ALinha] := VprDProdutoNota.NomProduto;
@@ -1047,6 +1047,8 @@ begin
       GProdutos.Cells[2,GProdutos.ALinha] := NomProduto;
       GProdutos.Cells[5,GProdutos.ALinha] := CodClassificacaoFiscal;
       GProdutos.Cells[7,GProdutos.ALinha] := UM;
+      if VprDProdutoNota.IndReducaoICMS then
+        GProdutos.Cells[13,GProdutos.ALinha] := FormatFloat('0.00%',(VprDNota.ValICMSPadrao * VprDProdutoNota.PerReducaoICMS)/100);
       CalculaValorTotalProduto;
       ReferenciaProduto;
     end;
@@ -2715,7 +2717,9 @@ begin
               VprDProdutoNota.CodCST :=  '000';
               VprDProdutoNota.SeqProduto := VpfDProCotacao.SeqProduto;
               AdicionaItemProduto(VprDProdutoNota);
-              IF VprDProdutoNota.PerICMS = 0 then
+              if VprDProdutoNota.IndReducaoICMS then
+                VprDProdutoNota.PerICMS :=  (VprDNota.ValICMSPadrao * VprDProdutoNota.PerReducaoICMS)/100
+              else
                 VprDProdutoNota.PerICMS :=  VprDNota.ValICMSPadrao;
               if VpfDProCotacao.CodCor <> 0 then
                 VprDProdutoNota.CodCor := VpfDProCotacao.CodCor;
@@ -2860,8 +2864,11 @@ begin
     VprDProdutoNota.CodCST :=  '000';
     VprDProdutoNota.SeqProduto := RomaneioItem.FieldByName('SEQPRO').AsInteger;
     AdicionaItemProduto(VprDProdutoNota);
-    IF VprDProdutoNota.PerICMS = 0 then
+    if VprDProdutoNota.IndReducaoICMS then
+      VprDProdutoNota.PerICMS :=  (VprDNota.ValICMSPadrao * VprDProdutoNota.PerReducaoICMS)/100
+    else
       VprDProdutoNota.PerICMS :=  VprDNota.ValICMSPadrao;
+
     if RomaneioItem.FieldByName('CODCOM').AsInteger <> 0 then
     begin
       VprDProdutoNota.CodCor := RomaneioItem.FieldByName('CODCOM').AsInteger;

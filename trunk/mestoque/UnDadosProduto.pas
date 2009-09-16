@@ -609,6 +609,7 @@ Type TRBDNotaFiscalProduto = class
     UMAnterior,
     UMOriginal
                   :String;
+    PerReducaoICMS,
     PerICMS,
     PerIPI,
     PesLiquido,
