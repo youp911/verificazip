@@ -1172,7 +1172,8 @@ begin
   AdicionaSqlAbreTabela(Principal,'select CLA.C_COD_CLA, CLA.C_NOM_CLA, '+
                                   '  PRO.C_COD_PRO, PRO.C_NOM_PRO, '+
                                   ' MP.C_COD_PRO CODMP, MP.C_NOM_PRO NOMMP, '+
-                                  ' IMP.DESUM, IMP.QTDPRODUTO, IMP.QTDBAIXADO, IMP.INDMATERIALEXTRA, '+
+                                  ' IMP.DESUM, IMP.QTDPRODUTO, IMP.QTDBAIXADO, IMP.QTDRESERVADA, '+
+                                  ' IMP.QTDARESERVAR, IMP.INDMATERIALEXTRA, '+
                                   ' FRA.CODFILIAL, FRA.SEQORDEM, FRA.SEQFRACAO '+
                                   ' from CADCLASSIFICACAO CLA, CADPRODUTOS PRO, CADPRODUTOS MP, FRACAOOP FRA, IMPRESSAOCONSUMOFRACAO IMP '+
                                   ' Where MP.I_COD_EMP = CLA.I_COD_EMP '+

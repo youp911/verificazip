@@ -38,8 +38,10 @@ type
     procedure BFecharClick(Sender: TObject);
     procedure BCadastrarClick(Sender: TObject);
     procedure BExcluirClick(Sender: TObject);
+    procedure GridIndice1Ordem(Ordem: string);
   private
     { Private declarations }
+    VprOrdem : String;
     procedure AtualizaConsulta;
     procedure AdicionaFiltros(VpaSelect : TStrings);
   public
@@ -63,7 +65,13 @@ begin
   { chamar a rotina de atualização de menus }
   EDatInicio.DateTime := PrimeiroDiaMes(date);
   EDatFim.DateTime := UltimoDiaMes(date);
+  VprOrdem := 'order by PLC.CODFILIAL, PLC.SEQPLANOCORTE ';
   AtualizaConsulta;
+end;
+
+procedure TFPlanoCorte.GridIndice1Ordem(Ordem: string);
+begin
+  VprOrdem := Ordem;
 end;
 
 { ******************* Quando o formulario e fechado ************************** }
@@ -82,6 +90,7 @@ end;
 {******************************************************************************}
 procedure TFPlanoCorte.AtualizaConsulta;
 begin
+  PlanoCorte.Close;
   PlanoCorte.sql.clear;
   PlanoCorte.sql.add('select PLC.CODFILIAL, PLC.SEQPLANOCORTE, PLC.DATEMISSAO, PLC.NUMCNC, '+
                      ' PRO.C_NOM_PRO, ' +
@@ -90,7 +99,9 @@ begin
                      ' WHERE PLC.CODUSUARIO = USU.I_COD_USU '+
                      ' AND PLC.SEQMATERIAPRIMA = PRO.I_SEQ_PRO ');
   AdicionaFiltros(PlanoCorte.sql);
+  PlanoCorte.SQL.Add(VprOrdem);
   PlanoCorte.open;
+  GridIndice1.ALinhaSQLOrderBy := PlanoCorte.SQL.Count - 1;
 end;
 
 {******************************************************************************}

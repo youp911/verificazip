@@ -120,6 +120,7 @@ type
     CadProdutosTamanho: TWideStringField;
     CadProdutosI_COD_TAM: TFMTBCDField;
     CadProdutosI_ORI_PRO: TFMTBCDField;
+    CadProdutosN_QTD_ARE: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CProAtiClick(Sender: TObject);
@@ -263,7 +264,7 @@ begin
                      ' PRO.I_QTD_PAG, PRO.I_ALT_PRO, PRO.I_IND_COV, PRO.I_MES_GAR, '+
                      ' CLA.C_COD_CLA, CLA.C_NOM_CLA, CLA.N_PER_COM PERCOMISSAOCLASSIFICACAO, '+
                      ' Qtd.C_Cod_Bar, ' +
-                     ' Qtd.N_QTD_MIN, QTD.N_QTD_PRO, QTD.N_QTD_PED, ' +
+                     ' Qtd.N_QTD_MIN, QTD.N_QTD_PRO, QTD.N_QTD_PED, QTD.N_QTD_ARE, ' +
                      ' (PRE.N_VLR_VEN * MOE.N_Vlr_Dia) N_VLR_VEN, QTD.N_QTD_RES, ' +
                      ' (PRE.N_VLR_REV * MOE.N_Vlr_Dia) N_VLR_REV, '+
                      ' Moe.C_Nom_Moe, (QTD.N_QTD_PRO - QTD.N_QTD_RES) QdadeReal, ' +

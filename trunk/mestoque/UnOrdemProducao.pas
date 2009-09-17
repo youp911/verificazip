@@ -1190,6 +1190,7 @@ begin
       OrdCadastro.FieldByname('QTDBAIXADO').AsFloat := VpfDConsumoOp.QtdBaixado;
       OrdCadastro.FieldByname('QTDPRODUTO').AsFloat := VpfDConsumoOp.QtdABaixar;
       OrdCadastro.FieldByname('QTDRESERVADAESTOQUE').AsFloat := VpfDConsumoOp.QtdReservada;
+      OrdCadastro.FieldByname('QTDARESERVAR').AsFloat := VpfDConsumoOp.QtdAReservar;
       OrdCadastro.FieldByname('QTDUNITARIO').AsFloat := VpfDConsumoOp.QtdUnitario;
       OrdCadastro.FieldByname('DESUMUNITARIO').AsString := VpfDConsumoOp.UMUnitario;
       OrdCadastro.FieldByname('DESOBSERVACAO').AsString := VpfDConsumoOp.DesObservacoes;
@@ -1450,6 +1451,8 @@ begin
     OrdCadastro.FieldByName('DESUM').AsString := VpfDConsumo.DesUM;
     OrdCadastro.FieldByName('QTDPRODUTO').AsFloat := VpfDConsumo.QtdProduto;
     OrdCadastro.FieldByName('QTDBAIXADO').AsFloat := VpfDConsumo.QtdBaixado;
+    OrdCadastro.FieldByName('QTDRESERVADA').AsFloat := VpfDConsumo.QtdReservado;
+    OrdCadastro.FieldByName('QTDARESERVAR').AsFloat := VpfDConsumo.QtdAReservar;
     if VpfDConsumo.IndMaterialExtra then
       OrdCadastro.FieldByName('INDMATERIALEXTRA').AsString := 'S'
     else
@@ -5550,20 +5553,21 @@ begin
       for VpfLacoConsumo := 0 to vpfDFracao.Consumo.Count - 1 do
       begin
         VpfDConsumoFracao := TRBDConsumoOrdemProducao(vpfDFracao.Consumo.Items[VpfLacoConsumo]);
-        if VpfDConsumoFracao.QtdReservada = 0 then
+        if VpfDConsumoFracao.QtdaReservar = 0 then
         begin
           FunProdutos.CarDEstoque(VpfDProduto,VpaDOP.CodEmpresafilial,VpfDConsumoFracao.SeqProduto,VpfDConsumoFracao.CodCor);
           VpfQtdConsumo := FunProdutos.CalculaQdadePadrao(VpfDConsumoFracao.UM,VpfDConsumoFracao.UMOriginal,VpfDConsumoFracao.QtdABaixar,IntToStr(VpfDConsumoFracao.SeqProduto));
-          if VpfDProduto.QtdEstoque >= VpfQtdConsumo then
-            VpfDConsumoFracao.QtdReservada := VpfDConsumoFracao.QtdABaixar
+          if VpfDProduto.QtdRealEstoque >= VpfQtdConsumo then
+            VpfDConsumoFracao.QtdAReservar := VpfDConsumoFracao.QtdABaixar
           else
-            if VpfDProduto.QtdEstoque > 0 then
+            if VpfDProduto.QtdRealEstoque > 0 then
             begin
-              VpfDConsumoFracao.QtdReservada := FunProdutos.CalculaQdadePadrao(VpfDConsumoFracao.UMOriginal,VpfDConsumoFracao.UM,VpfDProduto.QtdEstoque ,IntToStr(VpfDConsumoFracao.SeqProduto));
+              VpfDConsumoFracao.QtdAReservar := FunProdutos.CalculaQdadePadrao(VpfDConsumoFracao.UMOriginal,VpfDConsumoFracao.UM,VpfDProduto.QtdRealEstoque ,IntToStr(VpfDConsumoFracao.SeqProduto));
             end;
-          FunProdutos.ReservaEstoqueProduto(VpaDOP.CodEmpresafilial,VpfDConsumoFracao.SeqProduto,VpfDConsumoFracao.CodCor,0,
-                                           VpfDConsumoFracao.QtdABaixar,VpfDConsumoFracao.UM,VpfDConsumoFracao.UMOriginal,
-                                           'E',true);
+          if VpfDConsumoFracao.QtdAReservar > 0 then
+            FunProdutos.BaixaQtdAReservarProduto(VpaDOP.CodEmpresafilial,VpfDConsumoFracao.SeqProduto,VpfDConsumoFracao.CodCor,0,
+                                           VpfDConsumoFracao.QtdAReservar,VpfDConsumoFracao.UM,VpfDConsumoFracao.UMOriginal,
+                                           'E');
         end;
       end;
     end;

@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1488;
+  CT_VersaoBanco = 1491;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -632,6 +632,25 @@ begin
         VpfErro := '1488';
         ExecutaComandoSql(Aux,'ALTER TABLE EMBALAGEM ADD QTD_EMBALAGEM NUMBER(15,3)NULL ');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1488');
+      end;
+      if VpaNumAtualizacao < 1489 Then
+      begin
+        VpfErro := '1489';
+        ExecutaComandoSql(Aux,'ALTER TABLE FRACAOOPCONSUMO ADD QTDARESERVAR NUMBER(15,4)NULL ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1489');
+      end;
+      if VpaNumAtualizacao < 1490 Then
+      begin
+        VpfErro := '1490';
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVQDADEPRODUTO ADD N_QTD_ARE NUMBER(15,4)NULL ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1490');
+      end;
+      if VpaNumAtualizacao < 1491 Then
+      begin
+        VpfErro := '1491';
+        ExecutaComandoSql(Aux,'ALTER TABLE IMPRESSAOCONSUMOFRACAO ADD(QTDRESERVADA NUMBER(15,4)NULL, '+
+                              ' QTDARESERVAR NUMBER(15,4) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1491');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

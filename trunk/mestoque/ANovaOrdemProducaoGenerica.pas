@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   StdCtrls, Buttons, Componentes1, ExtCtrls, PainelGradiente, ComCtrls, Db,
   DBTables, Grids, DBGrids, Tabela, DBKeyViolation, DBCtrls, UnDadosProduto,
-  Localizacao, Mask, numericos, Constantes, EditorImagem, DBClient;
+  Localizacao, Mask, numericos, Constantes, EditorImagem, DBClient, UnOrdemProducao;
 
 type
   TFNovaOrdemProducaoGenerica = class(TFormularioPermissao)
@@ -96,6 +96,7 @@ type
     BEstagio: TSpeedButton;
     Label20: TLabel;
     EEstagio: TEditLocaliza;
+    BarraStatus: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -124,6 +125,7 @@ type
     procedure PosFracaoOPEstagios;
     procedure EstadoBotoes(VpaEstado :Boolean);
     procedure ConfiguraTela;
+    procedure GeraFracoesOPSubmontagens;
   public
     { Public declarations }
     function NovaOrdemProducao : Boolean;
@@ -184,7 +186,7 @@ begin
   EDatEmissao.DateTime := VprDOrdemProducao.DatEmissao;
   EReferenciaCliente.Text := VprDOrdemProducao.DesReferenciaCliente;
   EOrdemCompra.Text := VprDOrdemProducao.DesOrdemCompra;
-  if varia.TipoOrdemProducao = toSubMontagem then
+  if (varia.TipoOrdemProducao = toSubMontagem) and (VprOperacao in [ocEdicao,ocConsulta]) then
   begin
     EEntregaPrevista.DateTime := VprDFracaoOP.DatEntrega;
     EProduto.Text := VprDFracaoOP.CodProduto;
@@ -309,6 +311,31 @@ begin
   begin
     AlterarVisibleDet([LFracao,EFracao,LEstagio,EEstagio,BEstagio],true);
   end;
+  ECor.ACampoObrigatorio := config.ConsumodoProdutoporCombinacao;
+end;
+
+{******************************************************************************}
+procedure TFNovaOrdemProducaoGenerica.GeraFracoesOPSubmontagens;
+var
+  VpfDFracao : TRBDFracaoOrdemProducao;
+begin
+  VpfDFracao := VprDOrdemProducao.AddFracao;
+  VpfDFracao.SeqProduto := VprDOrdemProducao.SeqProduto;
+  VpfDFracao.CodCor := VprDOrdemProducao.CodCor;
+  VpfDFracao.CodProduto := VprDOrdemProducao.CodProduto;
+  VpfDFracao.NomProduto := VprDOrdemProducao.NomProduto;
+  VpfDFracao.DesObservacao := VprDOrdemProducao.DesObservacoes;
+  VpfDFracao.NomCor := VprDOrdemProducao.NomCor;
+  VpfDFracao.UM := VprDOrdemProducao.UMPedido;
+  VpfDFracao.UMOriginal := VprDOrdemProducao.DProduto.CodUnidade;
+  VpfDFracao.QtdUtilizada :=  VprDOrdemProducao.QtdProduto;
+  VpfDFracao.QtdProduto :=  VprDOrdemProducao.QtdProduto;
+  VpfDFracao.DatEntrega := VprDOrdemProducao.DatEntrega;
+  VpfDFracao.CodEstagio := Varia.EstagioOrdemProducao;
+  VpfDFracao.IndEstagioGerado := true;
+  VpfDFracao.IndEstagiosCarregados := true;
+  FunOrdemProducao.VplQtdFracoes := 0;
+  FunOrdemProducao.AdicionaProdutosSubMontagem(VprDOrdemProducao,VpfDFracao,BarraStatus);
 end;
 
 {******************************************************************************}
@@ -427,6 +454,9 @@ var
   VpfResultado : String;
 begin
   CarDClasse;
+  if varia.TipoOrdemProducao = toSubMontagem then
+    GeraFracoesOPSubmontagens;
+
   FGeraFracaoOP := TFGeraFracaoOP.CriarSDI(self,'',FPrincipal.VerificaPermisao('FGeraFracaoOP'));
   if  FGeraFracaoOP.GeraFracaoOP(VprDOrdemProducao) then
   begin
@@ -436,6 +466,7 @@ begin
   FGeraFracaoOP.free;
 end;
 
+{******************************************************************************}
 procedure TFNovaOrdemProducaoGenerica.GridIndice2DrawColumnCell(
   Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
   State: TGridDrawState);

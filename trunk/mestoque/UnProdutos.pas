@@ -135,6 +135,7 @@ type
     function BaixaEstoqueDefeito(VpaSeqProduto,VpaCodTecnico : Integer;VpaQtdProduto : Double;VpaDesUM, VpaDesOperacaoEstoque, VpaDesDefeito : string):string;
     function BaixaEstoqueBarra(VpaSeqProduto,VpaCodCor,VpaSeqBarra : Integer;VpaQtdProduto : Double;VpaDesUM, VpaDesUMOriginal, VpaDesOperacaoEstoque : string):string;
     function BaixaConsumoFracaoOP(VpaCodFilial,VpaSeqOrdemProducao, VpaSeqProduto, VpaCodCor : Integer;VpaQtdProduto : Double;VpaUM, VpaTipOperacao : String):string;
+    function BaixaQtdAReservarProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao :String):string;
     function ReservaEstoqueProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao :String;VpaMovimentarEstoque : Boolean):string;
     function AtualizaQtdKit(VpaSeqProduto : String;VpaKit : Boolean):Boolean;
     function EstornaEstoque(VpaDMovimento : TRBDMovEstoque) : String;
@@ -812,7 +813,7 @@ begin
                                ' PRO.I_SEQ_PRO, PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_COD_UNI UMORIGINAL,'+
                                ' FOC.CODCOR, COR.NOM_COR,'+
                                ' FOC.DESUM, FOC.INDBAIXADO, FOC.CODFACA, FOC.QTDRESERVADAESTOQUE, '+
-                               ' FOC.INDORIGEMCORTE, '+
+                               ' FOC.INDORIGEMCORTE, FOC.QTDARESERVAR,  '+
                                ' FAC.NOMFACA '+
                                ' FROM FRACAOOPCONSUMO FOC, COR, CADPRODUTOS PRO, FACA FAC'+
                                ' WHERE FOC.CODFILIAL = '+IntToStr(VpaCodFilial)+
@@ -879,6 +880,7 @@ begin
     VpfDBaixaConsumo.QtdProduto:= VpfDBaixaConsumo.QtdProduto + CalculaQdadePadrao(Tabela.FieldByName('DESUM').AsString,VpfDBaixaConsumo.DesUM,Tabela.FieldByName('QTDPRODUTO').AsFloat,Tabela.FieldByName('I_SEQ_PRO').AsString);
     VpfDBaixaConsumo.QtdBaixado:= VpfDBaixaConsumo.QtdBaixado + CalculaQdadePadrao(Tabela.FieldByName('DESUM').AsString,VpfDBaixaConsumo.DesUM,Tabela.FieldByName('QTDBAIXADO').AsFloat,Tabela.FieldByName('I_SEQ_PRO').AsString);
     VpfDBaixaConsumo.QtdReservado:= VpfDBaixaConsumo.QtdReservado + CalculaQdadePadrao(Tabela.FieldByName('DESUM').AsString,VpfDBaixaConsumo.DesUM,Tabela.FieldByName('QTDRESERVADAESTOQUE').AsFloat,Tabela.FieldByName('I_SEQ_PRO').AsString);
+    VpfDBaixaConsumo.QtdAReservar:= VpfDBaixaConsumo.QtdAReservar + CalculaQdadePadrao(Tabela.FieldByName('DESUM').AsString,VpfDBaixaConsumo.DesUM,Tabela.FieldByName('QTDARESERVAR').AsFloat,Tabela.FieldByName('I_SEQ_PRO').AsString);
     VpfDBaixaConsumo.DesObservacao := VpfDBaixaConsumo.DesObservacao +' ' + Tabela.FieldByName('DESOBSERVACAO').AsString;
 
     VpfDBaixaConsumo.IndBaixado:=  VpfDBaixaConsumo.QtdBaixado >= VpfDBaixaConsumo.QtdProduto;
@@ -2127,6 +2129,38 @@ begin
       end;
     end;
   end;
+end;
+
+{******************************************************************************}
+function TFuncoesProduto.BaixaQtdAReservarProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao :String):string;
+var
+  VpfQtdAReservar : Double;
+begin
+  result := '';
+
+  if config.EstoqueCentralizado then
+    VpaCodFilial := Varia.CodFilialControladoraEstoque;
+
+  VpfQtdAReservar := CalculaQdadePadrao( VpaunidadeAtual, VpaUnidadePadrao, VpaQtdProduto, IntTostr(VpaSeqProduto));
+
+  LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho);
+  if ProCadastro.eof then
+  begin
+    InsereProdutoFilial(VpaSeqProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0);
+    LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho);
+  end;
+  ProCadastro.Edit;
+
+  //atualiza a data de alteracao para poder exportar
+  ProCadastro.FieldByname('D_ULT_ALT').AsDateTime := Date;
+
+  // atualiza a qdade produtos em estoque
+  if  VpaTipOperacao = 'E' then  // adiciona o produto reservado e diminui a quantidade de estoque
+   ProCadastro.FieldByName('N_QTD_ARE').AsFloat := ProCadastro.FieldByName('N_QTD_ARE').AsFloat + VpfQtdAReservar
+  else  // diminui a quantidade reservado e aumenta a quantidade de estoque
+   ProCadastro.FieldByName('N_QTD_ARE').AsFloat := ProCadastro.FieldByName('N_QTD_ARE').AsFloat - VpfQtdAReservar;
+  ProCadastro.post;
+  ProCadastro.close;
 end;
 
 {******************************************************************************}
@@ -3862,7 +3896,7 @@ end;
 procedure TFuncoesProduto.CarDEstoque(VpaDProduto: TRBDProduto; VpaCodFilial, VpaSeqProduto: Integer;VpaCodCor : Integer = 0);
 begin
   AdicionaSQLAbreTabela(Tabela,'SELECT MOV.I_COD_BAR, MOV.N_QTD_MIN, MOV.N_QTD_PED,'+
-                               ' MOV.N_QTD_PRO, MOV.N_VLR_CUS, MOV.N_QTD_RES '+
+                               ' MOV.N_QTD_PRO, MOV.N_VLR_CUS, MOV.N_QTD_RES, MOV.N_QTD_ARE '+
                                ' FROM MOVQDADEPRODUTO MOV'+
                                ' WHERE'+
                                ' MOV.I_EMP_FIL = '+IntToStr(VpaCodFilial)+
@@ -3874,6 +3908,8 @@ begin
   VpaDProduto.QtdPedido:= Tabela.FieldByName('N_QTD_PED').AsFloat;
   VpaDProduto.QtdEstoque:= Tabela.FieldByName('N_QTD_PRO').AsFloat;
   VpaDProduto.QtdReservado := Tabela.FieldByName('N_QTD_RES').AsFloat;
+  VpaDProduto.QtdAReservar := Tabela.FieldByName('N_QTD_ARE').AsFloat;
+  VpaDProduto.QtdRealEstoque := VpaDProduto.QtdEstoque - VpaDProduto.QtdReservado - VpaDProduto.QtdAReservar;
   VpaDProduto.VlrCusto:= Tabela.FieldByName('N_VLR_CUS').AsFloat;
 
   Tabela.Close;

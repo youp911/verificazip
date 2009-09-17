@@ -228,7 +228,8 @@ type
       QtdProduto,
       QtdBaixado,
       QtdABaixar,
-      QtdReservado : Double;
+      QtdReservado,
+      QtdAReservar : Double;
       CodProduto,
       DesObservacao,
       DesUM,
@@ -843,12 +844,14 @@ Type
       QtdDiasEntregaFornecedor,
       PerReducaoICMS,
       QtdMinima,
+      QtdAReservar,
       QtdReservado,
       PerDesconto,
       PerMaxDesconto,
       QtdPedido,
       PerComissao,
       QtdEstoque,
+      QtdRealEstoque,
       PerLucro,
       VlrCusto,
       VlrVenda,
@@ -1262,7 +1265,8 @@ Type
       QtdUnitario,
       QtdABaixar,
       QtdBaixado,
-      QtdReservada : Double;
+      QtdReservada,
+      QtdAReservar : Double;
       IndBaixado,
       IndOrdemCorte,
       IndOrigemCorte,
