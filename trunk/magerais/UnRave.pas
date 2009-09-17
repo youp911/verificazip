@@ -87,6 +87,7 @@ type
       procedure DefineTabelaFechamentoEstoque(VpaObjeto : TObject);
       procedure DefineTabelaCPporPlanoContas(VpaObjeto : TObject);
       procedure DefineTabelaEntradaMetro(VpaObjeto : TObject);
+      procedure DefineTabelaExtratoProdutividade(VpaObjeto : TObject);
       procedure ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
       procedure ImprimeRelEstoqueProdutos(VpaObjeto : TObject);
       procedure ImprimeTotaisNiveis(VpaNiveis : TList;VpaIndice : integer);
@@ -114,6 +115,7 @@ type
       procedure ImprimeRelFechamentoEstoque(VpaObjeto : TObject);
       procedure ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
       procedure ImprimeRelEntradaMetros(VpaObjeto : TObject);
+      procedure ImprimeRelExtratoProdutividade(VpaObjeto : TObject);
 
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
@@ -127,8 +129,9 @@ type
       procedure ImprimeQtdMinimasEstoque(VpaCodFilial, VpaCodFornecedor : Integer;VpaCaminho,VpaCodClassificacao,VpaNomFilial, VpaNomClassificacao, VpaNomFornecedor : String);
       procedure ImprimeEstoqueFiscalProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
       procedure ImprimeFechamentoMes(VpaCodFilial : Integer;VpaCaminho, VpaNomFilial : String;VpaData : TDateTime;VpaMostarTodos : Boolean);
-      procedure ImprimeContasAPagarPorPlanodeContas(VpaCodFilial : Integer; VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaCampoData, VpaNomFilial : String);
+      procedure ImprimeContasAPagarPorPlanodeContas(VpaCodFilial : Integer; VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho, VpaNomFilial : String;VpfTipoPeriodo : Integer);
       procedure ImprimeEntradaMetros(VpaDatInicio, VpaDatFim : TDateTime);
+      procedure ImprimeExtratoProdutividade(VpaCaminho : String;VpaData : TDateTime);
   end;
 implementation
 
@@ -316,6 +319,7 @@ begin
    end;
 end;
 
+{******************************************************************************}
 procedure TRBFunRave.DefineTabelaAnaliseFaturamentoMensal(VpaObjeto : TObject);
 begin
    with RVSystem.BaseReport do begin
@@ -386,6 +390,20 @@ begin
      SetTab(NA,pjRight,3.5,0.5,BOXLINEALL,0); //Qtd Metros Total
      SetTab(NA,pjRight,3.5,0.5,BOXLINEALL,0); //Valor Total
      SaveTabs(2);
+   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaExtratoProdutividade(VpaObjeto : TObject);
+var
+  VpfLaco : Integer;
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1,pjLeft,4,0.1,BOXLINEALL,0); //CelulaTrabalho
+     for VpfLaco := 1 to 31 do
+       SetTab(NA,pjRight,0.6,0,BOXLINEALL,0); //Dia do mes
+     SaveTabs(1);
    end;
 end;
 
@@ -1456,12 +1474,14 @@ end;
 {******************************************************************************}
 procedure TRBFunRave.ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
 var
-  VpfValPago, VpfValDuplicata : Double;
+  VpfValPago, VpfValDuplicata, VpfTotalPago,VpfTotalDuplicata : Double;
   VpfPlanoContasAtual : string;
   VpfDClassificacao : TRBDPlanoContasRave;
 begin
   VpfValPago := 0;
   VpfValDuplicata := 0;
+  VpfTotalPago := 0;
+  VpfTotalDuplicata := 0;
   VpfPlanoContasAtual := '';
   with RVSystem.BaseReport do begin
     while not Tabela.Eof  do
@@ -1498,9 +1518,16 @@ begin
         NewPage;
       VpfValPago := VpfValPago + Tabela.FieldByName('N_VLR_PAG').AsFloat;
       VpfValDuplicata := VpfValDuplicata + Tabela.FieldByName('N_VLR_DUP').AsFloat;
+      VpfTotalPago := VpfTotalPago + Tabela.FieldByName('N_VLR_PAG').AsFloat;
+      VpfTotalDuplicata := VpfTotalDuplicata + Tabela.FieldByName('N_VLR_DUP').AsFloat;
       Tabela.next;
     end;
 
+    if VpfDClassificacao <> nil then
+    begin
+      VpfDClassificacao.ValPago := VpfDClassificacao.ValPago +VpfValPago;
+      VpfDClassificacao.ValDuplicata := VpfDClassificacao.ValDuplicata + VpfValDuplicata;
+    end;
     if VprNiveis.Count > 0  then
       ImprimeTotaisNiveisPlanoContas(VprNiveis,0);
 
@@ -1514,9 +1541,9 @@ begin
     PrintTab('Total Geral');
     bold := true;
     PrintTab('');
+    PrintTab(FormatFloat(varia.MascaraQtd,VpfTotalDuplicata));
     PrintTab('');
-//    PrintTab(FormatFloat(varia.MascaraQtd,VpfQtdGeral));
-//    PrintTab(FormatFloat(varia.MascaraValor,VpfValGeral));
+    PrintTab(FormatFloat(varia.MascaraValor,VpfTotalPago));
     PrintTab('  ');
     bold := false;
   end;
@@ -1596,6 +1623,11 @@ begin
     PrintTab(FormatFloat('#,###,###,##0.00',VpfValTotal));
     NewLine;
   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRelExtratoProdutividade(VpaObjeto : TObject);
+begin
 
 end;
 
@@ -1988,8 +2020,16 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.ImprimeContasAPagarPorPlanodeContas(VpaCodFilial : Integer; VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaCampoData, VpaNomFilial : String);
+procedure TRBFunRave.ImprimeContasAPagarPorPlanodeContas(VpaCodFilial : Integer; VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho, VpaNomFilial : String;VpfTipoPeriodo : Integer);
+var
+  VpfCampoData : String;
 begin
+  case VpfTipoPeriodo of
+    0 : VpfCampoData := 'CAD.D_DAT_EMI';
+    1 : VpfCampoData := 'MOV.D_DAT_VEN';
+  else
+    VpfCampoData := 'CAD.D_DAT_EMI';
+  end;
   RvSystem.Tag := 7;
   FreeTObjectsList(VprNiveis);
   LimpaSQlTabela(Tabela);
@@ -2002,7 +2042,7 @@ begin
                            ' AND CAD.I_LAN_APG = MOV.I_LAN_APG '+
                            ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '+
                            ' AND CAD.C_CLA_PLA = PLA.C_CLA_PLA '+
-                           SQLTextoDataEntreAAAAMMDD(VpaCampoData,VpaDatInicio,VpaDatFim,true));
+                           SQLTextoDataEntreAAAAMMDD(VpfCampoData,VpaDatInicio,VpaDatFim,true));
 
   if VpaCodFilial <> 0 then
     AdicionaSqlTabela(Tabela,'and MOV.I_EMP_FIL = '+IntToStr(VpaCodFilial));
@@ -2051,6 +2091,36 @@ begin
   VprNomeRelatorio := 'Entrada de Metros';
   VprCabecalhoEsquerdo.Clear;
   VprCabecalhoEsquerdo.add('Período : ' +FormatDateTime('DD/MM/YYYY',VpaDatInicio)+ ' - '+FormatDateTime('DD/MM/YYYY',VpaDatFim));
+
+  VprCabecalhoDireito.Clear;
+
+  RvSystem.execute;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeExtratoProdutividade(VpaCaminho : String;VpaData : TDateTime);
+begin
+  RvSystem.Tag := 9;
+  LimpaSQlTabela(Tabela);
+  AdicionaSqltabela(Tabela,'Select CEL.NOMCELULA, '+
+                             ' TRA.DATPRODUTIVIDADE, TRA.PERPRODUTIVIDADE '+
+                             ' from CELULATRABALHO CEL, PRODUTIVIDADECELULATRABALHO TRA '+
+                             ' Where CEL.CODCELULA = TRA.CODCELULA'+
+                             ' and '+SQLTextoMes('TRA.DATPRODUTIVIDADE')+' = '+IntTostr(Mes(VpaData)));
+
+  AdicionaSqlTabela(Tabela,'ORDER BY CEL.NOMCELULA, TRA.DATPRODUTIVIDADE');
+  Tabela.open;
+  RvSystem.SystemPrinter.Orientation := poLandScape;
+
+  rvSystem.onBeforePrint := DefineTabelaExtratoProdutividade;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelExtratoProdutividade;
+
+  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Extrato Produtividade';
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Mês : ' +IntToStr(Mes(VpaData)));
 
   VprCabecalhoDireito.Clear;
 

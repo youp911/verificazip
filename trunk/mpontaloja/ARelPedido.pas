@@ -161,6 +161,9 @@ type
     LNumerico1: TLabel;
     ENumerico1: Tnumerico;
     BImprimir: TBitBtn;
+    PTipoPeriodo: TPanelColor;
+    Label1: TLabel;
+    ETipoPeriodo: TComboBoxColor;
     procedure FormCreate(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
     procedure BFecharClick(Sender: TObject);
@@ -571,12 +574,14 @@ begin
                               AlterarVisibleDet([PEstagio],true)
                             else
                               if (VPANOMRELATORIO = 'POR PLANO DE CONTAS ANALITICO') then
-                                AlterarVisibleDet([PFilial,PPeriodo],true)
+                                AlterarVisibleDet([PFilial,PPeriodo,PTipoPeriodo],true)
 end;
 
 
 {******************************************************************************}
 procedure TFRelPedido.BImprimirClick(Sender: TObject);
+Var
+  VpfNomCampo : String;
 begin
   dtRave := TdtRave.create(self);
   if (VPRNOMRELATORIO = 'NOTAS FISCAIS EMITIDAS') then
@@ -630,7 +635,9 @@ begin
                           dtRave.ImprimePedidosEmAbertoPorEstagio(ECodEstagio.AInteiro,VprCaminhoRelatorio,LEstagio.Caption)
                         else
                           if (VPRNOMRELATORIO = 'POR PLANO DE CONTAS ANALITICO') then
-                            FunRave.ImprimeContasAPagarPorPlanodeContas(EFilial.AInteiro,CDataIni.DateTime,CDataFim.DateTime,VprCaminhoRelatorio,'CAD.D_DAT_EMI',LFilial.Caption);
+                          begin
+                            FunRave.ImprimeContasAPagarPorPlanodeContas(EFilial.AInteiro,CDataIni.DateTime,CDataFim.DateTime,VprCaminhoRelatorio,LFilial.Caption,ETipoPeriodo.ItemIndex);
+                          end;
   dtRave.free;
 end;
 
