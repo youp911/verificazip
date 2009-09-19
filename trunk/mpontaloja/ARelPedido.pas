@@ -512,7 +512,8 @@ begin
     if (VPANOMRELATORIO = 'PEDIDOS POR DIA') then
       AlterarVisibleDet([PVendedor,PFilial,PCliente,PPeriodo,PTipoCotacao,PSituacao],true)
     else
-      if (VPANOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO') then
+      if (VPANOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO') or
+         (VPANOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO E ESTADO') then
         AlterarVisibleDet([PVendedor,PFilial,PCliente,PPeriodo,PTipoCotacao],true)
       else
         if (VPANOMRELATORIO = 'CLIENTES SEM PEDIDO') then
@@ -571,7 +572,7 @@ begin
                           end
                           else
                             if (VPANOMRELATORIO = 'COTACOES EM ABERTO POR ESTAGIO') then
-                              AlterarVisibleDet([PEstagio],true)
+                              AlterarVisibleDet([PEstagio,PTransportadora,PPeriodo],true)
                             else
                               if (VPANOMRELATORIO = 'POR PLANO DE CONTAS ANALITICO') then
                                 AlterarVisibleDet([PFilial,PPeriodo,PTipoPeriodo],true)
@@ -591,7 +592,7 @@ begin
       dtRave.ImprimePedidosPorDia(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,RFlagSituacao.Itemindex,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,RFlagSituacao.Items.Strings[RFlagSituacao.Itemindex])
     else
       if (VPRNOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO') then
-        FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption)
+        FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,false)
       else
         if (VPRNOMRELATORIO = 'CLIENTES SEM PEDIDO') then
           dtRave.ImprimeClientesSemPedido(EVendedor.AInteiro,EPreposto.AInteiro, ESituacaoCliente.AInteiro,ETipoCotacao.AInteiro,CDataFinal.Date,LVendedor.Caption,LPreposto.Caption,LSituacaoCliente.Caption,LTipoCotacao.Caption,VprCaminhoRelatorio)
@@ -632,12 +633,15 @@ begin
                         FunRave.ImprimeFechamentoMes(EFilial.AInteiro,VprCaminhoRelatorio,LFilial.Caption,CDataFinal.Date,not CFundoPerdido.Checked)
                       else
                         if (VPRNOMRELATORIO = 'COTACOES EM ABERTO POR ESTAGIO') then
-                          dtRave.ImprimePedidosEmAbertoPorEstagio(ECodEstagio.AInteiro,VprCaminhoRelatorio,LEstagio.Caption)
+                          dtRave.ImprimePedidosEmAbertoPorEstagio(ECodEstagio.AInteiro,ETransportadora.AInteiro, VprCaminhoRelatorio,LEstagio.Caption,CDataIni.Date,CDataFim.Date)
                         else
                           if (VPRNOMRELATORIO = 'POR PLANO DE CONTAS ANALITICO') then
                           begin
                             FunRave.ImprimeContasAPagarPorPlanodeContas(EFilial.AInteiro,CDataIni.DateTime,CDataFim.DateTime,VprCaminhoRelatorio,LFilial.Caption,ETipoPeriodo.ItemIndex);
-                          end;
+                          end
+                          else
+                            if (VPRNOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO E ESTADO') then
+                              FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,true);
   dtRave.free;
 end;
 

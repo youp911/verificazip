@@ -69,14 +69,14 @@ type
     procedure ImprimePedidoCompraPendente;
     procedure ImprimeVendasAnalitico(VpaCodFilial,VpaCodCliente,VpaCodCondicaoPagamento, VpaCodTipoCotacao,VpaCodVendedor,VpaCodPreposto : Integer;VpaDatInicio,VpaDatFim : TDatetime;VpaCaminhoRelatorio,VpaDesCidade,VpaUF,VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaNomVendedor,VpaNomFilial,VpaNomPreposto : string);
     procedure ImprimeConsistenciadeEstoque(VpaCodFilial, VpaSeProduto : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaCaminhoRelatorio,VpaNomFilial,VpaNomProduto : String;VpaIndSomenteMonitorados : Boolean);
-    procedure ImprimeConsumoSubmontagem(VpaCodFilial, VpaSeqOrdemProduccao, VpaSeqFracao : Integer);
+    procedure ImprimeConsumoSubmontagem(VpaCodFilial, VpaSeqOrdemProduccao, VpaSeqFracao : Integer;VpaSomenteAReservar : Boolean);
     procedure ImprimeRecibo(VpaCodFilial : Integer;VpaDCliente : TRBDCliente;VpaDesDuplicata, VpaValDuplicata,VpaValExtenso,VpaLocaleData : String);
     procedure ImprimeDevolucoesPendente(VpaCodFilial,VpaCodCliente,VpaCodTransportadora,VpaCodEstagio : Integer; VpaData : TDatetime;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomTranportadora,VpaNomEstagio : String);
     procedure ImprimeEstoqueFiscal(VpaCodFilial,VpaSeqProduto : integer;VpaCaminhoRelatorio,VpaNomFilial, VpaNomProduto : String);
     procedure ImprimeNotaFiscalEntrada(VpaCodFilial,VpaSeqNota : integer;VpaVisualizar : Boolean);
     procedure ImprimeOrdemSerra(VpaCodFilial, VpaSeqOrdemProducao : Integer);
     procedure ImprimeEtiquetaProduto10X3A4;
-    procedure ImprimePedidosEmAbertoPorEstagio(VpaCodEstagio: Integer;VpaCaminho, VpaNomEstagio : String);
+    procedure ImprimePedidosEmAbertoPorEstagio(VpaCodEstagio, VpaCodTransportadora: Integer;VpaCaminho, VpaNomEstagio : String;VpaDatInicio, VpaDatFim : TDateTime);
     procedure ImprimeFilaChamadosPorTecnico(VpaCodEstagio,VpaCodTecnico : Integer;VpaCaminhoRelatorio, VpaNomEstagio,VpaNomTecnico : String);
     procedure ImprimeFichaDesenvolvimento(VpaCodAmostra : Integer);
   end;
@@ -1162,14 +1162,16 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimeConsumoSubmontagem(VpaCodFilial, VpaSeqOrdemProduccao, VpaSeqFracao : Integer);
+procedure TdtRave.ImprimeConsumoSubmontagem(VpaCodFilial, VpaSeqOrdemProduccao, VpaSeqFracao : Integer;VpaSomenteAReservar : Boolean);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Consumo Submontagem op '+IntToStr(VpaSeqOrdemProduccao);
   Rave.projectfile := varia.PathRelatorios+'\Ordem Producao\xx_ConsumoSubmontagem.rav';
   Rave.clearParams;
   RvSystem1.defaultDest := rdPreview;
-  AdicionaSqlAbreTabela(Principal,'select CLA.C_COD_CLA, CLA.C_NOM_CLA, '+
+  Principal.Close;
+  Principal.SQL.clear;
+  AdicionaSqlTabela(Principal,'select CLA.C_COD_CLA, CLA.C_NOM_CLA, '+
                                   '  PRO.C_COD_PRO, PRO.C_NOM_PRO, '+
                                   ' MP.C_COD_PRO CODMP, MP.C_NOM_PRO NOMMP, '+
                                   ' IMP.DESUM, IMP.QTDPRODUTO, IMP.QTDBAIXADO, IMP.QTDRESERVADA, '+
@@ -1183,8 +1185,12 @@ begin
                                   ' AND IMP.CODFILIAL = FRA.CODFILIAL '+
                                   ' AND IMP.SEQORDEM = FRA.SEQORDEM '+
                                   ' AND IMP.SEQFRACAO = FRA.SEQFRACAO '+
-                                  ' AND FRA.SEQPRODUTO = PRO.I_SEQ_PRO '+
-                                  ' ORDER BY PRO.C_COD_PRO, CLA.C_COD_CLA, MP.C_NOM_PRO');
+                                  ' AND FRA.SEQPRODUTO = PRO.I_SEQ_PRO ');
+  if VpaSomenteAReservar  then
+    AdicionaSQLTabela(Principal,'AND IMP.QTDARESERVAR > 0 ');
+
+  AdicionaSqlTabela(Principal,' ORDER BY PRO.C_COD_PRO, CLA.C_COD_CLA, MP.C_NOM_PRO');
+  Principal.open;
   Rave.Execute;
 end;
 
@@ -1379,7 +1385,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimePedidosEmAbertoPorEstagio(VpaCodEstagio: Integer; VpaCaminho, VpaNomEstagio: String);
+procedure TdtRave.ImprimePedidosEmAbertoPorEstagio(VpaCodEstagio, VpaCodTransportadora : Integer; VpaCaminho, VpaNomEstagio: String;VpaDatInicio, VpaDatFim : TDateTime);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Pedidos em Aberto por Estagio';
@@ -1393,12 +1399,15 @@ begin
                               'FROM CADCLIENTES CLI, CADORCAMENTOS ORC, ESTAGIOPRODUCAO EST '+
                               ' Where ORC.I_COD_CLI = CLI.I_COD_CLI '+
                               ' AND ORC.I_COD_EST = EST.CODEST'+
-                              ' AND ORC.C_FLA_SIT  =''A''');
+                               SQLTextoDataEntreAAAAMMDD('ORC.D_DAT_ORC',VpaDatInicio,VpaDatFim,true));
   if VpaCodEstagio <> 0 then
   begin
     AdicionaSqlTabeLa(Principal,'AND ORC.I_COD_EST = '+InttoStr(VpaCodEstagio));
     Rave.SetParam('ESTAGIO',VpaNomEstagio);
   end;
+  if VpaCodTransportadora <> 0 then
+    AdicionaSqlTabeLa(Principal,'AND ORC.I_COD_TRA = '+InttoStr(VpaCodTransportadora));
+
   AdicionaSqlTabeLa(Principal,'ORDER BY EST.NOMEST, ORC.D_DAT_ORC');
 
   Rave.SetParam('CAMINHO',VpaCaminho);

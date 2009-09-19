@@ -154,6 +154,8 @@ type
     SemQuebraPgina1: TMenuItem;
     ConsultaLogSeparao1: TMenuItem;
     N13: TMenuItem;
+    N14: TMenuItem;
+    SomenteConsumoaReservar1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -553,6 +555,7 @@ end;
 procedure TFOrdemProducaoGenerica.BFichaConsumoClick(Sender: TObject);
 var
   VpfDFracao : TRBDFracaoOrdemProducao;
+  VpfSomenteASeparar : Boolean;
 begin
   if (varia.TipoOrdemProducao = toFracionada) then
   begin
@@ -567,11 +570,15 @@ begin
   else
     if (varia.TipoOrdemProducao = toSubMontagem) then
     begin
+      if TWinControl(Sender).Tag = 1 then
+        VpfSomenteASeparar := false
+      else
+        VpfSomenteASeparar := true;
       if PageControl1.ActivePage = PFracionada then
       begin
         FunOrdemProducao.GeraImpressaoConsumoFracao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger);
         dtRave := TdtRave.create(self);
-        dtRave.ImprimeConsumoSubmontagem(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger);
+        dtRave.ImprimeConsumoSubmontagem(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,VpfSomenteASeparar);
         dtRave.free;
       end
       else
@@ -581,7 +588,7 @@ begin
           VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.Data);
           FunOrdemProducao.GeraImpressaoConsumoFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
           dtRave := TdtRave.create(self);
-          dtRave.ImprimeConsumoSubmontagem(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
+          dtRave.ImprimeConsumoSubmontagem(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,VpfSomenteASeparar);
           dtRave.free;
         end;
       end;

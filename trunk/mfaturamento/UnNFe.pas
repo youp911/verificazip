@@ -312,7 +312,9 @@ begin
       vOutro := vOutro + (((vProd * VpaDNota.PerDesconto)/100) *-1)
     else
       if VpaDNota.PerDesconto > 0  then
-        vDesc := (vProd * VpaDNota.PerDesconto)/100;
+      begin
+        vDesc := (((VpaDNota.ValTotalProdutos + VpaDNota.ValTotalServicos) * 100)/(100-VpaDNota.PerDesconto)) - (VpaDNota.ValTotalProdutos + VpaDNota.ValTotalServicos);
+      end;
     vIPI := VpaDNota.ValTotalIPI;
     vNF := VpaDNota.ValTotal;
   end;

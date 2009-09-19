@@ -597,6 +597,7 @@ procedure TRBDFuncoesRetorno.ProcessaLiquidacaoNormal(VpaDRetorno : TRBDRetornoC
 var
   VpfDBaixa : TRBDBaixaCR;
   VpfDParela : TRBDParcelaBaixaCR;
+  VpfVAlor : Double;
 begin
   if VpaDItem.CodOcorrencia = 16 then
     VpaDItem.NomOcorrencia := 'TITULO PAGO EM CHEQUE - VINCULADO'
@@ -617,7 +618,8 @@ begin
      begin
        if Cadastro.FieldByName('N_VLR_PAG').AsFLOAT = 0 then
        begin
-         if Cadastro.FieldByName('N_VLR_PAR').AsFLOAT <= (VpaDItem.ValTitulo + VpaDItem.ValJuros) then
+         VpfVAlor :=(VpaDItem.ValTitulo + VpaDItem.ValJuros);
+         if (Cadastro.FieldByName('N_VLR_PAR').AsFLOAT <= VpfVAlor) then
          begin
            VpfDBaixa := TRBDBaixaCR.Cria;
            VpfDBaixa.CodFormaPagamento := varia.FormaPagamentoBoleto;

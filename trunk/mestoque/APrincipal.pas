@@ -211,6 +211,8 @@ type
     N43: TMenuItem;
     RetiraAcentuoNomeProdutos1: TMenuItem;
     Embalagem1: TMenuItem;
+    BMFReservaEstoque: TSpeedButton;
+    ReservaEstoque1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -220,6 +222,7 @@ type
     procedure ndice1Click(Sender: TObject);
     procedure GeraEstoque1Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure ToolBar1Click(Sender: TObject);
   private
     UnPri : TFuncoesPrincipal;
     FunImpressaoRel : TImpressaoRelatorio;
@@ -455,7 +458,7 @@ end;
 procedure TFPrincipal.OrganizaBotoes;
 begin
   UnPri.OrganizaBotoes(0, [ BCascata, BLadoaLado, BNormal, BMFClientes, BMFProdutos, BMFConsultaProduto,BMOrdemProducao,
-                            BMFAcertoEstoque,BMFEntradaMercadoria, BMFEstornoEntrada, BMFEstoqueAtual, BMFEstoqueProdutos,
+                            BMFAcertoEstoque,BMFReservaEstoque,BMFEntradaMercadoria, BMFEstornoEntrada, BMFEstoqueAtual, BMFEstoqueProdutos,
                             BMFMovimentosEstoque, bsaida]);
 end;
 
@@ -755,6 +758,10 @@ begin
     4500 : begin
              FAcertoEstoque := TFAcertoEstoque.Create(self);//riarSDI(Application,'',VerificaPermisao('FAcertoEstoque'));
              FAcertoEstoque.ShowModal;
+           end;
+    4510 : begin
+             FAcertoEstoque := TFAcertoEstoque.Create(self);//riarSDI(Application,'',VerificaPermisao('FAcertoEstoque'));
+             FAcertoEstoque.ReservaEstoque;
            end;
     4750 : begin
              FEstornoAcertoEstoque := TFEstornoAcertoEstoque.CriarSDI(Application,'',VerificaPermisao('FEstornoAcertoEstoque'));
@@ -1150,6 +1157,11 @@ end;
 procedure TFPrincipal.Timer1Timer(Sender: TObject);
 begin
   Sistema.SalvaTabelasAbertas;
+end;
+
+procedure TFPrincipal.ToolBar1Click(Sender: TObject);
+begin
+
 end;
 
 {******************************************************************************}

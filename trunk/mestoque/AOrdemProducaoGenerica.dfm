@@ -2170,5 +2170,12 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       Caption = 'Sem Quebra P'#225'gina'
       OnClick = SemQuebraPgina1Click
     end
+    object N14: TMenuItem
+      Caption = '-'
+    end
+    object SomenteConsumoaReservar1: TMenuItem
+      Caption = 'Somente Consumo a Reservar'
+      OnClick = BFichaConsumoClick
+    end
   end
 end

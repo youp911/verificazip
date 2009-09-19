@@ -74,9 +74,11 @@ type
       VprCaminhoRelatorio,
       VprNomeRelatorio,
       VprPrimeiraLinha,
-      VprNomVendedor : String;
+      VprNomVendedor,
+      VprUfAtual : String;
       VprDatInicio,
       VprDatFim : TDateTime;
+      VprAgruparPorEstado,
       VprTodosProdutos : Boolean;
       FunClassificacao : TFuncoesClassificacao;
       VprNiveis : TList;
@@ -98,6 +100,7 @@ type
       procedure ImprimeCabecalhoFechamentoEstoque;
       procedure ImprimeCabecalhoEntradaMetros;
       procedure ImprimeCabecalhoPlanoContas;
+      procedure ImprimeTituloUF(VpaCodUf : String);
       procedure ImprimeTituloClassificacao(VpaNiveis : TList;VpaTudo : boolean);
       procedure ImprimetituloPlanoContas(VpaNiveis : TList;VpaTudo : boolean);
       function CarDNivel(VpaCodCompleto, VpaCodReduzido : String):TRBDClassificacaoRave;
@@ -108,7 +111,7 @@ type
       procedure InicializaVendaCliente(VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente);
       function RMesVenda(VpaDVenda : TRBDVendaCliente;VpaMes, VpaAno : Integer) : TRBDVendaClienteMes;
       procedure AtualizaTotalVenda(VpaDVenda : TRBDVendaCliente);
-      procedure CarValoresFaturadosCliente(VpaCodCliente : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente);
+      function CarValoresFaturadosCliente(VpaCodCliente : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente):boolean;
 
       procedure ImprimeRelEstoqueMinimo(VpaObjeto : TObject);
       procedure ImprimeRelAnaliseFaturamentoAnual(VpaObjeto : TObject);
@@ -123,7 +126,7 @@ type
       constructor cria(VpaBaseDados : TSQLConnection);
       destructor destroy;override;
       procedure EnviaParametrosFilial(VpaProjeto : TrvProject;VpaDFilial : TRBDFilial);
-      procedure ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String);
+      procedure ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String;VpaAgruparPorEstado : Boolean);
       procedure ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
       procedure ImprimeAnaliseFaturamentoMensal(VpaCodFilial,VpaCodCliente,VpaCodVendedor : Integer;VpaCaminho, VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaDatInicio, VpaDatFim : TDateTime);
       procedure ImprimeQtdMinimasEstoque(VpaCodFilial, VpaCodFornecedor : Integer;VpaCaminho,VpaCodClassificacao,VpaNomFilial, VpaNomClassificacao, VpaNomFornecedor : String);
@@ -431,13 +434,14 @@ procedure TRBFunRave.ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
 var
   VpfQtdProduto, VpfTotalProduto, VpfQtdGeral, VpfValGeral : Double;
   VpfProdutoAtual, VpaTamanhoAtual,VpaCorAtual : Integer;
-  VpfClassificacaoAtual, VpfUM : string;
+  VpfClassificacaoAtual,  VpfUM : string;
   VpfDClassificacao : TRBDClassificacaoRave;
 begin
   VpfProdutoAtual := 0;
   VpfQtdGeral := 0;
   VpfValGeral := 0;
   VpfClassificacaoAtual := '';
+  VprUfAtual := '';
   with RVSystem.BaseReport do begin
     while not Tabela.Eof  do
     begin
@@ -458,20 +462,28 @@ begin
           VpfDClassificacao.ValTotal := VpfDClassificacao.ValTotal + VpfTotalProduto;
         end;
 
+        if VprAgruparPorEstado and (VprUFAtual <> Tabela.FieldByName('C_EST_CLI').AsString)  then
+        begin
+          ImprimeTotaisNiveis(VprNiveis,0);
+          ImprimeTituloUF(Tabela.FieldByName('C_EST_CLI').AsString);
+          VprUFAtual := Tabela.FieldByName('C_EST_CLI').AsString;
+          VpfClassificacaoAtual := '';
+        end;
+
         if VpfClassificacaoAtual <> Tabela.FieldByName('C_COD_CLA').AsString then
         begin
           VpfDClassificacao := CarregaNiveis(VprNiveis,Tabela.FieldByName('C_COD_CLA').AsString);
           ImprimeTituloClassificacao(VprNiveis,VpfClassificacaoAtual = '');
           VpfClassificacaoAtual := Tabela.FieldByName('C_COD_CLA').AsString;
         end;
-       VpfQtdproduto := 0;
-       VpfTotalProduto := 0;
-       VpfProdutoAtual := Tabela.FieldByname('I_SEQ_PRO').AsInteger;
-       VpfUM := Tabela.FieldByname('UMPADRAO').AsString;
-       PrintTab(Tabela.FieldByName('C_COD_PRO').AsString);
-       PrintTab(Tabela.FieldByName('C_NOM_PRO').AsString);
-       PrintTab('');
-       PrintTab('');
+        VpfQtdproduto := 0;
+        VpfTotalProduto := 0;
+        VpfProdutoAtual := Tabela.FieldByname('I_SEQ_PRO').AsInteger;
+        VpfUM := Tabela.FieldByname('UMPADRAO').AsString;
+        PrintTab(Tabela.FieldByName('C_COD_PRO').AsString);
+        PrintTab(Tabela.FieldByName('C_NOM_PRO').AsString);
+        PrintTab('');
+        PrintTab('');
       end;
       VpfQtdProduto := VpfQtdProduto + FunProdutos.CalculaQdadePadrao( Tabela.FieldByName('C_COD_UNI').AsString,Tabela.FieldByName('UMPADRAO').AsString,
                                        Tabela.FieldByName('N_QTD_PRO').AsFloat,Tabela.FieldByName('I_SEQ_PRO').AsString);
@@ -491,6 +503,12 @@ begin
       If LinesLeft<=1 Then
         NewPage;
     end;
+    if VpfDClassificacao <> nil then
+    begin
+      VpfDClassificacao.QtdProduto := VpfDClassificacao.QtdProduto +VpfQtdProduto;
+      VpfDClassificacao.ValTotal := VpfDClassificacao.ValTotal + VpfTotalProduto;
+    end;
+
     if VprNiveis.Count > 0  then
       ImprimeTotaisNiveis(VprNiveis,0);
 
@@ -641,7 +659,13 @@ begin
       if VpfLaco > 0 then
         PrintTab('Total Classificação : '+VpfDClassificacao.CodClassificacao+'-'+VpfDClassificacao.NomClassificacao)
       else
-        PrintTab('');
+      begin
+        if VprAgruparPorEstado then
+          PrintTab('Total '+VprUfAtual)
+        else
+          PrintTab('');
+      end;
+
       bold := true;
       if RvSystem.tag = 6 then
       begin
@@ -901,6 +925,23 @@ begin
     Bold := false;
   end;
 
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeTituloUF(VpaCodUf : String);
+begin
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(1);
+    bold := true;
+    FontColor := clRed;
+    PrintTab(VpaCodUf);
+    Bold := false;
+    FontColor := clBlack;
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+  end;
 end;
 
 {******************************************************************************}
@@ -1182,7 +1223,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.CarValoresFaturadosCliente(VpaCodCliente : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente) ;
+function TRBFunRave.CarValoresFaturadosCliente(VpaCodCliente : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente):Boolean ;
 var
   VpfDVendaMes : TRBDVendaClienteMes;
 begin
@@ -1195,6 +1236,7 @@ begin
                                SQLTextoDataEntreAAAAMMDD('D_DAT_EMI',VpaDatInicio,VpaDatFim,true)+
                                ' GROUP BY EXTRACT(Year FROM D_DAT_EMI), EXTRACT(MONTH FROM D_DAT_EMI) '+
                                ' ORDER BY 2,3');
+  result := not Tabela.Eof;
   while not Tabela.Eof do
   begin
     VpfDVendaMes := RMesVenda(VpaDVenda,Tabela.FieldByName('MES').AsInteger,Tabela.FieldByName('ANO').AsInteger);
@@ -1335,34 +1377,36 @@ begin
           NewPage;
         end;
       end;
-      CarValoresFaturadosCliente(Clientes.FieldByName('I_COD_CLI').AsInteger,VprDatInicio,VprDatFim,VpfDVenda);
-      VpfNomCliente := ' '+Clientes.FieldByName('C_NOM_CLI').AsString;
-      for VpfLacoAno := 0 to VpfDVenda.Anos.Count - 1 do
+      if CarValoresFaturadosCliente(Clientes.FieldByName('I_COD_CLI').AsInteger,VprDatInicio,VprDatFim,VpfDVenda) then
       begin
-        NewLine;
-        If LinesLeft<=1 Then
-          NewPage;
-        VpfDVendaAno := TRBDVendaClienteAno(VpfDVenda.Anos.Items[VpfLacoAno]);
-        PrintTab(VpfNomCliente);
-        PrintTab(IntToStr(VpfDVendaAno.Ano));
-        for VpfLacoMes := 0 to VpfDVendaAno.Meses.Count - 1 do
+        VpfNomCliente := ' '+Clientes.FieldByName('C_NOM_CLI').AsString;
+        for VpfLacoAno := 0 to VpfDVenda.Anos.Count - 1 do
         begin
-          VpfDVendaMes := TRBDVendaClienteMes(VpfDVendaAno.Meses.Items[VpfLacoMes]);
-          if VpfDVendaMes.ValVenda <> 0 then
+          NewLine;
+          If LinesLeft<=1 Then
+            NewPage;
+          VpfDVendaAno := TRBDVendaClienteAno(VpfDVenda.Anos.Items[VpfLacoAno]);
+          PrintTab(VpfNomCliente);
+          PrintTab(IntToStr(VpfDVendaAno.Ano));
+          for VpfLacoMes := 0 to VpfDVendaAno.Meses.Count - 1 do
           begin
-            if VpfDVendaMes.IndReducaoVenda then
-              Italic := true;
-            PrintTab(FormatFloat('#,###,###,###,##0',VpfDVendaMes.ValVenda))
-          end
-          else
-            PrintTab('');
-          Italic := false;
+            VpfDVendaMes := TRBDVendaClienteMes(VpfDVendaAno.Meses.Items[VpfLacoMes]);
+            if VpfDVendaMes.ValVenda <> 0 then
+            begin
+              if VpfDVendaMes.IndReducaoVenda then
+                Italic := true;
+              PrintTab(FormatFloat('#,###,###,###,##0',VpfDVendaMes.ValVenda))
+            end
+            else
+              PrintTab('');
+            Italic := false;
+          end;
+          if VpfDVendaAno.IndReducaoVenda  then
+            bold := true;
+          PrintTab(FormatFloat('#,###,###,###,##0',VpfDVendaAno.ValVenda));
+          Bold := false;
+          VpfNomCliente := '';
         end;
-        if VpfDVendaAno.IndReducaoVenda  then
-          bold := true;
-        PrintTab(FormatFloat('#,###,###,###,##0',VpfDVendaAno.ValVenda));
-        Bold := false;
-        VpfNomCliente := '';
       end;
       Clientes.next;
     end;
@@ -1721,20 +1765,23 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente, VpaCodVendedor, VpaCodTipoCotacao: Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho, VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String);
+procedure TRBFunRave.ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente, VpaCodVendedor, VpaCodTipoCotacao: Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho, VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String;VpaAgruparPorEstado : Boolean);
 begin
   RvSystem.Tag := 1;
+  VprAgruparPorEstado := VpaAgruparPorEstado;
   FreeTObjectsList(VprNiveis);
   LimpaSQlTabela(Tabela);
   AdicionaSqltabela(Tabela,'SELECT  CLA.C_COD_CLA, CLA.C_NOM_CLA, ' +
                            ' PRO.C_COD_PRO, PRO.C_NOM_PRO,  PRO.C_COD_UNI UMPADRAO, ' +
                            ' MOV.N_QTD_PRO, MOV.N_VLR_TOT, MOV.I_COD_TAM, MOV.I_COD_COR, MOV.C_COD_UNI, MOV.I_SEQ_PRO, ' +
                            ' TAM.NOMTAMANHO, ' +
+                           ' CLI.C_EST_CLI, '+
                            ' COR.NOM_COR ' +
-                           ' FROM MOVORCAMENTOS MOV, CADORCAMENTOS CAD, CADPRODUTOS PRO, CADCLASSIFICACAO CLA, TAMANHO TAM, COR ' +
+                           ' FROM MOVORCAMENTOS MOV, CADORCAMENTOS CAD, CADPRODUTOS PRO, CADCLASSIFICACAO CLA, TAMANHO TAM, COR, CADCLIENTES CLI ' +
                            ' WHERE MOV.I_EMP_FIL = CAD.I_EMP_FIL ' +
                            ' AND MOV.I_LAN_ORC = CAD.I_LAN_ORC ' +
                            ' AND CAD.C_IND_CAN = ''N'''+
+                           ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '+
                            ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO ' +
                            ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+) ' +
                            ' AND MOV.I_COD_COR = COR.COD_COR(+) ' +
@@ -1751,7 +1798,10 @@ begin
   if VpaCodTipoCotacao <> 0  then
     AdicionaSqlTabela(Tabela,' and CAD.I_TIP_ORC = '+InttoStr(VpaCodTipoCotacao));
 
-  AdicionaSqlTabela(Tabela,' ORDER BY CLA.C_COD_CLA, PRO.C_COD_PRO, COR.NOM_COR, TAM.NOMTAMANHO ');
+  if VpaAgruparPorEstado then
+    AdicionaSqlTabela(Tabela,' ORDER BY CLI.C_EST_CLI, CLA.C_COD_CLA, PRO.C_COD_PRO, COR.NOM_COR, TAM.NOMTAMANHO ')
+  else
+    AdicionaSqlTabela(Tabela,' ORDER BY CLA.C_COD_CLA, PRO.C_COD_PRO, COR.NOM_COR, TAM.NOMTAMANHO ');
   Tabela.open;
 
   rvSystem.onBeforePrint := DefineTabelaProdutosPorClassificacao;

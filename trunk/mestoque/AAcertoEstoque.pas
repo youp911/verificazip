@@ -119,6 +119,7 @@ type
     procedure CDefeitoClick(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
   private
+    VprResevaEstoque : Boolean;
     VprUnidadePadrao : string;
     VprSeqProduto :Integer;
     VprOperacao : TRBDOperacaoCadastro;
@@ -130,8 +131,9 @@ type
     function DadosValidos : Boolean;
     procedure PosProduto(VpaSeqProduto : Integer);
     procedure CarEtiquetamodelo33X57;
+    procedure AjustaTamanhoTela;
   public
-
+    procedure ReservaEstoque;
     { Public declarations }
   end;
 
@@ -147,10 +149,8 @@ uses APrincipal, AOperacoesEstoques, constMsg, funNumeros, funsql, ACores, funOb
 
 { ****************** Na criação do Formulário ******************************** }
 procedure TFAcertoEstoque.FormCreate(Sender: TObject);
-Var
-  VpfTamanhoTela : Integer;
 begin
-
+  VprResevaEstoque := false;
    EFilial.Text := IntToStr(Varia.CodigoEmpFil);
    LFilial.Caption := Varia.NomeFilial;
    EData.DateTime := date;
@@ -164,24 +164,7 @@ begin
    PTamanho.Visible := config.EstoquePorTamanho;
    POrdemProducao.Visible := (ConfigModulos.OrdemProducao and Config.MostrarOrdemProducaoNoAcertoEstoque);
    PCodBarrasCor.Visible := config.MostrarCodBarrasCorNoAcertoEstoque;
-   VpfTamanhoTela := 35+ PanelColor1.Height +PanelColor4.Height + PTecnico.Height;
-   if config.EstoquePorCor then
-   begin
-     VpfTamanhoTela := VpfTamanhoTela +PCor.Height;
-   end;
-   if config.MostrarCodBarrasCorNoAcertoEstoque then
-     VpfTamanhoTela := VpfTamanhoTela +PCodBarrasCor.Height;
-   if Config.EstoquePorTamanho then
-     VpfTamanhoTela := VpfTamanhoTela +PTamanho.Height;
-
-   if ConfigModulos.OrdemProducao and config.MostrarOrdemProducaoNoAcertoEstoque then
-   begin
-     ETecnico.PasswordChar := '*';
-     VpfTamanhoTela := VpfTamanhoTela +POrdemProducao.Height;
-   end;
-
-   VpfTamanhoTela := VpfTamanhoTela + PainelGradiente1.Height+PanelColor3.Height;
-   Height := VpfTamanhoTela;
+   AjustaTamanhoTela;
    BotaoCadastrar2.Click;
 end;
 
@@ -196,6 +179,20 @@ end;
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                               Ações dos localizas
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+procedure TFAcertoEstoque.ReservaEstoque;
+begin
+  VprResevaEstoque := true;
+  PTecnico.Visible := false;
+  PTamanho.Visible := false;
+  PCodBarrasCor.Visible := false;
+  Caption := '  Reserva Estoque ';
+  PainelGradiente1.Caption := '   Reserva Estoque  ';
+  AjustaTamanhoTela;
+  PanelColor1.Color := clActiveCaption;
+  ShowModal;
+end;
 
 {*******************Inicializa as select do localiza***************************}
 procedure TFAcertoEstoque.DBEditLocaliza2Select(Sender: TObject);
@@ -490,6 +487,27 @@ begin
     VpfDEtiqueta.NumSerie := ENumSerie.Text;
     VpfQtdFaltante := VpfQtdFaltante - EQtdLote.AValor;
   end;
+end;
+
+{******************************************************************************}
+procedure TFAcertoEstoque.AjustaTamanhoTela;
+var
+  VpfTamanhoTela : Integer;
+begin
+   VpfTamanhoTela := 35+ PanelColor1.Height +PanelColor4.Height + PTecnico.Height;
+   if PCor.Visible then
+     VpfTamanhoTela := VpfTamanhoTela +PCor.Height;
+
+   if PCodBarrasCor.Visible then
+     VpfTamanhoTela := VpfTamanhoTela +PCodBarrasCor.Height;
+   if PTamanho.Visible then
+     VpfTamanhoTela := VpfTamanhoTela +PTamanho.Height;
+
+   if POrdemProducao.Visible then
+     VpfTamanhoTela := VpfTamanhoTela +POrdemProducao.Height;
+
+   VpfTamanhoTela := VpfTamanhoTela + PainelGradiente1.Height+PanelColor3.Height;
+   Height := VpfTamanhoTela;
 end;
 
 {******************************************************************************}

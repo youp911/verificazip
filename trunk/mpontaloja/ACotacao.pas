@@ -2011,7 +2011,7 @@ begin
   if BFiltros.Caption = '>>' then
   begin
     if screen.Height = 768 then
-      PanelColor1.Height := 300
+      PanelColor1.Height := 380
     else
       PanelColor1.Height := 264;
     BFiltros.Caption := '<<';
