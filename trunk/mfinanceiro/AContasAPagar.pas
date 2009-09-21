@@ -719,10 +719,10 @@ end;
 {*************************Carrega a select do cadfiliais***********************}
 procedure TFContasaPagar.ECodFilialSelect(Sender: TObject);
 begin
-   ECodFilial.ASelectLocaliza.Text := ' Select * from dba.CadFiliais ' +
+   ECodFilial.ASelectLocaliza.Text := ' Select * from CadFiliais ' +
                                          ' Where c_nom_fan like ''@%'''  +
                                          ' and i_cod_emp = ' + IntTostr(varia.CodigoEmpresa);
-   ECodFilial.ASelectValida.Text := ' Select * from dba.CadFiliais where I_EMP_FIL = @% ' +
+   ECodFilial.ASelectValida.Text := ' Select * from CadFiliais where I_EMP_FIL = @ ' +
                                        ' and i_cod_emp = ' + IntTostr(varia.CodigoEmpresa);
 end;
 

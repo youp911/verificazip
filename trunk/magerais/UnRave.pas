@@ -76,6 +76,8 @@ type
       VprPrimeiraLinha,
       VprNomVendedor,
       VprUfAtual : String;
+      VprMes,
+      VprAno : Integer;
       VprDatInicio,
       VprDatFim : TDateTime;
       VprAgruparPorEstado,
@@ -100,6 +102,7 @@ type
       procedure ImprimeCabecalhoFechamentoEstoque;
       procedure ImprimeCabecalhoEntradaMetros;
       procedure ImprimeCabecalhoPlanoContas;
+      procedure ImprimeCabecalhoExtratoProdutividade;
       procedure ImprimeTituloUF(VpaCodUf : String);
       procedure ImprimeTituloClassificacao(VpaNiveis : TList;VpaTudo : boolean);
       procedure ImprimetituloPlanoContas(VpaNiveis : TList;VpaTudo : boolean);
@@ -403,9 +406,10 @@ var
 begin
    with RVSystem.BaseReport do begin
      clearTabs;
-     SetTab(1,pjLeft,4,0.1,BOXLINEALL,0); //CelulaTrabalho
+     SetTab(0.8,pjLeft,4,0.1,BOXLINEALL,0); //CelulaTrabalho
      for VpfLaco := 1 to 31 do
-       SetTab(NA,pjRight,0.6,0,BOXLINEALL,0); //Dia do mes
+       SetTab(NA,pjRight,0.75,0,BOXLINEALL,0); //Dia do mes
+     SetTab(NA,pjRight,1,0,BOXLINEALL,0); //Dia do mes
      SaveTabs(1);
    end;
 end;
@@ -895,6 +899,31 @@ begin
     PrintTab('Valor a Pagar');
     PrintTab('Pgto');
     PrintTab('Valor Pago');
+    Bold := false;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoExtratoProdutividade;
+var
+  Vpflaco : Integer;
+begin
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(1);
+    bold := true;
+    PrintTab('Celula Trabalho');
+    for VpfLaco := 1 to 31 do
+    begin
+      if (Vpflaco <= Dia(UltimoDiaMes(MontaData(1,vprmes,VprAno)))) then
+      begin
+        if (DiaSemanaNumerico(MontaData(Vpflaco,VprMes,VprAno)) in [1,7]) then
+          FontColor := clRed;
+      end;
+      PrintTab(IntToStr(VpfLaco));
+      FontColor := clblack;
+    end;
+    PrintTab('Total');
     Bold := false;
   end;
 end;
@@ -1715,6 +1744,7 @@ begin
        1,2,4,6 : ImprimeTituloClassificacao(VprNiveis,true);
        3 : ImprimeCabecalhoAnaliseFaturamento;
        8 : ImprimeCabecalhoEntradaMetros;
+       9 : ImprimeCabecalhoExtratoProdutividade;
      end;
    end;
 end;
@@ -1855,7 +1885,7 @@ begin
   if VpaIndProdutosMonitorados  then
     AdicionaSQLTabela(Tabela,'and PRO.C_IND_MON = ''S''');
 
-  AdicionaSqlTabela(Tabela,' ORDER BY CLA.C_COD_CLA, PRO.C_COD_PRO, COR.NOM_COR, TAM.NOMTAMANHO ');
+  AdicionaSqlTabela(Tabela,' ORDER BY CLA.C_COD_CLA, PRO.C_NOM_PRO, COR.NOM_COR, TAM.NOMTAMANHO ');
   Tabela.open;
 
   rvSystem.onBeforePrint := DefineTabelaEstoqueProdutos;
@@ -2151,6 +2181,8 @@ end;
 procedure TRBFunRave.ImprimeExtratoProdutividade(VpaCaminho : String;VpaData : TDateTime);
 begin
   RvSystem.Tag := 9;
+  VprMes := Mes(VpaData);
+  VprAno := Ano(VpaData);
   LimpaSQlTabela(Tabela);
   AdicionaSqltabela(Tabela,'Select CEL.NOMCELULA, '+
                              ' TRA.DATPRODUTIVIDADE, TRA.PERPRODUTIVIDADE '+
@@ -2168,7 +2200,7 @@ begin
   rvSystem.onPrint := ImprimeRelExtratoProdutividade;
 
   VprCaminhoRelatorio := VpaCaminho;
-  VprNomeRelatorio := 'Extrato Produtividade';
+  VprNomeRelatorio := 'Produtividade Diária';
   VprCabecalhoEsquerdo.Clear;
   VprCabecalhoEsquerdo.add('Mês : ' +IntToStr(Mes(VpaData)));
 

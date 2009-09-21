@@ -46,7 +46,7 @@ var
 
 implementation
 
-uses APrincipal, constantes, FunData;
+uses APrincipal, constantes, FunData, FunSql;
 
 {$R *.DFM}
 
@@ -78,7 +78,7 @@ if CodigoFilial <> '' then
   result := ' and MCR.I_EMP_FIL = ' + CodigoFilial
 else
    if CodigoEmpresa <> '' then
-      result := ' and MCR.I_EMP_FIL in (Select FIL.I_EMP_FIL from dba.CadEmpresas as emp, dba.CadFiliais as fil ' +
+      result := ' and MCR.I_EMP_FIL in (Select FIL.I_EMP_FIL from CadEmpresas emp, CadFiliais fil ' +
                 ' where EMP.I_COD_EMP = FIL.I_COD_EMP ' +
                 ' and EMP.I_COD_EMP = ' + CodigoEmpresa + ')'
    else
@@ -94,18 +94,17 @@ end;
 
 procedure TFGraficosCR.BitBtn1Click(Sender: TObject);
 begin
-    graficostrio.info.ComandoSQL :=  'Select sum(N_Vlr_PAR) as valor, C.C_NOM_CLI from ' +
-                                     'dba.MovContasareceber MCR, ' +
-                                     'dba.CadContasaReceber as CR, ' +
-                                     'dba.CadClientes as C, ' +
-                                     'where ' +
-                                     'CR.I_EMP_FIL = MCR.I_EMP_FIL ' +
-                                     'and CR.I_LAN_REC = MCR.I_LAN_REC ' +
-                                     'and CR.I_COD_CLI = C.I_COD_CLI ' +
+    graficostrio.info.ComandoSQL :=  'Select sum(N_Vlr_PAR) valor, C.C_NOM_CLI from ' +
+                                     ' MovContasareceber MCR, ' +
+                                     ' CadContasaReceber CR, ' +
+                                     ' CadClientes C ' +
+                                     ' where ' +
+                                     ' CR.I_EMP_FIL = MCR.I_EMP_FIL ' +
+                                     ' and CR.I_LAN_REC = MCR.I_LAN_REC ' +
+                                     ' and CR.I_COD_CLI = C.I_COD_CLI ' +
                                      StringFilial +
-                                     ' and D_DAT_VEN between ''' + DataToStrFormato(AAAAMMDD,Data1,'/') + '''' +
-                                     ' and ''' + DataToStrFormato(AAAAMMDD,Data2,'/') + '''' +
-                                     'GROUP BY CR.I_COD_CLI, C_NOM_CLI';
+                                     SQLTextoDataEntreAAAAMMDD('D_DAT_VEN',Data1,Data2,true)+
+                                     ' GROUP BY CR.I_COD_CLI, C_NOM_CLI';
     graficostrio.info.CampoRotulo := 'C_NOM_CLI';
     graficostrio.info.CampoValor := 'valor';
     graficostrio.info.TituloGrafico := 'Valor por Cliente ';

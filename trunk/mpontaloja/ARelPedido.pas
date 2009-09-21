@@ -576,6 +576,12 @@ begin
                             else
                               if (VPANOMRELATORIO = 'POR PLANO DE CONTAS ANALITICO') then
                                 AlterarVisibleDet([PFilial,PPeriodo,PTipoPeriodo],true)
+                              else
+                                if (VPANOMRELATORIO = 'PRODUTIVIDADE PRODUCAO') then
+                                begin
+                                  AlterarVisibleDet([PDataFinal],true);
+                                  LDataFinal.Caption := 'Mês : ';
+                                end;
 end;
 
 
@@ -641,7 +647,10 @@ begin
                           end
                           else
                             if (VPRNOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO E ESTADO') then
-                              FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,true);
+                              FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,true)
+                            else
+                              if (VPRNOMRELATORIO = 'PRODUTIVIDADE PRODUCAO') then
+                                FunRave.ImprimeExtratoProdutividade(VprCaminhoRelatorio,CDataFinal.Date);
   dtRave.free;
 end;
 

@@ -108,6 +108,7 @@ end;
 {******************************************************************************}
 procedure TFEmailContasaReceber.AtualizaConsulta;
 begin
+  ECobranca.Close;
   ECobranca.sql.Clear;
   ECobranca.sql.add('select ECO.SEQEMAIL, ECO.DATENVIO, ECO.QTDENVIADOS, ECO.QTDERROS, '+
                     ' USU.C_NOM_USU '+
