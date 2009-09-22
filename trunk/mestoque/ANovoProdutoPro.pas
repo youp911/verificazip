@@ -747,6 +747,7 @@ begin
   VprDProduto.SeqProduto:= 0;
   VprDProduto.CodUnidade:= varia.UnidadePadrao;
   VprDProduto.IndProdutoAtivo:= True;
+  VprDProduto.DesClassificacaoFiscal := varia.ClassificacaoFiscal;
   VprDProduto.UnidadesParentes:= FunProdutos.RUnidadesParentes(VprDProduto.CodUnidade);
   VprDProduto.IndCalandragem:= 'N';
   VprDProduto.IndEngomagem:= 'N';

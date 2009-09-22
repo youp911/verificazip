@@ -96,6 +96,7 @@ type
       procedure ImprimeRelEstoqueProdutos(VpaObjeto : TObject);
       procedure ImprimeTotaisNiveis(VpaNiveis : TList;VpaIndice : integer);
       procedure ImprimeTotaisNiveisPlanoContas(VpaNiveis : TList;VpaIndice : integer);
+      procedure ImprimeTotalCelulaTrabalho(VpaValTotal : Double;VpaDiaAtua : Integer);
       procedure ImprimeCabecalhoEstoque;
       procedure ImprimeCabecalhoQtdMinima;
       procedure ImprimeCabecalhoAnaliseFaturamento;
@@ -409,7 +410,7 @@ begin
      SetTab(0.8,pjLeft,4,0.1,BOXLINEALL,0); //CelulaTrabalho
      for VpfLaco := 1 to 31 do
        SetTab(NA,pjRight,0.75,0,BOXLINEALL,0); //Dia do mes
-     SetTab(NA,pjRight,1,0,BOXLINEALL,0); //Dia do mes
+     SetTab(NA,pjRight,1.3,0,BOXLINEALL,0); //Dia do mes
      SaveTabs(1);
    end;
 end;
@@ -787,6 +788,19 @@ begin
       newline;
       if LinesLeft<=1 Then
         NewPage;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeTotalCelulaTrabalho(VpaValTotal: Double;VpaDiaAtua: Integer);
+var
+  VpfLaco : Integer;
+begin
+  with RVSystem.BaseReport do begin
+    for VpfLaco := VpaDiaAtua to 30 do
+      PrintTab('');
+
+    PrintTab(FormatFloat('0',VpaValTotal));
   end;
 end;
 
@@ -1700,8 +1714,52 @@ end;
 
 {******************************************************************************}
 procedure TRBFunRave.ImprimeRelExtratoProdutividade(VpaObjeto : TObject);
+var
+  VpfDia, VpfCelulaTrabalhoAtual, VpfLaco,VpfQtdColetas : Integer;
+  VpfValTotal : Double;
 begin
+  VpfDia := 1;
+  VpfCelulaTrabalhoAtual := 0;
+  with RVSystem.BaseReport do begin
+    while not Tabela.Eof  do
+    begin
+      if VpfCelulaTrabalhoAtual <> Tabela.FieldByName('CODCELULA').AsInteger then
+      begin
+        if VpfCelulaTrabalhoAtual <> 0 then
+        begin
+          ImprimeTotalCelulaTrabalho(VpfValTotal/VpfQtdColetas,VpfDia);
+        end;
+        VpfDia := 0;
+        VpfQtdColetas := 0;
+        VpfValTotal := 0;
+        NewLine;
+        If LinesLeft<=1 Then
+          NewPage;
+        VpfCelulaTrabalhoAtual := Tabela.FieldByName('CODCELULA').AsInteger;
+        PrintTab('  '+Tabela.FieldByName('NOMCELULA').AsString );
+      end;
+      inc(VpfQtdColetas);
+      VpfValTotal := VpfValTotal +Tabela.FieldByName('PERPRODUTIVIDADE').AsFloat;
 
+      if (VpfDia +1) = DIA(Tabela.FieldByName('DATPRODUTIVIDADE').AsDateTime) then
+        inc(VpfDia);
+      for VpfDia := VpfDia to DIA(Tabela.FieldByName('DATPRODUTIVIDADE').AsDateTime)-2 do
+        PrintTab('');
+      VpfDia := DIA(Tabela.FieldByName('DATPRODUTIVIDADE').AsDateTime);
+      if (Tabela.FieldByName('PERPRODUTIVIDADE').AsFloat < 50) then
+        FontColor := clRed
+      else
+        if (Tabela.FieldByName('PERPRODUTIVIDADE').AsFloat > 100) then
+          FontColor := clGreen;
+      PrintTab(FormatFloat('0',Tabela.FieldByName('PERPRODUTIVIDADE').AsFloat));
+      FontColor := clBlack;
+      Tabela.next;
+    end;
+    if VpfCelulaTrabalhoAtual <> 0 then
+    begin
+      ImprimeTotalCelulaTrabalho(VpfValTotal/VpfQtdColetas,VpfDia);
+    end;
+  end;
 end;
 
 {******************************************************************************}
@@ -2184,7 +2242,7 @@ begin
   VprMes := Mes(VpaData);
   VprAno := Ano(VpaData);
   LimpaSQlTabela(Tabela);
-  AdicionaSqltabela(Tabela,'Select CEL.NOMCELULA, '+
+  AdicionaSqltabela(Tabela,'Select CEL.CODCELULA, CEL.NOMCELULA, '+
                              ' TRA.DATPRODUTIVIDADE, TRA.PERPRODUTIVIDADE '+
                              ' from CELULATRABALHO CEL, PRODUTIVIDADECELULATRABALHO TRA '+
                              ' Where CEL.CODCELULA = TRA.CODCELULA'+

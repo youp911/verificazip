@@ -1030,6 +1030,7 @@ begin
   FunCotacao.CarDOrcamento(VprDCotacaoInicial,VpaCodFilial,VpaLanOrcamento);
   VprDCliente.CodCliente :=  VprDCotacao.CodCliente;
   FunClientes.CarDCliente(VprDCliente);
+  ENumCotacao.ReadOnly := true;
 
   CarDTela;
   FunCotacao.AdicionaPaginasLogAlteracao(VprDCotacao,Paginas);
@@ -2235,6 +2236,7 @@ begin
   GServicos.Col := 1;
   BEntregador.Enabled := false;
   BCadastrar.Enabled := false;
+  ENumCotacao.ReadOnly := false;
   with VprDCotacao do
   begin
     LanOrcamento := 0;

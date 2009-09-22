@@ -79,6 +79,7 @@ type
     procedure ImprimePedidosEmAbertoPorEstagio(VpaCodEstagio, VpaCodTransportadora: Integer;VpaCaminho, VpaNomEstagio : String;VpaDatInicio, VpaDatFim : TDateTime);
     procedure ImprimeFilaChamadosPorTecnico(VpaCodEstagio,VpaCodTecnico : Integer;VpaCaminhoRelatorio, VpaNomEstagio,VpaNomTecnico : String);
     procedure ImprimeFichaDesenvolvimento(VpaCodAmostra : Integer);
+    procedure ImprimeExtratoColetaFracaoUsuario(VpaDatInicio, VpaDatFim : TDatetime;VpaCodCelula : Integer;VpaNomCelula : String);
   end;
 
 var
@@ -86,7 +87,7 @@ var
 
 implementation
 
-uses APrincipal, FunSql, Constantes, UnSistema;
+uses APrincipal, FunSql, Constantes, UnSistema,FunData;
 
 {$R *.dfm}
 
@@ -611,6 +612,36 @@ begin
   Rave.SetParam('CIDCLIENTE',VpaDCliente.DesCidadeCobranca);
   Rave.SetParam('UFCLIENTE',VpaDCliente.DesUFCobranca);
   Rave.SetParam('CONCLIENTE',VpaDCliente.NomContatoFinanceiro);
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeExtratoColetaFracaoUsuario(VpaDatInicio,VpaDatFim: TDatetime; VpaCodCelula: Integer; VpaNomCelula: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Extrato Coleta Fração Celula '+VpaNomCelula;
+  Rave.projectfile := varia.PathRelatorios+'\Ordem Producao\xx_Extrato Coleta Fracao Celula.rav';
+  Rave.clearParams;
+  RvSystem1.defaultDest := rdPreview;
+
+  AdicionaSqlAbreTabela(Principal,'SELECT PRO.C_NOM_PRO, ' +
+                                  ' COL.CODFILIAL, COL.SEQORDEM, COL.SEQFRACAO, COL.SEQESTAGIO, ' +
+                                  ' COL.SEQCOLETA, COL.CODCELULA, COL.DESUM, COL.QTDCOLETADO, ' +
+                                  ' COL.QTDPRODUCAOHORA, COL.QTDPRODUCAOIDEAL, ' +
+                                  ' COL.PERPRODUTIVIDADE, COL.DATINICIO, COL.DATFIM, ' +
+                                  ' to_char(substr(COL.DATINICIO,1,8)) DATA, '+
+                                  ' PRE.DESESTAGIO ' +
+                                  ' FROM CADPRODUTOS PRO, COLETAFRACAOOP COL, PRODUTOESTAGIO PRE, FRACAOOPESTAGIO FRA ' +
+                                  ' WHERE FRA.SEQPRODUTO = PRO.I_SEQ_PRO ' +
+                                  ' AND FRA.SEQPRODUTO = PRE.SEQPRODUTO ' +
+                                  ' AND FRA.SEQESTAGIO = PRE.SEQESTAGIO ' +
+                                  ' AND COL.CODFILIAL = FRA.CODFILIAL ' +
+                                  ' AND COL.SEQORDEM = FRA.SEQORDEM ' +
+                                  ' AND COL.SEQFRACAO = FRA.SEQFRACAO ' +
+                                  ' AND COL.SEQESTAGIO = FRA.SEQESTAGIO'+
+                                   SQLTextoDataEntreAAAAMMDD('COL.DATINICIO',VpaDatInicio,IncDia(VpaDatFim),true)+
+                                   ' AND COL.CODCELULA = '+IntToStr(VpaCodCelula)+
+                                   ' ORDER BY COL.DATINICIO');
   Rave.Execute;
 end;
 

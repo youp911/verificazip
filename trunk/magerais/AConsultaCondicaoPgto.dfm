@@ -25,7 +25,7 @@ object FConsultaCondicaoPgto: TFConsultaCondicaoPgto
     Caption = '   Condi'#231#245'es de Pagamento   '
     Font.Charset = ANSI_CHARSET
     Font.Color = clWhite
-    Font.Height = -24
+    Font.Height = -27
     Font.Name = 'Times New Roman'
     Font.Style = [fsBold]
     ParentFont = False
@@ -436,10 +436,10 @@ object FConsultaCondicaoPgto: TFConsultaCondicaoPgto
         Caption = 'Condi'#231#227'o Pagamento :'
       end
       object SpeedButton1: TSpeedButton
-        Left = 229
-        Top = 3
-        Width = 26
-        Height = 25
+        Left = 227
+        Top = 0
+        Width = 27
+        Height = 26
         Glyph.Data = {
           76010000424D7601000000000000760000002800000020000000100000000100
           04000000000000010000CE0E0000D80E00001000000000000000000000000000
@@ -512,6 +512,7 @@ object FConsultaCondicaoPgto: TFConsultaCondicaoPgto
           end>
         ALocalizaPadrao = lpCondicaoPagamento
         ATituloFormulario = '   Localiza Condi'#231#227'o Pagamento   '
+        OnCadastrar = ECondicaoPagamentoCadastrar
         OnFimConsulta = ECondicaoPagamentoFimConsulta
       end
     end

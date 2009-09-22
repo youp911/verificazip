@@ -393,6 +393,8 @@ begin
   with VpaDNFe.InfAdic do
   begin
     infCpl := VpaDNota.DesDadosAdicionaisImpressao.Text;
+    if VpaDNota.DesOrdemCompra <> '' then
+      infCpl := infCpl+#13+VpaDNota.DesOrdemCompra;
     if VpaDNota.DesObservacao.Count > 0 then
       infCpl := infCpl+#13+VpaDNota.DesObservacao.Text;
   end;

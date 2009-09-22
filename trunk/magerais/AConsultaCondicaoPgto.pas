@@ -46,6 +46,7 @@ type
     procedure ETotalCondicaoChange(Sender: TObject);
     procedure EVendedorRetorno(VpaColunas: TRBColunasLocaliza);
     procedure ECondicaoPagamentoChange(Sender: TObject);
+    procedure ECondicaoPagamentoCadastrar(Sender: TObject);
   private
     { Private declarations }
     ValorTotalParcelas : Double;
@@ -69,7 +70,7 @@ var
 
 implementation
 
-uses APrincipal, funObjeto;
+uses APrincipal, funObjeto, ACondicaoPagamento;
 
 {$R *.dfm}
 {********************Carrega o titulo do grid das parcelas*********************}
@@ -116,6 +117,14 @@ begin
       GridCondicao.Cells[2,VpfLaco] := Valores.Strings[VpfLaco-1];
    end;
    ETotalCondicao.AValor := CriaParcelas.ValorTotal;
+end;
+
+{*******************Visualiza as parcelas da condição**************************}
+procedure TFConsultaCondicaoPgto.ECondicaoPagamentoCadastrar(Sender: TObject);
+begin
+  FCondicaoPagamento := tFCondicaoPagamento.CriarSDI(self,'',true);
+  FCondicaoPagamento.ShowModal;
+  FCondicaoPagamento.free;
 end;
 
 {*******************Visualiza as parcelas da condição**************************}

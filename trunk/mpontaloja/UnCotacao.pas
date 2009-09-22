@@ -3197,7 +3197,8 @@ begin
         else
           FieldByName('D_DAT_REC').Clear;
         if LanOrcamento = 0 then
-          FieldByName('I_LAN_ORC').AsInteger := RProximoLanOrcamento;
+          LanOrcamento := RProximoLanOrcamento;
+        FieldByName('I_LAN_ORC').AsInteger := LanOrcamento;
         post;
         result := AMensagemErroGravacao;
         if not AErronaGravacao then
