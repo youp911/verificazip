@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1491;
+  CT_VersaoBanco = 1492;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -651,6 +651,12 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE IMPRESSAOCONSUMOFRACAO ADD(QTDRESERVADA NUMBER(15,4)NULL, '+
                               ' QTDARESERVAR NUMBER(15,4) NULL)');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1491');
+      end;
+      if VpaNumAtualizacao < 1492 Then
+      begin
+        VpfErro := '1492';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADCLIENTES ADD C_EMA_NFE VARCHAR2(75) NULL ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1492');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

@@ -76,7 +76,7 @@ type
     puESImprimirEtiquetaProduto, puCRSomenteProspectDoVendedor, puESPedidoCompra, puESOrcamentoCompra,puESSolicitacaoCompra,
     puSomenteClientesdoVendedor,puFIBloquearClientes, puVendedorAlteraContrato, puPLImprimirPedidoDuasVezes, puPLImprimirValoresRelatorioPedidosPendentes,
     puESPlanoCorte,puCRSomenteCadastraProspect,puESColetaQtdProduzidoOP,puESReprocessarProdutividade, puESAcertoEstoque,
-    puESMenuGerencial, puESRegerarProjeto,puSomenteCondicoesPgtoAutorizadas);
+    puESMenuGerencial, puESRegerarProjeto,puSomenteCondicoesPgtoAutorizadas, puESCadastrarCelulaTrabalho);
 
   TRBDPermisaoUsuario = set of TRBDOpcoesPermisaoUsuario;
   TRBDTipoValorComissao = (vcTotalNota,vcTotalProdutos);
@@ -123,6 +123,8 @@ type
       NomeFilial,
       RazaoSocialFilial,
       EnderecoFilial,
+      EnderecoFilialSemNumero,
+      NumEnderecoFilial,
       CNPJFilial,
       IEFilial,
       InscricaoMunicipal,
@@ -909,6 +911,8 @@ begin
    VpaDPermissao := VpaDPermissao + [puFAConsultarNota];
   if TipoCheck(VarAux.FieldByName('C_GER_COP').AsString) then
    VpaDPermissao := VpaDPermissao + [puSomenteCondicoesPgtoAutorizadas];
+  if TipoCheck(VarAux.FieldByName('C_EST_CAC').AsString) then
+   VpaDPermissao := VpaDPermissao + [puESCadastrarCelulaTrabalho];
 
   config.UtilizarPercentualConsulta := TipoCheck(VarAux.fieldByName('C_IND_PER').AsString);
   config.ResponsavelLeituraLocacao := TipoCheck(VarAux.fieldByName('C_RES_LEL').AsString);
@@ -1119,6 +1123,8 @@ begin
         NotaFiscalPadrao := VpfTabela.fieldByName('I_DOC_NOT').AsInteger;
         DataUltimoFechamento := VpfTabela.fieldByName('D_ULT_FEC').AsDateTime;
         EnderecoFilial := VpfTabela.fieldByName('C_END_FIL').AsString + ', '+ VpfTabela.fieldByName('I_NUM_FIL').AsString;
+        EnderecoFilialSemNumero := VpfTabela.fieldByName('C_END_FIL').AsString;
+        NumEnderecoFilial := VpfTabela.fieldByName('I_NUM_FIL').AsString;
         CepFilial := VpfTabela.FieldByName('I_CEP_FIL').AsString;
         BairroFilial := VpfTabela.FieldByName('C_BAI_FIL').AsString;
         CidadeFilial := VpfTabela.FieldByName('C_CID_FIL').AsString;

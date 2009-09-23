@@ -25,7 +25,7 @@ type
 
 implementation
 
-uses  FunSql, FunString, Constantes, FunDAta;
+uses  FunSql, FunString, Constantes, FunDAta, UnSistema;
 
 {******************************************************************************}
 Constructor TImpressaoBoleto.cria(VpaBaseDados : TSqlConnection);
@@ -44,31 +44,36 @@ end;
 
 {******************************************************************************}
 procedure TImpressaoBoleto.CarDCedente(VpaDContasAReceber : TRBDContasCR;VpaDParcela :TRBDMovContasCR; VpaTitulo : TgbTitulo);
+var
+  VpfDFilial : TRBDFilial;
 begin
+  VpfDFilial := TRBDFilial.cria;
+  Sistema.CarDFilial(VpfDFilial,VpaDContasAReceber.CodEmpFil);
   VpaTitulo.Cedente.CodigoCedente := CopiaAteChar(VpaDParcela.NroContaBoleto,'-');
   VpaTitulo.Cedente.DigitoCodigoCedente := DeleteAteChar(VpaDParcela.NroContaBoleto,'-');
   VpaTitulo.Cedente.TipoInscricao := tiPessoaJuridica;
-  VpaTitulo.Cedente.NumeroCPFCGC := varia.CNPJFilial;
-  VpaTitulo.Cedente.Nome := Varia.RazaoSocialFilial;
+  VpaTitulo.Cedente.NumeroCPFCGC := VpfDFilial.DesCNPJ;
+  VpaTitulo.Cedente.Nome := VpfDFilial.NomFantasia;
 
-  VpaTitulo.Cedente.Endereco.Rua := Varia.EnderecoFilial;
-  VpaTitulo.Cedente.Endereco.Bairro := varia.BairroFilial;
-  VpaTitulo.Cedente.Endereco.Cidade := varia.CidadeFilial;
+  VpaTitulo.Cedente.Endereco.Rua := VpfDFilial.DesEndereco;
+  VpaTitulo.Cedente.Endereco.Bairro := VpfDFilial.DesBairro;
+  VpaTitulo.Cedente.Endereco.Cidade := VpfDFilial.DesBairro;
   if varia.emailECobranca <> '' then
     VpaTitulo.Cedente.Endereco.EMail := varia.emailECobranca
   else
     VpaTitulo.Cedente.Endereco.EMail := varia.EMailFilial;
-  VpaTitulo.Cedente.Endereco.Estado := varia.UFFilial;
-  VpaTitulo.Cedente.Endereco.CEP := varia.CepFilial;
+  VpaTitulo.Cedente.Endereco.Estado := VpfDFilial.DesUF;
+  VpaTitulo.Cedente.Endereco.CEP := VpfDFilial.DesCep;
 
   VpaTitulo.Cedente.ContaBancaria.Banco.Codigo := IntToStr(VpaDParcela.CodBanco);
   VpaTitulo.Cedente.ContaBancaria.CodigoAgencia := CopiaAtechar(VpaDParcela.NroAgencia,'-');
   VpaTitulo.Cedente.ContaBancaria.DigitoAgencia := DeleteAteChar(VpaDParcela.NroAgencia,'-');
   VpaTitulo.Cedente.ContaBancaria.NumeroConta := CopiaAteChar(VpaDParcela.NroContaBoleto,'-');
   VpaTitulo.Cedente.ContaBancaria.DigitoConta := DeleteAteChar(VpaDParcela.NroContaBoleto,'-');
-  VpaTitulo.Cedente.ContaBancaria.NomeCliente := varia.NomeFilial;
+  VpaTitulo.Cedente.ContaBancaria.NomeCliente := VpfDFilial.NomFilial;
   if VpaDParcela.CodBanco = 104 then
     CarDCaixaEconomica(VpaDParcela.NroContaBoleto,VpaTitulo.Cedente); ;
+  VpfDFilial.Free;
 end;
 
 {******************************************************************************}

@@ -232,6 +232,7 @@ type
     DBCheckBox66: TDBCheckBox;
     CadGruposC_GER_COP: TWideStringField;
     DBCheckBox67: TDBCheckBox;
+    CadGruposC_EST_CAC: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadGruposAfterInsert(DataSet: TDataSet);

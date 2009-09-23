@@ -135,8 +135,8 @@ begin
   VpaDNFe.Emit.CNPJCPF           := varia.CNPJFilial;
   VpaDNFe.Emit.xNome             := varia.RazaoSocialFilial;
   VpaDNFe.Emit.xFant             := varia.NomeFilial;
-  VpaDNFe.Emit.EnderEmit.xLgr    := Varia.EnderecoFilial;
-//    VpaDNFe.Emit.EnderEmit.nro     := edtEmitNumero.Text;
+  VpaDNFe.Emit.EnderEmit.xLgr    := Varia.EnderecoFilialSemNumero;
+  VpaDNFe.Emit.EnderEmit.nro     := varia.NumEnderecoFilial;
 //    VpaDNFe.Emit.EnderEmit.xCpl    := edtEmitComp.Text;
   VpaDNFe.Emit.EnderEmit.xBairro := varia.BairroFilial;
   VpaDNFe.Emit.EnderEmit.cMun    := varia.CodIBGEMunicipio;
@@ -659,12 +659,22 @@ end;
 function TRBFuncoesNFe.EnviaEmailDanfe(VpaDNota : TRBDNotaFiscal;VpaDCliente : TRBDCliente):String;
 var
   VpfTextoEmail : TStringList;
+  VpfEmail : string;
 begin
   Result := '';
-  if VpaDCliente.DesEmail = '' then
+  if (VpaDCliente.DesEmail = '') and (VpaDCliente.DesEmailFinanceiro = '') and
+     (VpaDCliente.DesEmailNfe = '') then
     result := 'E-MAIL DO CLIENTE NÃO PREENCHIDO!!!!'#13'É necessário preencher o e-mail do cliente.';
   if result = '' then
   begin
+    if VpaDCliente.DesEmailNfe <> '' then
+       VpfEmail := VpaDCliente.DesEmailNfe
+    else
+      if VpaDCliente.DesEmail <> '' then
+         VpfEmail := VpaDCliente.DesEmail
+      else
+        VpfEmail := VpaDCliente.DesEmailFinanceiro;
+
     Danfe := TACBrNFeDANFERave.Create(Application);
     Danfe.RavFile :=Varia.PathRelatorios+'\NotaFiscalEletronica.rav';
     NFe.DANFE := Danfe;
@@ -677,7 +687,7 @@ begin
     VpfTextoEmail :=  TStringList.create;
     NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml');
     NFe.DANFE.PathPDF := Varia.PathVersoes+'\nfe\';
-    Nfe.NotasFiscais.Items[0].EnviarEmail(Varia.ServidorSMTP, '25',varia.UsuarioSMTP, Varia.SenhaEmail, varia.EmailComercial, VpaDCliente.DesEmail, 'Segue anexo NF-e '+IntToStr(VpaDNota.NumNota)+ ' - '+varia.NomeFilial,
+    Nfe.NotasFiscais.Items[0].EnviarEmail(Varia.ServidorSMTP, '25',varia.UsuarioSMTP, Varia.SenhaEmail, varia.EmailComercial, VpfEmail, 'Segue anexo NF-e '+IntToStr(VpaDNota.NumNota)+ ' - '+varia.NomeFilial,
                                          VpfTextoEmail,false);
     VpfTextoEmail.free;
     NFe.DANFE := nil;

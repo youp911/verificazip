@@ -2737,7 +2737,10 @@ begin
                 if VprDCliente.IndMeia then
                   VprDProdutoNota.ValUnitario := VpfDProCotacao.ValUnitario / 2
                 else
-                  VprDProdutoNota.ValUnitario := VpfDProCotacao.ValUnitario;
+                  if VprDCliente.IndVintePorcento then
+                     VprDProdutoNota.ValUnitario := VpfDProCotacao.ValUnitario / 5
+                   else
+                     VprDProdutoNota.ValUnitario := VpfDProCotacao.ValUnitario;
               VprDProdutoNota.UM := VpfDProCotacao.UM;
               VprDProdutoNota.DesRefCliente := VpfDProCotacao.DesRefCliente;
               VprDProdutoNota.DesOrdemCompra := VpfDProCotacao.DesOrdemCompra;
@@ -2767,10 +2770,22 @@ begin
         VprDServicoNota.ValTotal := VpfDServicoCotacao.ValTotal / 4;
       end
       else
-      begin
-        VprDServicoNota.ValUnitario := VpfDServicoCotacao.ValUnitario;
-        VprDServicoNota.ValTotal := VpfDServicoCotacao.ValTotal;
-      end;
+        if VprDCliente.IndMeia then
+        begin
+          VprDServicoNota.ValUnitario := VpfDServicoCotacao.ValUnitario / 2;
+          VprDServicoNota.ValTotal := VpfDServicoCotacao.ValTotal / 2;
+        end
+        else
+        if VprDCliente.IndVintePorcento then
+          begin
+            VprDServicoNota.ValUnitario := VpfDServicoCotacao.ValUnitario / 5;
+            VprDServicoNota.ValTotal := VpfDServicoCotacao.ValTotal / 5;
+          end
+          else
+          begin
+            VprDServicoNota.ValUnitario := VpfDServicoCotacao.ValUnitario;
+            VprDServicoNota.ValTotal := VpfDServicoCotacao.ValTotal;
+          end;
       VprDServicoNota.PerISSQN := VpfDServicoCotacao.PerISSQN;
       if VprDServicoNota.PerISSQN <> 0 then
         EPerISSQN.AValor := VprDServicoNota.PerISSQN

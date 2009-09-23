@@ -338,7 +338,10 @@ begin
   begin
     VpfResultado := FunOrdemProducao.GravaDColetaFracaoOP(VprDColetaFracao);
     if VpfResultado = '' then
-      EstadoBotoes(false)
+    begin
+      EstadoBotoes(false);
+      BCadastrar.Click;
+    end
     else
       aviso(VpfResultado);
   end;

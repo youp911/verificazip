@@ -1478,7 +1478,7 @@ begin
   if (VpfQtdLinhasPagina >= VpfQtdLinhasPorPagina)and
      not FimDadosItemDocumento(VpadImpressao,TRBDItemImpressao(VpadImpressao.ItensDocumento.Items[0])) then
   begin
-    if not( (VpaDImpressao.DesTipoDocumento = 'NFP') or (VpaDImpressao.DesTipoDocumento = 'NFS') and
+    if not(( (VpaDImpressao.DesTipoDocumento = 'NFP') or (VpaDImpressao.DesTipoDocumento = 'NFS')) and
        (TRBDItemImpressao(VpadImpressao.ItensDocumento.Items[0]).SeqDocumento = 74)) then
       VpadImpressao.IndImprimeAsterisco := true;
   end;

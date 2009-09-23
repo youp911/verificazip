@@ -742,6 +742,9 @@ type
     Aux: TSQLQuery;
     CadClientesI_COD_IBG: TFMTBCDField;
     CadClientesI_COD_PAI: TFMTBCDField;
+    Label236: TLabel;
+    DBEditColor105: TDBEditColor;
+    CadClientesC_EMA_NFE: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadClientesAfterInsert(DataSet: TDataSet);

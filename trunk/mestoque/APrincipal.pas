@@ -136,7 +136,7 @@ type
     CalendrioBase1: TMenuItem;
     HorrioTrabalho1: TMenuItem;
     N26: TMenuItem;
-    CelulaTrabalho1: TMenuItem;
+    MCelulaTrabalho: TMenuItem;
     Ferramentas1: TMenuItem;
     AtualizaoPreo1: TMenuItem;
     Cor1: TMenuItem;
@@ -383,6 +383,8 @@ begin
       AlterarVisibleDet([MEstoque,MFAcertoEstoque,BMFAcertoEstoque],true);
     if (puESMenuGerencial in varia.PermissoesUsuario) then
       AlterarVisibleDet([MGerencial,MDesenhosPendentes,MFichasTecnicasPendentes,n38,MAmostrasPendentes,MCustoPendente,MPendenciasdeCompras],true);
+    if (puESCadastrarCelulaTrabalho in varia.PermissoesUsuario) then
+      AlterarVisibleDet([MCadastro,MCelulaTrabalho],true);
 
   end;
 

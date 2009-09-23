@@ -668,6 +668,7 @@ begin
     NomContatoEntrega := CliTabela.FieldByName('C_RES_ENT').AsString;
     DesEmailFinanceiro := CliTabela.FieldByName('C_EMA_FIN').AsString;
     DesEmail := CliTabela.FieldByName('C_END_ELE').AsString;
+    DesEmailNfe := CliTabela.FieldByName('C_EMA_NFE').AsString;
     DesFoneFinanceiro := CliTabela.FieldByName('C_FON_FIN').AsString;
     DesEndereco := CliTabela.FieldByName('C_END_CLI').AsString;
     DesEnderecoEntrega := CliTabela.FieldByName('C_END_ANT').AsString;
@@ -701,6 +702,7 @@ begin
     IndNotaFiscal :=(DeletaChars(CliTabela.FieldByName('C_TIP_FAT').AsString,' ') <> '');
     IndQuarto := UpperCase(CliTabela.FieldByName('C_TIP_FAT').AsString) = 'Q';
     IndMeia := UpperCase(CliTabela.FieldByName('C_TIP_FAT').AsString) = 'M';
+    IndVintePorcento := UpperCase(CliTabela.FieldByName('C_TIP_FAT').AsString) = 'V';
     IndDescontarISS := (CliTabela.FieldByName('C_DES_ISS').AsString = 'S');
     IndAceitaTeleMarketing := (CliTabela.FieldByName('C_ACE_TEL').AsString = 'S');
     IndPendenciaSerasa := (CliTabela.FieldByName('C_IND_SER').AsString = 'S');

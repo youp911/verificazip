@@ -639,9 +639,11 @@ begin
                                   ' AND COL.SEQORDEM = FRA.SEQORDEM ' +
                                   ' AND COL.SEQFRACAO = FRA.SEQFRACAO ' +
                                   ' AND COL.SEQESTAGIO = FRA.SEQESTAGIO'+
-                                   SQLTextoDataEntreAAAAMMDD('COL.DATINICIO',VpaDatInicio,IncDia(VpaDatFim),true)+
+                                   SQLTextoDataEntreAAAAMMDD('COL.DATINICIO',VpaDatInicio,IncDia(VpaDatFim,1),true)+
                                    ' AND COL.CODCELULA = '+IntToStr(VpaCodCelula)+
                                    ' ORDER BY COL.DATINICIO');
+  Rave.SetParam('NOMCELULA',VpaNomCelula);
+  Rave.SetParam('PERIODO','Período de : '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDateTime('DD/MM/YYYY',VpaDatFim));
   Rave.Execute;
 end;
 

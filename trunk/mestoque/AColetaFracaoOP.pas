@@ -157,7 +157,7 @@ var
 implementation
 
 uses APrincipal, FunSql, FunData, ANovaColetaFracaoOP, ConstMsg, FunNumeros,
-  unCrystal, Constantes, ANovoProdutoPro;
+  unCrystal, Constantes, ANovoProdutoPro, dmRave;
 
 {$R *.DFM}
 
@@ -221,6 +221,7 @@ end;
 {******************************************************************************}
 procedure TFColetaFracaoOP.AtualizaConsultaColeta;
 begin
+  Coletas.Close;
   Coletas.Sql.Clear;
   Coletas.Sql.add('SELECT COL.DATINICIO DATA, COL.DATINICIO, COL.DATFIM, COL.CODFILIAL, COL.SEQORDEM, '+
                   ' COL.SEQFRACAO, COL.SEQESTAGIO, COL.SEQCOLETA, COL.QTDCOLETADO,'+
@@ -260,6 +261,7 @@ end;
 procedure TFColetaFracaoOP.AtualizaConsultaProducaoExcesso;
 begin
   exit;
+  Excesso.close;
   Excesso.Sql.clear;
   Excesso.sql.add('select FRE.CODFILIAL, FRE.SEQORDEM,FRE.SEQFRACAO, FRE.SEQESTAGIO, FRE.QTDPRODUZIDO, '+
                   ' FRA.QTDPRODUTO, '+
@@ -298,6 +300,7 @@ end;
 {******************************************************************************}
 procedure TFColetaFracaoOP.AtualizaConsutlaProcessosColetados;
 begin
+  ProcessosColetados.close;
   ProcessosColetados.Sql.clear;
   ProcessosColetados.Sql.add('select PRO.I_SEQ_PRO, PRO.C_NOM_PRO, ESP.SEQESTAGIO, ESP.DESESTAGIO, COUNT(DISTINCT(COL.CODCELULA)) QTDCELULA, '+
                             ' COUNT(COL.CODCELULA) QTDCOLETAS, SUM(COL.QTDCOLETADO) QTDCOLETADO, SUM(COL.QTDMINUTOS) TOTALMINUTOS ' +
@@ -331,6 +334,7 @@ end;
 {******************************************************************************}
 procedure TFColetaFracaoOP.AtualizaConsultaProdutividadeEstagio;
 begin
+  ProdutividadeEstagio.close;
   ProdutividadeEstagio.sql.clear;
   ProdutividadeEstagio.sql.add('select EST.NOMEST, CEL.NOMCELULA, COUNT(COL.CODCELULA) QTDCOLETAS,  AVG(COL.PERPRODUTIVIDADE) PRODUTIVIDADE '+
                                ' from COLETAFRACAOOP COL, FRACAOOPESTAGIO FRE, PRODUTOESTAGIO ESP, ESTAGIOPRODUCAO EST, CELULATRABALHO CEL '+
@@ -366,6 +370,7 @@ end;
 {******************************************************************************}
 procedure TFColetaFracaoOP.AtualizaConsultaProdutividadeEstagioProduto;
 begin
+  ProdutividadeEstagioProduto.close;
   ProdutividadeEstagioProduto.Sql.Clear;
   ProdutividadeEstagioProduto.sql.add('select ESP.SEQESTAGIO, ESP.DESESTAGIO, CEL.NOMCELULA, COUNT(COL.CODCELULA) QTDCOLETAS,  AVG(COL.PERPRODUTIVIDADE) PRODUTIVIDADE '+
                                   ' from COLETAFRACAOOP COL, FRACAOOPESTAGIO FRE, PRODUTOESTAGIO ESP,  CELULATRABALHO CEL ' +
@@ -498,7 +503,9 @@ procedure TFColetaFracaoOP.BExtratoCelulaClick(Sender: TObject);
 begin
   if ColetasCODFILIAL.AsInteger <> 0 then
   begin
-    FunCrystal.ImprimeRelatorio(Varia.PathRelatorios+ '\Ordem Produção\XX_Extrato Coleta Fracao Usuario.rpt',[FormatDateTime('DD/MM/YYYY',EDatInicio.DateTime),FormatDateTime('DD/MM/YYYY',EDatFim.DateTime),ColetasCODCELULA.AsString,ColetasNOMCELULA.AsString]);
+    dtRave := TdtRave.create(self);
+    dtRave.ImprimeExtratoColetaFracaoUsuario(EDatInicio.Date,EDatFim.DateTime,ColetasCODCELULA.AsInteger,ColetasNOMCELULA.AsString);
+    dtRave.free;
   end;
 end;
 

@@ -3132,7 +3132,8 @@ end;
 function TRBFuncoesOrdemProducao.GravaDColetaFracaoOP(VpaDColetaFracao : TRBDColetaFracaoOp) : String;
 begin
   result := '';
-  AdicionaSQLAbreTabela(OrdCadastro,'Select * from COLETAFRACAOOP');
+  AdicionaSQLAbreTabela(OrdCadastro,'Select * from COLETAFRACAOOP '+
+                                    ' Where FILIAL = 0 AND SEQORDEM = 0 AND SEQFRACAO = 0 AND SEQCOLETA = 0 ');
   OrdCadastro.Insert;
   OrdCadastro.FieldByName('CODFILIAL').AsInteger := VpaDColetaFracao.CodFilial;
   OrdCadastro.FieldByName('SEQORDEM').AsInteger := VpaDColetaFracao.NumOrdemProducao;
@@ -5265,7 +5266,8 @@ end;
 procedure TRBFuncoesOrdemProducao.ProcessaProdutividadeCelula(VpaCodCelula : Integer;VpaData : TDateTime);
 begin
   ApagaProdutividadeCelula(VpaCodCelula,VpaData);
-  AdicionaSQLAbreTabela(OrdCadastro,'Select * from PRODUTIVIDADECELULATRABALHO');
+  AdicionaSQLAbreTabela(OrdCadastro,'Select * from PRODUTIVIDADECELULATRABALHO '+
+                                    ' Where CODCELULA = 0' );
   OrdCadastro.Insert;
   OrdCadastro.FieldByName('DATPRODUTIVIDADE').AsDateTime := VpaDAta;
   OrdCadastro.FieldByName('CODCELULA').AsInteger := VpaCodCelula;
