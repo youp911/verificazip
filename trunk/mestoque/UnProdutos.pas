@@ -80,6 +80,8 @@ type
     function RSeqConsumoFracaoOpDisponivel(VpaCodFilial, VpaSeqOrdemProducao, VpaSeqFracao : Integer):Integer;
     function RSeqDefeitoDisponivel : Integer;
     function RSeqBarraDisponivel(VpaSeqProduto : Integer):Integer;
+    function RSeqReservaExcessoDisponivel : Integer;
+    function RSeqReservaProdutoDisponivel : Integer;
     function RDBaixaConsumoOp(VpaBaixas : TList;VpaSeqProduto,VpaCodCor : Integer; VpaIndMaterialExtra : Boolean):TRBDConsumoFracaoOP;
     function RCodProdutoDisponivelpelaClassificacao(VpaCodClassificacao : String):String;
     function RQtdMetrosBarraProduto(VpaSeqProduto : Integer):Double;
@@ -91,7 +93,7 @@ type
     procedure CarQtdMinimaProduto(VpaCodFilial, VpaSeqProduto, VpaCor, VpaCodTamanho : Integer; var VpaQtdMinima, VpaQtdPedido, VpaValCusto : Double); overload;
     procedure CarQtdMinimaProduto(VpaCodFilial, VpaCor: Integer; VpaDProduto: TRBDProduto); overload;
     function GravaDBaixaConsumoFracaoLog(VpaDBaixa : TRBDConsumoFracaoOP; VpaCodUsuario : Integer): String;
-    function GravaDBaixaConsumoFracaoProduto(VpaCodigoFilial, VpaSeqOrdem,VpaSeqFracao, VpaCodUsuario: Integer; VpaBaixas: TList): String;
+    function GravaDBaixaConsumoFracaoProduto1(VpaCodigoFilial, VpaSeqOrdem,VpaSeqFracao, VpaCodUsuario: Integer; VpaBaixas: TList): String;
     function GravaDBaixaConsumoOPProduto(VpaCodigoFilial, VpaSeqOrdem, VpaCodUsuario : Integer; VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList): String;
     function GravaDConsumoMPBastidor(VpaDProduto : TRBDProduto;VpaCorKit : Integer) : String;
     procedure ExcluiMovimentoEstoquePorData(VpaDatInicial, VpaDatFinal : TDateTime);
@@ -136,7 +138,8 @@ type
     function BaixaEstoqueBarra(VpaSeqProduto,VpaCodCor,VpaSeqBarra : Integer;VpaQtdProduto : Double;VpaDesUM, VpaDesUMOriginal, VpaDesOperacaoEstoque : string):string;
     function BaixaConsumoFracaoOP(VpaCodFilial,VpaSeqOrdemProducao, VpaSeqProduto, VpaCodCor : Integer;VpaQtdProduto : Double;VpaUM, VpaTipOperacao : String):string;
     function BaixaQtdAReservarProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao :String):string;
-    function ReservaEstoqueProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao :String;VpaMovimentarEstoque : Boolean):string;
+    function ReservaEstoqueProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho, VpaSeqOrdemProducao: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao :String):string;
+    function BaixaQtdReservadoOP(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho, VpaSeqOrdemProducao: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao,  VpaTipOperacao :String):string;
     function AtualizaQtdKit(VpaSeqProduto : String;VpaKit : Boolean):Boolean;
     function EstornaEstoque(VpaDMovimento : TRBDMovEstoque) : String;
     function AdicionaProdutoNaTabelaPreco(VpaCodTabela: Integer; VpaDProduto: TRBDProduto;VpaCodTamanho : Integer): String;
@@ -263,8 +266,10 @@ type
     function GravaDTabelaPreco(VpaDProduto : TRBDProduto):string;
     function GravaProdutoImpressoras(VpaSeqProduto : Integer; VpaImpressoras : TList):string;
     function GravaPesoCartucho(VpaDPesoCartucho : TRBDPesoCartucho;VpaDProduto : TRBDProduto):string;
-    function GravaBaixaConsumoProduto(VpaCodigoFilial, VpaSeqOrdem, VpaSeqFracao, VpaCodUsuario : Integer; VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList): String;
+    function GravaBaixaConsumoProduto1(VpaCodigoFilial, VpaSeqOrdem, VpaSeqFracao, VpaCodUsuario : Integer; VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList): String;
     function GravaFigurasGRF(VpaCodComposicao : Integer;VpaFiguras : TList) : string;
+    function GravaProdutoReservadoEmExcesso(VpaSeqProduto, VpaCodFilial,VpaSeqOrdem : Integer;VpaDesUM : String;VpaQtdEstoque, VpaQtdReservado, VpaQtdExcesso : Double):String;
+    function GravaMovimentoProdutoReservado(VpaSeqProduto, VpaCodFilial,VpaSeqOrdem : Integer;VpaDesUM : String; VpaQtdReservado,VpaQtdInicial,VpaQtdAtual: Double;VpaTipMovimento : String):String;
     function ReferenciaProdutoDuplicada(VpaCodCliente,VpaSeqProduto, VpaSeqReferencia,VpaCodCor : Integer):Boolean;
     function ReprocessaEstoque(VpaMes, VpaAno : Integer): String;
     procedure ReAbrirMes(VpaData : TDateTime);
@@ -1201,7 +1206,7 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesProduto.GravaDBaixaConsumoFracaoProduto(VpaCodigoFilial, VpaSeqOrdem,VpaSeqFracao, VpaCodUsuario : Integer;  VpaBaixas: TList): String;
+function TFuncoesProduto.GravaDBaixaConsumoFracaoProduto1(VpaCodigoFilial, VpaSeqOrdem,VpaSeqFracao, VpaCodUsuario : Integer;  VpaBaixas: TList): String;
 var
   VpfLaco: Integer;
   VpfBaixaConsumo: TRBDConsumoFracaoOP;
@@ -1210,47 +1215,47 @@ begin
   for VpfLaco:= 0 to VpaBaixas.Count-1 do
   begin
     VpfBaixaConsumo:= TRBDConsumoFracaoOP(VpaBaixas.Items[VpfLaco]);
-    AdicionaSQLAbreTabela(ProCadastro,'SELECT * FROM FRACAOOPCONSUMO'+
-                        ' WHERE CODFILIAL = '+IntToStr(VpaCodigoFilial)+
-                        ' AND SEQORDEM = '+IntToStr(VpaSeqOrdem)+
-                        ' AND SEQFRACAO = '+IntToStr(VpaSeqFracao)+
-                        ' AND SEQCONSUMO = '+IntToStr(VpfBaixaConsumo.SeqConsumo));
-    ProCadastro.Edit;
-    ProCadastro.FieldByName('CODFILIAL').AsInteger:= VpfBaixaConsumo.CodFilial;
-    ProCadastro.FieldByName('SEQORDEM').AsInteger:= VpfBaixaConsumo.SeqOrdem;
-    ProCadastro.FieldByName('SEQFRACAO').AsInteger:= VpfBaixaConsumo.SeqFracao;
-    ProCadastro.FieldByName('SEQCONSUMO').AsInteger:= VpfBaixaConsumo.SeqConsumo;
-    ProCadastro.FieldByName('QTDPRODUTO').AsFloat:= VpfBaixaConsumo.QtdProduto;
-    VpfBaixaConsumo.QtdBaixado := VpfBaixaConsumo.QtdBaixado + VpfBaixaConsumo.QtdaBaixar;
-    ProCadastro.FieldByName('QTDBAIXADO').AsFloat:= VpfBaixaConsumo.QtdBaixado;
-    VpfBaixaConsumo.QtdReservado := VpfBaixaConsumo.QtdReservado - VpfBaixaConsumo.QtdABaixar;
-    if VpfBaixaConsumo.QtdReservado  < 0 then
-      VpfBaixaConsumo.QtdReservado := 0;
-    ProCadastro.FieldByName('QTDRESERVADAESTOQUE').AsFloat:= VpfBaixaConsumo.QtdReservado;
-    ProCadastro.FieldByName('SEQPRODUTO').AsInteger:= VpfBaixaConsumo.SeqProduto;
-    ProCadastro.FieldByName('CODCOR').AsInteger:= VpfBaixaConsumo.CodCor;
-    ProCadastro.FieldByName('DESUM').AsString:= VpfBaixaConsumo.DesUM;
-    VpfBaixaConsumo.IndBaixado := VpfBaixaConsumo.QtdBaixado >=  VpfBaixaConsumo.QtdProduto;
-    if VpfBaixaConsumo.IndBaixado then
-      ProCadastro.FieldByName('INDBAIXADO').AsString:= 'S'
-    else
-      ProCadastro.FieldByName('INDBAIXADO').AsString:= 'N';
-
-    try
-      ProCadastro.Post;
-    except
-      on E:Exception do
-      begin
-        Result:= 'ERRO NA GRAVAÇÃO DAS BAIXAS DE CONSUMO DO PRODUTO!!!'#13+E.Message;
-        Break;
-      end;
-    end;
-    if (VpfBaixaConsumo.QtdABaixar > 0) and not(VpfBaixaConsumo.IndOrigemCorte) then
+    if VpfBaixaConsumo.QtdABaixar <> 0 then
     begin
-      FunProdutos.ReservaEstoqueProduto(VpaCodigoFilial,VpfBaixaConsumo.SeqProduto,VpfBaixaConsumo.CodCor,0,
-                                        VpfBaixaConsumo.QtdABaixar,VpfBaixaConsumo.DesUM,VpfBaixaConsumo.DesUMOriginal,
-                                        'S',false);
-      Result := GravaDBaixaConsumoFracaoLog(VpfBaixaConsumo,VpaCodUsuario)
+      AdicionaSQLAbreTabela(ProCadastro,'SELECT * FROM FRACAOOPCONSUMO'+
+                          ' WHERE CODFILIAL = '+IntToStr(VpaCodigoFilial)+
+                          ' AND SEQORDEM = '+IntToStr(VpaSeqOrdem)+
+                          ' AND SEQFRACAO = '+IntToStr(VpaSeqFracao)+
+                          ' AND SEQCONSUMO = '+IntToStr(VpfBaixaConsumo.SeqConsumo));
+      ProCadastro.Edit;
+      ProCadastro.FieldByName('CODFILIAL').AsInteger:= VpfBaixaConsumo.CodFilial;
+      ProCadastro.FieldByName('SEQORDEM').AsInteger:= VpfBaixaConsumo.SeqOrdem;
+      ProCadastro.FieldByName('SEQFRACAO').AsInteger:= VpfBaixaConsumo.SeqFracao;
+      ProCadastro.FieldByName('SEQCONSUMO').AsInteger:= VpfBaixaConsumo.SeqConsumo;
+      ProCadastro.FieldByName('QTDPRODUTO').AsFloat:= VpfBaixaConsumo.QtdProduto;
+      VpfBaixaConsumo.QtdBaixado := VpfBaixaConsumo.QtdBaixado + VpfBaixaConsumo.QtdaBaixar;
+      ProCadastro.FieldByName('QTDBAIXADO').AsFloat:= VpfBaixaConsumo.QtdBaixado;
+      VpfBaixaConsumo.QtdReservado := VpfBaixaConsumo.QtdReservado - VpfBaixaConsumo.QtdABaixar;
+      if VpfBaixaConsumo.QtdReservado  < 0 then
+        VpfBaixaConsumo.QtdReservado := 0;
+      ProCadastro.FieldByName('QTDRESERVADAESTOQUE').AsFloat:= VpfBaixaConsumo.QtdReservado;
+      ProCadastro.FieldByName('SEQPRODUTO').AsInteger:= VpfBaixaConsumo.SeqProduto;
+      ProCadastro.FieldByName('CODCOR').AsInteger:= VpfBaixaConsumo.CodCor;
+      ProCadastro.FieldByName('DESUM').AsString:= VpfBaixaConsumo.DesUM;
+      VpfBaixaConsumo.IndBaixado := VpfBaixaConsumo.QtdBaixado >=  VpfBaixaConsumo.QtdProduto;
+      if VpfBaixaConsumo.IndBaixado then
+        ProCadastro.FieldByName('INDBAIXADO').AsString:= 'S'
+      else
+        ProCadastro.FieldByName('INDBAIXADO').AsString:= 'N';
+
+      try
+        ProCadastro.Post;
+      except
+        on E:Exception do
+        begin
+          Result:= 'ERRO NA GRAVAÇÃO DAS BAIXAS DE CONSUMO DO PRODUTO!!!'#13+E.Message;
+          Break;
+        end;
+      end;
+      if (VpfBaixaConsumo.QtdABaixar > 0) and not(VpfBaixaConsumo.IndOrigemCorte) then
+      begin
+        Result := GravaDBaixaConsumoFracaoLog(VpfBaixaConsumo,VpaCodUsuario)
+      end;
     end;
     if result <> '' then
       break;
@@ -2164,11 +2169,78 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesProduto.ReservaEstoqueProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao :String;VpaMovimentarEstoque : Boolean):string;
+function TFuncoesProduto.BaixaQtdReservadoOP(VpaCodFilial, VpaSeqProduto, VpaCodCor, VpaCodTamanho, VpaSeqOrdemProducao: Integer; VpaQtdProduto: Double; VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao: String): string;
 var
-  VpfQtdReservar : Double;
-  VpfDOperacaoEstoque : TRBDOperacaoEstoque;
-  VpfSeqBarra : Integer;
+  VpfQtdInicial, VpfQtdAReservarBaixada : Double;
+  VpfUmInicial,VpfOperacaoQtdAReservar : String;
+begin
+  result :='';
+  VpfQtdInicial := VpaQtdProduto;
+  VpfUmInicial := VpaUnidadeAtual;
+  VpfQtdAReservarBaixada := 0;
+  AdicionaSQLAbreTabela(ProCadastro,'Select * from FRACAOOPCONSUMO '+
+                                    ' Where CODFILIAL = '+IntToStr(VpaCodFilial)+
+                                    ' AND SEQORDEM = '+IntToStr(VpaSeqOrdemProducao)+
+                                    ' AND SEQPRODUTO = '+ IntToStr(VpaSeqProduto)+
+                                    ' ORDER BY SEQFRACAO ');
+  while not(ProCadastro.Eof) and
+        (result = '') and
+        (VpaQtdProduto > 0)  do
+  begin
+    if ((ProCadastro.FieldByName('QTDPRODUTO').AsFloat - ProCadastro.FieldByName('QTDBAIXADO').AsFloat
+       - ProCadastro.FieldByName('QTDRESERVADAESTOQUE').AsFloat) > 0) then
+    begin
+      VpaQtdProduto := CalculaQdadePadrao( VpaunidadeAtual,ProCadastro.FieldByName('DESUM').AsString, VpaQtdProduto, IntTostr(VpaSeqProduto));
+      VpaunidadeAtual := ProCadastro.FieldByName('DESUM').AsString;
+      ProCadastro.Edit;
+      if VpaQtdProduto >= (ProCadastro.FieldByName('QTDPRODUTO').AsFloat - ProCadastro.FieldByName('QTDBAIXADO').AsFloat
+       - ProCadastro.FieldByName('QTDRESERVADAESTOQUE').AsFloat) THEN
+      begin
+        VpfQtdAReservarBaixada := VpfQtdAReservarBaixada + ProCadastro.FieldByName('QTDARESERVAR').AsFloat;
+        ProCadastro.FieldByName('QTDARESERVAR').AsFloat := 0;
+        VpaQtdProduto := VpaQtdProduto - (ProCadastro.FieldByName('QTDPRODUTO').AsFloat - ProCadastro.FieldByName('QTDBAIXADO').AsFloat- ProCadastro.FieldByName('QTDRESERVADAESTOQUE').AsFloat);
+        ProCadastro.FieldByName('QTDRESERVADAESTOQUE').AsFloat := ProCadastro.FieldByName('QTDPRODUTO').AsFloat - ProCadastro.FieldByName('QTDBAIXADO').AsFloat;
+      end
+      else
+      begin
+        if VpaQtdProduto > ProCadastro.FieldByName('QTDARESERVAR').AsFloat then
+          VpfQtdAReservarBaixada := VpfQtdAReservarBaixada + ProCadastro.FieldByName('QTDARESERVAR').AsFloat
+        else
+          VpfQtdAReservarBaixada := VpfQtdAReservarBaixada + VpaQtdProduto;
+
+        ProCadastro.FieldByName('QTDARESERVAR').AsFloat := ProCadastro.FieldByName('QTDARESERVAR').AsFloat-VpaQtdProduto;
+        if ProCadastro.FieldByName('QTDARESERVAR').AsFloat < 0  then
+          ProCadastro.FieldByName('QTDARESERVAR').AsFloat := 0;
+        ProCadastro.FieldByName('QTDRESERVADAESTOQUE').AsFloat := ProCadastro.FieldByName('QTDRESERVADAESTOQUE').AsFloat +VpaQtdProduto;
+      end;
+      ProCadastro.post;
+      result := ProCadastro.AMensagemErroGravacao;
+    end;
+    ProCadastro.next;
+  end;
+  if result = '' then
+  begin
+    if VpaQtdProduto > 0  then
+    begin
+      Result := GravaProdutoReservadoEmExcesso(VpaSeqProduto,VpaCodFilial,VpaSeqOrdemProducao,VpfUmInicial,0,VpfQtdInicial,VpaQtdProduto);
+    end;
+    if result = ''  then
+    begin
+      if VpaTipOperacao = 'E' then
+        VpfOperacaoQtdAReservar := 'S'
+      ELSE
+        VpfOperacaoQtdAReservar := 'E';
+      result := BaixaQtdAReservarProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho,VpfQtdAReservarBaixada,VpaUnidadeAtual,
+                                        VpaUnidadePadrao,VpfOperacaoQtdAReservar);
+    end;
+  end;
+  ProCadastro.Close;
+end;
+
+{******************************************************************************}
+function TFuncoesProduto.ReservaEstoqueProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho, VpaSeqOrdemProducao : Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao :String):string;
+var
+  VpfQtdReservar, VpfQtdInicial : Double;
 begin
   result := '';
 
@@ -2184,26 +2256,34 @@ begin
     LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho);
   end;
   ProCadastro.Edit;
+  VpfQtdInicial := ProCadastro.FieldByName('N_QTD_RES').AsFloat;
 
   //atualiza a data de alteracao para poder exportar
   ProCadastro.FieldByname('D_ULT_ALT').AsDateTime := Date;
 
   // atualiza a qdade produtos em estoque
-  if  VpaTipOperacao = 'E' then  // adiciona o produto reservado e diminui a quantidade de estoque
-   ProCadastro.FieldByName('N_QTD_RES').AsFloat := ProCadastro.FieldByName('N_QTD_RES').AsFloat + VpfQtdReservar
-  else  // diminui a quantidade reservado e aumenta a quantidade de estoque
-   ProCadastro.FieldByName('N_QTD_RES').AsFloat := ProCadastro.FieldByName('N_QTD_RES').AsFloat - VpfQtdReservar;
-  ProCadastro.post;
-  ProCadastro.close;
-  if VpaMovimentarEstoque then
+  if  VpaTipOperacao = 'E' then  // adiciona o produto reservado
   begin
-    if  VpaTipOperacao = 'E' then  // adiciona o produto reservado e diminui a quantidade de estoque
-      BaixaProdutoEstoque(VpaCodFilial,VpaSeqProduto,Varia.OperacaoAdicionaReservaSaidaEstoque,0,0,0,varia.MoedaBase,VpaCodCor,VpaCodTamanho,
-                          date,VpaQtdProduto,0,vpaUnidadeAtual,VpaUnidadePadrao,'',false,VpfSeqBarra,true,0)
-    else
-      BaixaProdutoEstoque(VpaCodFilial,VpaSeqProduto,Varia.OperacaoSaidaReservaAdicionaEstoque,0,0,0,varia.MoedaBase,VpaCodCor, VpaCodTamanho,
-                          date,VpaQtdProduto,0,vpaUnidadeAtual,VpaUnidadePadrao,'',false,VpfSeqBarra,true,0)
+    ProCadastro.FieldByName('N_QTD_RES').AsFloat := ProCadastro.FieldByName('N_QTD_RES').AsFloat + VpfQtdReservar;
+    if ProCadastro.FieldByName('N_QTD_RES').AsFloat > ProCadastro.FieldByName('N_QTD_PRO').AsFloat then
+      result := GravaProdutoReservadoEmExcesso(VpaSeqProduto,0,0,VpaUnidadeAtual,ProCadastro.FieldByName('N_QTD_PRO').AsFloat,VpaQtdProduto,0);
+  end
+  else  // diminui a quantidade reservado
+  begin
+    ProCadastro.FieldByName('N_QTD_RES').AsFloat := ProCadastro.FieldByName('N_QTD_RES').AsFloat - VpfQtdReservar;
   end;
+  ProCadastro.post;
+  Result := ProCadastro.AMensagemErroGravacao;
+
+  if Result = ''  then
+    result := GravaMovimentoProdutoReservado(VpaSeqProduto,VpaCodFilial,VpaSeqOrdemProducao,VpaUnidadeAtual, VpaQtdProduto,VpfQtdInicial,ProCadastro.FieldByName('N_QTD_RES').AsFloat,VpaTipOperacao);
+
+  if result = ''  then
+  begin
+    if VpaSeqOrdemProducao <> 0 then
+      Result := BaixaQtdReservadoOP(VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho,VpaSeqOrdemProducao,VpaQtdProduto,VpaUnidadeAtual,VpaUnidadePadrao,VpaTipOperacao);
+  end;
+  ProCadastro.close;
 end;
 
 {************************ atualiza a qtd do kit *******************************}
@@ -4246,6 +4326,22 @@ begin
 end;
 
 {******************************************************************************}
+function TFuncoesProduto.RSeqReservaExcessoDisponivel: Integer;
+begin
+  AdicionaSQLAbreTabela(AUX,'Select MAX(SEQRESERVA) ULTIMO from PRODUTORESERVADOEMEXCESSO');
+  result :=  Aux.FieldByName('ULTIMO').AsInteger+1;
+  AUX.close;
+end;
+
+{******************************************************************************}
+function TFuncoesProduto.RSeqReservaProdutoDisponivel: Integer;
+begin
+  AdicionaSQLAbreTabela(AUX,'Select MAX(SEQRESERVA) ULTIMO from RESERVAPRODUTO');
+  result :=  Aux.FieldByName('ULTIMO').AsInteger+1;
+  AUX.close;
+end;
+
+{******************************************************************************}
 function TFuncoesProduto.RReferenciaProduto(VpaSeqProduto,VpaCodCliente : Integer; VpaCodCor : String):String;
 begin
   Aux.Sql.Clear;
@@ -5122,6 +5218,30 @@ begin
 end;
 
 {******************************************************************************}
+function TFuncoesProduto.GravaProdutoReservadoEmExcesso(VpaSeqProduto, VpaCodFilial, VpaSeqOrdem: Integer; VpaDesUM: String; VpaQtdEstoque, VpaQtdReservado, VpaQtdExcesso: Double): String;
+begin
+  AdicionaSQLAbreTabela(ProCadastro2,'Select * from PRODUTORESERVADOEMEXCESSO '+
+                                    ' Where SEQRESERVA = 0 ');
+  ProCadastro2.Insert;
+  ProCadastro2.FieldByName('DATRESERVA').AsDateTime := now;
+  ProCadastro2.FieldByName('SEQPRODUTO').AsInteger := VpaSeqProduto;
+  ProCadastro2.FieldByName('QTDESTOQUEPRODUTO').AsFloat := VpaQtdEstoque;
+  ProCadastro2.FieldByName('QTDRESERVADO').AsFloat := VpaQtdReservado;
+  ProCadastro2.FieldByName('QTDEXCESSO').AsFloat := VpaQtdExcesso;
+  if VpaSeqOrdem <> 0 then
+  begin
+    ProCadastro2.FieldByName('CODFILIAL').AsInteger := VpaCodFilial;
+    ProCadastro2.FieldByName('SEQORDEMPRODUCAO').AsInteger := VpaSeqOrdem;
+  end;
+  ProCadastro2.FieldByName('CODUSUARIO').AsInteger := Varia.CodigoUsuario;
+  ProCadastro2.FieldByName('DESUM').AsString := VpaDesUM;
+  ProCadastro2.FieldByName('SEQRESERVA').AsInteger := RSeqReservaExcessoDisponivel;
+  ProCadastro2.Post;
+  Result := ProCadastro2.AMensagemErroGravacao;
+  ProCadastro2.Close;
+end;
+
+{******************************************************************************}
 function TFuncoesProduto.GravaPesoCartucho(VpaDPesoCartucho : TRBDPesoCartucho;VpaDProduto : TRBDProduto):string;
 var
   VpfSeqBarra : Integer;
@@ -5155,10 +5275,10 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesProduto.GravaBaixaConsumoProduto(VpaCodigoFilial, VpaSeqOrdem,VpaSeqFracao, VpaCodUsuario: Integer;VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList): String;
+function TFuncoesProduto.GravaBaixaConsumoProduto1(VpaCodigoFilial, VpaSeqOrdem,VpaSeqFracao, VpaCodUsuario: Integer;VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList): String;
 begin
   if VpaSeqFracao <> 0 then
-    result := GravaDBaixaConsumoFracaoProduto(VpaCodigoFilial,VpaSeqOrdem,VpaSeqFracao, VpaCodUsuario, VpaBaixas)
+    result := GravaDBaixaConsumoFracaoProduto1(VpaCodigoFilial,VpaSeqOrdem,VpaSeqFracao, VpaCodUsuario, VpaBaixas)
   else
     result := GravaDBaixaConsumoOPProduto(VpaCodigoFilial,VpaSeqOrdem,VpaCodUsuario, VpaIndConsumoOrdemCorte, VpaBaixas);
 end;
@@ -5187,6 +5307,32 @@ begin
       on e : exception do exit('ERRO NA GRAVAÇÃO DA COMPOSICAOFIGURAGRF!!!'#13+e.message);
     end;
   end;
+  ProCadastro.close;
+end;
+
+{******************************************************************************}
+function TFuncoesProduto.GravaMovimentoProdutoReservado(VpaSeqProduto, VpaCodFilial, VpaSeqOrdem: Integer; VpaDesUM : String;VpaQtdReservado, VpaQtdInicial,VpaQtdAtual: Double;VpaTipMovimento : String): String;
+begin
+  AdicionaSQLAbreTabela(ProCadastro,'SELECT * FROM RESERVAPRODUTO '+
+                                    ' Where SEQRESERVA = 0 ');
+  ProCadastro.Insert;
+  ProCadastro.FieldByName('SEQPRODUTO').AsInteger := VpaSeqProduto;
+  ProCadastro.FieldByName('DESUM').AsString := VpaDesUM;
+  ProCadastro.FieldByName('TIPMOVIMENTO').AsString := VpaTipMovimento;
+  ProCadastro.FieldByName('DATRESERVA').AsDateTime := now;
+  ProCadastro.FieldByName('QTDRESERVADA').AsFloat := VpaQtdReservado;
+  ProCadastro.FieldByName('CODUSUARIO').AsInteger := Varia.CodigoUsuario;
+  ProCadastro.FieldByName('QTDINICIAL').AsFloat := VpaQtdInicial;
+  ProCadastro.FieldByName('QTDFINAL').AsFloat := VpaQtdAtual;
+  if VpaSeqOrdem <> 0 then
+  begin
+    ProCadastro.FieldByName('CODFILIAL').AsInteger := VpaCodFilial;
+    ProCadastro.FieldByName('SEQORDEMPRODUCAO').AsInteger := VpaSeqOrdem;
+  end;
+
+  ProCadastro.FieldByName('SEQRESERVA').AsFloat := RSeqReservaProdutoDisponivel;
+  ProCadastro.Post;
+  result := ProCadastro.AMensagemErroGravacao;
   ProCadastro.close;
 end;
 

@@ -4669,7 +4669,7 @@ begin
         VpfDConsumoFracao := TRBDConsumoFracaoOP(VpfConsumos.Items[VpfLaco]);
         VpfDConsumoFracao.QtdABaixar := VpfDConsumoFracao.QtdProduto - VpfDConsumoFracao.QtdBaixado;
       end;
-      FunProdutos.GravaBaixaConsumoProduto(VpaCodFilial,VpaSeqOrdemProducao,VpaSeqFracao,varia.CodigoUsuario, true,VpfConsumos);
+      FunProdutos.GravaBaixaConsumoProduto1(VpaCodFilial,VpaSeqOrdemProducao,VpaSeqFracao,varia.CodigoUsuario, true,VpfConsumos);
 
       FreeTObjectsList(VpfConsumos);
       FunProdutos.CarDBaixaConsumoProduto(VpaCodFilial,VpaSeqOrdemProducao,VpaSeqFracao,false,VpfConsumos);
@@ -4679,7 +4679,7 @@ begin
         if not VpfDConsumoFracao.IndOrigemCorte then
           VpfDConsumoFracao.QtdABaixar := VpfDConsumoFracao.QtdProduto - VpfDConsumoFracao.QtdBaixado;
       end;
-      FunProdutos.GravaBaixaConsumoProduto(VpaCodFilial,VpaSeqOrdemProducao,VpaSeqFracao,varia.CodigoUsuario, false,VpfConsumos);
+      FunProdutos.GravaBaixaConsumoProduto1(VpaCodFilial,VpaSeqOrdemProducao,VpaSeqFracao,varia.CodigoUsuario, false,VpfConsumos);
 
       FreeTObjectsList(VpfConsumos);
       VpfConsumos.free;

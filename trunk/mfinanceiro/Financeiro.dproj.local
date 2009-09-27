@@ -2,5 +2,7 @@
 <BorlandProject>
 	<Transactions>
     <Transaction>2009/07/18 19:53:18.718.dproj,C:\Documents and Settings\Rafael Budag\Meus documentos\RAD Studio\Projects\Project1.dproj=C:\Eficacia\siscorp\mfinanceiro\Financeiro.dproj</Transaction>
+    <Transaction>2009/09/26 11:26:19.140.pas,C:\Eficacia\siscorp\mfinanceiro\formpadraopermissao.pas=C:\Eficacia\SisCorp\mfinanceiro\AProjetos.pas</Transaction>
+    <Transaction>2009/09/26 11:26:19.140.dfm,C:\Eficacia\siscorp\mfinanceiro\formpadraopermissao.dfm=C:\Eficacia\SisCorp\mfinanceiro\AProjetos.dfm</Transaction>
   </Transactions>
 </BorlandProject>

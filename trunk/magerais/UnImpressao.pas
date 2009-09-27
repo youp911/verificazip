@@ -1955,19 +1955,19 @@ begin
              result := DateToStr(VprDNotaFiscal.DatEmissao);
          end;
     10 : begin
-           if VprDCliente.DesEnderecoCobranca <> '' then
+           if (VprDCliente.DesEnderecoCobranca <> '')  and config.MostrarEnderecoCobrancanaNota then
              result := VprDCliente.DesEnderecoCobranca+', '+ VprDCliente.NumEnderecoCobranca
            else
              result := VprDCliente.DesEndereco+', '+ VprDCliente.NumEndereco+ ' - '+VprDCliente.DesComplementoEndereco;
          end;
     11 : begin
-           if VprDCliente.DesEnderecoCobranca <> '' then
+           if (VprDCliente.DesEnderecoCobranca <> '')  and config.MostrarEnderecoCobrancanaNota then
              result := VprDCliente.DesBairroCobranca
            else
              result := VprDCliente.DesBairro;
          end;
     12 : begin
-           if VprDCliente.DesEnderecoCobranca <> '' then
+           if (VprDCliente.DesEnderecoCobranca <> '')  and config.MostrarEnderecoCobrancanaNota then
              result := VprDCliente.CepClienteCobranca
            else
              result := VprDCliente.CepCliente;
@@ -1975,14 +1975,14 @@ begin
     13 : if VprDNotaFiscal.DatSaida > MontaData(1,1,1990) then
            result := DateToStr(VprDNotaFiscal.DatSaida);
     14 : begin
-           if VprDCliente.DesEnderecoCobranca <> '' then
+           if (VprDCliente.DesEnderecoCobranca <> '')  and config.MostrarEnderecoCobrancanaNota then
              result := VprDCliente.DesCidadeCobranca
            else
              result := VprDCliente.DesCidade;
          end;
     15 : result := VprDCliente.Fone_FAX;
     16 : begin
-           if VprDCliente.DesEnderecoCobranca <> '' then
+           if (VprDCliente.DesEnderecoCobranca <> '')  and config.MostrarEnderecoCobrancanaNota then
              result := VprDCliente.DesUfCobranca
            else
              result := VprDCliente.DesUF;

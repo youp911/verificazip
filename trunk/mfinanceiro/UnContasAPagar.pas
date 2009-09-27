@@ -58,6 +58,7 @@ type
     procedure CarParcelasCheque(VpaParcelas : TList;VpaSeqCheque, VpaCodFilialOriginal, VpaLanPagarOriginal, VpaNumParcelaOriginal : Integer);
     function GravaDContasaPagar(VpaDContasAPagar : TRBDContasaPagar) : String;
     function GravaDParcelaPagar(VpaDContasAPagar : TRBDContasaPagar) : String;
+    function GravaDDespesaProjeto(VpaDContasAPagar : TRBDContasaPagar) : String;
   public
     constructor criar( aowner : TComponent; VpaBaseDados : TSQLConnection ); override;
     destructor Destroy; override;
@@ -967,20 +968,51 @@ begin
   Cadastro.FieldByName('I_LAN_APG').AsInteger := VpaDContasAPagar.LanPagar;
   //atualiza a data de alteracao para poder exportar
   Cadastro.FieldByName('D_ULT_ALT').AsDateTime := Date;
-  try
-    Cadastro.post;
-  except
+  Cadastro.post;
+  if Cadastro.AErronaGravacao then
+  begin
     // caso erro na Cadastro de codigos sequencial a o proximo do movCadastro
     Cadastro.FieldByName('I_LAN_APG').AsInteger := GeraProximoCodigo('i_lan_apg','cadContasAPagar','i_emp_fil', varia.CodigoEmpFil, true,VprBaseDados);
-    try
-      Cadastro.POST;
-    except
-      on e : exception do result :='ERRO NA GRAVACAO DO CADCONTASAPAGAR!!!'#13+e.message;
-    end;
+    Cadastro.POST;
+    result := Cadastro.AMensagemErroGravacao;
   end;
   Cadastro.close;
   if result = '' then
+  begin
     Result := GravaDParcelaPagar(VpaDContasAPagar);
+    if result = ''  then
+      result := GravaDDespesaProjeto(VpaDContasAPagar);
+  end;
+end;
+
+{******************************************************************************}
+function TFuncoesContasAPagar.GravaDDespesaProjeto(VpaDContasAPagar: TRBDContasaPagar): String;
+var
+  VpfDDespesa :TRBDContasaPagarProjeto;
+  VpfLaco : Integer;
+begin
+  result := '';
+  ExecutaComandoSql(Aux,'Delete from CONTAAPAGARPROJETO '+
+                        ' Where CODFILIAL = '+IntToStr(VpaDContasAPagar.CodFilial)+
+                        ' and LANPAGAR = ' + IntToStr(VpaDContasAPagar.LanPagar));
+  AdicionaSQLAbreTabela(Cadastro,'Select * from CONTAAPAGARPROJETO '+
+                                 ' Where CODFILIAL = 0 AND LANPAGAR = 0 ');
+  for VpfLaco := 0 to VpaDContasAPagar.DespesaProjeto.Count - 1 do
+  begin
+    VpfDDespesa := TRBDContasaPagarProjeto(VpaDContasAPagar.DespesaProjeto.Items[VpfLaco]);
+    Cadastro.insert;
+    Cadastro.FieldByName('CODFILIAL').AsInteger := VpaDContasAPagar.CodFilial;
+    Cadastro.FieldByName('LANPAGAR').AsInteger := VpaDContasAPagar.LanPagar;
+    Cadastro.FieldByName('SEQDESPESA').AsInteger := VpfLaco + 1;
+    Cadastro.FieldByName('CODPROJETO').AsInteger := VpfDDespesa.CodProjeto;
+    Cadastro.FieldByName('PERDESPESA').AsFloat := VpfDDespesa.PerDespesa;
+    Cadastro.FieldByName('VALDESPESA').AsFloat := VpfDDespesa.ValDespesa;
+    Cadastro.Post;
+    result := Cadastro.AMensagemErroGravacao;
+    if Cadastro.AErronaGravacao then
+      break;
+  end;
+  Cadastro.Close;
 end;
 
 {******************************************************************************}
@@ -1023,15 +1055,10 @@ begin
     Cadastro.FieldByname('L_OBS_APG').AsString := VpfDParcelaCP.DesObservacoes;
     Cadastro.FieldByname('I_COD_MOE').AsInteger := VpaDContasAPagar.CodMoeda;
     Cadastro.FieldByname('D_ULT_ALT').AsDateTime := now;
-    try
-      Cadastro.post;
-    except
-      on e : exception do
-      begin
-        result := 'ERRO NA GRAVAÇÃO DO MOVCONTASAPAGAR!!!#13'+e.message;
-        break;
-      end;
-    end;
+    Cadastro.post;
+    result := Cadastro.AMensagemErroGravacao;
+    if Cadastro.AErronaGravacao then
+      break;
   end;
   Cadastro.close;
 end;
@@ -1149,6 +1176,9 @@ begin
         result := CT_ExclusaoNota;
     if result = '' then
     begin
+      ExecutaComandoSql(Aux,'DELETE CONTAAPAGARPROJETO  ' +
+                                 ' Where LANPAGAR = ' + IntToStr(VpaLanPagar) +
+                                 ' and CODFILIAL = ' + IntToStr(VpaCodFilial));
       ExecutaComandoSql(Aux,'DELETE MOVCONTASAPAGAR WHERE ' +
                                  ' I_LAN_APG = ' + IntToStr(VpaLanPagar) +
                                  ' and I_EMP_FIL = ' + IntToStr(VpaCodFilial));

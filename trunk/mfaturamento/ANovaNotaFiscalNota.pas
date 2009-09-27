@@ -599,7 +599,7 @@ procedure TFNovaNotaFiscalNota.CardClienteNota(VpaDCliente : TRBDCliente);
 begin
   LCGCCPF.Caption := VpaDCliente.CGC_CPF;
   LInscricaoEstadual.Caption := VpaDCliente.InscricaoEstadual;
-  if VprDCliente.DesEnderecoCobranca <> '' then
+  if (VprDCliente.DesEnderecoCobranca <> '')  and config.MostrarEnderecoCobrancanaNota then
   begin
     LEndereco.Caption := VpaDCliente.DesEnderecoCobranca+', '+VpaDCliente.NumEnderecoCobranca ;
     LBairro.Caption := VpaDCliente.DesBairroCobranca;
@@ -1257,8 +1257,6 @@ begin
       result := 'ENDEREÇO DO CLIENTE NÃO PREENCHIDO!!!'#13'É necessário preencher o endereço do cliente.';
     if Result = '' then
     begin
-      if DeletaChars(VpaDCliente.NumEndereco,'0') = '' then
-        result := 'NUMERO DO ENDEREÇO NÃO PREENCHIDO!!!!'#13'É necessário preencher o numero do endereço.';
       if Result = '' then
       begin
         if VpaDCliente.DesBairro = '' then

@@ -190,7 +190,7 @@ begin
   Caption := '  Reserva Estoque ';
   PainelGradiente1.Caption := '   Reserva Estoque  ';
   AjustaTamanhoTela;
-  PanelColor1.Color := clActiveCaption;
+  PanelColor1.Color := clSkyBlue;
   ShowModal;
 end;
 
@@ -326,17 +326,33 @@ var
   VpfSeqEstoqueBarra : Integer;
 begin
   result := '';
-  FunProdutos.BaixaProdutoEstoque(varia.CodigoEmpFil,
-                                 CadProduto.fieldByName('I_SEQ_PRO').AsInteger,
-                                 ECodOperacao.AInteiro,
-                                 0,0,0,
-                                 varia.MoedaBase, ECor.Ainteiro,ETamanho.AInteiro,
-                                 EData.DateTime,
-                                 EQtdProduto.AValor, EValTotal.AValor,
-                                 EUnidade.text, VprUnidadePadrao,ENumSerie.Text, true,VpfSeqEstoqueBarra,true,ETecnico.AInteiro,EOrdemProducao.AInteiro);
-  if CDefeito.Checked then
-    result := FunProdutos.BaixaEstoqueDefeito(CadProduto.FieldByName('I_SEQ_PRO').AsInteger,ETecnico.AInteiro,EQtdProduto.AValor,EUnidade.Text,
-                                              ETipOperacao.Text,EDefeito.Text);
+  if VprResevaEstoque then
+  begin
+     Result := FunProdutos.ReservaEstoqueProduto(VARIA.CodigoEmpFil,
+                                      CadProduto.fieldByName('I_SEQ_PRO').AsInteger,
+                                      ECor.Ainteiro,
+                                      ETamanho.AInteiro,
+                                      EOrdemProducao.AInteiro,
+                                      EQtdProduto.AValor,
+                                      EUnidade.Text,
+                                      VprUnidadePadrao,
+                                      ETipOperacao.Text);
+
+  end
+  else
+  begin
+    FunProdutos.BaixaProdutoEstoque(varia.CodigoEmpFil,
+                                   CadProduto.fieldByName('I_SEQ_PRO').AsInteger,
+                                   ECodOperacao.AInteiro,
+                                   0,0,0,
+                                   varia.MoedaBase, ECor.Ainteiro,ETamanho.AInteiro,
+                                   EData.DateTime,
+                                   EQtdProduto.AValor, EValTotal.AValor,
+                                   EUnidade.text, VprUnidadePadrao,ENumSerie.Text, true,VpfSeqEstoqueBarra,true,ETecnico.AInteiro,EOrdemProducao.AInteiro);
+    if CDefeito.Checked then
+      result := FunProdutos.BaixaEstoqueDefeito(CadProduto.FieldByName('I_SEQ_PRO').AsInteger,ETecnico.AInteiro,EQtdProduto.AValor,EUnidade.Text,
+                                                ETipOperacao.Text,EDefeito.Text);
+  end;
 end;
 
 {******************************************************************************}
@@ -374,7 +390,8 @@ begin
   if DadosValidos then
   begin
     if ETipOperacao.Text = 'S' then
-      FunProdutos.VerificaPontoPedido( varia.CodigoEmpfil,
+      if not VprResevaEstoque then
+        FunProdutos.VerificaPontoPedido( varia.CodigoEmpfil,
                                      CadProduto.fieldByname('I_SEQ_PRO').AsInteger,
                                      ECor.AInteiro,ETamanho.AInteiro,
                                      FunProdutos.CalculaQdadePadrao(EUnidade.text,

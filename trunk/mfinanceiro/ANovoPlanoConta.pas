@@ -64,7 +64,7 @@ var
 
 implementation
 
-uses APrincipal;
+uses APrincipal, FunSql;
 
 {$R *.DFM}
 
@@ -107,7 +107,8 @@ end;
 ****************************************************************************** }
 function TFNovoPlanoConta.Alterar(Codigo : string; var Descricao : string; TipoDebCre : String ) : Boolean;
 begin
-  CadPlanoConta.FindKey([varia.codigoEmpresa, codigo]);
+  AdicionaSQLAbreTabela(CadPlanoConta,'Select * from CAD_PLANO_CONTA '+
+                                      ' Where C_CLA_PLA = '''+Codigo+'''');
   CadPlanoConta.edit;
   CodCla.Text := Codigo;
   CodCla.ReadOnly := true;

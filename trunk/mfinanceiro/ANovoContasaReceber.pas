@@ -125,7 +125,7 @@ implementation
 
 uses ABancos,  ConstMsg,  FunData,   APrincipal, funString, ANovoCliente,
    funsql, APlanoConta, FunObjeto, ACondicoesPgtos,
-  AFormasPagamento;
+  AFormasPagamento, ACondicaoPagamento;
 
 {$R *.DFM}
 
@@ -372,7 +372,7 @@ end;
 procedure TFNovoContasAReceber.BotaoCancelar1Click(Sender: TObject);
 begin
   LimpaCampos;
-  BotaoGravar1.Enabled := false;
+  EstadoBotoes(TRUE);
 end;
 
 {************************ Help *********************************************** }
@@ -459,9 +459,9 @@ end;
 {********************* rcadastrar Pagamentos ********************************* }
 procedure TFNovoContasAReceber.EPagamentoCadastrar(Sender: TObject);
 begin
-  FCondicoesPagamentos := TFCondicoesPagamentos.criarSDI(Application,'',FPrincipal.VerificaPermisao('FCondicoesPagamentos'));
-  FCondicoesPagamentos.BotaoCadastrar1.Click;
-  FCondicoesPagamentos.ShowModal;
+  FCondicaoPagamento := TFCondicaoPagamento.criarSDI(Application,'',FPrincipal.VerificaPermisao('FCondicaoPagamento'));
+  FCondicaoPagamento.ShowModal;
+  FCondicaoPagamento.free;
   Localiza.AtualizaConsulta;
 end;
 

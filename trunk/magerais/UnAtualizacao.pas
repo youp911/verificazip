@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1492;
+  CT_VersaoBanco = 1499;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -657,6 +657,100 @@ begin
         VpfErro := '1492';
         ExecutaComandoSql(Aux,'ALTER TABLE CADCLIENTES ADD C_EMA_NFE VARCHAR2(75) NULL ');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1492');
+      end;
+      if VpaNumAtualizacao < 1493 Then
+      begin
+        VpfErro := '1493';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_FISCAL ADD C_NOT_IEC CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_FISCAL set C_NOT_IEC =''T''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1493');
+      end;
+      if VpaNumAtualizacao < 1494 Then
+      begin
+        VpfErro := '1494';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_FISCAL ADD C_COM_ROM CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_FISCAL set C_COM_ROM =''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1494');
+      end;
+      if VpaNumAtualizacao < 1495 Then
+      begin
+        VpfErro := '1495';
+        ExecutaComandoSql(Aux,'CREATE TABLE PRODUTORESERVADOEMEXCESSO ('+
+                              ' SEQRESERVA NUMBER(10) NOT NULL, '+
+                              ' DATRESERVA DATE, ' +
+                              ' SEQPRODUTO NUMBER(10) NOT NULL, '+
+                              ' QTDESTOQUEPRODUTO NUMBER(15,4) NULL, '+
+                              ' QTDRESERVADO NUMBER(15,4) NULL, '+
+                              ' QTDEXCESSO NUMBER(15,4) NULL, '+
+                              ' CODFILIAL NUMBER(10) NULL, ' +
+                              ' SEQORDEMPRODUCAO NUMBER(10) NULL, '+
+                              ' CODUSUARIO NUMBER(10) NULL, '+
+                              ' DESUM CHAR(2) NULL, '+
+                              ' PRIMARY KEY(SEQRESERVA))');
+        ExecutaComandoSql(Aux,'CREATE INDEX PRODUTORESERVADOEXCE_FK1 ON PRODUTORESERVADOEMEXCESSO(SEQPRODUTO)' );
+        ExecutaComandoSql(Aux,'CREATE INDEX PRODUTORESERVADOEXCE_FK2 ON PRODUTORESERVADOEMEXCESSO(CODFILIAL,SEQORDEMPRODUCAO)' );
+        ExecutaComandoSql(Aux,'CREATE INDEX PRODUTORESERVADOEXCE_FK3 ON PRODUTORESERVADOEMEXCESSO(CODUSUARIO)' );
+        ExecutaComandoSql(Aux,'CREATE INDEX PRODUTORESERVADOEXCE_CP1 ON PRODUTORESERVADOEMEXCESSO(DATRESERVA)' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1495');
+      end;
+      if VpaNumAtualizacao < 1496 Then
+      begin
+        VpfErro := '1496';
+        ExecutaComandoSql(Aux,'CREATE TABLE RESERVAPRODUTO( '+
+                              ' SEQRESERVA NUMBER(10) NOT NULL, '+
+                              ' SEQPRODUTO NUMBER(10) NOT NULL, '+
+                              ' TIPMOVIMENTO CHAR(1) NULL, '+
+                              ' DATRESERVA DATE NULL, '+
+                              ' QTDRESERVADA NUMBER(15,3) NULL, '+
+                              ' CODUSUARIO NUMBER(10) NULL, '+
+                              ' QTDINICIAL NUMBER(15,3) NULL,'+
+                              ' QTDFINAL NUMBER(15,3) NULL, '+
+                              ' CODFILIAL NUMBER(10) NULL, '+
+                              ' SEQORDEMPRODUCAO NUMBER(10) NULL, '+
+                              ' DESUM CHAR(2) NULL, '+
+                              ' PRIMARY KEY(SEQRESERVA))');
+        ExecutaComandoSql(Aux,'CREATE INDEX RESERVAPRODUTO_FK1 ON RESERVAPRODUTO(SEQPRODUTO)');
+        ExecutaComandoSql(Aux,'CREATE INDEX RESERVAPRODUTO_FK2 ON RESERVAPRODUTO(CODFILIAL,SEQORDEMPRODUCAO)');
+        ExecutaComandoSql(Aux,'CREATE INDEX RESERVAPRODUTO_FK3 ON RESERVAPRODUTO(CODUSUARIO)');
+        ExecutaComandoSql(Aux,'CREATE INDEX RESERVAPRODUTO_CP1 ON RESERVAPRODUTO(DATRESERVA)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1496');
+      end;
+      if VpaNumAtualizacao < 1497 Then
+      begin
+        VpfErro := '1497';
+        ExecutaComandoSql(Aux,'CREATE TABLE PROJETO( '+
+                              ' CODPROJETO NUMBER(10) NOT NULL, '+
+                              ' NOMPROJETO VARCHAR2(50) NULL, '+
+                              ' PRIMARY KEY(CODPROJETO))');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1497');
+      end;
+      if VpaNumAtualizacao < 1498 Then
+      begin
+        VpfErro := '1498';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_FINANCEIRO ADD C_CON_PRO CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CFG_FINANCEIRO SET C_CON_PRO = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1498');
+      end;
+      if VpaNumAtualizacao < 1499 Then
+      begin
+        VpfErro := '1499';
+        ExecutaComandoSql(Aux,'CREATE TABLE CONTAAPAGARPROJETO( '+
+                              ' CODFILIAL NUMBER(10) NOT NULL, '+
+                              ' LANPAGAR NUMBER(10) NOT NULL, '+
+                              ' CODPROJETO NUMBER(10) NOT NULL, '+
+                              ' SEQDESPESA NUMBER(10) NOT NULL,' +
+                              ' VALDESPESA NUMBER(15,3) NULL, '+
+                              ' PERDESPESA NUMBER(15,3) NULL,'+
+                              ' PRIMARY KEY(CODFILIAL,LANPAGAR,CODPROJETO,SEQDESPESA))');
+        ExecutaComandoSql(Aux,'CREATE INDEX CONTAAPAGARPROJETO_FK1 ON CONTAAPAGARPROJETO(CODFILIAL,LANPAGAR)');
+        ExecutaComandoSql(Aux,'CREATE INDEX CONTAAPAGARPROJETO_FK2 ON CONTAAPAGARPROJETO(CODPROJETO)');
+        ExecutaComandoSql(Aux,'ALTER TABLE CONTAAPAGARPROJETO add CONSTRAINT CONTAAPAGARPRO_CP '+
+                              ' FOREIGN KEY (CODFILIAL,LANPAGAR) '+
+                              '  REFERENCES CADCONTASAPAGAR (I_EMP_FIL,I_LAN_APG) ');
+        ExecutaComandoSql(Aux,'ALTER TABLE CONTAAPAGARPROJETO add CONSTRAINT CONTAAPAGAR_PROJETO '+
+                              ' FOREIGN KEY (CODPROJETO) '+
+                              '  REFERENCES PROJETO (CODPROJETO) ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1499');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

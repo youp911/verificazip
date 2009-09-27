@@ -152,6 +152,8 @@ type
     N22: TMenuItem;
     DER1: TMenuItem;
     BaseDados: TSQLConnection;
+    N23: TMenuItem;
+    Projeto1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -207,7 +209,7 @@ uses
   ABaixaCotacaoPaga, AMotivoInadimplencia, AIndicadorInadimplencia,
   AEmailContasAReceber, APrazoMedio, ACentroCusto, AClientesBloqueados,
   AGraficoAnaliseFaturamento, AConsultacheques, UnVersoes, AChequesOO,
-  AFluxoCaixa, ADER, unCaixa;
+  AFluxoCaixa, ADER, unCaixa, AProjetos;
 
 {$R *.DFM}
 
@@ -467,6 +469,11 @@ begin
              FMotivoInadimplencia := tFMotivoInadimplencia.CriarSDI(application,'', FPrincipal.VerificaPermisao('FMotivoInadimplencia'));
              FMotivoInadimplencia.ShowModal;
              FMotivoInadimplencia.free;
+           end;
+    2760 : begin
+             FProjetos := TFProjetos.CriarSDI(self,'',true);
+             FProjetos.ShowModal;
+             FProjetos.free;
            end;
     2800 : FVendedores := TFVendedores.CriarMDI(application,varia.CT_AreaX,Varia.CT_AreaY,VerificaPermisao('FVendedores'));
     2920 : begin

@@ -294,7 +294,8 @@ uses
   AComposicoes in '..\mestoque\AComposicoes.pas' {FComposicoes},
   UnCondicaoPagamento in 'UnCondicaoPagamento.pas',
   ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
-  ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento};
+  ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
+  AProjetos in 'AProjetos.pas' {FProjetos};
 
 {$R *.RES}
 begin

@@ -1941,7 +1941,7 @@ begin
     begin
       Rave.close;
       ECotacao.AInteiro := CadOrcamentoI_Lan_Orc.AsInteger;
-      AtualizaConsulta;
+      AtualizaConsulta(true) ;
       Rave.ProjectFile := varia.PathRelatorios+'\Cotacao\XX_OrdemProducao.rav';
       Rave.execute;
       Rave.close;

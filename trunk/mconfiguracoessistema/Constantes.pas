@@ -539,6 +539,7 @@ type
     BaixaContasReceberCalcularJuros: Boolean;
     AdicionarRemessaAoImprimirBoleto: Boolean; // adicionar a nota fiscal no arquivo de remessa ao imprimir o boleto bancario
     EmailCobrancaPelaDataCobranca : Boolean;
+    ControlarProjeto : Boolean;
 
     //-----------------------Cotacao
     ExcluirFinanceiroCotacaoQuandoGeraNota : Boolean;
@@ -609,6 +610,8 @@ type
     CancelarNotaCancelarBaixaCotacao : Boolean;
     EmiteNFe : Boolean;
     NotaFiscalConjugada : Boolean;
+    MostrarEnderecoCobrancanaNota : Boolean;
+    QuandoForQuartodeNotanoRomaneioFazeroValorFaltante : Boolean;
 
     //---------------------Ecf
     BaixarEstoqueECF, //baixar o estoque quando gera um cupom direto pela tela de cupom sem estar associado a uma cotação
@@ -1594,6 +1597,7 @@ begin
         BaixaContasReceberCalcularJuros:= TipoCheck(VpfTabela.fieldByName('C_JUR_AUT').AsString);
         AdicionarRemessaAoImprimirBoleto:= TipoCheck(VpfTabela.fieldByName('C_IMB_AAR').AsString);
         EmailCobrancaPelaDataCobranca := TipoCheck(VpfTabela.fieldByName('C_EMA_DCO').AsString);
+        ControlarProjeto := TipoCheck(VpfTabela.fieldByName('C_CON_PRO').AsString);
       end;
     end;
 
@@ -1670,6 +1674,8 @@ begin
         ImprimirnaNotaDescricaoItemNatureza := TipoCheck(VpfTabela.fieldByName('C_INF_INO').AsString);
         QtdVolumeObrigatorio := TipoCheck(VpfTabela.fieldByName('C_VOL_OBR').AsString);
         CancelarNotaCancelarBaixaCotacao := TipoCheck(VpfTabela.fieldByName('C_CNF_ESC').AsString);
+        MostrarEnderecoCobrancanaNota := TipoCheck(VpfTabela.fieldByName('C_NOT_IEC').AsString);
+        QuandoForQuartodeNotanoRomaneioFazeroValorFaltante := TipoCheck(VpfTabela.fieldByName('C_COM_ROM').AsString);
       end;
     end;
 

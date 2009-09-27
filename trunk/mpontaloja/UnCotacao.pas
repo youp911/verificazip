@@ -2748,16 +2748,21 @@ begin
     else
       VpaDContaReceber.DatEmissao := date;
     VpaDContaReceber.PlanoConta := VpaDOrcamento.CodPlanoContas;
-    if VpaDCliente.IndQuarto then
-      VpaDContaReceber.ValTotal := VpaDOrcamento.ValTotalLiquido * 0.75
-    else
-      if VpaDCliente.IndMeia then
-        VpaDContaReceber.ValTotal := VpaDOrcamento.ValTotalLiquido * 0.5
+    if config.QuandoForQuartodeNotanoRomaneioFazeroValorFaltante then
+    begin
+      if VpaDCliente.IndQuarto then
+        VpaDContaReceber.ValTotal := VpaDOrcamento.ValTotalLiquido * 0.75
       else
-        if VpaDCliente.IndVintePorcento then
-          VpaDContaReceber.ValTotal := VpaDOrcamento.ValTotalLiquido * 0.8
+        if VpaDCliente.IndMeia then
+          VpaDContaReceber.ValTotal := VpaDOrcamento.ValTotalLiquido * 0.5
         else
-          VpaDContaReceber.ValTotal := VpaDOrcamento.ValTotalLiquido;
+          if VpaDCliente.IndVintePorcento then
+            VpaDContaReceber.ValTotal := VpaDOrcamento.ValTotalLiquido * 0.8
+          else
+            VpaDContaReceber.ValTotal := VpaDOrcamento.ValTotalLiquido;
+    end
+    else
+      VpaDContaReceber.ValTotal := VpaDOrcamento.ValTotalLiquido;
     VpaDContaReceber.PercentualDesAcr := 0;
     VpaDContaReceber.MostrarParcelas := VpaMostrarParcela;
     VpaDContaReceber.IndGerarComissao := true;

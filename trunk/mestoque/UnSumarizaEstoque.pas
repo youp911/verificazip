@@ -360,7 +360,10 @@ begin
   AdicionaSQLAbreTabela(Aux,'Select SUM(N_VLR_TOT) TOTAL FROM MOVORCAMENTOS '+
                             ' Where I_EMP_FIL = '+IntToStr(VpaEmpfil)+
                             ' and I_LAN_ORC = ' +IntToStr(VpaLanOrcamento));
-  result := VpaTotalCadOrcamento / Aux.FieldByname('TOTAL').AsFloat;
+  if Aux.FieldByname('TOTAL').AsFloat > 0 then
+    result := VpaTotalCadOrcamento / Aux.FieldByname('TOTAL').AsFloat
+  else
+    result := 1;
   Aux.close;
 end;
 

@@ -8,70 +8,81 @@ uses
   DBCtrls, BotaoCadastro, Buttons, Localizacao, UnDados,
   Grids, DBGrids, constantes, Mask, DBKeyViolation, LabelCorMove,
   Spin, EditorImagem, numericos, unContasaPagar, UnDespesas, UnDadosCR, UnClientes,
-  FMTBcd, SqlExpr;
+  FMTBcd, SqlExpr, ComCtrls, CGrades;
 
 type
   TFNovoContasAPagar = class(TFormularioPermissao)
     PainelGradiente1: TPainelGradiente;
+    Localiza: TConsultaPadrao;
+    Imagem: TEditorImagem;
+    ValidaGravacao: TValidaGravacao;
+    Aux: TSQLQuery;
+    PanelColor2: TPanelColor;
+    BFechar: TBitBtn;
+    BotaoGravar1: TBitBtn;
+    BNovo: TBitBtn;
+    BotaoCancelar1: TBitBtn;
     PanelColor1: TPanelColor;
+    Paginas: TPageControl;
+    PGeral: TTabSheet;
+    PanelColor3: TPanelColor;
+    PCabecalho: TPanelColor;
     Label1: TLabel;
     Label3: TLabel;
-    Label5: TLabel;
-    EDataEmissao: TMaskEditColor;
-    Label10: TLabel;
     Label13: TLabel;
     Label14: TLabel;
     Label15: TLabel;
+    LNomFornecedor: TLabel;
+    SpeedButton1: TSpeedButton;
+    SpeedButton3: TSpeedButton;
+    Label2: TLabel;
+    Label6: TLabel;
+    LPlano: TLabel;
+    BPlano: TSpeedButton;
+    Label11: TLabel;
+    SpeedButton2: TSpeedButton;
+    Label17: TLabel;
+    Label12: TLabel;
+    Label10: TLabel;
+    Label8: TLabel;
+    LParcelas: TLabel;
     EFilial: TEditColor;
     ELanPagar: TEditColor;
-    Label8: TLabel;
-    Localiza: TConsultaPadrao;
-    Bevel2: TBevel;
-    LNomFornecedor: TLabel;
+    EFornecedor: TEditLocaliza;
+    EMoeda: TEditLocaliza;
+    ENota: Tnumerico;
+    Tempo: TPainelTempo;
+    EPlano: TEditColor;
+    ECentroCusto: TEditLocaliza;
+    ECodBarras: TEditColor;
+    EValorparcelas: Tnumerico;
+    EQtdParcelas: Tnumerico;
+    EValorTotal: Tnumerico;
+    PRodape: TPanelColor;
+    Label5: TLabel;
     LFoto: TLabel;
     LQtdDiasEntre: TLabel;
     Label19: TLabel;
     Label20: TLabel;
-    EFornecedor: TEditLocaliza;
-    SpeedButton1: TSpeedButton;
-    Imagem: TEditorImagem;
-    EValorparcelas: Tnumerico;
-    LParcelas: TLabel;
-    EQtdDiasEntre: TSpinEditColor;
-    SpinEdit2: TSpinEditColor;
-    EMoeda: TEditLocaliza;
-    SpeedButton3: TSpeedButton;
-    Label2: TLabel;
-    Label6: TLabel;
-    EQtdParcelas: Tnumerico;
-    EValorTotal: TNumerico;
-    ValidaGravacao: TValidaGravacao;
-    ENota: TNumerico;
-    PanelColor2: TPanelColor;
-    BFechar: TBitBtn;
-    BotaoCancelar1: TBitBtn;
-    BotaoGravar1: TBitBtn;
-    BNovo: TBitBtn;
-    EdcFormaPgto: TEditLocaliza;
     SpeedButton4: TSpeedButton;
     Label7: TLabel;
-    Tempo: TPainelTempo;
-    EPlano: TEditColor;
-    LPlano: TLabel;
-    BPlano: TSpeedButton;
-    Aux: TSQLQuery;
-    ECentroCusto: TEditLocaliza;
-    Label11: TLabel;
-    SpeedButton2: TSpeedButton;
-    Label17: TLabel;
-    BFoto: TBitBtn;
     Label4: TLabel;
     SpeedButton5: TSpeedButton;
     Label9: TLabel;
+    EDataEmissao: TMaskEditColor;
+    EQtdDiasEntre: TSpinEditColor;
+    SpinEdit2: TSpinEditColor;
+    EdcFormaPgto: TEditLocaliza;
+    BFoto: TBitBtn;
     EContaCaixa: TEditLocaliza;
     CBaixarConta: TCheckBox;
-    ECodBarras: TEditColor;
-    Label12: TLabel;
+    PProjeto: TPanelColor;
+    Label16: TLabel;
+    SpeedButton6: TSpeedButton;
+    LNomProjeto: TLabel;
+    EProjeto: TRBEditLocaliza;
+    PaginaProjeto: TTabSheet;
+    RBStringGridColor1: TRBStringGridColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBEditColor2Exit(Sender: TObject);
@@ -99,6 +110,7 @@ type
       Shift: TShiftState);
     procedure EFornecedorRetorno(Retorno1, Retorno2: String);
     procedure EDataEmissaoExit(Sender: TObject);
+    procedure EProjetoCadastrar(Sender: TObject);
   private
     VprDContasAPagar : TRBDContasaPagar;
     VprDatEmissao :TDAteTime;
@@ -113,6 +125,8 @@ type
     procedure InicializaTela;
     procedure AlteraEstadoBotoes(VpaEstado : Boolean);
     procedure InterpretaCodigoBarras;
+    procedure ConfiguraTela;
+    procedure AdicionaDespesaProjeto;
   public
     function NovoContasaPagar(VpaCodFornecedor : Integer) : Boolean;
   end;
@@ -124,7 +138,7 @@ implementation
 
 uses ConstMsg,  FunData, APrincipal, funString,
   ANovoCliente, funObjeto, funsql, AFormasPagamento,
-  ADespesas, APlanoConta,  UnClassesImprimir, ACentroCusto;
+  ADespesas, APlanoConta,  UnClassesImprimir, ACentroCusto, AProjetos;
 
 {$R *.DFM}
 
@@ -139,6 +153,7 @@ begin
   VprDatEmissao := date;
 
   EDataEmissao.EditMask := FPrincipal.CorFoco.AMascaraData;
+  ConfiguraTela;
 end;
 
 {**********************Quando o formulario e fechado***************************}
@@ -214,8 +229,8 @@ begin
   VprDContasAPagar := TRBDContasaPagar.cria;
   VprDCliente.Free;
   VprDCliente := TRBDCliente.cria;
-  PanelColor1.Enabled := true;
-  LimpaComponentes(PanelColor1,0);
+  PanelColor3.Enabled := true;
+  LimpaComponentes(PanelColor3,0);
   LPlano.Caption := '';
   EMoeda.Text := IntTostr(Varia.MoedaBase);
   EMoeda.Atualiza;
@@ -229,6 +244,7 @@ begin
   EQtdParcelas.ReadOnly := False;
   AlteraEstadoBotoes(true);
   ValidaGravacao.execute;
+  ActiveControl := ECodBarras;
 end;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
@@ -367,6 +383,37 @@ begin
 end;
 
 { ***************** valida a gravacao dos registros *********************** }
+procedure TFNovoContasAPagar.ConfiguraTela;
+begin
+  PaginaProjeto.TabVisible := Config.ControlarProjeto;
+  PProjeto.Visible := Config.ControlarProjeto;
+  if not config.ControlarProjeto then
+    self.Height := self.Height -24 ;
+end;
+
+{ ***************** valida a gravacao dos registros *********************** }
+procedure TFNovoContasAPagar.AdicionaDespesaProjeto;
+var
+  VpfDDespesaProjeto : TRBDContasaPagarProjeto;
+begin
+  if config.ControlarProjeto then
+  begin
+    if EProjeto.AInteiro <> 0 then
+    begin
+      FreeTObjectsList(VprDContasAPagar.DespesaProjeto);
+      VpfDDespesaProjeto := VprDContasAPagar.addDespesaProjeto;
+      VpfDDespesaProjeto.CodProjeto := EProjeto.AInteiro;
+      VpfDDespesaProjeto.NomProjeto := LNomProjeto.Caption;
+      VpfDDespesaProjeto.PerDespesa := 100;
+      if EValorparcelas.AValor <> 0 then
+        VpfDDespesaProjeto.ValDespesa := EValorparcelas.AValor * EQtdParcelas.AsInteger
+      else
+        VpfDDespesaProjeto.ValDespesa := EValorTotal.AValor;
+    end;
+  end;
+end;
+
+{ ***************** valida a gravacao dos registros *********************** }
 procedure TFNovoContasAPagar.EFilialChange(Sender: TObject);
 begin
   if BotaoGravar1 <> nil then
@@ -395,6 +442,14 @@ begin
     BPlano.Click;
 end;
 
+
+procedure TFNovoContasAPagar.EProjetoCadastrar(Sender: TObject);
+begin
+  FProjetos := tFProjetos.CriarSDI(self,'',true);
+  FProjetos.BotaoCadastrar1.Click;
+  FProjetos.ShowModal;
+  FProjetos.free;
+end;
 
 procedure TFNovoContasAPagar.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -431,6 +486,7 @@ begin
   if vpfResultado = '' then
   begin
     CarDClasse;
+    AdicionaDespesaProjeto;
     if not FPrincipal.BaseDados.InTransaction then
     begin
 //      VprTransacao.IsolationLevel := xilREADCOMMITTED;
@@ -466,7 +522,7 @@ begin
   if confirmacao('Tem certeza que deseja cancelar a digitação do Contas a Pagar?') then
   begin
     AlteraEstadoBotoes(false);
-    PanelColor1.Enabled := false;
+    PanelColor3.Enabled := false;
   end;
 end;
 

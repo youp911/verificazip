@@ -32,6 +32,7 @@ Type TRBFuncoesPremer = class(TRBLocalizaPremer)
     function RCodClassificacaoProdutoPrincipal(VpaCodProduto : String):string;
     function RCodClassificacaoProduto(VpaDProduto : TRBDProduto):string;
     function RMedidaComPerda(VpaMedida : String) : Double;
+    function PrimeiraParteDoCodigoENumero(VpaCodProduto : string):Boolean;
     function CadastraClassificacao(VpaCodClassificacao, VpaCodProduto : String):string;
     function CadastraProdutoPrincipal(VpaNomArquivo : String;VpaProdutos : TStringList):String;
     function CadastraProduto(VpaLinha : String;VpaDProduto : TRBDProduto):String;
@@ -97,6 +98,17 @@ procedure TRBFuncoesPremer.LimpaEstagios(VpaSeqProduto : Integer);
 begin
   ExecutaComandoSql(Aux,'Delete from PRODUTOESTAGIO '+
                         ' Where SEQPRODUTO = '+IntToStr(VpaSeqProduto));
+end;
+
+{******************************************************************************}
+function TRBFuncoesPremer.PrimeiraParteDoCodigoENumero( VpaCodProduto: string): Boolean;
+begin
+  try
+     StrToInt(DeletaChars(DeletaEspaco(CopiaAteChar(VpaCodProduto,' ')),'.'));
+     result := true;
+  except
+    result := false;
+  end;
 end;
 
 {******************************************************************************}
@@ -450,8 +462,12 @@ begin
   if FunProdutos.ExisteCodigoProduto(VpaDProduto.SeqProduto,VpaDProduto.CodProduto,VpaDProduto.NomProduto) then
     FunProdutos.CarDProduto(VpaDProduto)
   else
-    if FunProdutos.ExisteNomeProduto(VpaDProduto.SeqProduto,RetiraAcentuacao(UpperCase(LimpaAspasdoNome(CopiaAteChar(DeleteAteChar(VpaLinha,';'),';'))))) then
-      FunProdutos.CarDProduto(VpaDProduto);
+  begin
+    VpaDProduto.CodProduto := UpperCase(CopiaAteChar(VpaLinha,';'));
+    if PrimeiraParteDoCodigoENumero(VpaDProduto.CodProduto) then
+      if FunProdutos.ExisteNomeProduto(VpaDProduto.SeqProduto,RetiraAcentuacao(UpperCase(LimpaAspasdoNome(CopiaAteChar(DeleteAteChar(VpaLinha,';'),';'))))) then
+        FunProdutos.CarDProduto(VpaDProduto);
+  end;
   VpaDProduto.CodProduto := UpperCase(CopiaAteChar(VpaLinha,';'));
   VpaLinha := DeleteAteChar(VpaLinha,';');
   VpaDProduto.NomProduto := RetiraAcentuacao(UpperCase(LimpaAspasdoNome(CopiaAteChar(VpaLinha,';'))));

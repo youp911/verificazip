@@ -165,7 +165,11 @@ begin
   VpaDNFe.Dest.CNPJCPF           := VpaDCliente.CGC_CPF;
   VpaDNFe.Dest.xNome             := VpaDCliente.NomCliente;
   VpaDNFe.Dest.EnderDest.xLgr    := VpaDCliente.DesEndereco;
-  VpaDNFe.Dest.EnderDest.nro     := VpaDCliente.NumEndereco;
+  if (VpaDCliente.NumEndereco = '0') or
+     (DeletaChars(VpaDCliente.NumEndereco,' ') = '') then
+    VpaDNFe.Dest.EnderDest.xLgr    := 'S/N'
+  else
+    VpaDNFe.Dest.EnderDest.nro     := VpaDCliente.NumEndereco;
   VpaDNFe.Dest.EnderDest.xCpl    := VpaDCliente.DesComplementoEndereco;
   VpaDNFe.Dest.EnderDest.xBairro := VpaDCliente.DesBairro;
   if VpaDCliente.TipoPessoa = 'E' then
@@ -641,7 +645,7 @@ begin
     NFE.DANFE.TipoDANFE := tiRetrato
   else
     NFE.DANFE.TipoDANFE := tiPaisagem;
-//  NFe.DANFE.Logo := varia.PathVersoes+'\'+inttoStr(varia.CodigoEmpFil)+'.bmp';
+  NFe.DANFE.Logo := varia.PathVersoes+'\'+inttoStr(varia.CodigoEmpFil)+'.bmp';
 
   NFe.NotasFiscais.Clear;
   NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml');

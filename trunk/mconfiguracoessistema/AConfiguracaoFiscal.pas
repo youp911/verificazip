@@ -197,6 +197,10 @@ type
     CFGC_VOL_OBR: TWideStringField;
     CFGC_CNF_ESC: TWideStringField;
     DBCheckBox6: TDBCheckBox;
+    DBCheckBox7: TDBCheckBox;
+    CFGC_NOT_IEC: TWideStringField;
+    DBCheckBox8: TDBCheckBox;
+    CFGC_COM_ROM: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBEditLocaliza2Retorno(Retorno1, Retorno2: String);

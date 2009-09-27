@@ -315,6 +315,17 @@ type
       destructor Destroy; override;
 end;
 
+Type
+  TRBDContasaPagarProjeto = class
+    public
+      CodProjeto : Integer;
+      NomProjeto : String;
+      PerDespesa,
+      ValDespesa : Double;
+      constructor cria;
+      destructor destroy;override;
+end;
+
 type
   TRBDContasaPagar = Class
     public
@@ -348,10 +359,12 @@ type
       IndEsconderConta : Boolean;
       DesTipFormaPagamento : String;
       DesObservacao : String;
-      Parcelas : TList;
+      Parcelas,
+      DespesaProjeto : TList;
       constructor cria;
       destructor Destroy;override;
       function addParcela : TRBDParcelaCP;
+      function addDespesaProjeto : TRBDContasaPagarProjeto;
   end;
 
 
@@ -1171,14 +1184,24 @@ begin
   inherited;
   IndEsconderConta := false;
   Parcelas := TList.create;
+  DespesaProjeto := TList.create;
 end;
 
 {******************************************************************************}
 destructor TRBDContasaPagar.Destroy;
 begin
+  FreeTObjectsList(DespesaProjeto);
   FreeTObjectsList(Parcelas);
+  DespesaProjeto.free;
   Parcelas.free;
   inherited destroy;
+end;
+
+{******************************************************************************}
+function TRBDContasaPagar.addDespesaProjeto: TRBDContasaPagarProjeto;
+begin
+  result := TRBDContasaPagarProjeto.cria;
+  DespesaProjeto.add(result);
 end;
 
 {******************************************************************************}
@@ -1418,5 +1441,25 @@ begin
   inherited;
 end;
 { TRBDCondicaoPagamentoGrupoUsuario }
+
+
+{((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                    dados da classe do contas a pagar do projeto
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDContasaPagarProjeto.cria;
+begin
+  inherited create;
+end;
+
+{******************************************************************************}
+destructor TRBDContasaPagarProjeto.destroy;
+begin
+
+  inherited;
+end;
+
+{ TRBDContasaPagarProjeto }
 
 end.

@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   DB, BotaoCadastro, StdCtrls, Buttons, Componentes1, Grids, DBGrids, Tabela,
-  DBKeyViolation, DBClient, ExtCtrls, PainelGradiente;
+  DBKeyViolation, DBClient, ExtCtrls, PainelGradiente, UnContasAReceber;
 
 type
   TFCondicaoPagamento = class(TFormularioPermissao)
@@ -24,6 +24,7 @@ type
     CadCondicoesPagtoC_NOM_USU: TWideStringField;
     DataCadCondicoesPagto: TDataSource;
     BitBtn1: TBitBtn;
+    BExcluir: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -32,6 +33,7 @@ type
     procedure EDescricaoKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure BitBtn1Click(Sender: TObject);
+    procedure BExcluirClick(Sender: TObject);
   private
     { Private declarations }
     VprOrdem : String;
@@ -46,7 +48,7 @@ var
 
 implementation
 
-uses APrincipal, FunSql, ANovaCondicaoPagamento;
+uses APrincipal, FunSql, ANovaCondicaoPagamento, Constmsg;
 
 {$R *.DFM}
 
@@ -67,6 +69,15 @@ begin
 end;
 
 { ******************* Quando o formulario e fechado ************************** }
+procedure TFCondicaoPagamento.BExcluirClick(Sender: TObject);
+begin
+  if  Confirmacao(CT_DeletaRegistro) then
+  begin
+    FunContasAReceber.ExcluiCondicaoPagamento(CadCondicoesPagtoI_COD_PAG.AsInteger);
+    AtualizaConsulta;
+  end;
+end;
+
 procedure TFCondicaoPagamento.BFecharClick(Sender: TObject);
 begin
   close;

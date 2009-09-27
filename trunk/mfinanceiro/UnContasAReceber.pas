@@ -227,6 +227,7 @@ type
     function AlteraVencimentoCheque(VpaSeqCheque : Integer;VpaDatVencimento : TDatetime):string;
     function GeraComissaoNegativa(VpaDNotaFor : TRBDNotaFiscalFor):string;
     function CondicaoPagamentoDuplicada(VpaCondicoesPagamento : TList):Boolean;
+    function ExcluiCondicaoPagamento(VpaCodCondicaoPagamento : Integer):String;
   end;
 
 Var
@@ -4006,6 +4007,15 @@ begin
       end;
     end;
   end;
+end;
+
+{******************************************************************************}
+function TFuncoesContasAReceber.ExcluiCondicaoPagamento(VpaCodCondicaoPagamento : Integer):String;
+begin
+  ExecutaComandoSql(Aux,'delete from MOVCONDICAOPAGTO '+
+                        ' Where I_COD_PAG = ' +IntToStr(VpaCodCondicaoPagamento));
+  ExecutaComandoSql(Aux,'delete from CADCONDICOESPAGTO '+
+                        ' Where I_COD_PAG = ' +IntToStr(VpaCodCondicaoPagamento));
 end;
 
 {******************************************************************************}

@@ -680,10 +680,10 @@ procedure TFBaixaConsumoProduto.BGravarClick(Sender: TObject);
 var
   VpfResultado: String;
 begin
-  VpfResultado:= FunProdutos.GravaBaixaConsumoProduto(VprCodFilial,VprSeqOrdem,EFracao.AInteiro, EUsuario.AInteiro,false,VprBaixas);
+  VpfResultado:= FunProdutos.GravaBaixaConsumoProduto1(VprCodFilial,VprSeqOrdem,EFracao.AInteiro, EUsuario.AInteiro,false,VprBaixas);
   if VpfResultado = '' then
   begin
-    VpfResultado := FunProdutos.GravaBaixaConsumoProduto(VprCodFilial,VprSeqOrdem,EFracao.AInteiro,EUsuario.AInteiro,true,VprBaixaOrdemCorte);
+    VpfResultado := FunProdutos.GravaBaixaConsumoProduto1(VprCodFilial,VprSeqOrdem,EFracao.AInteiro,EUsuario.AInteiro,true,VprBaixaOrdemCorte);
     if VpfResultado = '' then
     begin
       AlteraEstagioFracao;
