@@ -370,7 +370,7 @@ uses fundata, APrincipal, constmsg, ANovoContasaReceber,
   AMovComissoes, ANovaNotaFiscalNota, AConsolidarCR, ANovaCotacao, FunObjeto,
   AVisualizaLogReceber, ACobrancas, AConsultacheques,
   ABaixaContasAReceberOO, AMostraObservacaoCliente, ANovaCobranca,
-  ANovoCliente;
+  ANovoCliente, dmRave, FunNumeros;
 
 {$R *.DFM}
 
@@ -1064,11 +1064,16 @@ end;
 procedure TFContasaReceber.ImprimeRecibo;
 var
   VpfDRecibo : TDadosRecibo;
+  VpfDCliente : TRBDCliente;
 begin
-  VpfDRecibo := TDadosRecibo.Create;
-  FunContasAReceber.CarDRecibo(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger,VpfDRecibo);
-  FunImpressao.ImprimirRecibo(VpfDRecibo);
-  VpfDRecibo.free;
+  VpfDCliente := TRBDCliente.cria;
+  VpfDCliente.CodCliente := MovParcelasI_COD_CLI.AsInteger;
+  FunClientes.CarDCliente(VpfDCliente);
+  dtRave := TdtRave.create(self);
+  dtRave.ImprimeRecibo(MovParcelasI_EMP_FIL.AsInteger,VpfDCliente,MovParcelasC_NRO_DUP.AsString,FormatFloat('#,###,##0.00',MovParcelasN_VLR_PAR.AsFloat),Extenso(MovParcelasN_VLR_PAR.AsFloat,'real','reais'),varia.CidadeFilial+' '+ IntTostr(dia(date))+', de ' + TextoMes(date,false)+ ' de '+Inttostr(ano(date)));
+  dtRave.free;
+  VpfDCliente.free;
+
 end;
 
 {******************************************************************************}

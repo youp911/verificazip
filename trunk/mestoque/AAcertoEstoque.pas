@@ -7,7 +7,7 @@ uses
   Componentes1, ExtCtrls, PainelGradiente, ComCtrls, StdCtrls, Buttons,
   ConvUnidade, CONSTANTES, Mask, DBCtrls, Tabela, Db, DBTables,
   BotaoCadastro, Localizacao, DBKeyViolation, UnProdutos, numericos, FMTBcd,
-  SqlExpr, UnZebra, UnDadosProduto;
+  SqlExpr, UnZebra, UnDadosProduto, UnDadosLocaliza;
 
 Const
   CT_DATAMENORULTIMOFECHAMENTO='DATA NÃO PODE SER MENOR QUE A DO ULTIMO FECHAMENTO!!!A data de digitação do produto não ser menor que a data do ultimo fechamento...';  
@@ -88,6 +88,10 @@ type
     Label6: TLabel;
     SpeedButton7: TSpeedButton;
     Label22: TLabel;
+    Label25: TLabel;
+    EComposicao: TRBEditLocaliza;
+    SpeedButton8: TSpeedButton;
+    Label26: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBEditLocaliza2Select(Sender: TObject);
@@ -118,6 +122,9 @@ type
     procedure PanelColor4DblClick(Sender: TObject);
     procedure CDefeitoClick(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
+    procedure ECodBarrasExit(Sender: TObject);
+    procedure EEmbalagemRetorno(VpaColunas: TRBColunasLocaliza);
+    procedure EComposicaoRetorno(VpaColunas: TRBColunasLocaliza);
   private
     VprResevaEstoque : Boolean;
     VprUnidadePadrao : string;
@@ -468,6 +475,10 @@ begin
     EQtdEstoque.AValor := CadProduto.FieldByName('N_QTD_PRO').AsFloat;
     ECodBarras.Text := CadProduto.FieldByName('C_COD_BAR').AsString;
     ECodBarras.ReadOnly := CadProduto.FieldByName('C_COD_BAR').AsString <> '';
+    EEmbalagem.AInteiro := CadProduto.FieldByName('I_COD_EMB').AsInteger;
+    EEmbalagem.Atualiza;
+    EComposicao.AInteiro := CadProduto.FieldByName('I_COD_COM').AsInteger;
+    EComposicao.Atualiza;
     if config.EstoquePorNumeroSerie then
       if ETipOperacao.Text = 'E' then
         ENumSerie.Text := FunProdutos.CalculaNumeroSerie(CadProduto.FieldByName('I_NUM_LOT').AsInteger+1);
@@ -498,9 +509,13 @@ begin
     VpfDEtiqueta.CodCor := ECor.AInteiro;
     VpfDEtiqueta.QtdOriginalEtiquetas := 1;
     VpfDEtiqueta.QtdEtiquetas := 1;
-    VpfDEtiqueta.QtdProduto := RetornaInteiro(VpfQtdFaltante);
+    if VpfQtdFaltante > EQtdLote.AValor then
+      VpfDEtiqueta.QtdProduto := EQtdLote.AsInteger
+    else
+      VpfDEtiqueta.QtdProduto := RetornaInteiro(VpfQtdFaltante);
     VpfDEtiqueta.NomComposicao := VpfNomComposicao;
     VpfDEtiqueta.NomCor := LNomCor.Caption;
+    VpfDEtiqueta.CodBarras := ECodBarras.Text;
     VpfDEtiqueta.NumSerie := ENumSerie.Text;
     VpfQtdFaltante := VpfQtdFaltante - EQtdLote.AValor;
   end;
@@ -528,10 +543,38 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFAcertoEstoque.ECodBarrasExit(Sender: TObject);
+var
+  VpfResultado : String;
+begin
+  if not ECodBarras.ReadOnly  then
+  begin
+    if ECodBarras.Text <> '' then
+      VpfResultado := FunProdutos.AtualizaCodEan(VprSeqProduto,ECor.AInteiro,ECodBarras.Text);
+    if VpfResultado <> '' then
+      aviso(VpfResultado);
+  end;
+end;
+
 procedure TFAcertoEstoque.ECodOperacaoChange(Sender: TObject);
 begin
   if VprOperacao = ocInsercao then
     ValidaGravacao1.execute ;
+end;
+
+procedure TFAcertoEstoque.EComposicaoRetorno(VpaColunas: TRBColunasLocaliza);
+var
+  VpfResultado : String;
+begin
+  if CadProduto.Active then
+  BEGIN
+    if EComposicao.AInteiro <> CadProduto.FieldByName('I_COD_COM').AsInteger then
+    begin
+      VpfResultado := FunProdutos.AtualizaComposicao(CadProduto.FieldByName('I_SEQ_PRO').AsInteger,EComposicao.AInteiro);
+      if VpfResultado <> '' then
+        aviso(VpfResultado);
+    end;
+  END;
 end;
 
 {******************************************************************************}
@@ -565,6 +608,22 @@ begin
     aviso(CT_DATAMENORULTIMOFECHAMENTO);
     EData.SetFocus;
   end;
+end;
+
+procedure TFAcertoEstoque.EEmbalagemRetorno(VpaColunas: TRBColunasLocaliza);
+var
+  VpfResultado : String;
+begin
+  EQtdLote.Text := VpaColunas.items[2].AValorRetorno;
+  if CadProduto.Active then
+  BEGIN
+    if EEmbalagem.AInteiro <> CadProduto.FieldByName('I_COD_EMB').AsInteger then
+    begin
+      VpfResultado := FunProdutos.AtualizaEmbalagem(CadProduto.FieldByName('I_SEQ_PRO').AsInteger,EEmbalagem.AInteiro);
+      if VpfResultado <> '' then
+        aviso(VpfResultado);
+    end;
+  END;
 end;
 
 {******************************************************************************}

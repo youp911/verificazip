@@ -1845,6 +1845,7 @@ Type
       QtdEtiquetas,
       QtdProduto,
       NumPedido : Integer;
+      CodBarras,
       NomCor,
       NomComposicao,
       NumSerie : String;

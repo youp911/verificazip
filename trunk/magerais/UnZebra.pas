@@ -256,17 +256,17 @@ begin
            break;
         inc(VpfQtdEtiquetasImpressas);
         VpfPosicaoX := VpfColuna * 265;
-        ImprimeCodigoBarras(VpfPosicaoX+220,70,90,'1',2,4,50,true,AdicionaCharE('0',VpfDEtiqueta.Produto.CodProduto,12));
+        ImprimeCodigoBarras(VpfPosicaoX+220,70,90,'1',2,4,50,true,AdicionaCharE('0',VpfDEtiqueta.CodBarras,12));
         ImprimeTexto(VpfPosicaoX+165,30,90,1,22,22,false,'CNPJ : '+Varia.CNPJFilial);
         ImprimeTexto(VpfPosicaoX+145,30,90,1,22,22,false,'CODIGO : '+copy(VpfDEtiqueta.Produto.NomProduto,1,Pos('MM',VpfDEtiqueta.Produto.NomProduto)));
-        ImprimeTexto(VpfPosicaoX+125,30,90,1,22,22,false,'COR : '+VpfDEtiqueta.NomCor);
+        ImprimeTexto(VpfPosicaoX+125,30,90,1,22,22,false,'COR : '+AdicionaCharD(' ',VpfDEtiqueta.NomCor,17) +  ' - ' +FormatFloat('#,###,###,##0.##',VpfDEtiqueta.QtdProduto)+ ' '+VpfDEtiqueta.Produto.CodUnidade );
         ImprimeTexto(VpfPosicaoX+105,30,90,1,22,22,false,'COMP : '+VpfDEtiqueta.NomComposicao);
         for vpflaco := 0 to VpfDEtiqueta.Produto.FigurasComposicao.Count - 1 do
         begin
           VpfDFigura := TRBDFiguraGRF(VpfDEtiqueta.Produto.FigurasComposicao.Items[VpfLaco]);
           ImprimeFigura(VpfPosicaoX+40,(VpfLaco*85)+30,VpfDFigura.DesImagem);
         end;
-        ImprimeTexto(VpfPosicaoX+10,30,90,1,22,22,false,'INDUSTRIA BRASILEIRA');
+        ImprimeTexto(VpfPosicaoX+10,30,90,1,22,22,false,'INDUSTRIA BRASILEIRA'+ '   '+VpfDEtiqueta.NumSerie);
 {        ImprimeTexto(VpfPosicaoX+30,50,0,1,1,1,false,copy(VpfDEtiqueta.Produto.NomProduto,1,25));
         if Length(VpfDEtiqueta.Produto.NomProduto) > 26 then
           ImprimeTexto(VpfPosicaoX+30,75,0,1,1,1,false,copy(VpfDEtiqueta.Produto.NomProduto,26,26));

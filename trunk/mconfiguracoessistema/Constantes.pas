@@ -61,6 +61,7 @@ const
   CNPJ_AGZ = '09.661.514/0001-62';
   CNPJ_REELTEX= '00.494.703/0001-13';
   CNPJ_AtelierDuCristal = '79.385.597/0001-90';
+  CNPJ_VENETO = '95.757.399/0001-66';
 
 type
 

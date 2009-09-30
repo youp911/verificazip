@@ -2263,7 +2263,7 @@ begin
   VpfDNotaFiscal := TRBDNotaFiscal.cria;
   CarDNotaFiscal(VpfDNotaFiscal,VpaCodFilial,VpaSeqNota);
 
-  if Config.EmiteNFe then
+  if (Config.EmiteNFe) and (VpfDNotaFiscal.NumProtocoloNFE <> '' ) then
   begin
     if DiasPorPeriodo(VpfDNotaFiscal.DatEmissao,Date) > 7  then
       result := 'NOTA FISCAL EMITIDA A MAIS DE 7 DIAS!!!'#13'Não é permitido cancelar uma nota fiscal emitida a mais de 7 dias.';
@@ -2278,7 +2278,7 @@ begin
 
   if (result = '') then
   begin
-    if config.EmiteNFe then
+    if (Config.EmiteNFe) and (VpfDNotaFiscal.NumProtocoloNFE <> '' ) then
       result := FunNFe.CancelaNFE(VpfDNotaFiscal,VpfDNotaFiscal.DesMotivoCancelamentoNFE);
     if result = '' then
     begin

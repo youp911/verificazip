@@ -2787,7 +2787,11 @@ begin
     VpaDContaReceber.EsconderConta := true;
     result := VpaFunContaAReceber.CriaContasaReceber(VpaDContaReceber,VpaResultado,VpaGravarRegistro);
     VpaDOrcamento.CodFormaPaqamento := VpaDContaReceber.CodFrmPagto;
-    VpaDOrcamento.ValTotal := VpaDContaReceber.ValTotal;
+    //quando for para gerar o financeiro do valor faltante do 1/4 de nota inicializa novamente o valor total da cotaçao porque em seguida é chamada a rotina para salvar o valor total;
+    if config.QuandoForQuartodeNotanoRomaneioFazeroValorFaltante then
+      VpaDContaReceber.ValTotal := VpaDOrcamento.ValTotalLiquido
+    else
+      VpaDOrcamento.ValTotal := VpaDContaReceber.ValTotal;
     if result then
     begin
       VpaDOrcamento.FinanceiroGerado := true;

@@ -1932,6 +1932,9 @@ end;
 
 {******************************************************************************}
 procedure TFCotacao.BImprimeOPClick(Sender: TObject);
+var
+  VpfQtdVias : String;
+  VpfLaco : Integer;
 begin
   if CadOrcamentoI_Lan_Orc.AsInteger <> 0 then
   begin
@@ -1940,10 +1943,15 @@ begin
     else
     begin
       Rave.close;
+      VpfQtdVias := '1';
+      if Varia.CNPJFilial = cNPJ_Veneto then
+        if not EntradaNumero('Vias de Impressão','Qtd de vias',VpfQtdVias,false,ECotacao.Color,PanelColor1.Color,false) then
+          exit;
       ECotacao.AInteiro := CadOrcamentoI_Lan_Orc.AsInteger;
       AtualizaConsulta(true) ;
       Rave.ProjectFile := varia.PathRelatorios+'\Cotacao\XX_OrdemProducao.rav';
-      Rave.execute;
+      for Vpflaco := 1 to StrToInt(VpfQtdVias) do
+        Rave.execute;
       Rave.close;
 
       ECotacao.Clear;

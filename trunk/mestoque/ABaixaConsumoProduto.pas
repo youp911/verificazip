@@ -987,6 +987,7 @@ var
   VpfFunArgox : TRBFuncoesArgox;
 begin
   VpfFunArgox := TRBFuncoesArgox.cria(varia.PortaComunicacaoImpTermica);
+  VpfFunArgox.ImprimeEtiquetaConsumoTecido(VprBaixaOrdemCorte);
   VpfFunArgox.ImprimeEtiquetaSeparacao(VprBaixas);
   VpfFunArgox.free;
 end;

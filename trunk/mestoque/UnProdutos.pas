@@ -210,7 +210,10 @@ type
     function RQtdPecaemMetro(VpaAltProduto, VpaLarProduto, VpaQtdProvas : Integer;VpaAltMolde, VpaLarMolde : double;VpaIndAltFixa : Boolean; Var VpaIndice : double):Integer;
     function PrincipioAtivoControlado(VpaCodPrincipio : Integer) : boolean;
     procedure AtualizaValorCusto(VpaSeqProduto,VpaCodFilial, VpaCodMoeda : Integer; VpaUniPadrao, VpaUniProduto,VpaFuncaoOperacao : String;VpaCodCor,VpaCodTamanho : Integer;VpaQtdProduto, VpaVlrCompra,VpaTotCompra,VpaVlrFrete,VpaPerIcms, VpaPerIPI, VpaValDescontoNota: Double;VpaIndFreteEmitente : Boolean);
+    function AtualizaCodEan(VpaSeqProduto,VpaCodCor : Integer;VpaCodBarras : String):String;
     function AtualizaValorVendaAutomatico(VpaSeqProduto : Integer;VpaValCusto : Double):string;
+    function AtualizaEmbalagem(VpaSeqProduto,VpaCodEmbalagem : Integer):string;
+    function AtualizaComposicao(VpaSeqProduto,VpaCodComposicao : Integer):string;
     procedure CarDMovimentoEstoque(VpaTabela : TDataSet;VpaDMovimento : TRBDMovEstoque);
     procedure CarDProduto(VpaDProduto: TRBDProduto; VpaCodEmpresa: Integer = 0; VpaCodFilial: Integer = 0; VpaSeqProduto: Integer = 0);
     procedure CarCodNomProduto(VpaSeqproduto : Integer;var VpaCodProduto,VpaNomProduto : string);
@@ -3761,6 +3764,40 @@ begin
 end;
 
 {******************************************************************************}
+function TFuncoesProduto.AtualizaCodEan(VpaSeqProduto,VpaCodCor : Integer;VpaCodBarras : String):String;
+begin
+  result := '';
+  AdicionaSQLAbreTabela(ProCadastro,'Select * from MOVQDADEPRODUTO '+
+                                    ' Where C_COD_BAR = ''' + VpaCodBarras+'''');
+  if ProCadastro.Eof then
+  begin
+    LocalizaMovQdadeSequencial(ProCadastro,Varia.CodigoEmpFil,VpaSeqProduto,VpaCodCor,0);
+    if ProProduto.eof then
+    begin
+      InsereProdutoFilial(VpaSeqProduto,varia.CodigoEmpFil,VpaCodCor,0, 0,0,0);
+      LocalizaMovQdadeSequencial(ProCadastro,Varia.CodigoEmpFil,VpaSeqProduto,VpaCodCor,0);
+    end;
+
+    ProCadastro.Edit;
+    ProCadastro.FieldByName('C_COD_BAR').AsString := VpaCodBarras;
+    ProCadastro.Post;
+    result := ProCadastro.AMensagemErroGravacao;
+  end
+  else
+  begin
+    if (ProCadastro.FieldByName('I_SEQ_PRO').AsInteger <> VpaSeqProduto) AND
+       (ProCadastro.FieldByName('I_COD_COR').AsInteger <> VpaCodCor) Then
+    Begin
+      AdicionaSQLAbreTabela(AUX,'Select C_COD_PRO, C_NOM_PRO FROM CADPRODUTOS '+
+                              ' Where I_SEQ_PRO = '+ ProCadastro.FieldByName('I_SEQ_PRO').AsString);
+      result := 'CODIGO DE BARRAS DUPLICADO!!!'#13'Esse código de barras já existe cadastrado para o produto "'+AUX.FieldByName('C_COD_PRO').AsString+'-'+AUX.FieldByName('C_NOM_PRO').AsString+'"';
+      Aux.close;
+    End;
+  end;
+  ProCadastro.Close;
+end;
+
+{******************************************************************************}
 function TFuncoesProduto.AtualizaValorVendaAutomatico(VpaSeqProduto : Integer;VpaValCusto : Double):string;
 begin
   if config.ValorVendaProdutoAutomatico then
@@ -3776,6 +3813,34 @@ begin
                             ' and I_SEQ_PRO = ' + IntToStr(VpaSeqProduto));
     end;
   end;
+end;
+
+{******************************************************************************}
+function TFuncoesProduto.AtualizaEmbalagem(VpaSeqProduto,VpaCodEmbalagem : Integer):string;
+begin
+  LocalizaProdutoSequencial(ProCadastro,IntToStr(VpaSeqProduto));
+  ProCadastro.Edit;
+  if VpaCodEmbalagem <> 0 then
+    ProCadastro.FieldByName('I_COD_EMB').AsInteger := VpaCodEmbalagem
+  else
+    ProCadastro.FieldByName('I_COD_EMB').clear;
+  ProCadastro.Post;
+  result := ProCadastro.AMensagemErroGravacao;
+  ProCadastro.close;
+end;
+
+{******************************************************************************}
+function TFuncoesProduto.AtualizaComposicao(VpaSeqProduto,VpaCodComposicao : Integer):string;
+begin
+  LocalizaProdutoSequencial(ProCadastro,IntToStr(VpaSeqProduto));
+  ProCadastro.Edit;
+  if VpaCodComposicao <> 0 then
+    ProCadastro.FieldByName('I_COD_COM').AsInteger := VpaCodComposicao
+  else
+    ProCadastro.FieldByName('I_COD_COM').clear;
+  ProCadastro.Post;
+  result := ProCadastro.AMensagemErroGravacao;
+  ProCadastro.close;
 end;
 
 {******************************************************************************}

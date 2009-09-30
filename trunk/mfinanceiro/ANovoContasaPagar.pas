@@ -83,6 +83,7 @@ type
     EProjeto: TRBEditLocaliza;
     PaginaProjeto: TTabSheet;
     RBStringGridColor1: TRBStringGridColor;
+    BAutorizacaoPagamento: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBEditColor2Exit(Sender: TObject);
@@ -111,6 +112,7 @@ type
     procedure EFornecedorRetorno(Retorno1, Retorno2: String);
     procedure EDataEmissaoExit(Sender: TObject);
     procedure EProjetoCadastrar(Sender: TObject);
+    procedure BAutorizacaoPagamentoClick(Sender: TObject);
   private
     VprDContasAPagar : TRBDContasaPagar;
     VprDatEmissao :TDAteTime;
@@ -138,7 +140,7 @@ implementation
 
 uses ConstMsg,  FunData, APrincipal, funString,
   ANovoCliente, funObjeto, funsql, AFormasPagamento,
-  ADespesas, APlanoConta,  UnClassesImprimir, ACentroCusto, AProjetos;
+  ADespesas, APlanoConta,  UnClassesImprimir, ACentroCusto, AProjetos, dmRave;
 
 {$R *.DFM}
 
@@ -362,6 +364,7 @@ begin
   BFechar.Enabled := not VpaEstado;
   BotaoCancelar1.Enabled := VpaEstado;
   BotaoGravar1.Enabled := VpaEstado;
+  BAutorizacaoPagamento.Enabled := not VpaEstado;
 end;
 
 {******************************************************************************}
@@ -555,6 +558,13 @@ procedure TFNovoContasAPagar.BFotoClick(Sender: TObject);
 begin
   if Imagem.execute(varia.DriveFoto) then
     LFoto.Caption := Imagem.PathImagem;
+end;
+
+procedure TFNovoContasAPagar.BAutorizacaoPagamentoClick(Sender: TObject);
+begin
+  dtRave := TdtRave.Create(self);
+  dtRave.ImprimeAutorizacaoPagamento(VprDContasAPagar.CodFilial,VprDContasAPagar.LanPagar,0);
+  dtRave.free;
 end;
 
 {******************************************************************************}

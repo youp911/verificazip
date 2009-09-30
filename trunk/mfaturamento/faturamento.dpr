@@ -274,7 +274,8 @@ uses
   AHigienizarCadastros in 'AHigienizarCadastros.pas' {FHigienizarCadastros},
   ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
   ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
-  UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas';
+  UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
+  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos};
 
 {$R *.RES}
 

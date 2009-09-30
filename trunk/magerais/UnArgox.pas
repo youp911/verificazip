@@ -585,12 +585,12 @@ begin
         VpfTexto := Copy(RetiraAcentuacao(VpfDProdutoBaixa.NomProduto),22,30);
         A_Prn_Text(VpfPosicaoX+5,25,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
       end;
-      VpfTexto :='Cor : '+IntToStr(VpfDProdutoBaixa.CodCor)+ Copy(RetiraAcentuacao(VpfDProdutoBaixa.NomCor),1,19);
+      VpfTexto :='Cor : '+IntToStr(VpfDProdutoBaixa.CodCor)+ Copy(RetiraAcentuacao(VpfDProdutoBaixa.NomCor),1,15);
       A_Prn_Text(VpfPosicaoX+5,13,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
       VpfTexto2 := 'Qtd Unitaria : '+FloatToStr(VpfDProdutoBaixa.QtdUnitario)+' '+VpfDProdutoBaixa.DesUMUnitario;
       A_Prn_Text(VpfPosicaoX+5,0,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto2));
       VpfTexto := 'Qtd Fra : '+ FloatToStr(VpfDFracao.QtdProduto);
-      A_Prn_Text(VpfPosicaoX+135,0,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+      A_Prn_Text(VpfPosicaoX+127,0,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
       if VpfColuna >= 2 then
       begin
         result := A_Print_Out(1,1,1,1);
@@ -625,7 +625,8 @@ begin
       inc(VpfColuna);
       VpfPosicaoX := VpfColuna * 140;
       VpfTexto := FloatToSTr(VpfDFracao.codBarras);
-      A_Prn_Barcode(VpfPosicaoX+13,43,1,PAnsiChar('D'),2,5,15,PAnsiChar('N'),1,PAnsiChar(VpfTexto));
+      VpfTexto := 'Fil : '+ IntToStr(VpfDFracao.CodFilial)+ '    OP : '+IntToStr(VpfDFracao.SeqOrdemProducao);
+      A_Prn_Text(VpfPosicaoX+13,46,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
       VpfTexto := VpfDProdutoBaixa.CodProduto+'-'+ Copy(RetiraAcentuacao(VpfDProdutoBaixa.NomProduto),1,21);
       A_Prn_Text(VpfPosicaoX+5,35,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
       if Length(VpfDProdutoBaixa.NomProduto) > 21 then
@@ -635,10 +636,8 @@ begin
       end;
       VpfTexto :='Cor : '+IntToStr(VpfDProdutoBaixa.CodCor)+ Copy(RetiraAcentuacao(VpfDProdutoBaixa.NomCor),1,19);
       A_Prn_Text(VpfPosicaoX+5,13,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
-      VpfTexto2 := 'Qtd Unitaria : '+FloatToStr(VpfDProdutoBaixa.QtdUnitario)+' '+VpfDProdutoBaixa.DesUMUnitario;
+      VpfTexto2 := 'Qtd Total : '+FloatToStr(VpfDProdutoBaixa.QtdABaixar)+' '+VpfDProdutoBaixa.DesUM;
       A_Prn_Text(VpfPosicaoX+5,0,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto2));
-      VpfTexto := 'Qtd Fra : '+ FloatToStr(VpfDFracao.QtdProduto);
-      A_Prn_Text(VpfPosicaoX+135,0,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
       if VpfColuna >= 2 then
       begin
         result := A_Print_Out(1,1,1,1);

@@ -746,6 +746,9 @@
 				<Form>FCondicaoPagamento</Form>
 			</DCCReference>
 			<DCCReference Include="..\mfinanceiro\UnCondicaoPagamento.pas"/>
+			<DCCReference Include="..\mfinanceiro\AProjetos.pas">
+				<Form>FProjetos</Form>
+			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

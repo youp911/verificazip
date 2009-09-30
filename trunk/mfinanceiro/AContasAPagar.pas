@@ -235,6 +235,8 @@ type
     rvParcelas: TRvProject;
     RvMovParcelasCP: TRvDataSetConnection;
     RvSystem1: TRvSystem;
+    N1: TMenuItem;
+    ImprimirAutorizaoPagamento1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
@@ -286,7 +288,7 @@ type
     procedure BMostrarContaClick(Sender: TObject);
     procedure BFiltrosClick(Sender: TObject);
     procedure MConsultaChequesClick(Sender: TObject);
-    procedure Image1Click(Sender: TObject);
+    procedure ImprimirAutorizaoPagamento1Click(Sender: TObject);
   private
     Despesa : TFuncoesDespesas;
     TeclaPresionada : Boolean;
@@ -318,7 +320,7 @@ uses ANovoContasaPagar, ADespesas,  fundata,
   APrincipal, AGeraDespesasFixas, constmsg, AImprimeCP, funObjeto,
   AGraficosContasaPagar, AMovComissoes, FunSQL, AManutencaoCP,
   APlanoConta, ANovaNotaFiscaisFor, AConsultacheques, ABaixaContasaPagarOO,
-  ABaixaContasAReceberOO;
+  ABaixaContasAReceberOO, dmRave;
 
 {$R *.DFM}
 
@@ -484,9 +486,11 @@ begin
     executaNotaFilho;
 end;
 
-procedure TFContasaPagar.Image1Click(Sender: TObject);
+procedure TFContasaPagar.ImprimirAutorizaoPagamento1Click(Sender: TObject);
 begin
-
+  dtRave := TdtRave.Create(self);
+  dtRave.ImprimeAutorizacaoPagamento(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_APG.AsInteger,MovParcelasI_NRO_PAR.AsInteger);
+  dtRave.free;
 end;
 
 {*************************Mostra os detalhes da conta**************************}

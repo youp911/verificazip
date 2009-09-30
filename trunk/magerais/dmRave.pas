@@ -80,6 +80,7 @@ type
     procedure ImprimeFilaChamadosPorTecnico(VpaCodEstagio,VpaCodTecnico : Integer;VpaCaminhoRelatorio, VpaNomEstagio,VpaNomTecnico : String);
     procedure ImprimeFichaDesenvolvimento(VpaCodAmostra : Integer);
     procedure ImprimeExtratoColetaFracaoUsuario(VpaDatInicio, VpaDatFim : TDatetime;VpaCodCelula : Integer;VpaNomCelula : String);
+    procedure ImprimeAutorizacaoPagamento(VpaCodFilial,VpaLanPagar, VpaNumParcela : Integer);
   end;
 
 var
@@ -644,6 +645,36 @@ begin
                                    ' ORDER BY COL.DATINICIO');
   Rave.SetParam('NOMCELULA',VpaNomCelula);
   Rave.SetParam('PERIODO','Período de : '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDateTime('DD/MM/YYYY',VpaDatFim));
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeAutorizacaoPagamento(VpaCodFilial,VpaLanPagar, VpaNumParcela : Integer);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Autorização Pagamento '+IntToStr(VpaLanPagar);
+  Rave.projectfile := varia.PathRelatorios+'\Financeiro\xx_AutorizacaoPagamento.rav';
+  Rave.clearParams;
+  RvSystem1.defaultDest := rdPrinter;
+
+  Principal.close;
+  Principal.sql.clear;
+  AdicionaSqlTabela(Principal,'select   CLI.I_COD_CLI, CLI.C_NOM_CLI, '+
+                              ' CAD.I_LAN_APG, CAD.D_DAT_EMI, CAD.I_QTD_PAR, '+
+                              ' MOV.D_DAT_VEN, MOV.C_NRO_DUP, MOV.N_VLR_DUP, MOV.L_OBS_APG, MOV.I_NRO_PAR, '+
+                              ' CLA.C_NOM_PLA '+
+                              ' from CADCONTASAPAGAR CAD, MOVCONTASAPAGAR MOV, CADCLIENTES CLI, CAD_PLANO_CONTA CLA '+
+                              ' Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '+
+                              ' AND CAD.I_LAN_APG = MOV.I_LAN_APG '+
+                              ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '+
+                              ' AND CLA.I_COD_EMP = '+IntToStr(Varia.CodigoEmpresa)+
+                              ' AND CAD.C_CLA_PLA = CLA.C_CLA_PLA '+
+                              ' AND CAD.I_EMP_FIL =  '+IntToStr(VpaCodFilial)+
+                              ' AND CAD.I_LAN_APG = ' +IntToStr(VpaLanPagar));
+  if VpaNumParcela <> 0  then
+    AdicionaSQLTabela(Principal,'AND MOV.I_NRO_PAR = '+IntTosTr(VpaNumParcela));
+  AdicionaSQLTabela(Principal,'ORDER BY MOV.I_EMP_FIL, MOV.I_LAN_APG, MOV.I_NRO_PAR ');
+  Principal.open;
   Rave.Execute;
 end;
 

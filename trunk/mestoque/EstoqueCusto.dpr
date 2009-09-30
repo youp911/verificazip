@@ -336,7 +336,8 @@ uses
   UnNFe in '..\mfaturamento\UnNFe.pas',
   ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
   ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
-  UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas';
+  UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
+  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos};
 
 {$R *.RES}
 

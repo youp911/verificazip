@@ -3133,7 +3133,7 @@ function TRBFuncoesOrdemProducao.GravaDColetaFracaoOP(VpaDColetaFracao : TRBDCol
 begin
   result := '';
   AdicionaSQLAbreTabela(OrdCadastro,'Select * from COLETAFRACAOOP '+
-                                    ' Where FILIAL = 0 AND SEQORDEM = 0 AND SEQFRACAO = 0 AND SEQCOLETA = 0 ');
+                                    ' Where CODFILIAL = 0 AND SEQORDEM = 0 AND SEQFRACAO = 0 AND SEQCOLETA = 0 ');
   OrdCadastro.Insert;
   OrdCadastro.FieldByName('CODFILIAL').AsInteger := VpaDColetaFracao.CodFilial;
   OrdCadastro.FieldByName('SEQORDEM').AsInteger := VpaDColetaFracao.NumOrdemProducao;
