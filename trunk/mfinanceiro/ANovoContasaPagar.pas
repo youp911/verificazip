@@ -563,7 +563,7 @@ end;
 procedure TFNovoContasAPagar.BAutorizacaoPagamentoClick(Sender: TObject);
 begin
   dtRave := TdtRave.Create(self);
-  dtRave.ImprimeAutorizacaoPagamento(VprDContasAPagar.CodFilial,VprDContasAPagar.LanPagar,0);
+  dtRave.ImprimeAutorizacaoPagamento(VprDContasAPagar.CodFilial,VprDContasAPagar.LanPagar,0,Date,date);
   dtRave.free;
 end;
 

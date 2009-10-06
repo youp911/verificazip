@@ -296,6 +296,13 @@ type
     ETamanho: TRBEditLocaliza;
     ECliPreco: TRBEditLocaliza;
     EMoeda: TRBEditLocaliza;
+    PInstalacaoTear: TTabSheet;
+    PanelColor3: TPanelColor;
+    GInstalacao: TRBStringGridColor;
+    EQtdQuadros: TSpinEditColor;
+    Label97: TLabel;
+    Label98: TLabel;
+    EQtdColInstalacao: TSpinEditColor;
 
     procedure PaginasChange(Sender: TObject);
     procedure PaginasChanging(Sender: TObject; var AllowChange: Boolean);
@@ -419,6 +426,10 @@ type
     procedure EMoedaRetorno(VpaColunas: TRBColunasLocaliza);
     procedure ETabelaPrecoSelect(Sender: TObject);
     procedure EValVendaExit(Sender: TObject);
+    procedure GInstalacaoClick(Sender: TObject);
+    procedure GInstalacaoGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+    procedure EQtdQuadrosExit(Sender: TObject);
+    procedure EQtdColInstalacaoExit(Sender: TObject);
   private
     VprCodClassificacao,
     VprCodClassificacaoAnterior : String;
@@ -496,6 +507,9 @@ type
     procedure CarDFigura;
     procedure CarDTabelaPreco;
     procedure CarProduto(VpaCodEmpresa, VpaCodFilial, VpaSeqProduto: Integer);
+
+    procedure ConfiguraQtdQuadros(VpaQtdQuadros : Integer);
+    procedure ConfiguraQtdColunaInstalcao(VpaQtdColunas : Integer);
   public
     function NovoProduto(VpaCodClassificacao: String): TRBDProduto;
     function AlterarProduto(VpaCodEmpresa, VpaCodFilial, VpaSeqProduto: Integer): TRBDProduto;
@@ -574,6 +588,36 @@ begin
   EValCusto.ACampoObrigatorio:= Config.ExigirPrecoCustoProdutonoCadastro;
   EValVenda.ACampoObrigatorio:= Config.ExigirPrecoVendaProdutonoCadastro;
   PAcessorios.TabVisible := config.MostrarAcessoriosnoProduto;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.ConfiguraQtdColunaInstalcao(VpaQtdColunas: Integer);
+var
+  VpfLacoLinha, VpfLacoColuna, VpfDiferenca : Integer;
+begin
+  VpfDiferenca := VpaQtdColunas - GInstalacao.ColCount;
+  GInstalacao.ColCount := VpaQtdColunas;
+  for VpfLacoColuna := VpaQtdColunas -1 downto 0 do
+  begin
+    for VpfLacoLinha := 0 to GInstalacao.RowCount - 1 do
+    begin
+      if VpfLacoColuna < VpfDiferenca then
+        GInstalacao.Cells[VpfLacoColuna,VpfLacoLinha] := ''
+      else
+        GInstalacao.Cells[VpfLacoColuna,VpfLacoLinha] := GInstalacao.Cells[VpfLacoColuna-VpfDiferenca,VpfLacoLinha];
+      GInstalacao.ColWidths[VpfLacoColuna] := 20;
+    end;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.ConfiguraQtdQuadros(VpaQtdQuadros: Integer);
+var
+  VpfLaco : Integer;
+begin
+  GInstalacao.RowCount := VpaQtdQuadros + 3;
+  for VpfLaco := 0 to VpaQtdQuadros - 1 do
+    GInstalacao.Cells[GInstalacao.ColCount-1,VpfLaco] := IntToStr(VpaQtdQuadros - Vpflaco);
 end;
 
 {******************************************************************************}
@@ -2758,6 +2802,32 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.GInstalacaoClick(Sender: TObject);
+begin
+  if GInstalacao.Col < GInstalacao.ColCount - 1 then
+  begin
+    if GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] = '' then
+      GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] := '1'
+    else
+      GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] := '';
+  end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.GInstalacaoGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+begin
+  if ACol < GInstalacao.ColCount -1 then
+  begin
+    if GInstalacao.Cells[Acol,ARow] = '' then
+      ABrush.Color := clInfoBk
+    else
+      ABrush.Color := clBlack;
+  end
+  else
+    ABrush.Color := clGray;
+end;
+
+{******************************************************************************}
 procedure TFNovoProdutoPro.GPrecoCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
 begin
   VprDProTabelaPreco := TRBDProdutoTabelaPreco(VprDProduto.TabelaPreco.Items[VpaLinha-1]);
@@ -2939,6 +3009,18 @@ begin
         EValVenda.AValor := ((EPerLucro.AValor/100)*EValCusto.AValor)
     end;
   end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.EQtdColInstalacaoExit(Sender: TObject);
+begin
+  ConfiguraQtdColunaInstalcao(EQtdColInstalacao.Value);
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.EQtdQuadrosExit(Sender: TObject);
+begin
+  ConfiguraQtdQuadros(EQtdQuadros.Value);
 end;
 
 {******************************************************************************}

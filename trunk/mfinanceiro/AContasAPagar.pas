@@ -237,6 +237,7 @@ type
     RvSystem1: TRvSystem;
     N1: TMenuItem;
     ImprimirAutorizaoPagamento1: TMenuItem;
+    ImprimirTodasAutorizaesPagamento1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
@@ -289,6 +290,7 @@ type
     procedure BFiltrosClick(Sender: TObject);
     procedure MConsultaChequesClick(Sender: TObject);
     procedure ImprimirAutorizaoPagamento1Click(Sender: TObject);
+    procedure ImprimirTodasAutorizaesPagamento1Click(Sender: TObject);
   private
     Despesa : TFuncoesDespesas;
     TeclaPresionada : Boolean;
@@ -489,7 +491,15 @@ end;
 procedure TFContasaPagar.ImprimirAutorizaoPagamento1Click(Sender: TObject);
 begin
   dtRave := TdtRave.Create(self);
-  dtRave.ImprimeAutorizacaoPagamento(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_APG.AsInteger,MovParcelasI_NRO_PAR.AsInteger);
+  dtRave.ImprimeAutorizacaoPagamento(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_APG.AsInteger,MovParcelasI_NRO_PAR.AsInteger,date,date);
+  dtRave.free;
+end;
+
+{*************************Mostra os detalhes da conta**************************}
+procedure TFContasaPagar.ImprimirTodasAutorizaesPagamento1Click(Sender: TObject);
+begin
+  dtRave := TdtRave.Create(self);
+  dtRave.ImprimeAutorizacaoPagamento(MovParcelasI_EMP_FIL.AsInteger,0,0,DataParcela1.Date,dataParcela2.date);
   dtRave.free;
 end;
 

@@ -406,6 +406,7 @@ begin
                                      CadProduto.fieldByname('I_SEQ_PRO').AsString));
     VpfResultado := AdicionaEstoque;
 
+    BImprimir.Click;
     AlteraEstadoBotao(false);
     if CheckBox1.Checked then
       BotaoCadastrar2.Click

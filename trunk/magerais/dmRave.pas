@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, DSServer, FMTBcd, RpDefine, RpCon, RpConDS, DB, SqlExpr,
-  RpRave, DBClient, Tabela, RpBase, RpSystem, UnRave, UnDados;
+  RpRave, DBClient, Tabela, RpBase, RpSystem, UnRave, UnDados,RvLDCompiler;
 
 type
   TdtRave = class(TDSServerModule)
@@ -47,7 +47,7 @@ type
     { Public declarations }
     procedure ImprimeRetorno(VpaCodFilial, VpaSeqRetorno : Integer);
     procedure ImprimeRemessa(VpaCodFilial, VpaSeqRemessa : Integer);
-    procedure ImprimePedidoPendente(VpaCodFilial,VpaCodCliente,VpaCodClienteMaster, VpaSeqProduto : Integer;VpaCodClassificacao,VpaNomClassificacao,VpaNomCliente : String);
+    procedure ImprimePedidoPendente(VpaCodFilial,VpaCodCliente,VpaCodClienteMaster, VpaSeqProduto : Integer;VpaCodClassificacao,VpaNomClassificacao,VpaNomCliente : String;VpaDatInicio,VpaDatFim : TDateTime);
     procedure ImprimePedidoParcial(VpaCodFilial,VpaLanOrcamento, VpaSeqParcial : Integer);
     procedure ImprimeNotasFiscaisEmitidas(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaSituacaoNota : Integer);
     procedure ImprimePedidosPorDia(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao : String);
@@ -80,7 +80,7 @@ type
     procedure ImprimeFilaChamadosPorTecnico(VpaCodEstagio,VpaCodTecnico : Integer;VpaCaminhoRelatorio, VpaNomEstagio,VpaNomTecnico : String);
     procedure ImprimeFichaDesenvolvimento(VpaCodAmostra : Integer);
     procedure ImprimeExtratoColetaFracaoUsuario(VpaDatInicio, VpaDatFim : TDatetime;VpaCodCelula : Integer;VpaNomCelula : String);
-    procedure ImprimeAutorizacaoPagamento(VpaCodFilial,VpaLanPagar, VpaNumParcela : Integer);
+    procedure ImprimeAutorizacaoPagamento(VpaCodFilial,VpaLanPagar, VpaNumParcela : Integer;VpaDatInicio, VpaDatFim : TDateTime);
   end;
 
 var
@@ -649,7 +649,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimeAutorizacaoPagamento(VpaCodFilial,VpaLanPagar, VpaNumParcela : Integer);
+procedure TdtRave.ImprimeAutorizacaoPagamento(VpaCodFilial,VpaLanPagar, VpaNumParcela : Integer;VpaDatInicio, VpaDatFim : TDateTime);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Autorização Pagamento '+IntToStr(VpaLanPagar);
@@ -669,10 +669,15 @@ begin
                               ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '+
                               ' AND CLA.I_COD_EMP = '+IntToStr(Varia.CodigoEmpresa)+
                               ' AND CAD.C_CLA_PLA = CLA.C_CLA_PLA '+
-                              ' AND CAD.I_EMP_FIL =  '+IntToStr(VpaCodFilial)+
-                              ' AND CAD.I_LAN_APG = ' +IntToStr(VpaLanPagar));
-  if VpaNumParcela <> 0  then
-    AdicionaSQLTabela(Principal,'AND MOV.I_NRO_PAR = '+IntTosTr(VpaNumParcela));
+                              ' AND CAD.I_EMP_FIL =  '+IntToStr(VpaCodFilial));
+  if VpaLanPagar <> 0  then
+  begin
+    AdicionaSQLTabela(Principal,' AND CAD.I_LAN_APG = ' +IntToStr(VpaLanPagar));
+    if VpaNumParcela <> 0  then
+      AdicionaSQLTabela(Principal,'AND MOV.I_NRO_PAR = '+IntTosTr(VpaNumParcela));
+  end
+  else
+    AdicionaSQLTabela(Principal,SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDatInicio,VpaDatFim,true));
   AdicionaSQLTabela(Principal,'ORDER BY MOV.I_EMP_FIL, MOV.I_LAN_APG, MOV.I_NRO_PAR ');
   Principal.open;
   Rave.Execute;
@@ -789,7 +794,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimePedidoPendente(VpaCodFilial, VpaCodCliente,VpaCodClienteMaster, VpaSeqProduto: Integer; VpaCodClassificacao,VpaNomClassificacao,VpaNomCliente: String);
+procedure TdtRave.ImprimePedidoPendente(VpaCodFilial, VpaCodCliente,VpaCodClienteMaster, VpaSeqProduto: Integer; VpaCodClassificacao,VpaNomClassificacao,VpaNomCliente: String;VpaDatInicio,VpaDatFim : TDateTime);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Pedidos Pendentes';
@@ -836,6 +841,12 @@ begin
     Rave.SetParam('CLASSIFICACAO','Classificacao : '+VpaCodClassificacao+' - ' +VpaNomClassificacao);
     PedidosPendentes.sql.add(' and PRO.C_COD_CLA like '''+VpaCodClassificacao+'%''');
   end;
+  if Config.ImprimirPedidoPendentesPorPeriodo then
+  begin
+    Rave.SetParam('PERIODO','Período de '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+  ' até ' +FormatDateTime('DD/MM/YYYY',VpaDatFim));
+    PedidosPendentes.sql.add(SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_PRE',VpaDatInicio,VpaDatFim,true));
+  end;
+
   if varia.CNPJFilial = CNPJ_METALVIDROS then
     PedidosPendentes.sql.add(' and CAD.I_TIP_ORC = '+ IntToStr(Varia.TipoCotacaoPedido));
 

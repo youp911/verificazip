@@ -76,7 +76,7 @@ type
     Function RetornaProximoCodigoNota(SerieNota : String):Integer;
     function RTextoClassificacaoFiscal(VpaDNota : TRBDNotaFiscal): String;
     function RTextDescontoAcrescimo(VpaDNota : TRBDNotaFiscal):String;
-    function RValICMSPadrao(VpaSigEstado : String;VpaIndPessoaJuridica : Boolean;VpaIndCupomFiscal : Boolean) : Double;
+    function RValICMSPadrao(VpaSigEstado, VpaInscricaoEstadual : String;VpaIndPessoaJuridica : Boolean;VpaIndCupomFiscal : Boolean) : Double;
     function RPlanoContasMovNatureza(VpaCodNatureza : String;VpaSeqMovimento :Integer;VpaRevendaEdson : Boolean):String;
     function RValorComissao(VpaDNotaFiscal : TRBDNotaFiscal;VpaTipComissao : Integer;VpaPerComissao, VpaPerComissaoPreposto : Double):Double;
     function RValNotasClientePeriodo(VpaDatInicio,VpaDatFim : TDateTime;VpaCodCliente : Integer):Double;
@@ -630,7 +630,7 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesNotaFiscal.RValICMSPadrao(VpaSigEstado : String; VpaIndPessoaJuridica : Boolean;VpaIndCupomFiscal : boolean) : Double;
+function TFuncoesNotaFiscal.RValICMSPadrao(VpaSigEstado, VpaInscricaoEstadual : String; VpaIndPessoaJuridica : Boolean;VpaIndCupomFiscal : boolean) : Double;
 var
   VpfEstado : String;
 begin
@@ -638,7 +638,7 @@ begin
     result := 0
   else
   begin
-    if VpaIndPessoaJuridica then
+    if (VpaIndPessoaJuridica) and (VpaInscricaoEstadual <> 'ISENTO')then
     begin
       if VpaSigEstado = '' then
       begin
@@ -654,6 +654,8 @@ begin
     AdicionaSQLAbreTabela(Aux,'Select * from CADICMSESTADOS '+
                               ' Where C_COD_EST = '''+ VpfEstado+''''+
                               ' and I_COD_EMP = ' +IntToStr(Varia.CodigoEmpresa));
+    if Aux.Eof then
+      erro('ICMS ESTADO NÃO CADASTRADO!!!'#13'Não existe cadastrado o icms para o estado "'+VpfEstado+'"');
     result := Aux.FieldByName('N_ICM_INT').AsFloat;
     if not VpaIndPessoaJuridica and (Varia.CNPJFilial = CNPJ_LaticiniosPomerode) then
       result := 17;

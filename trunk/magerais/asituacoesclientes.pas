@@ -34,13 +34,13 @@ type
     Bevel1: TBevel;
     CadSituacoesClientes: TSQL;
     BFechar: TBitBtn;
-    CadSituacoesClientesI_COD_SIT: TIntegerField;
-    CadSituacoesClientesC_NOM_SIT: TStringField;
+    CadSituacoesClientesI_COD_SIT: TFMTBCDField;
+    CadSituacoesClientesC_NOM_SIT: TWideStringField;
     Consulta: TLocalizaEdit;
     Label3: TLabel;
     ValidaGravacao1: TValidaGravacao;
     DBFilialColor1: TDBFilialColor;
-    CadSituacoesClientesD_ULT_ALT: TDateField;
+    CadSituacoesClientesD_ULT_ALT: TSQLTimeStampField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadSituacoesClientesAfterInsert(DataSet: TDataSet);

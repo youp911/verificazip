@@ -432,6 +432,7 @@ type
       //Cotacao
       QtdPecasAtacado : integer;
       NaturezaOperacaoTroca : String;
+      QtdMaximaMesesEntregaPedido : Integer;
 
       constructor cria(VpaBaseDados : TSQLConnection);
       destructor destroy;override;
@@ -581,6 +582,7 @@ type
     ConferirAQuantidadeSeparada : Boolean;
     SugerirPrecoAtacado : Boolean;
     ControlarTrocasnaCotacao : Boolean;
+    ImprimirPedidoPendentesPorPeriodo : Boolean;
 
     //-----------------------Caixa
     VariosCaixasDia : Boolean;  // true permite abrir vários caixas no mesmo dia (um de cada vez).
@@ -1350,6 +1352,7 @@ begin
        EmailGeralCompras := VpfTabela.FieldByName('C_EMA_COM').AsString;
        QtdDiasPendenciaCompras := VpfTabela.FieldByName('I_DIA_AVC').AsInteger;
        DatInformacaoGerencial := VpfTabela.FieldByName('D_INF_GER').AsDateTime;
+       QtdMaximaMesesEntregaPedido := VpfTabela.FieldByName('I_COT_QME').AsInteger;
     end;
 
     with Config do   // boolean
@@ -1388,6 +1391,7 @@ begin
       BaixarConsumonaAlteracaoEstagioOP := TipoCheck(VpfTabela.fieldByName('C_ORP_BCE').AsString);
       SugerirPrecoAtacado := TipoCheck( VpfTabela.fieldByName('C_COT_SPA').AsString);
       ControlarTrocasnaCotacao := TipoCheck( VpfTabela.fieldByName('C_COT_CTR').AsString);
+      ImprimirPedidoPendentesPorPeriodo := TipoCheck( VpfTabela.fieldByName('C_COT_PPP').AsString);
       AutoCadastraAlteraEstagio := TipoCheck( VpfTabela.fieldByName('C_ORP_AAE').AsString);
       AlterarEstagioFracaoPeloTipoEstagio := TipoCheck( VpfTabela.fieldByName('C_ORP_AET').AsString);
       ImprimirEtiquetanaAlteracaodoEstagio := TipoCheck( VpfTabela.fieldByName('C_ORP_IEA').AsString);

@@ -157,12 +157,13 @@ end;
 {******************************************************************************}
 procedure TRBFuncoesZebra.ImprimeFigura(VpaPosicaoX, VpaPosicaY : Integer;VpaTexto : String);
 Var
-  VpfComando : String;
+  VpfComando, VpfNomImagem : String;
 begin
   if VprTipolinguagem = lzZPL then
   begin
     VpfComando :=  VpaTexto;
-    VpfComando := VpfComando +'^FO'+IntToStr(VpaPosicaoX)+','+IntToStr(VpaPosicaY)+'^XGR:S1.GRF^FS';
+    VpfNomImagem := DeleteAteChar(CopiaAteChar(VpaTexto,','),':');
+    VpfComando := VpfComando +'^FO'+IntToStr(VpaPosicaoX)+','+IntToStr(VpaPosicaY)+'^XGR:'+VpfNomImagem+'.GRF^FS';
   end;
   writeLn(VprArquivo,VpfComando);
 end;
@@ -179,6 +180,8 @@ begin
     if VprTipoLinguagem = lzZPL then
     begin
       Writeln(VprArquivo,'^XZ');
+      Writeln(VprArquivo,'^XA');
+      Writeln(VprArquivo,'^LH10,10');
     end;
 
 end;
@@ -259,7 +262,7 @@ begin
         ImprimeCodigoBarras(VpfPosicaoX+220,70,90,'1',2,4,50,true,AdicionaCharE('0',VpfDEtiqueta.CodBarras,12));
         ImprimeTexto(VpfPosicaoX+165,30,90,1,22,22,false,'CNPJ : '+Varia.CNPJFilial);
         ImprimeTexto(VpfPosicaoX+145,30,90,1,22,22,false,'CODIGO : '+copy(VpfDEtiqueta.Produto.NomProduto,1,Pos('MM',VpfDEtiqueta.Produto.NomProduto)));
-        ImprimeTexto(VpfPosicaoX+125,30,90,1,22,22,false,'COR : '+AdicionaCharD(' ',VpfDEtiqueta.NomCor,17) +  ' - ' +FormatFloat('#,###,###,##0.##',VpfDEtiqueta.QtdProduto)+ ' '+VpfDEtiqueta.Produto.CodUnidade );
+        ImprimeTexto(VpfPosicaoX+125,30,90,1,22,22,false,'COR : '+copy(AdicionaCharD(' ',IntToStr(VpfDEtiqueta.CodCor)+'-'+ VpfDEtiqueta.NomCor,17),1,17) +  ' - ' +FormatFloat('#,###,###,##0.##',VpfDEtiqueta.QtdProduto)+ ' '+VpfDEtiqueta.Produto.CodUnidade );
         ImprimeTexto(VpfPosicaoX+105,30,90,1,22,22,false,'COMP : '+VpfDEtiqueta.NomComposicao);
         for vpflaco := 0 to VpfDEtiqueta.Produto.FigurasComposicao.Count - 1 do
         begin

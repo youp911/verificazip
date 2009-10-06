@@ -1811,6 +1811,16 @@ begin
     except
       result := 'DATA PREVISÃO ENTREGA INVÁLIDA!!!'#13'A data de previsão de entrega não é uma data válida ou não foi preenchida...';
     end;
+    if result = '' then
+    begin
+      if StrToDate(EDatPrevista.text) > IncMes(Date,VARIA.QtdMaximaMesesEntregaPedido) then
+        result := 'DATA PREVISÃO ENTREGA INVÁLIDA!!!'#13'A data de entrega prevista não pode ser maior que '+IntToStr(Varia.QtdMaximaMesesEntregaPedido)+' meses';
+    end;
+    if result = '' then
+    begin
+      if StrToDate(EDatPrevista.text) < DecDia(Date,7) then
+        result := 'DATA PREVISÃO ENTREGA INVÁLIDA!!!'#13'A data de entrega prevista não pode ser menor que 1 semana atrás.';
+    end;
     try
       StrToDate(EDatValidade.text);
     except

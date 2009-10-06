@@ -1578,7 +1578,7 @@ begin
             begin
               CardClienteNota(VprDCliente);
               if (VprDNota.IndCalculaICMS) and (VprDCliente.IndDestacarICMSNota) then
-                VprDNota.ValICMSPadrao := FunNotaFiscal.RValICMSPadrao(VprDCliente.DesUF,VprDCliente.TipoPessoa[1] = 'J',false)
+                VprDNota.ValICMSPadrao := FunNotaFiscal.RValICMSPadrao(VprDCliente.DesUF,VprDCliente.InscricaoEstadual,VprDCliente.TipoPessoa[1] = 'J',false)
               else
                 VprDNota.ValICMSPadrao := 0;
               if (VprDCliente.DesObservacao <> '') and not VprNotaAutomatica then

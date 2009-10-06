@@ -7,7 +7,7 @@ uses
   StdCtrls, Buttons, Componentes1, ExtCtrls, PainelGradiente, UnImpressao,
   ComCtrls, Db, DBTables, Grids, DBGrids, Tabela, DBKeyViolation, DBCtrls,
   Mask, numericos, UnContasApagar, Localizacao, UnClassesImprimir, FMTBcd,
-  SqlExpr, DBClient;
+  SqlExpr, DBClient, Clipbrd;
 
 type
   TFImprimeDuplicata = class(TFormularioPermissao)
@@ -97,6 +97,15 @@ type
     PAcumular: TPanelColor;
     MovParcelasC_CEP_CLI: TWideStringField;
     MovParcelasI_EMP_FIL: TFMTBCDField;
+    MovParcelasC_END_COB: TWideStringField;
+    MovParcelasC_BAI_COB: TWideStringField;
+    MovParcelasC_CEP_COB: TWideStringField;
+    MovParcelasI_NUM_COB: TFMTBCDField;
+    MovParcelasC_CID_COB: TWideStringField;
+    MovParcelasC_EST_COB: TWideStringField;
+    MovParcelasI_NUM_END: TFMTBCDField;
+    MovParcelasC_COM_END: TWideStringField;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -115,6 +124,7 @@ type
     procedure ENroNotaSelect(Sender: TObject);
     procedure GradeParcelasKeyPress(Sender: TObject; var Key: Char);
     procedure BBAjudaClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
      TamanhoPrimeiroCampo : Integer;
      Dados : TDadosDuplicata;
@@ -188,7 +198,9 @@ begin
     ' SELECT CPM.I_LAN_REC, CPM.I_EMP_FIL, CPM.I_NRO_PAR, CPM.D_DAT_VEN, CPM.N_VLR_PAR, CPM.D_DAT_PAG, ' +
     ' CPM.N_VLR_PAG, CPM.C_NRO_CON, CPM.C_NRO_DOC, CPM.L_OBS_REC, CPM.I_COD_FRM, ' +
     ' CPM.N_DES_VEN, CPM.N_VLR_DES, CPM.N_VLR_ACR, CP.I_NRO_NOT, CPM.C_NRO_DUP, ' +
-    ' CP.N_VLR_TOT, CP.D_DAT_EMI, C.C_NOM_CLI, C.C_END_CLI ||'',''|| C.I_NUM_END C_END_CLI , C.C_BAI_CLI, C.C_CID_CLI, ' +
+    ' CP.N_VLR_TOT, CP.D_DAT_EMI, C.C_NOM_CLI, C.C_END_CLI , C.C_BAI_CLI, C.C_CID_CLI, ' +
+    '  C.C_END_COB, C.C_BAI_COB, C.C_CEP_COB, C.I_NUM_COB, C.C_CID_COB, C.C_EST_COB, '+
+    ' C.I_NUM_END, C.C_COM_END, '+
     ' C.C_FO1_CLI, CP.C_CLA_PLA, C.I_COD_CLI, PAG.I_COD_FRM, PAG.C_NOM_FRM, C.C_EST_CLI, ' +
     ' C.C_CGC_CLI, C.C_INS_CLI, C.C_PRA_CLI, C.C_CEP_CLI ');
   InseriLinhaSQL(MovParcelas, 1,
@@ -261,6 +273,7 @@ begin
   TamanhoPrimeiroCampo := UnImpressao.BuscaTamanhoCampo(CAD_DOCI_NRO_DOC.AsInteger, 16);
 end;
 
+{**********************************************************************************}
 procedure TFImprimeDuplicata.BVizualizarClick(Sender: TObject);
 begin
   ExecutaAfterScroll := False;
@@ -278,6 +291,12 @@ begin
   ExecutaAfterScroll := True;
   AtualizaSQLTabela(MovParcelas);
 end;
+
+procedure TFImprimeDuplicata.Button1Click(Sender: TObject);
+begin
+  GradeParcelas.CopiaParaClipBoard(True,false);
+end;
+
 
 procedure TFImprimeDuplicata.GradeParcelasKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
@@ -306,11 +325,23 @@ begin
     ValorTotal := MovParcelasN_VLR_TOT.AsFloat;
     NomeSacado := MovParcelasC_NOM_CLI.AsString;
     Cod_Sacado := MovParcelasI_COD_CLI.AsString;
-    CEP := MovParcelasC_CEP_CLI.AsString;
-    EnderecoSacado := MovParcelasC_END_CLI.AsString;
-    EstadoSacado := MovParcelasC_EST_CLI.AsString;
-    Bairro := MovParcelasC_BAI_CLI.AsString;
-    CidadeSacado := MovParcelasC_CID_CLI.AsString;
+    if MovParcelasC_END_COB.AsString <> '' then
+    BEGIN
+      CEP := MovParcelasC_CEP_COB.AsString;
+      EnderecoSacado := MovParcelasC_END_COB.AsString + ', '+MovParcelasI_NUM_COB.AsString;
+      EstadoSacado := MovParcelasC_EST_COB.AsString;
+      Bairro := MovParcelasC_BAI_COB.AsString;
+      CidadeSacado := MovParcelasC_CID_COB.AsString;
+    END
+    else
+    begin
+      CEP := MovParcelasC_CEP_CLI.AsString;
+      EnderecoSacado := MovParcelasC_END_CLI.AsString + ', '+MovParcelasI_NUM_END.AsString+' - '+MovParcelasC_COM_END.AsString;
+      EstadoSacado := MovParcelasC_EST_CLI.AsString;
+      Bairro := MovParcelasC_BAI_CLI.AsString;
+      CidadeSacado := MovParcelasC_CID_CLI.AsString;
+    end;
+
     InscricaoCGC  := MovParcelasC_CGC_CLI.AsString;
     InscricaoEstadual := MovParcelasC_INS_CLI.AsString;
     Numero  := MovParcelasI_NRO_NOT.AsString;

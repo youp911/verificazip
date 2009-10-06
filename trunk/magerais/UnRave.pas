@@ -6,6 +6,42 @@ interface
 Uses SQLExpr, RpRave, UnDados, SysUtils, RpDefine, RpBase, RpSystem,RPDevice,
      Classes, forms, Graphics, unprodutos, UnClassificacao;
 
+
+Type
+  TRBDTamanhoProdutoRave = class
+    public
+     CodTamanho : Integer;
+     NomTamanho : String;
+     QtdEstoque : Double;
+     constructor cria;
+     destructor destroy;override;
+  end;
+
+Type
+  TRBDCorProdutoRave = class
+    public
+      CodCor : Integer;
+      NomCor : String;
+      QtdEstoque : Double;
+      Tamanhos : TList;
+      constructor cria;
+      destructor destroy;override;
+      function addTamanho : TRBDTamanhoProdutoRave;
+end;
+
+Type
+  TRBDProdutoRave = class
+    public
+      SeqProduto : Integer;
+      CodProduto,
+      NomProduto : String;
+      QtdEstoque : Double;
+      Cores : TList;
+      constructor cria;
+      destructor destroy;override;
+      function AddCor : TRBDCorProdutoRave;
+end;
+
 Type
   TRBDClassificacaoRave = class
     CodClassificacao,
@@ -107,6 +143,7 @@ type
       procedure ImprimeTituloUF(VpaCodUf : String);
       procedure ImprimeTituloClassificacao(VpaNiveis : TList;VpaTudo : boolean);
       procedure ImprimetituloPlanoContas(VpaNiveis : TList;VpaTudo : boolean);
+      procedure CarCorTamanhoProduto(VpaDProduto : TRBDProdutoRave;VpaDCor : TRBDCorProdutoRave;VpaDTamanho : TRBDTamanhoProdutoRave;VpaCodCor, VpaCodTamanho : Integer);
       function CarDNivel(VpaCodCompleto, VpaCodReduzido : String):TRBDClassificacaoRave;
       function CarregaNiveis(VpaNiveis : TList;VpaCodClassificacao : string):TRBDClassificacaoRave;
       function CarDNivelPlanoContas(VpaCodCompleto, VpaCodReduzido : String):TRBDPlanoContasRave;
@@ -207,9 +244,89 @@ begin
   Anos.Add(result);
 end;
 
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                  Dados da classe dos tamanhos dos produtos
+))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{********************************************************************}
+constructor TRBDTamanhoProdutoRave.cria;
+begin
+  inherited create;
+end;
+
+{********************************************************************}
+destructor TRBDTamanhoProdutoRave.destroy;
+begin
+
+  inherited;
+end;
+
+{ TRBDTamanhoProdutoRave }
+
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                  Dados da classe das cores dos produtos
+))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{********************************************************************}
+function TRBDCorProdutoRave.addTamanho: TRBDTamanhoProdutoRave;
+begin
+  result := TRBDTamanhoProdutoRave.cria;
+  Tamanhos.add(result);
+end;
+
+{********************************************************************}
+constructor TRBDCorProdutoRave.cria;
+begin
+  inherited create;
+  Tamanhos := TList.Create;
+end;
+
+{********************************************************************}
+destructor TRBDCorProdutoRave.destroy;
+begin
+  FreeTObjectsList(Tamanhos);
+  Tamanhos.free;
+  inherited;
+end;
+{ TRBDCorProdutoRave }
+
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                  Dados da classe dos produtos
+))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{********************************************************************}
+function TRBDProdutoRave.AddCor: TRBDCorProdutoRave;
+begin
+  result := TRBDCorProdutoRave.cria;
+  Cores.Add(result);
+end;
+
+{********************************************************************}
+constructor TRBDProdutoRave.cria;
+begin
+  inherited create;
+  Cores := TList.create;
+end;
+
+{********************************************************************}
+destructor TRBDProdutoRave.destroy;
+begin
+  FreeTObjectsList(Cores);
+  Cores.free;
+  inherited;
+end;
+{ TRBDProdutoRave }
+
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                  Funcoes de impressao do relatorio
+))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
 
 { TRBFunRave }
 
+{********************************************************************}
 constructor TRBFunRave.cria(VpaBaseDados: TSQLConnection);
 begin
   inherited create;
@@ -239,6 +356,7 @@ begin
   RVSystem.SystemPreview.FormState     := wsMaximized;
 end;
 
+{********************************************************************}
 destructor TRBFunRave.destroy;
 begin
   Tabela.close;
@@ -543,6 +661,9 @@ var
   VpfQtdProduto, VpfTotalProduto, VpfQtdGeral, VpfValGeral : Double;
   VpfProdutoAtual, VpaTamanhoAtual,VpaCorAtual : Integer;
   VpfClassificacaoAtual, VpfUM : string;
+  VpfDProduto : TRBDProdutoRave;
+  vpfDCor : TRBDCorProdutoRave;
+  VpfDTamanho : TRBDTamanhoProdutoRave;
   VpfDClassificacao : TRBDClassificacaoRave;
 begin
   VpfProdutoAtual := 0;
@@ -587,6 +708,9 @@ begin
          PrintTab('');
        PrintTab('');
       end;
+
+      CarCorTamanhoProduto(VpfDProduto,vpfDCor,VpfDTamanho,Tabela.FieldByName('I_COD_COR').AsInteger,Tabela.FieldByName('I_COD_TAM').AsInteger);
+
       VpfQtdProduto := VpfQtdProduto + Tabela.FieldByName('N_QTD_PRO').AsFloat;
       VpfTotalProduto := VpfTotalProduto + (Tabela.FieldByName('N_QTD_PRO').AsFloat * Tabela.FieldByName('N_VLR_CUS').AsFloat);
       VpfQtdGeral := VpfQTdGeral +Tabela.FieldByName('N_QTD_PRO').AsFloat;
@@ -1072,6 +1196,54 @@ begin
       if VpaTudo then
         MarginTop := MarginTop+LineHeight;
     end;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.CarCorTamanhoProduto(VpaDProduto: TRBDProdutoRave; VpaDCor: TRBDCorProdutoRave; VpaDTamanho: TRBDTamanhoProdutoRave; VpaCodCor, VpaCodTamanho: Integer);
+var
+  VpfLacoCor, VpfLacoTamanho : Integer;
+begin
+  VpaDCor := nil;
+  VpaDTamanho := nil;
+  if VpaDCor.CodCor <> VpaCodCor then
+  begin
+    for VpfLacoCor := 0 to VpaDProduto.Cores.Count - 1 do
+    begin
+      if (TRBDCorProdutoRave(VpaDProduto.Cores.Items[VpfLacoCor]).CodCor = VpaCodCor) then
+      begin
+        VpaDCor := TRBDCorProdutoRave(VpaDProduto.Cores.Items[VpfLacoCor]);
+        break;
+      end;
+    end;
+  end;
+  for VpfLacoTamanho := 0 to VpaDCor.Tamanhos.Count - 1 do
+  begin
+    if TRBDTamanhoProdutoRave(VpaDCor.Tamanhos.Items[VpfLacoTamanho]).CodTamanho = VpaCodTamanho then
+    begin
+      VpaDTamanho := TRBDTamanhoProdutoRave(VpaDCor.Tamanhos.Items[VpfLacoTamanho]);
+      break;
+    end;
+  end;
+
+  if VpaDCor = nil then
+  begin
+    VpaDCor := VpaDProduto.AddCor;
+    VpaDCor.CodCor := VpaCodCor;
+    if VpaDCor.CodCor = 0 then
+      VpaDCor.NomCor := 'SEM COR'
+    else
+      VpaDCor.NomCor := FunProdutos.RNomeCor(IntTosTr(VpaDCor.CodCor));
+    VpaDcor.QtdEstoque := 0;
+  end;
+  if VpaDTamanho = nil then
+  begin
+    VpaDTamanho := VpaDCor.addTamanho;
+    VpaDTamanho.CodTamanho := VpaCodTamanho;
+    if VpaDTamanho.CodTamanho = 0 then
+      VpaDTamanho.NomTamanho := 'SEM TAMANHO'
+    else
+      VpaDTamanho.NomTamanho := FunProdutos.RNomeTamanho(VpaCodTamanho);
   end;
 end;
 
@@ -2266,5 +2438,6 @@ begin
 
   RvSystem.execute;
 end;
+
 
 end.

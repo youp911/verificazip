@@ -1,6 +1,7 @@
 unit UnContasAPagar;
 {Verificado
 -.edit;
+-.post;
 }
 interface
 
@@ -331,11 +332,8 @@ begin
     Cadastro.FieldByname('N_VLR_PAG').Clear;
     Cadastro.FieldByname('D_DAT_PAG').Clear;
   end;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVAÇÃO DOS DADOS DA FORMA DE PAGAMENTO!!!'+#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
 end;
 
@@ -809,11 +807,8 @@ begin
     Cadastro.FieldByName('C_NRO_DUP').AsString := Cadastro2.fieldByName('C_NRO_DUP').AsString + '/' + IntTostr(VpaDParcelaOriginal.NumParcelaParcial);
     Cadastro.FieldByName('C_NRO_DOC').AsString := Cadastro2.fieldByName('C_NRO_DOC').AsString + '/' + IntTostr(VpaDParcelaOriginal.NumParcelaParcial);
   end;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVAÇÃO DA PARCELA PARCIAL!!!'#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
 
   Cadastro.close;
   Cadastro2.close;
@@ -843,11 +838,10 @@ begin
         Cadastro.FieldByname('CODFILIALPAGAR').AsInteger := VpfDParcela.CodFilial;
         Cadastro.FieldByname('LANPAGAR').AsInteger := VpfDParcela.LanPagar;
         Cadastro.FieldByname('NUMPARCELA').AsInteger := VpfDParcela.NumParcela;
-        try
-          Cadastro.post;
-        except
-          on e : exception do result := 'ERRO NA GRAVAÇÃO DOS CHEQUES DO CONTAS A PAGAR!!!'#13+e.message;
-        end;
+        Cadastro.post;
+        result := Cadastro.AMensagemErroGravacao;
+        if Cadastro.AErronaGravacao then
+          break;
       end;
     end;
   end;
@@ -1089,11 +1083,8 @@ begin
   //atualiza a data de alteracao para poder exportar
   Cadastro.FieldByName('D_ULT_ALT').AsDateTime := Date;
 
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA BAIXA DA PARCELA DO CONTAS A RECEBER!!!'#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
 end;
 
@@ -1358,11 +1349,8 @@ begin
         Cadastro.FieldByName('I_PAR_FIL').AsInteger := 0;
         //atualiza a data de alteracao para poder exportar
         Cadastro.FieldByName('D_ULT_ALT').AsDateTime := Date;
-        try
-          Cadastro.post;
-        except
-          on e : exception do result := 'ERRO NO EXTORNO DO CONTAS A PAGAR!!!'#13+e.message;
-        end;
+        Cadastro.post;
+        result := Cadastro.AMensagemErroGravacao;
         Cadastro.close;
       end;
     end;

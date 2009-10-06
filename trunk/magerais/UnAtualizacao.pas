@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1499;
+  CT_VersaoBanco = 1501;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -751,6 +751,20 @@ begin
                               ' FOREIGN KEY (CODPROJETO) '+
                               '  REFERENCES PROJETO (CODPROJETO) ');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1499');
+      end;
+      if VpaNumAtualizacao < 1500 Then
+      begin
+        VpfErro := '1500';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD C_COT_PPP CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CFG_GERAL SET C_COT_PPP = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1500');
+      end;
+      if VpaNumAtualizacao < 1501 Then
+      begin
+        VpfErro := '1501';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD I_COT_QME NUMBER(10) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CFG_GERAL SET I_COT_QME = 6');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1501');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

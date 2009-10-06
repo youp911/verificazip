@@ -14,7 +14,7 @@ uses
   ComCtrls, Grids, DBGrids, Tabela, Db, DBTables, DBKeyViolation, DBCtrls,UnImpressao,
   Graficos, QRExport, UnDados, UnContasAReceber, UnCotacao, UnProdutos, UnDadosProduto, UnNotaFiscal,
   Menus, Mask, UnDadosCR, UnChamado, UnClassificacao, FMTBcd, SqlExpr, DBClient,
-  RpCon, RpConDS, RpBase, RpSystem, RpDefine, RpRave, unRave, UnSistema,
+  RpCon, RpConDS, RpBase, RpSystem, RpDefine, RpRave, unRave, UnSistema,RpDevice,
   numericos;
 
 Const
@@ -1926,7 +1926,7 @@ end;
 procedure TFCotacao.BPendentesClick(Sender: TObject);
 begin
   dtRave := TdtRave.create(self);
-  dtRave.ImprimePedidoPendente(EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, VprSeqProduto,EClassificacao.Text,lNomClassificacao.caption,LCliente.Caption);
+  dtRave.ImprimePedidoPendente(EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, VprSeqProduto,EClassificacao.Text,lNomClassificacao.caption,LCliente.Caption,DataInicial.DateTime,DataFinal.DateTime);
   dtRave.free;
 end;
 
@@ -1949,22 +1949,15 @@ begin
           exit;
       ECotacao.AInteiro := CadOrcamentoI_Lan_Orc.AsInteger;
       AtualizaConsulta(true) ;
+      RPDev.DeviceIndex := RPDev.Printers.IndexOf(varia.ImpressoraRelatorio);
+
       Rave.ProjectFile := varia.PathRelatorios+'\Cotacao\XX_OrdemProducao.rav';
       for Vpflaco := 1 to StrToInt(VpfQtdVias) do
         Rave.execute;
       Rave.close;
 
       ECotacao.Clear;
-      AtualizaConsulta;
-{  //    FunCrystal.ImprimeRelatorio(Varia.DiretorioSistema+ 'relatorios\Ordem Produção\0100PL_OPCotacao.rpt',[CadOrcamentoI_EMP_FIL.AsString,CadOrcamentoI_LAN_ORC.AsString]);
-      VprDOrcamento.Free;
-      VprDOrcamento := TRBDOrcamento.cria;
-      VprDOrcamento.LanOrcamento := CadOrcamentoI_Lan_Orc.AsInteger;
-      FunCotacao.CarDOrcamento(VprDOrcamento);
-      FImpOrcamento := TFImpOrcamento.create(Application);
-      FImpOrcamento.ImprimeOP(VprDOrcamento);
-      FImpOrcamento.free;
-      AtualizaConsulta(true);}
+      AtualizaConsulta(true);
     end;
   end;
 end;

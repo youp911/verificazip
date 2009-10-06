@@ -924,18 +924,13 @@ procedure TFNovoECF.ECodClienteRetorno(Retorno1, Retorno2: String);
 var
   VpfResultado : String;
 begin
-  VprICMSPadrao := 17;
-  if Retorno1 <> '' then
-  begin
-    VprICMSPAdrao := FunNotaFiscal.RValICMSPadrao(Retorno1,retorno2[1] = 'J',true);
-  end;
-
   if ECodCliente.AInteiro <> VprDCliente.CodCliente then
   begin
     VprDCliente.CodCliente :=  ECodCliente.AInteiro;
     if VprDCliente.CodCliente <> 0 then
     begin
       FunClientes.CarDCliente(VprDCliente);
+      VprICMSPAdrao := FunNotaFiscal.RValICMSPadrao(VprDCliente.DesUF,VprDCliente.InscricaoEstadual,VprDCliente.TipoPessoa = 'J',true);
       if not VprOrcamento then
         VpfResultado := SituacaoFinanceiraOK(VprDCliente);
       if VpfResultado <> '' then
