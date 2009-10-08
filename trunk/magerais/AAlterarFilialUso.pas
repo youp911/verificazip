@@ -42,6 +42,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
+    procedure CadEmpresasAfterScroll(DataSet: TDataSet);
   private
     { Private declarations }
   public
@@ -53,7 +54,7 @@ var
 
 implementation
 
-uses APrincipal;
+uses APrincipal,FunSql;
 
 {$R *.DFM}
 
@@ -89,6 +90,12 @@ begin
    close;
 end;
 
+{****************************Fecha o Formulario corrente***********************}
+procedure TFAlterarFilialUso.CadEmpresasAfterScroll(DataSet: TDataSet);
+begin
+  AdicionaSQLAbreTabela(CadFiliais,'Select * from CADFILIAIS '+
+                                   ' WHERE I_COD_EMP = '+CadEmpresasI_COD_EMP.AsString);
+end;
 
 Initialization
  RegisterClasses([TFAlterarFilialUso]);

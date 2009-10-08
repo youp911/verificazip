@@ -12,67 +12,35 @@ object dtRave: TdtRave
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
       
-        'select CAD.I_EMP_FIL, CAD.I_LAN_ORC, CAD.C_CON_ORC, CAD.D_DAT_OR' +
-        'C, CAD.T_HOR_ORC, CAD.C_ORD_COM, CAD.N_VLR_TOT, '
+        'select VEN.C_NOM_VEN, SUM(MOV.N_VLR_TOT) VALPRODUTO, SUM(MOV.N_Q' +
+        'TD_PRO) QTDPRODUTO, COUNT(DISTINCT(CAD.I_COD_CLI))QTDCLIENTE, CO' +
+        'UNT(DISTINCT(MOV.I_SEQ_PRO))PRODUTOS'
+      ''
       
-        ' CAD.D_DAT_PRE, CAD.L_OBS_ORC, CAD.I_TIP_FRE, CAD.N_VLR_PRO, CAD' +
-        '.N_VLR_DES, CAD.N_PER_DES, CAD.T_HOR_ENT, '
-      ' TIP.I_COD_TIP, TIP.C_NOM_TIP, '
-      
-        ' CLI.I_COD_CLI, CLI.C_NOM_CLI,  CLI.C_NOM_FAN, CLI.C_END_CLI, CL' +
-        'I.I_NUM_END, '
-      
-        '  CLI.C_COM_END, CLI.C_BAI_CLI, CLI.C_CEP_CLI, CLI.C_CID_CLI, CL' +
-        'I.C_EST_CLI, CLI.C_CGC_CLI, '
-      ' CLI.C_INS_CLI, CLI.C_FO1_CLI, CLI.C_FON_FAX, CLI.C_END_ELE, '
-      ' VEN.I_COD_VEN, VEN.C_NOM_VEN, '
-      ' TRA.C_NOM_TRA, '
-      ' PAG.C_NOM_PAG, '
-      ' FRM.C_NOM_FRM '
-      
-        ' from CADORCAMENTOS CAD, CADTIPOORCAMENTO TIP, CADCLIENTES CLI, ' +
-        'CADVENDEDORES VEN, CADTRANSPORTADORAS TRA, '
-      '           CADCONDICOESPAGTO PAG, CADFORMASPAGAMENTO FRM '
-      ' where CAD.I_TIP_ORC = TIP.I_COD_TIP '
-      ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '
-      ' AND CAD.I_COD_VEN = VEN.I_COD_VEN '
-      ' AND CAD.I_COD_TRA = TRA.I_COD_TRA(+)'
-      ' AND CAD.I_COD_PAG = PAG.I_COD_PAG '
-      ' AND CAD.I_COD_FRM = FRM.I_COD_FRM '
-      ' and CAD.I_EMP_FIL = 11'
-      ' and CAD.I_LAN_ORC = 20103')
+        'From CADORCAMENTOS CAD, MOVORCAMENTOS MOV, CADVENDEDORES VEN, CA' +
+        'DCLIENTES CLI'
+      'Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '
+      'AND CAD.I_LAN_ORC = MOV.I_LAN_ORC'
+      'AND CAD.I_COD_VEN = VEN.I_COD_VEN'
+      'AND CAD.I_COD_CLI = CLI.I_COD_CLI'
+      'GROUP BY VEN.C_NOM_VEN'
+      'ORDER BY 1')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
       
-        'select CAD.I_EMP_FIL, CAD.I_LAN_ORC, CAD.C_CON_ORC, CAD.D_DAT_OR' +
-        'C, CAD.T_HOR_ORC, CAD.C_ORD_COM, CAD.N_VLR_TOT, '
+        'select VEN.C_NOM_VEN, SUM(MOV.N_VLR_TOT) VALPRODUTO, SUM(MOV.N_Q' +
+        'TD_PRO) QTDPRODUTO, COUNT(DISTINCT(CAD.I_COD_CLI))QTDCLIENTE, CO' +
+        'UNT(DISTINCT(MOV.I_SEQ_PRO))PRODUTOS'
+      ''
       
-        ' CAD.D_DAT_PRE, CAD.L_OBS_ORC, CAD.I_TIP_FRE, CAD.N_VLR_PRO, CAD' +
-        '.N_VLR_DES, CAD.N_PER_DES, CAD.T_HOR_ENT, '
-      ' TIP.I_COD_TIP, TIP.C_NOM_TIP, '
-      
-        ' CLI.I_COD_CLI, CLI.C_NOM_CLI,  CLI.C_NOM_FAN, CLI.C_END_CLI, CL' +
-        'I.I_NUM_END, '
-      
-        '  CLI.C_COM_END, CLI.C_BAI_CLI, CLI.C_CEP_CLI, CLI.C_CID_CLI, CL' +
-        'I.C_EST_CLI, CLI.C_CGC_CLI, '
-      ' CLI.C_INS_CLI, CLI.C_FO1_CLI, CLI.C_FON_FAX, CLI.C_END_ELE, '
-      ' VEN.I_COD_VEN, VEN.C_NOM_VEN, '
-      ' TRA.C_NOM_TRA, '
-      ' PAG.C_NOM_PAG, '
-      ' FRM.C_NOM_FRM '
-      
-        ' from CADORCAMENTOS CAD, CADTIPOORCAMENTO TIP, CADCLIENTES CLI, ' +
-        'CADVENDEDORES VEN, CADTRANSPORTADORAS TRA, '
-      '           CADCONDICOESPAGTO PAG, CADFORMASPAGAMENTO FRM '
-      ' where CAD.I_TIP_ORC = TIP.I_COD_TIP '
-      ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '
-      ' AND CAD.I_COD_VEN = VEN.I_COD_VEN '
-      ' AND CAD.I_COD_TRA = TRA.I_COD_TRA(+)'
-      ' AND CAD.I_COD_PAG = PAG.I_COD_PAG '
-      ' AND CAD.I_COD_FRM = FRM.I_COD_FRM '
-      ' and CAD.I_EMP_FIL = 11'
-      ' and CAD.I_LAN_ORC = 20103')
+        'From CADORCAMENTOS CAD, MOVORCAMENTOS MOV, CADVENDEDORES VEN, CA' +
+        'DCLIENTES CLI'
+      'Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '
+      'AND CAD.I_LAN_ORC = MOV.I_LAN_ORC'
+      'AND CAD.I_COD_VEN = VEN.I_COD_VEN'
+      'AND CAD.I_COD_CLI = CLI.I_COD_CLI'
+      'GROUP BY VEN.C_NOM_VEN'
+      'ORDER BY 1')
     Left = 80
     Top = 8
   end

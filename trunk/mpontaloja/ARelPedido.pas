@@ -581,7 +581,11 @@ begin
                                 begin
                                   AlterarVisibleDet([PDataFinal],true);
                                   LDataFinal.Caption := 'Mês : ';
-                                end;
+                                end
+                                else
+                                  if (VPANOMRELATORIO = 'TOTAL CLIENTES ATENDIDOS E PRODUTOS VENDIDOS POR VENDEDOR') then
+                                    AlterarVisibleDet([PPeriodo,PClienteMaster],true)
+                                  else
 end;
 
 
@@ -650,7 +654,11 @@ begin
                               FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,true)
                             else
                               if (VPRNOMRELATORIO = 'PRODUTIVIDADE PRODUCAO') then
-                                FunRave.ImprimeExtratoProdutividade(VprCaminhoRelatorio,CDataFinal.Date);
+                                FunRave.ImprimeExtratoProdutividade(VprCaminhoRelatorio,CDataFinal.Date)
+                              else
+                                if (VPRNOMRELATORIO = 'TOTAL CLIENTES ATENDIDOS E PRODUTOS VENDIDOS POR VENDEDOR') then
+                                  dtRave.ImprimeTotalClientesAtendidoseProdutosVendidosporVendedor(EClienteMaster.AInteiro,VprCaminhoRelatorio,LClienteMaster.Caption,CDataIni.Date,CDataFim.Date);
+
   dtRave.free;
 end;
 

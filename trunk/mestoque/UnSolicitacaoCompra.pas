@@ -239,9 +239,9 @@ begin
     else
       Cadastro.FieldByName('CODCOR').Clear;
     Cadastro.FieldByName('DESUM').AsString:= VpfOrcamentoCompraProduto.DesUM;
-    Cadastro.FieldByName('QTDPRODUTO').AsFloat:= VpfOrcamentoCompraProduto.QtdProduto;
-    Cadastro.FieldByName('QTDAPROVADO').AsFloat:= VpfOrcamentoCompraProduto.QtdAprovado;
-    Cadastro.FieldByName('QTDCOMPRADA').AsFloat:= VpfOrcamentoCompraProduto.QtdComprado;
+    Cadastro.FieldByName('QTDPRODUTO').AsFloat:= ArredondaDecimais(VpfOrcamentoCompraProduto.QtdProduto,Varia.DecimaisQtd);
+    Cadastro.FieldByName('QTDAPROVADO').AsFloat:= ArredondaDecimais(VpfOrcamentoCompraProduto.QtdAprovado,Varia.DecimaisQtd);
+    Cadastro.FieldByName('QTDCOMPRADA').AsFloat:= ArredondaDecimais(VpfOrcamentoCompraProduto.QtdComprado,Varia.DecimaisQtd);
     if VpfOrcamentoCompraProduto.IndComprado then
       Cadastro.FieldByName('INDCOMPRADO').AsString:= 'S'
     else
