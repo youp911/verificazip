@@ -412,6 +412,7 @@ begin
    InicializaVerdadeiroeFalsoCheckBox(PanelColor1,'T','F');
    EEtiquetaNotaEntrada.ItemIndex := Varia.ModeloEtiquetaNotaEntrada;
    ERegraLote.ItemIndex := CFGI_REG_LOT.AsInteger;
+   ETipoCodigoBarras.ItemIndex := CFGI_TIP_BAR.AsInteger;
 end;
 
 { ******************* No fechamento do formulário **************************** }

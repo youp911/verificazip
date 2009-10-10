@@ -85,7 +85,6 @@ type
     function RDBaixaConsumoOp(VpaBaixas : TList;VpaSeqProduto,VpaCodCor : Integer; VpaIndMaterialExtra : Boolean):TRBDConsumoFracaoOP;
     function RCodProdutoDisponivelpelaClassificacao(VpaCodClassificacao : String):String;
     function RQtdMetrosBarraProduto(VpaSeqProduto : Integer):Double;
-    function RCodBarrasEAN13Disponivel : String;
     procedure CKitsProdutos(VpaSeqProduto : String; VpaSeqKit : TStringList);
     procedure CarDOperacaoEstoque(VpaDOperacao : TRBDOperacaoEstoque;VpaCodOperacao: Integer);
     procedure CarDBaixaOPConsumoProduto(VpaCodFilial, VpaSeqOrdem : Integer; VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList);
@@ -208,6 +207,7 @@ type
     function RNomAcondicionamento(VpaCodAcondicionamento : Integer) : string;
     function RNomTabelaPreco(VpaCodTabelaPreco : Integer) : String;
     function RQtdPecaemMetro(VpaAltProduto, VpaLarProduto, VpaQtdProvas : Integer;VpaAltMolde, VpaLarMolde : double;VpaIndAltFixa : Boolean; Var VpaIndice : double):Integer;
+    function RCodBarrasEAN13Disponivel : String;
     function PrincipioAtivoControlado(VpaCodPrincipio : Integer) : boolean;
     procedure AtualizaValorCusto(VpaSeqProduto,VpaCodFilial, VpaCodMoeda : Integer; VpaUniPadrao, VpaUniProduto,VpaFuncaoOperacao : String;VpaCodCor,VpaCodTamanho : Integer;VpaQtdProduto, VpaVlrCompra,VpaTotCompra,VpaVlrFrete,VpaPerIcms, VpaPerIPI, VpaValDescontoNota: Double;VpaIndFreteEmitente : Boolean);
     function AtualizaCodEan(VpaSeqProduto,VpaCodCor : Integer;VpaCodBarras : String):String;
@@ -3910,7 +3910,7 @@ begin
                             ' CAD.I_COD_COR, CAD.C_IND_COM, CAD.C_ATI_PRO,'+
                             ' CAD.I_TAB_PED, CAD.I_QTD_CTA, CAD.C_CAR_TEX,'+
                             ' CAD.D_DAT_CAD, CAD.I_COD_COM, CAD.C_IND_MON, '+
-                            ' CAD.I_ORI_PRO '+
+                            ' CAD.I_ORI_PRO, CAD.N_CAP_LIQ '+
                             ' FROM CADPRODUTOS CAD'+
                             ' WHERE'+
                             ' CAD.I_COD_EMP = '+IntToStr(VpaDProduto.CodEmpresa)+
@@ -3972,6 +3972,7 @@ begin
   VpaDProduto.CodEmbalagem:= Tabela.FieldByName('I_COD_EMB').AsInteger;
   VpaDProduto.CodAcondicionamento:= Tabela.FieldByName('I_COD_ACO').AsInteger;
   VpaDProduto.AltProduto:= Tabela.FieldByName('I_ALT_PRO').AsInteger;
+  VpaDProduto.CapLiquida := Tabela.FieldByName('N_CAP_LIQ').AsFloat;
   VpaDProduto.CodDesenvolvedor:= Tabela.FieldByName('I_COD_DES').AsInteger;
   VpaDProduto.CodComposicao := Tabela.FieldByName('I_COD_COM').AsInteger;
   VpaDProduto.IndImprimeNaTabelaPreco:= Tabela.FieldByName('IMPPRE').AsString;
@@ -4215,6 +4216,7 @@ begin
     ProCadastro.FieldByName('C_IND_MON').AsString:= 'S'
   else
     ProCadastro.FieldByName('C_IND_MON').AsString:= 'N';
+  ProCadastro.FieldByName('N_CAP_LIQ').AsFloat := VpaDProduto.CapLiquida;
 
 
 // Copiadoras
@@ -4299,12 +4301,8 @@ begin
   end;
 
   ProCadastro.FieldByName('I_SEQ_PRO').AsInteger:= VpaDProduto.SeqProduto;
-  try
-    ProCadastro.Post;
-  except
-    on E:Exception do
-      Result:= 'ERRO AO GRAVAR O PRODUTO!!!'#13+E.Message;
-  end;
+  ProCadastro.Post;
+  result:= ProCadastro.AMensagemErroGravacao;
   ProCadastro.Close;
 end;
 

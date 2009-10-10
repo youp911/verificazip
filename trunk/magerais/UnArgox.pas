@@ -501,11 +501,11 @@ begin
           A_Prn_Text(VpfPosicaoX+13,22,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
         end;
         A_Prn_Text(VpfPosicaoX+13,10,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Capac: '));
-        VpfTexto := '';
-        A_Prn_Text(VpfPosicaoX+40,10,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+        VpfTexto := FormatFloat('#,###0 ml',VpfDEtiqueta.Produto.CapLiquida) ;
+        A_Prn_Text(VpfPosicaoX+45,10,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
         A_Prn_Text(VpfPosicaoX+80,10,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Alt: '));
-        VpfTexto := '';
-        A_Prn_Text(VpfPosicaoX+100,10,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+        VpfTexto := FormatFloat('#,###0 cm',VpfDEtiqueta.Produto.AltProduto) ;;
+        A_Prn_Text(VpfPosicaoX+95,10,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
       end;
       if VpfColuna >= 2 then
       begin
@@ -541,14 +541,23 @@ begin
       VpfPosicaoX := 10;
       VpfTExto := copy(VpfDEtiqueta.Produto.CodBarraFornecedor,1,12);
       A_Prn_Barcode(VpfPosicaoX+73,87,1,PAnsiChar('F'),4,10,25,PAnsiChar('N'),1,PAnsiChar(VpfTexto));
-      A_Prn_Text(VpfPosicaoX+55,57,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Decricao : '));
-      VpfTExto := RetiraAcentuacao(VpfDEtiqueta.Produto.NomProduto);
-      A_Prn_Text(VpfPosicaoX+99,57,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
-      A_Prn_Text(VpfPosicaoX+33,47,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Codigo Interno : '));
+      A_Prn_Text(VpfPosicaoX+43,72,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar('Decricao : '));
+      VpfTExto := copy(RetiraAcentuacao(VpfDEtiqueta.Produto.NomProduto),1,37);
+      A_Prn_Text(VpfPosicaoX+99,72,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+      if Length(VpfDEtiqueta.Produto.NomProduto) > 37 then
+      begin
+        VpfTExto := copy(RetiraAcentuacao(VpfDEtiqueta.Produto.NomProduto),38,20);
+        A_Prn_Text(VpfPosicaoX+99,60,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+      end;
+      A_Prn_Text(VpfPosicaoX+15,47,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar('Codigo Interno : '));
       VpfTExto := RetiraAcentuacao(VpfDEtiqueta.Produto.CodProduto);
-      A_Prn_Text(VpfPosicaoX+99,47,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
-      A_Prn_Text(VpfPosicaoX+13,37,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Capacidade Liquida : '));
-      A_Prn_Text(VpfPosicaoX+67,27,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Altura : '));
+      A_Prn_Text(VpfPosicaoX+99,47,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+      A_Prn_Text(VpfPosicaoX+25,37,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar('Cap. Liquida : '));
+      VpfTExto := RetiraAcentuacao(FormatFloat('#,###,##0 ml',VpfDEtiqueta.Produto.CapLiquida));
+      A_Prn_Text(VpfPosicaoX+99,37,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+      A_Prn_Text(VpfPosicaoX+58,27,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar('Altura : '));
+      VpfTExto := RetiraAcentuacao(FormatFloat('#,###,##0 cm',VpfDEtiqueta.Produto.AltProduto));
+      A_Prn_Text(VpfPosicaoX+99,27,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
       VpfTexto := FormatDateTime('DD/MM/YY',now);
       A_Prn_Text(VpfPosicaoX+350,3,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
       result := A_Print_Out(1,1,1,1);

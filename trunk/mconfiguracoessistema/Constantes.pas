@@ -87,7 +87,7 @@ type
   TRBDFormatoExportacaoFiscal =(feLince,feWKLiscalforDos,feSantaCatarina,feSintegra,feMTFiscal,feWKRadar,feValidaPR,feDominioSistemas);
   TRBTipoImpressoraFiscal = (ifBematech_FI_2,ifDaruamFS600);
   TRBDRegraNumeroSerie = (rnNNNNNDDMAAD);
-  TRBTipoCodigoBArras = (cbEAN13);
+  TRBTipoCodigoBArras = (cbNenhum,cbEAN13);
 
 
   TVariaveis = class
@@ -1475,7 +1475,8 @@ begin
            0 : RegraNumeroSerie := rnNNNNNDDMAAD;
          end;
          case VpfTabela.FieldByName('I_TIP_BAR').AsInteger of
-           0 : TipCodBarras := cbEAN13;
+           0 : TipCodBarras := cbNenhum;
+           1 : TipCodBarras := cbEAN13;
          end;
          NumPrefixoCodEAN := VpfTabela.fieldByName('N_PRE_EAN').AsFloat;
          NumUltimoCodigoEAN := VpfTabela.fieldByName('I_ULT_EAN').AsInteger;

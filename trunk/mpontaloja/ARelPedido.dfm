@@ -54,12 +54,11 @@ object FRelPedido: TFRelPedido
       Top = 1
       Width = 575
       Height = 632
-      VertScrollBar.Position = 268
       Align = alClient
       TabOrder = 0
       object PFilial: TPanelColor
         Left = 0
-        Top = -240
+        Top = 28
         Width = 554
         Height = 28
         Align = alTop
@@ -152,7 +151,7 @@ object FRelPedido: TFRelPedido
       end
       object PCliente: TPanelColor
         Left = 0
-        Top = -100
+        Top = 168
         Width = 554
         Height = 28
         Align = alTop
@@ -248,7 +247,7 @@ object FRelPedido: TFRelPedido
       end
       object PCidade: TPanelColor
         Left = 0
-        Top = 40
+        Top = 308
         Width = 554
         Height = 28
         Align = alTop
@@ -344,7 +343,7 @@ object FRelPedido: TFRelPedido
       end
       object PEstado: TPanelColor
         Left = 0
-        Top = 68
+        Top = 336
         Width = 554
         Height = 28
         Align = alTop
@@ -439,7 +438,7 @@ object FRelPedido: TFRelPedido
       end
       object PCondPgto: TPanelColor
         Left = 0
-        Top = 152
+        Top = 420
         Width = 554
         Height = 28
         Align = alTop
@@ -535,7 +534,7 @@ object FRelPedido: TFRelPedido
       end
       object PPeriodo: TPanelColor
         Left = 0
-        Top = 516
+        Top = 812
         Width = 554
         Height = 28
         Align = alTop
@@ -601,7 +600,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoCotacao: TPanelColor
         Left = 0
-        Top = 236
+        Top = 504
         Width = 554
         Height = 28
         Align = alTop
@@ -697,7 +696,7 @@ object FRelPedido: TFRelPedido
       end
       object PVendedor: TPanelColor
         Left = 0
-        Top = 12
+        Top = 280
         Width = 554
         Height = 28
         Align = alTop
@@ -795,7 +794,7 @@ object FRelPedido: TFRelPedido
       end
       object PSituacao: TPanelColor
         Left = 0
-        Top = 488
+        Top = 784
         Width = 554
         Height = 28
         Align = alTop
@@ -834,7 +833,7 @@ object FRelPedido: TFRelPedido
       end
       object PDataFinal: TPanelColor
         Left = 0
-        Top = 544
+        Top = 840
         Width = 554
         Height = 28
         Align = alTop
@@ -877,7 +876,7 @@ object FRelPedido: TFRelPedido
       end
       object PSitCliente: TPanelColor
         Left = 0
-        Top = 180
+        Top = 448
         Width = 554
         Height = 28
         Align = alTop
@@ -973,7 +972,7 @@ object FRelPedido: TFRelPedido
       end
       object PEmpresa: TPanelColor
         Left = 0
-        Top = -268
+        Top = 0
         Width = 554
         Height = 28
         Align = alTop
@@ -1066,7 +1065,7 @@ object FRelPedido: TFRelPedido
       end
       object PTabelaPreco: TPanelColor
         Left = 0
-        Top = -212
+        Top = 56
         Width = 554
         Height = 28
         Align = alTop
@@ -1163,7 +1162,7 @@ object FRelPedido: TFRelPedido
       end
       object PProduto: TPanelColor
         Left = 0
-        Top = -156
+        Top = 112
         Width = 554
         Height = 28
         Align = alTop
@@ -1254,7 +1253,7 @@ object FRelPedido: TFRelPedido
       end
       object PBanco: TPanelColor
         Left = 0
-        Top = -72
+        Top = 196
         Width = 554
         Height = 28
         Align = alTop
@@ -1348,7 +1347,7 @@ object FRelPedido: TFRelPedido
       end
       object PUsuario: TPanelColor
         Left = 0
-        Top = 96
+        Top = 364
         Width = 554
         Height = 28
         Align = alTop
@@ -1444,7 +1443,7 @@ object FRelPedido: TFRelPedido
       end
       object PFormaPagamento: TPanelColor
         Left = 0
-        Top = 124
+        Top = 392
         Width = 554
         Height = 28
         Align = alTop
@@ -1540,7 +1539,7 @@ object FRelPedido: TFRelPedido
       end
       object PClassificacaoProduto: TPanelColor
         Left = 0
-        Top = -184
+        Top = 84
         Width = 554
         Height = 28
         Align = alTop
@@ -1614,7 +1613,7 @@ object FRelPedido: TFRelPedido
       end
       object PQtdVias: TPanelColor
         Left = 0
-        Top = 600
+        Top = 896
         Width = 554
         Height = 28
         Align = alTop
@@ -1657,7 +1656,7 @@ object FRelPedido: TFRelPedido
       end
       object PEstagio: TPanelColor
         Left = 0
-        Top = 376
+        Top = 672
         Width = 554
         Height = 28
         Align = alTop
@@ -1754,7 +1753,7 @@ object FRelPedido: TFRelPedido
       end
       object PTransportadora: TPanelColor
         Left = 0
-        Top = 208
+        Top = 476
         Width = 554
         Height = 28
         Align = alTop
@@ -1850,7 +1849,7 @@ object FRelPedido: TFRelPedido
       end
       object PFundoPerdido: TPanelColor
         Left = 0
-        Top = 572
+        Top = 868
         Width = 554
         Height = 28
         Align = alTop
@@ -1878,7 +1877,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoContrato: TPanelColor
         Left = 0
-        Top = -44
+        Top = 224
         Width = 554
         Height = 28
         Align = alTop
@@ -1973,7 +1972,7 @@ object FRelPedido: TFRelPedido
       end
       object PPreposto: TPanelColor
         Left = 0
-        Top = -16
+        Top = 252
         Width = 554
         Height = 28
         Align = alTop
@@ -2071,7 +2070,7 @@ object FRelPedido: TFRelPedido
       end
       object PTecnico: TPanelColor
         Left = 0
-        Top = 348
+        Top = 644
         Width = 554
         Height = 28
         Align = alTop
@@ -2167,7 +2166,7 @@ object FRelPedido: TFRelPedido
       end
       object POperacaoEstoque: TPanelColor
         Left = 0
-        Top = 320
+        Top = 616
         Width = 554
         Height = 28
         Align = alTop
@@ -2263,7 +2262,7 @@ object FRelPedido: TFRelPedido
       end
       object PCor: TPanelColor
         Left = 0
-        Top = 292
+        Top = 588
         Width = 554
         Height = 28
         Align = alTop
@@ -2359,7 +2358,7 @@ object FRelPedido: TFRelPedido
       end
       object PCotacaoCancelada: TPanelColor
         Left = 0
-        Top = 460
+        Top = 756
         Width = 554
         Height = 28
         Align = alTop
@@ -2407,7 +2406,7 @@ object FRelPedido: TFRelPedido
       end
       object PClienteMaster: TPanelColor
         Left = 0
-        Top = -128
+        Top = 140
         Width = 554
         Height = 28
         Align = alTop
@@ -2503,7 +2502,7 @@ object FRelPedido: TFRelPedido
       end
       object PCentroCusto: TPanelColor
         Left = 0
-        Top = 264
+        Top = 560
         Width = 554
         Height = 28
         Align = alTop
@@ -2608,7 +2607,7 @@ object FRelPedido: TFRelPedido
       end
       object PNumerico1: TPanelColor
         Left = 0
-        Top = 404
+        Top = 700
         Width = 554
         Height = 28
         Align = alTop
@@ -2652,7 +2651,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoPeriodo: TPanelColor
         Left = 0
-        Top = 432
+        Top = 728
         Width = 554
         Height = 28
         Align = alTop
@@ -2697,6 +2696,111 @@ object FRelPedido: TFRelPedido
             'Data Vencimento')
           ACampoObrigatorio = False
           ACorFoco = FPrincipal.CorFoco
+        end
+      end
+      object PProjeto: TPanelColor
+        Left = 0
+        Top = 532
+        Width = 554
+        Height = 28
+        Align = alTop
+        BevelOuter = bvNone
+        Color = clSilver
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 32
+        AUsarCorForm = False
+        ACorForm = FPrincipal.CorForm
+        object Label23: TLabel
+          Left = 74
+          Top = 6
+          Width = 49
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Projeto :'
+        end
+        object SpeedButton25: TSpeedButton
+          Left = 198
+          Top = 2
+          Width = 26
+          Height = 25
+          Glyph.Data = {
+            76010000424D7601000000000000760000002800000020000000100000000100
+            04000000000000010000CE0E0000D80E00001000000000000000000000000000
+            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+            33033333333333333F7F3333333333333000333333333333F777333333333333
+            000333333333333F777333333333333000333333333333F77733333333333300
+            033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
+            33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
+            333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
+            33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
+            333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
+            333333773FF77333333333370007333333333333777333333333}
+          NumGlyphs = 2
+        end
+        object LProjeto: TLabel
+          Left = 227
+          Top = 6
+          Width = 249
+          Height = 16
+          AutoSize = False
+          Caption = '            '
+        end
+        object EProjeto: TRBEditLocaliza
+          Left = 128
+          Top = 1
+          Width = 68
+          Height = 24
+          Color = clInfoBk
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlue
+          Font.Height = -13
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          ACampoObrigatorio = False
+          AIgnorarCor = False
+          ACorFoco = FPrincipal.CorFoco
+          AInteiro = 0
+          ATexto = LProjeto
+          ABotao = SpeedButton25
+          ADataBase = FPrincipal.BaseDados
+          ACorForm = FPrincipal.CorForm
+          ACorPainelGra = FPrincipal.CorPainelGra
+          ALocaliza = Localiza
+          ASelectValida.Strings = (
+            'Select CODPROJETO, NOMPROJETO '
+            ' from PROJETO '
+            ' Where COD_PROJETO = @')
+          ASelectLocaliza.Strings = (
+            'Select CODPROJETO, NOMPROJETO '
+            ' from PROJETO ')
+          APermitirVazio = True
+          AColunas = <
+            item
+              ATituloColuna = 'C'#243'digo'
+              ATamanhoColuna = 8
+              ACampoFiltro = False
+              ANomeCampo = 'CODPROJETO'
+              AMostrarNaGrade = True
+              AOrdemInicial = False
+            end
+            item
+              ATituloColuna = 'Nome'
+              ATamanhoColuna = 30
+              ACampoFiltro = True
+              ANomeCampo = 'NOMPROJETO'
+              AMostrarNaGrade = True
+              AOrdemInicial = True
+            end>
+          ALocalizaPadrao = lpProjeto
+          ATituloFormulario = '   Localiza Projeto   '
         end
       end
     end

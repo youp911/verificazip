@@ -77,19 +77,25 @@ type
     procedure ImprimeOrdemSerra(VpaCodFilial, VpaSeqOrdemProducao : Integer);
     procedure ImprimeEtiquetaProduto10X3A4;
     procedure ImprimePedidosEmAbertoPorEstagio(VpaCodEstagio, VpaCodTransportadora: Integer;VpaCaminho, VpaNomEstagio : String;VpaDatInicio, VpaDatFim : TDateTime);
-    procedure ImprimeFilaChamadosPorTecnico(VpaCodEstagio,VpaCodTecnico : Integer;VpaCaminhoRelatorio, VpaNomEstagio,VpaNomTecnico : String);
+    procedure ImprimeFilaChamadosPorTecnico(VpaCodEstagio,VpaCodTecnico : Integer;VpaCaminhoRelatorio, VpaNomEstagio,VpaNomTecnico : String;VpaDatInicio, VpaDatFim : TDateTime);
     procedure ImprimeFichaDesenvolvimento(VpaCodAmostra : Integer);
     procedure ImprimeExtratoColetaFracaoUsuario(VpaDatInicio, VpaDatFim : TDatetime;VpaCodCelula : Integer;VpaNomCelula : String);
     procedure ImprimeAutorizacaoPagamento(VpaCodFilial,VpaLanPagar, VpaNumParcela : Integer;VpaDatInicio, VpaDatFim : TDateTime);
     procedure ImprimeTotalClientesAtendidoseProdutosVendidosporVendedor(VpaCodClienteMaster : INteger;VpaCaminho, VpaNomClienteMaster : String;VpaDatInicio, VpaDatFim : TDateTime);
+    procedure ImprimeEstoqueProdutoporTecnico(VpaCodTEcnico : Integer; VpaCaminho, VpaNomTecnico : String);
+    procedure ImprimeProdutosRetornadosComDefeito(VpaCodTEcnico : Integer; VpaCaminho, VpaNomTecnico : String;VpaDatInicio,VpaDatFim : TDateTime);
+    procedure ImprimeConsistenciaReservaEstoque(VpaSeProduto : Integer; VpaCaminho, VpaNomProduto : String;VpaDatInicio,VpaDatFim : TDateTime);
+    procedure ImprimeVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime);
+    procedure ImprimeTotalVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime);
   end;
+
 
 var
   dtRave: TdtRave;
 
 implementation
 
-uses APrincipal, FunSql, Constantes, UnSistema,FunData;
+uses APrincipal, FunSql, Constantes, UnSistema,FunData, FunString;
 
 {$R *.dfm}
 
@@ -254,6 +260,36 @@ begin
   Rave.SetParam('CAMINHO',VpaCaminhoRelatorio);
 
   AdicionaSqlTabeLa(Principal,'ORDER BY CAD.D_DAT_ORC,CAD.I_LAN_ORC');
+  Principal.open;
+
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeProdutosRetornadosComDefeito(VpaCodTEcnico: Integer; VpaCaminho, VpaNomTecnico: String; VpaDatInicio, VpaDatFim: TDateTime);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Produtos Retornados com Defeito';
+  Rave.projectfile := varia.PathRelatorios+'\Produto\2500ES_Produtos Retornados com Defeito.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select PRO.C_NOM_PRO, '+
+                              ' PDE.DATMOVIMENTO, PDE.QTDPRODUTO, PDE.DESUM, PDE.DESDEFEITO, '+
+                              ' TEC.CODTECNICO, TEC.NOMTECNICO '+
+                              ' From CADPRODUTOS PRO,  PRODUTODEFEITO PDE, TECNICO TEC '+
+                              ' Where PDE.SEQPRODUTO = PRO.I_SEQ_PRO '+
+                              ' AND PDE.CODTECNICO = TEC.CODTECNICO');
+  if VpaCodTEcnico <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND TEC.CODTECNICO = '+InttoStr(VpaCodTecnico));
+    Rave.SetParam('TECNICO','Técnico : '+VpaNomTecnico);
+  end;
+  AdicionaSQLTabela(Principal,SQLTextoDataEntreAAAAMMDD('PDE.DATMOVIMENTO',VpaDatInicio,VpaDatFim,True));
+  Rave.SetParam('PERIODO','Período de : '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+ ' até ' + FormatDateTime('DD/MM/YYYY',VpaDatFim));
+  AdicionaSqlTabeLa(Principal,' ORDER BY  TEC.NOMTECNICO, PDE.DATMOVIMENTO');
+
+  Rave.SetParam('CAMINHO',VpaCaminho);
+
   Principal.open;
 
   Rave.Execute;
@@ -1238,6 +1274,37 @@ begin
 end;
 
 {******************************************************************************}
+procedure TdtRave.ImprimeConsistenciaReservaEstoque(VpaSeProduto: Integer; VpaCaminho, VpaNomProduto: String; VpaDatInicio,  VpaDatFim: TDateTime);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Consistencia Reserva Produto';
+  Rave.projectfile := varia.PathRelatorios+'\Produto\Reserva Estoque\1000ES_Consistencia Reserva Estoque.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'SELECT PRE.SEQPRODUTO, PRE.TIPMOVIMENTO, PRE.DATRESERVA, PRE.QTDRESERVADA , PRE.QTDINICIAL, '+
+                              ' PRE.QTDFINAL, PRE.SEQORDEMPRODUCAO, PRE.DESUM, '+
+                              ' PRO.C_COD_PRO, PRO.C_NOM_PRO, '+
+                              '  USU.C_NOM_USU '+
+                              ' FROM RESERVAPRODUTO PRE, CADUSUARIOS USU, CADPRODUTOS PRO '+
+                              ' Where PRE.SEQPRODUTO = PRO.I_SEQ_PRO '+
+                              ' AND PRE.CODUSUARIO = USU.I_COD_USU');
+  if VpaSeProduto <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND PRO.I_SEQ_PRO = '+InttoStr(VpaSeProduto));
+    Rave.SetParam('PRODUTO','Produto : '+VpaNomProduto);
+  end;
+  AdicionaSQLTabela(Principal,SQLTextoDataEntreAAAAMMDD('PRE.DATRESERVA',VpaDatInicio,VpaDatFim,True));
+  Rave.SetParam('PERIODO','Período de : '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+ ' até ' + FormatDateTime('DD/MM/YYYY',VpaDatFim));
+  AdicionaSqlTabeLa(Principal,' ORDER BY  PRE.DATRESERVA, PRE.TIPMOVIMENTO');
+
+  Rave.SetParam('CAMINHO',VpaCaminho);
+
+  Principal.open;
+
+  Rave.Execute;
+end;
+
+{******************************************************************************}
 procedure TdtRave.ImprimeConsumoSubmontagem(VpaCodFilial, VpaSeqOrdemProduccao, VpaSeqFracao : Integer;VpaSomenteAReservar : Boolean);
 begin
   Rave.close;
@@ -1391,6 +1458,35 @@ begin
 end;
 
 {******************************************************************************}
+procedure TdtRave.ImprimeEstoqueProdutoporTecnico(VpaCodTEcnico: Integer; VpaCaminho, VpaNomTecnico: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Estoque de produtos por tecnico';
+  Rave.projectfile := varia.PathRelatorios+'\Produto\2000ES_Estoque de Produtos Por Tecnico.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select PRO.C_COD_PRO, PRO.C_COD_UNI, PRO.C_NOM_PRO, '+
+                              ' EST.QTDPRODUTO, '+
+                              ' TEC.NOMTECNICO '+
+                              ' from CADPRODUTOS PRO, ESTOQUETECNICO EST, TECNICO TEC '+
+                              ' Where PRO.I_SEQ_PRO = EST.SEQPRODUTO '+
+                              ' AND EST.CODTECNICO = TEC.CODTECNICO '+
+                              ' AND EST.QTDPRODUTO <> 0');
+  if VpaCodTEcnico <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND TEC.CODTECNICO = '+InttoStr(VpaCodTecnico));
+    Rave.SetParam('TECNICO','Técnico : '+VpaNomTecnico);
+  end;
+  AdicionaSqlTabeLa(Principal,' ORDER BY  TEC.NOMTECNICO');
+
+  Rave.SetParam('CAMINHO',VpaCaminho);
+
+  Principal.open;
+
+  Rave.Execute;
+end;
+
+{******************************************************************************}
 procedure TdtRave.ImprimeNotaFiscalEntrada(VpaCodFilial,VpaSeqNota : integer;VpaVisualizar : Boolean);
 begin
   Rave.close;
@@ -1494,25 +1590,25 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimeFilaChamadosPorTecnico(VpaCodEstagio,  VpaCodTecnico: Integer; VpaCaminhoRelatorio, VpaNomEstagio,  VpaNomTecnico: String);
+procedure TdtRave.ImprimeFilaChamadosPorTecnico(VpaCodEstagio,  VpaCodTecnico: Integer; VpaCaminhoRelatorio, VpaNomEstagio,  VpaNomTecnico: String;VpaDatInicio, VpaDatFim : TDateTime);
 begin
   Rave.close;
-  RvSystem1.SystemPrinter.Title := 'Eficácia - Pedidos em Aberto por Estagio';
-  Rave.projectfile := varia.PathRelatorios+'\Cotacao\2000PL_Cotacoes em Aberto por Estagio.rav';
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Fila chamados por tecnico';
+  Rave.projectfile := varia.PathRelatorios+'\Chamado\1000CH_Fila Chamados por Tecnico.rav';
   Rave.clearParams;
   LimpaSqlTabela(Principal);
-  AdicionaSqlTabeLa(Principal,'SELECT  CLI.I_COD_CLI, CLI.C_NOM_CLI, CLI.C_CID_CLI, '+
-                              ' CHA.CODFILIAL, CHA.NUMCHAMADO, CHA.DATCHAMADO, CHA.DATPREVISAO, CHA.NOMSOLICITANTE, '+
+  AdicionaSqlTabeLa(Principal,'select CLI.I_COD_CLI, CLI.C_NOM_CLI, CLI.C_CID_CLI, '+
+                              ' CHA.CODFILIAL, CHA.NUMCHAMADO, CHA.DATCHAMADO, CHA.DATPREVISAO, CHA.DATPREVISAO HORA, CHA.NOMSOLICITANTE, '+
                               ' CHA.CODESTAGIO, '+
                               ' CHP.DESPROBLEMA, '+
-                              ' EST.NOMEST, '+
+                              ' EST.CODEST, EST.NOMEST, '+
                               ' TEC.CODTECNICO, TEC.NOMTECNICO '+
-                              ' FROM CADCLIENTES CLI, CHAMADOCORPO CHA, CHAMADOPRODUTO CHP, TECNICO TEC, ESTAGIOPRODUCAO EST '+
-                              ' Where CHA.CODCLIENTE = CLI.I_COD_CLI '+
-                              ' AND CHA.CODFILIAL = CHP.CODFILIAL '+
+                              ' from CADCLIENTES CLI, CHAMADOCORPO CHA, CHAMADOPRODUTO CHP, ESTAGIOPRODUCAO EST, TECNICO TEC '+
+                              ' WHERE CHA.CODFILIAL= CHP.CODFILIAL '+
                               ' AND CHA.NUMCHAMADO = CHP.NUMCHAMADO '+
-                              ' AND CHA.CODESTAGIO = EST.CODEST '+
                               ' AND CHA.CODTECNICO = TEC.CODTECNICO '+
+                              ' AND CHA.CODCLIENTE = CLI.I_COD_CLI '+
+                              ' AND CHA.CODESTAGIO = EST.CODEST '+
                               ' AND CHA.CODESTAGIO < 170 ');
 
   if VpaCodEstagio <> 0 then
@@ -1520,7 +1616,15 @@ begin
     AdicionaSqlTabeLa(Principal,'AND CHA.CODESTAGIO = '+InttoStr(VpaCodEstagio));
     Rave.SetParam('ESTAGIO',VpaNomEstagio);
   end;
-  AdicionaSqlTabeLa(Principal,'ORDER BY TEC.NOMTECNICO,EST.NOMEST, CHA.DATPREVISAO');
+  if VpaCodTecnico <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CHA.CODTECNICO = '+InttoStr(VpaCodTecnico));
+    Rave.SetParam('TECNICO',VpaNomTecnico);
+  end;
+  AdicionaSQLTabela(Principal,SQLTextoDataEntreAAAAMMDD('CHA.DATPREVISAO',VpaDatInicio,IncDia(VpaDatFim,1),true));
+  Rave.SetParam('PERIODO','Período de '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDateTime('DD/MM/YYYY',VpaDatFim));
+
+  AdicionaSqlTabeLa(Principal,'ORDER BY TEC.NOMTECNICO,EST.CODEST, CHA.DATPREVISAO');
 
   Rave.SetParam('CAMINHO',VpaCaminhoRelatorio);
 
@@ -1581,6 +1685,109 @@ begin
   AdicionaSqlTabeLa(Principal,' GROUP BY VEN.C_NOM_VEN '+
                               ' ORDER BY 1');
 
+  Rave.SetParam('CAMINHO',VpaCaminho);
+
+  Principal.open;
+
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao: Integer; VpaCaminho, VpaNomCliente, VpaNomCondicaoPagamento, VpaNomTipoCotacao, VpaCidade, VpaUF: String; VpaDatInicio, VpaDatFim: TDatetime);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Vendas por Estado e Cidade';
+  Rave.projectfile := varia.PathRelatorios+'\Cotacao\Venda\0200PL_Vendas por Estado e Cidade.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select CLI.I_COD_CLI, CLI.C_NOM_CLI, CLI.C_EST_CLI, CLI.C_CID_CLI, '+
+                              ' PAG.C_NOM_PAG, '+
+                              ' CAD.I_EMP_FIL, CAD.I_LAN_ORC, CAD.I_COD_PAG, CAD.D_DAT_ORC, CAD.I_COD_VEN, '+
+                              ' CAD.N_VLR_TOT, CAD.C_NRO_NOT, CAD.I_TIP_ORC '+
+                              ' from CADCLIENTES CLI, CADCONDICOESPAGTO PAG, CADORCAMENTOS CAD '+
+                              ' WHERE CLI.I_COD_CLI = CAD.I_COD_CLI '+
+                              ' AND CAD.I_COD_PAG = PAG.I_COD_PAG '+
+                              SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,true)+
+                              ' AND CAD.C_IND_CAN = ''N''');
+  if VpaCodCliente <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_CLI = '+InttoStr(VpaCodCliente));
+    Rave.SetParam('CLIENTE',VpaNomCliente);
+  end;
+  if DeletaEspaco(VpaCidade) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_CID_CLI = '''+ VpaCidade+'''');
+    Rave.SetParam('CIDADE',VpaCidade);
+  end;
+  if VpaUF <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_EST_CLI = '''+ VpaUF+'''');
+    Rave.SetParam('ESTADO',VpaUF);
+  end;
+  if VpaCodCondicaoPagamento <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_PAG = '+InttoStr(VpaCodCondicaoPagamento));
+    Rave.SetParam('CONDICAOPAGAMENTO',VpaNomCondicaoPagamento);
+  end;
+  if VpaTipCotacao <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_TIP_ORC = '+InttoStr(VpaTipCotacao));
+    Rave.SetParam('TIPOCOTACAO',VpaNomTipoCotacao);
+  end;
+
+  AdicionaSQLTabela(Principal,SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,True));
+  Rave.SetParam('PERIODO','Período de : '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+ ' até ' + FormatDateTime('DD/MM/YYYY',VpaDatFim));
+  AdicionaSqlTabeLa(Principal,' ORDER BY CLI.C_EST_CLI, CLI.C_CID_CLI');
+
+  Rave.SetParam('CAMINHO',VpaCaminho);
+
+  Principal.open;
+
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeTotalVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao: Integer; VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento, VpaNomTipoCotacao, VpaCidade, VpaUF: String; VpaDatInicio, VpaDatFim: TDatetime);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Total Vendas por Estado e Cidade';
+  Rave.projectfile := varia.PathRelatorios+'\Cotacao\Venda\0250PL_Total Vendas por Estado e Cidade.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select CLI.C_EST_CLI, CLI.C_CID_CLI, SUM(CAD.N_VLR_TOT)VALOR ' +
+                              ' from CADCLIENTES CLI, CADORCAMENTOS CAD ' +
+                              ' WHERE CLI.I_COD_CLI = CAD.I_COD_CLI ' +
+                              SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,true)+
+                              ' AND CAD.C_IND_CAN = ''N''');
+  if VpaCodCliente <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_CLI = '+InttoStr(VpaCodCliente));
+    Rave.SetParam('CLIENTE',VpaNomCliente);
+  end;
+  if DeletaEspaco(VpaCidade) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_CID_CLI = '''+ VpaCidade+'''');
+    Rave.SetParam('CIDADE',VpaCidade);
+  end;
+  if VpaUF <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_EST_CLI = '''+ VpaUF+'''');
+    Rave.SetParam('ESTADO',VpaUF);
+  end;
+  if VpaCodCondicaoPagamento <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_PAG = '+InttoStr(VpaCodCondicaoPagamento));
+    Rave.SetParam('CONDICAOPAGAMENTO',VpaNomCondicaoPagamento);
+  end;
+  if VpaTipCotacao <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_TIP_ORC = '+InttoStr(VpaTipCotacao));
+    Rave.SetParam('TIPOCOTACAO',VpaNomTipoCotacao);
+  end;
+  AdicionaSQLTabela(Principal,SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,True));
+  Rave.SetParam('PERIODO','Período de : '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+ ' até ' + FormatDateTime('DD/MM/YYYY',VpaDatFim));
+  AdicionaSqlTabeLa(Principal,' GROUP BY CLI.C_EST_CLI, CLI.C_CID_CLI ' +
+                              ' ORDER BY 1,3 DESC ');
   Rave.SetParam('CAMINHO',VpaCaminho);
 
   Principal.open;

@@ -896,7 +896,8 @@ Type
 
     // Adicionais
       PesoLiquido,
-      PesoBruto: Double;
+      PesoBruto,
+      CapLiquida: Double;
       QtdMesesGarantia,
       CodEmbalagem,
       CodAcondicionamento,

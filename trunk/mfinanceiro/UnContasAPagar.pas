@@ -119,6 +119,9 @@ type
     function ExisteCheque(VpaNumCheque : Integer;var VpaExisteVariosCheques : Boolean;VpaDCheque : TRBDCheque): Boolean;
     procedure CarParcelasCPCheque(VpaSeqCheque : Integer;VpaParcelas : TList);
     procedure InterpretaCodigoBarras(VpaDContasAPagar : TRBDContasaPagar;VpaCodBarras : String);
+    function ValorProjetosMaiorQueContasaPagar(VpaDContasaPagar : TRBDContasaPagar;VpaValContasAPagar : Double):string;
+    function RPercentualProjetoFaltante(VpaDContasAPagar : TRBDContasaPagar) : Double;
+    function ProjetoDuplicado(VpaDContasAPagar : TRBDContasaPagar) : boolean;
   end;
 
 var
@@ -719,6 +722,28 @@ begin
 end;
 
 {******************************************************************************}
+function TFuncoesContasAPagar.ValorProjetosMaiorQueContasaPagar(VpaDContasaPagar: TRBDContasaPagar;VpaValContasAPagar : Double): string;
+var
+  VpfValProjetos  : Double;
+  VpfLaco : Integer;
+begin
+  result := '';
+  VpfValProjetos := 0;
+  for VpfLaco := 0 to VpaDContasaPagar.DespesaProjeto.Count - 1 do
+  begin
+    VpfValProjetos := VpfValProjetos + TRBDContasaPagarProjeto(VpaDContasaPagar.DespesaProjeto.Items[VpfLaco]).ValDespesa;
+  end;
+  if ArredondaDecimais(VpfValProjetos,2) > ArredondaDecimais(VpaValContasAPagar,2) then
+  begin
+    result := 'VALOR PROJETOS MAIOR QUE O VALOR DO CONTAS A PAGAR!!!'#13'O valor das depesas do projeto soma "'+FormatFloat('R$ #,###,###,##0.00',VpfValProjetos)+'" e o valor do contas a pagar é "'+FormatFloat('R$ #,###,###,##0.00',VpaValContasAPagar)+'"';
+  end
+  else
+    if ArredondaDecimais(VpfValProjetos,2) < ArredondaDecimais(VpaValContasAPagar,2) then
+      result := 'VALOR PROJETOS MENOR QUE O VALOR DO CONTAS A PAGAR!!!'#13'O valor das depesas do projeto soma "'+FormatFloat('R$ #,###,###,##0.00',VpfValProjetos)+'" e o valor do contas a pagar é "'+FormatFloat('R$ #,###,###,##0.00',VpaValContasAPagar)+'"';
+
+end;
+
+{******************************************************************************}
 function TFuncoesContasAPagar.EstornaParcelaParcial(VpaCodFilial, VpaLanPagar, VpaNumParcelaFilha : integer) : string;
 begin
   result := '';
@@ -750,6 +775,20 @@ begin
     if TRBDParcelaCP(VpaDBaixa.Parcelas.Items[VpfLaco]).IndGeraParcial then
      result := TRBDParcelaCP(VpaDBaixa.Parcelas.Items[VpfLaco]);
   end;
+end;
+
+{******************************************************************************}
+function TFuncoesContasAPagar.RPercentualProjetoFaltante(VpaDContasAPagar: TRBDContasaPagar): Double;
+var
+  VpfPerProjetos : Double;
+  VpfLaco : Integer;
+begin
+  result := 0;
+  VpfPerProjetos := 0;
+  for VpfLaco := 0 to VpaDContasaPagar.DespesaProjeto.Count - 1 do
+    VpfPerProjetos := VpfPerProjetos + TRBDContasaPagarProjeto(VpaDContasaPagar.DespesaProjeto.Items[VpfLaco]).PerDespesa;
+  if VpfPerProjetos < 100 then
+    result := 100 - VpfPerProjetos;
 end;
 
 {******************************************************************************}
@@ -1666,6 +1705,28 @@ begin
                                 ' and i_emp_fil = ' +  IntTostr(VpaCodFilial) );
    result := TemParcelasPagas(VpaCodFilial, Tabela.fieldByName('i_lan_apg').AsInteger);
    tabela.close;
+end;
+
+{******************************************************************************}
+function TFuncoesContasAPagar.ProjetoDuplicado(VpaDContasAPagar: TRBDContasaPagar): boolean;
+var
+  VpfLacoInterno, VpfLacoExterno : Integer;
+  VpfDProjetoInterno, VpfDProjetoExterno : TRBDContasaPagarProjeto;
+begin
+  result := false;
+  for VpfLacoExterno := 0 to VpaDContasAPagar.DespesaProjeto.Count - 2 do
+  begin
+    VpfDProjetoExterno := TRBDContasaPagarProjeto(VpaDContasAPagar.DespesaProjeto.Items[VpfLacoExterno]);
+    for VpfLacoInterno := VpfLacoExterno + 1 to VpaDContasAPagar.DespesaProjeto.Count - 1 do
+    begin
+      VpfDProjetoInterno := TRBDContasaPagarProjeto(VpaDContasAPagar.DespesaProjeto.Items[VpfLacoInterno]);
+      if VpfDProjetoInterno.CodProjeto = VpfDProjetoExterno.CodProjeto then
+      begin
+        result := true;
+        break;
+      end;
+    end;
+  end;
 end;
 
 {******************************************************************************}

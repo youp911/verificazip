@@ -303,6 +303,9 @@ type
     Label97: TLabel;
     Label98: TLabel;
     EQtdColInstalacao: TSpinEditColor;
+    ECapacidadeLiquida: Tnumerico;
+    Label99: TLabel;
+    Label100: TLabel;
 
     procedure PaginasChange(Sender: TObject);
     procedure PaginasChanging(Sender: TObject; var AllowChange: Boolean);
@@ -478,6 +481,7 @@ type
     procedure BloquearTela(VpaEstado: Boolean);
     procedure AlteraFoco;
     function ChamaRotinasGravacao: String;
+    function GeraCodigoBarras : String;
 
     function DadosValidos : String;
     procedure CarDTela;
@@ -1280,28 +1284,32 @@ begin
   Result:= DadosValidos;
   if result = '' then
   begin
-    Result:= FunProdutos.GravaDProduto(VprDProduto);
-    if Result = '' then
+    result := GeraCodigoBarras;
+    if result = '' then
     begin
-      Result:= FunProdutos.GravaDCombinacao(VprDProduto);
+      Result:= FunProdutos.GravaDProduto(VprDProduto);
       if Result = '' then
       begin
-        Result:= FunProdutos.GravaDEstagio(VprDProduto);
+        Result:= FunProdutos.GravaDCombinacao(VprDProduto);
         if Result = '' then
         begin
-          Result:= FunProdutos.GravaDFornecedor(VprDProduto);
-          if VprImpressorasCarregadas then
+          Result:= FunProdutos.GravaDEstagio(VprDProduto);
+          if Result = '' then
           begin
-            Result:= FunProdutos.GravaProdutoImpressoras(VprDProduto.SeqProduto,VprListaImpressoras);
-            if Result = '' then
+            Result:= FunProdutos.GravaDFornecedor(VprDProduto);
+            if VprImpressorasCarregadas then
             begin
-              Result:= FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,0,0, VprDProduto);
+              Result:= FunProdutos.GravaProdutoImpressoras(VprDProduto.SeqProduto,VprListaImpressoras);
               if Result = '' then
               begin
-                Result:= FunProdutos.GravaDTabelaPreco(VprDProduto);
-                if result = '' then
+                Result:= FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,0,0, VprDProduto);
+                if Result = '' then
                 begin
-                  result := FunProdutos.GravaDAcessorio(VprDProduto);
+                  Result:= FunProdutos.GravaDTabelaPreco(VprDProduto);
+                  if result = '' then
+                  begin
+                    result := FunProdutos.GravaDAcessorio(VprDProduto);
+                  end;
                 end;
               end;
             end;
@@ -1368,7 +1376,6 @@ begin
       Result := 'PRODUTO JÁ CADASTRADO!!!'#13'Informe um código que ainda não esteja cadastrado.';
     end;
   end;
-
 end;
 
 {******************************************************************************}
@@ -1492,6 +1499,7 @@ begin
   EEmbalagem.AInteiro:= VprDProduto.CodEmbalagem;
   EAcondicionamento.AInteiro:= VprDProduto.CodAcondicionamento;
   EAlturaProduto.AInteiro:= VprDProduto.AltProduto;
+  ECapacidadeLiquida.AValor := VprDProduto.CapLiquida;
   ECodDesenvolvedor.AInteiro:= VprDProduto.CodDesenvolvedor;
   CImprimeTabelaPreco.Checked:= VprDProduto.IndImprimeNaTabelaPreco = 'S';
   CCracha.Checked:= VprDProduto.IndCracha = 'S';
@@ -1743,7 +1751,9 @@ begin
   VprDProduto.CodAcondicionamento:= EAcondicionamento.AInteiro;
   VprDProduto.CodComposicao := EComposicao.AInteiro;
   VprDProduto.AltProduto:= EAlturaProduto.AInteiro;
+  VprDProduto.CapLiquida := ECapacidadeLiquida.AValor;
   VprDProduto.CodDesenvolvedor:= ECodDesenvolvedor.AInteiro;
+
   if CImprimeTabelaPreco.Checked then
     VprDProduto.IndImprimeNaTabelaPreco:= 'S'
   else
@@ -2516,6 +2526,20 @@ begin
   VprDCombinacao := VprDProduto.AddCombinacao;
   VprDCombinacao.Espula1 := 1;
   VprDCombinacao.Espula2 := 1;
+end;
+
+{******************************************************************************}
+function TFNovoProdutoPro.GeraCodigoBarras: String;
+begin
+  result := '';
+  if (VprOperacao = ocInsercao) then
+  begin
+    case Varia.TipCodBarras of
+      cbEAN13 : VprDProduto.CodBarraFornecedor :=  FunProdutos.RCodBarrasEAN13Disponivel;
+    end;
+    if VprDProduto.CodBarraFornecedor = 'FIM FAIXA' then
+      result :='FINAL DA FAIXA DO CODIGO DE BARRAS!!!'#13'Não existe mais codigo de barras disponivel.'
+  end;
 end;
 
 {******************************************************************************}

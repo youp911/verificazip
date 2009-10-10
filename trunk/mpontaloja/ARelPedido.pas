@@ -164,6 +164,11 @@ type
     PTipoPeriodo: TPanelColor;
     Label1: TLabel;
     ETipoPeriodo: TComboBoxColor;
+    PProjeto: TPanelColor;
+    Label23: TLabel;
+    SpeedButton25: TSpeedButton;
+    LProjeto: TLabel;
+    EProjeto: TRBEditLocaliza;
     procedure FormCreate(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
     procedure BFecharClick(Sender: TObject);
@@ -586,6 +591,24 @@ begin
                                   if (VPANOMRELATORIO = 'TOTAL CLIENTES ATENDIDOS E PRODUTOS VENDIDOS POR VENDEDOR') then
                                     AlterarVisibleDet([PPeriodo,PClienteMaster],true)
                                   else
+                                    if (VPANOMRELATORIO = 'CUSTO PROJETO') then
+                                      AlterarVisibleDet([PProjeto],true)
+                                    else
+                                      if (VPANOMRELATORIO = 'ESTOQUE DE PRODUTOS POR TECNICO') then
+                                        AlterarVisibleDet([PTecnico],true)
+                                      else
+                                        if (VPANOMRELATORIO = 'PRODUTOS RETORNADOS COM DEFEITO') then
+                                          AlterarVisibleDet([PTecnico,PPeriodo],true)
+                                        else
+                                          if (VPANOMRELATORIO = 'CONSISTENCIA RESERVA ESTOQUE') then
+                                            AlterarVisibleDet([PProduto,PPeriodo],true)
+                                          else
+                                            if (VPANOMRELATORIO = 'FILA CHAMADOS POR TECNICO') then
+                                              AlterarVisibleDet([PEstagio,PTecnico,PPeriodo],true)
+                                            else
+                                              if (VPANOMRELATORIO = 'VENDAS POR ESTADO E CIDADE') or
+                                                 (VPANOMRELATORIO = 'TOTAL VENDAS POR ESTADO E CIDADE') then
+                                                AlterarVisibleDet([PPeriodo,PTipoCotacao,PCliente,PCidade,PEstado,PCondPgto],true)
 end;
 
 
@@ -657,8 +680,28 @@ begin
                                 FunRave.ImprimeExtratoProdutividade(VprCaminhoRelatorio,CDataFinal.Date)
                               else
                                 if (VPRNOMRELATORIO = 'TOTAL CLIENTES ATENDIDOS E PRODUTOS VENDIDOS POR VENDEDOR') then
-                                  dtRave.ImprimeTotalClientesAtendidoseProdutosVendidosporVendedor(EClienteMaster.AInteiro,VprCaminhoRelatorio,LClienteMaster.Caption,CDataIni.Date,CDataFim.Date);
-
+                                  dtRave.ImprimeTotalClientesAtendidoseProdutosVendidosporVendedor(EClienteMaster.AInteiro,VprCaminhoRelatorio,LClienteMaster.Caption,CDataIni.Date,CDataFim.Date)
+                                else
+                                  if (VPRNOMRELATORIO = 'CUSTO PROJETO') then
+                                    FunRave.ImprimeCustoProjeto(EProjeto.AInteiro,VprCaminhoRelatorio,LProjeto.Caption)
+                                  else
+                                    if (VPRNOMRELATORIO = 'ESTOQUE DE PRODUTOS POR TECNICO') then
+                                      dtRave.ImprimeEstoqueProdutoporTecnico(ETecnico.AInteiro,VprCaminhoRelatorio,LTecnico.Caption)
+                                    else
+                                      if (VPRNOMRELATORIO = 'PRODUTOS RETORNADOS COM DEFEITO') then
+                                        dtRave.ImprimeProdutosRetornadosComDefeito(ETecnico.AInteiro,VprCaminhoRelatorio,LTecnico.Caption,CDataIni.Date,CDataFim.Date)
+                                      else
+                                        if (VPRNOMRELATORIO = 'CONSISTENCIA RESERVA ESTOQUE') then
+                                          dtRave.ImprimeConsistenciaReservaEstoque(VprSeqProduto,VprCaminhoRelatorio,LProduto.Caption,CDataIni.Date,CDataFim.Date)
+                                        else
+                                          if (VPRNOMRELATORIO = 'FILA CHAMADOS POR TECNICO') then
+                                            dtRave.ImprimeFilaChamadosPorTecnico(ECodEstagio.AInteiro,ETecnico.AInteiro,VprCaminhoRelatorio,LEstagio.Caption,LTecnico.Caption,CDataIni.Date,CDataFim.Date)
+                                          else
+                                            if (VPRNOMRELATORIO = 'VENDAS POR ESTADO E CIDADE') then
+                                              dtRave.ImprimeVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date)
+                                            else
+                                              if (VPRNOMRELATORIO = 'TOTAL VENDAS POR ESTADO E CIDADE') then
+                                                dtRave.ImprimeTotalVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date);
   dtRave.free;
 end;
 

@@ -113,7 +113,8 @@ type
       VprNomVendedor,
       VprUfAtual : String;
       VprMes,
-      VprAno : Integer;
+      VprAno,
+      VprCodProjeto : Integer;
       VprDatInicio,
       VprDatFim : TDateTime;
       VprAgruparPorEstado,
@@ -128,6 +129,7 @@ type
       procedure DefineTabelaCPporPlanoContas(VpaObjeto : TObject);
       procedure DefineTabelaEntradaMetro(VpaObjeto : TObject);
       procedure DefineTabelaExtratoProdutividade(VpaObjeto : TObject);
+      procedure DefineTabelaCustoProjeto(VpaObjeto : TObject);
       procedure ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
       procedure ImprimeRelEstoqueProdutos(VpaObjeto : TObject);
       procedure ImprimeTotaisNiveis(VpaNiveis : TList;VpaIndice : integer);
@@ -139,6 +141,7 @@ type
       procedure ImprimeCabecalhoFechamentoEstoque;
       procedure ImprimeCabecalhoEntradaMetros;
       procedure ImprimeCabecalhoPlanoContas;
+      procedure ImprimeCabecalhoPlanoContasCustoProjeto;
       procedure ImprimeCabecalhoExtratoProdutividade;
       procedure ImprimeTituloUF(VpaCodUf : String);
       procedure ImprimeTituloClassificacao(VpaNiveis : TList;VpaTudo : boolean);
@@ -148,6 +151,7 @@ type
       function CarregaNiveis(VpaNiveis : TList;VpaCodClassificacao : string):TRBDClassificacaoRave;
       function CarDNivelPlanoContas(VpaCodCompleto, VpaCodReduzido : String):TRBDPlanoContasRave;
       function CarregaNiveisPlanoContas(VpaNiveis : TList;VpaCodPlanoContas : string):TRBDPlanoContasRave;
+      procedure ImprimeRelCustoProjetoContasAPagar;
 
       procedure InicializaVendaCliente(VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente);
       function RMesVenda(VpaDVenda : TRBDVendaCliente;VpaMes, VpaAno : Integer) : TRBDVendaClienteMes;
@@ -160,6 +164,7 @@ type
       procedure ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
       procedure ImprimeRelEntradaMetros(VpaObjeto : TObject);
       procedure ImprimeRelExtratoProdutividade(VpaObjeto : TObject);
+      procedure ImprimeRelCustoProjeto(VpaObjeto : TObject);
 
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
@@ -176,6 +181,7 @@ type
       procedure ImprimeContasAPagarPorPlanodeContas(VpaCodFilial : Integer; VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho, VpaNomFilial : String;VpfTipoPeriodo : Integer);
       procedure ImprimeEntradaMetros(VpaDatInicio, VpaDatFim : TDateTime);
       procedure ImprimeExtratoProdutividade(VpaCaminho : String;VpaData : TDateTime);
+      procedure ImprimeCustoProjeto(VpaCodProjeto : Integer;VpaCaminho, VpaNomProjeto : String);
   end;
 implementation
 
@@ -492,6 +498,33 @@ begin
      SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //Valor total
      SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //Valor total Pago
      SaveTabs(3);
+     clearTabs;
+   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaCustoProjeto(VpaObjeto: TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1.0,pjleft,2.5,0.5,BoxlineNONE,0); //Codigo planoContas
+     SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //NomPlanoContas
+     SaveTabs(1);
+     clearTabs;
+     SetTab(1.5,pjLeft,9,0.1,Boxlinenone,0); //Fornecedor
+     SetTab(NA,pjRight,1.9,0.5,Boxlinenone,0); //nro Nota
+     SetTab(NA,pjCenter,2.0,0.2,Boxlinenone,0); //Emissão
+     SetTab(NA,pjRight,2.5,0.2,Boxlinenone,0); //Valor a pagar
+     SetTab(NA,pjRight,2.5,0,Boxlinenone,0); //Percentual Conta
+     SaveTabs(2);
+     clearTabs;
+     SetTab(1.0,pjleft,2.5,0.5,BoxlineNONE,0); //Valor Previsto
+     SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //Valor total
+     SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //Valor total Pago
+     SaveTabs(3);
+     clearTabs;
+     SetTab(2.0,pjCenter,18,0.5,BoxlineNONE,0); //Valor Previsto
+     SaveTabs(4);
      clearTabs;
    end;
 end;
@@ -1042,6 +1075,22 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoPlanoContasCustoProjeto;
+begin
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(2);
+    bold := true;
+    PrintTab('Fornecedor');
+    PrintTab('Nro Nota');
+    PrintTab('Emissão');
+    PrintTab('Valor');
+    PrintTab('Percentual');
+    Bold := false;
+  end;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeCabecalhoExtratoProdutividade;
 var
   Vpflaco : Integer;
@@ -1189,6 +1238,7 @@ begin
     begin
       case RvSystem.Tag of
        7 : ImprimeCabecalhoPlanoContas;
+      10 : ImprimeCabecalhoPlanoContasCustoProjeto;
       end;
       newline;
       If LinesLeft<=1 Then
@@ -1803,6 +1853,82 @@ begin
     PrintTab(FormatFloat(varia.MascaraQtd,VpfTotalDuplicata));
     PrintTab('');
     PrintTab(FormatFloat(varia.MascaraValor,VpfTotalPago));
+    PrintTab('  ');
+    bold := false;
+  end;
+  Tabela.Close;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRelCustoProjeto(VpaObjeto: TObject);
+begin
+  ImprimeRelCustoProjetoContasAPagar;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRelCustoProjetoContasAPagar;
+var
+  VpfValDuplicata, VpfTotalDuplicata : Double;
+  VpfPlanoContasAtual : string;
+  VpfDClassificacao : TRBDPlanoContasRave;
+begin
+  VpfValDuplicata := 0;
+  VpfTotalDuplicata := 0;
+  VpfPlanoContasAtual := '';
+  with RVSystem.BaseReport do begin
+    RestoreTabs(4);
+    NewLine;
+    SetBrush(ShadeToColor(clBlack,20),bsSolid,nil);
+    FillRect(CreateRect(MarginLeft-0.1,YPos-0.6,PageWidth-0.3,YPos+0.1));
+    Bold := TRUE;
+    FontSize := 18;
+    PrintTab('CONTAS A PAGAR');
+    NewLine;
+    NewLine;
+    Bold := false;
+    FontSize := 10;
+    while not Tabela.Eof  do
+    begin
+      if VpfPlanoContasAtual <> Tabela.FieldByName('C_CLA_PLA').AsString then
+      begin
+        if VpfDClassificacao <> nil then
+          VpfDClassificacao.ValDuplicata := VpfDClassificacao.ValDuplicata + VpfValDuplicata;
+
+        VpfDClassificacao := CarregaNiveisPlanoContas(VprNiveis,Tabela.FieldByName('C_CLA_PLA').AsString);
+        ImprimetituloPlanoContas(VprNiveis,VpfPlanoContasAtual = '');
+        VpfPlanoContasAtual := Tabela.FieldByName('C_CLA_PLA').AsString;
+        VpfValDuplicata := 0;
+      end;
+      PrintTab(Tabela.FieldByName('I_COD_CLI').AsString+'-'+Tabela.FieldByName('C_NOM_CLI').AsString);
+      PrintTab(Tabela.FieldByName('I_NRO_NOT').AsString);
+      PrintTab(FormatDateTime('DD/MM/YY',Tabela.FieldByName('D_DAT_EMI').AsDatetime));
+      PrintTab(FormatFloat('#,###,###,##0.00',Tabela.FieldByName('VALDESPESA').AsFloat));
+      PrintTab(FormatFloat('##0.00 %',Tabela.FieldByName('PERDESPESA').AsFloat));
+
+      NewLine;
+      If LinesLeft<=1 Then
+        NewPage;
+      VpfValDuplicata := VpfValDuplicata + Tabela.FieldByName('VALDESPESA').AsFloat;
+      VpfTotalDuplicata := VpfTotalDuplicata + Tabela.FieldByName('VALDESPESA').AsFloat;
+      Tabela.next;
+    end;
+
+    if VpfDClassificacao <> nil then
+      VpfDClassificacao.ValDuplicata := VpfDClassificacao.ValDuplicata + VpfValDuplicata;
+    if VprNiveis.Count > 0  then
+      ImprimeTotaisNiveisPlanoContas(VprNiveis,0);
+
+    newline;
+    newline;
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    PrintTab('');
+    bold := true;
+    PrintTab('Total Geral');
+    bold := true;
+    PrintTab('');
+    PrintTab(FormatFloat(varia.MascaraQtd,VpfTotalDuplicata));
     PrintTab('  ');
     bold := false;
   end;
@@ -2433,6 +2559,41 @@ begin
   VprNomeRelatorio := 'Produtividade Diária';
   VprCabecalhoEsquerdo.Clear;
   VprCabecalhoEsquerdo.add('Mês : ' +IntToStr(Mes(VpaData)));
+
+  VprCabecalhoDireito.Clear;
+
+  RvSystem.execute;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeCustoProjeto(VpaCodProjeto: Integer; VpaCaminho, VpaNomProjeto: String);
+begin
+  RvSystem.Tag := 10;
+  VprCodProjeto := VpaCodProjeto;
+  LimpaSQlTabela(Tabela);
+  AdicionaSqltabela(Tabela,'Select  PLA.C_CLA_PLA, PLA.C_NOM_PLA, '+
+                           ' CLI.I_COD_CLI, CLI.C_NOM_CLI, '+
+                           ' CAD.I_NRO_NOT , CAD.D_DAT_EMI, '+
+                           ' CPR.VALDESPESA, CPR.PERDESPESA '+
+                           ' from CAD_PLANO_CONTA PLA, CADCLIENTES CLI, CADCONTASAPAGAR CAD, CONTAAPAGARPROJETO CPR '+
+                           ' Where CAD.I_COD_CLI = CLI.I_COD_CLI '+
+                           ' AND CAD.C_CLA_PLA = PLA.C_CLA_PLA '+
+                           ' AND CAD.I_EMP_FIL = CPR.CODFILIAL '+
+                           ' AND CAD.I_LAN_APG = CPR.LANPAGAR '+
+                           ' AND CPR.CODPROJETO = '+IntToStr(VpaCodProjeto));
+  AdicionaSqlTabela(Tabela,' ORDER BY PLA.C_CLA_PLA, CLI.C_NOM_CLI');
+  Tabela.open;
+  RvSystem.SystemPrinter.Orientation := poPortrait;
+
+  rvSystem.onBeforePrint := DefineTabelaCustoProjeto;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelCustoProjeto;
+
+  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Custo Projeto';
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Projeto : ' +IntToStr(VpaCodProjeto)+'-'+VpaNomProjeto);
 
   VprCabecalhoDireito.Clear;
 

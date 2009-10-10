@@ -338,6 +338,7 @@ type
       CodFormaPagamento,
       CodBancoBoleto,
       CodMoeda,
+      CodProjeto,
       CodUsuario,
       QtdParcela,
       FatorVencimento  : integer;

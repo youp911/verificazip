@@ -11,36 +11,24 @@ object dtRave: TdtRave
     ASqlQuery.MaxBlobSize = -1
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
-      
-        'select VEN.C_NOM_VEN, SUM(MOV.N_VLR_TOT) VALPRODUTO, SUM(MOV.N_Q' +
-        'TD_PRO) QTDPRODUTO, COUNT(DISTINCT(CAD.I_COD_CLI))QTDCLIENTE, CO' +
-        'UNT(DISTINCT(MOV.I_SEQ_PRO))PRODUTOS'
+      'select CLI.C_EST_CLI, CLI.C_CID_CLI, SUM(CAD.N_VLR_TOT) VALOR'
       ''
-      
-        'From CADORCAMENTOS CAD, MOVORCAMENTOS MOV, CADVENDEDORES VEN, CA' +
-        'DCLIENTES CLI'
-      'Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '
-      'AND CAD.I_LAN_ORC = MOV.I_LAN_ORC'
-      'AND CAD.I_COD_VEN = VEN.I_COD_VEN'
-      'AND CAD.I_COD_CLI = CLI.I_COD_CLI'
-      'GROUP BY VEN.C_NOM_VEN'
-      'ORDER BY 1')
+      'from CADCLIENTES CLI, CADORCAMENTOS CAD'
+      'WHERE CLI.I_COD_CLI = CAD.I_COD_CLI'
+      'AND CAD.D_DAT_ORC > TO_DATE('#39'01/08/2009'#39','#39'DD/MM/YYYY'#39')'
+      'AND CAD.C_IND_CAN = '#39'N'#39
+      'GROUP BY CLI.C_EST_CLI, CLI.C_CID_CLI'
+      'ORDER BY 1,3 DESC')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
-      
-        'select VEN.C_NOM_VEN, SUM(MOV.N_VLR_TOT) VALPRODUTO, SUM(MOV.N_Q' +
-        'TD_PRO) QTDPRODUTO, COUNT(DISTINCT(CAD.I_COD_CLI))QTDCLIENTE, CO' +
-        'UNT(DISTINCT(MOV.I_SEQ_PRO))PRODUTOS'
+      'select CLI.C_EST_CLI, CLI.C_CID_CLI, SUM(CAD.N_VLR_TOT) VALOR'
       ''
-      
-        'From CADORCAMENTOS CAD, MOVORCAMENTOS MOV, CADVENDEDORES VEN, CA' +
-        'DCLIENTES CLI'
-      'Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '
-      'AND CAD.I_LAN_ORC = MOV.I_LAN_ORC'
-      'AND CAD.I_COD_VEN = VEN.I_COD_VEN'
-      'AND CAD.I_COD_CLI = CLI.I_COD_CLI'
-      'GROUP BY VEN.C_NOM_VEN'
-      'ORDER BY 1')
+      'from CADCLIENTES CLI, CADORCAMENTOS CAD'
+      'WHERE CLI.I_COD_CLI = CAD.I_COD_CLI'
+      'AND CAD.D_DAT_ORC > TO_DATE('#39'01/08/2009'#39','#39'DD/MM/YYYY'#39')'
+      'AND CAD.C_IND_CAN = '#39'N'#39
+      'GROUP BY CLI.C_EST_CLI, CLI.C_CID_CLI'
+      'ORDER BY 1,3 DESC')
     Left = 80
     Top = 8
   end
