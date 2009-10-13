@@ -307,17 +307,20 @@ begin
     vFrete := VpaDNota.ValFrete;
     vSeg :=  VpaDNota.ValSeguro;
     vOutro := VpaDNota.ValOutrasDepesesas;
+    vDesc := 0;
+    if VpaDNota.ValDescontoTroca <> 0  then
+      vDesc := VpaDNota.ValDescontoTroca;
     if VpaDNota.ValDesconto < 0  then
       vOutro := vOutro + (VpaDNota.ValDesconto *-1)
     else
       if VpaDNota.ValDesconto > 0  then
-        vDesc := VpaDNota.ValDesconto;
+        vDesc := VDesc + VpaDNota.ValDesconto;
     if VpaDNota.PerDesconto < 0  then
       vOutro := vOutro + (((vProd * VpaDNota.PerDesconto)/100) *-1)
     else
       if VpaDNota.PerDesconto > 0  then
       begin
-        vDesc := (((VpaDNota.ValTotalProdutos + VpaDNota.ValTotalServicos) * 100)/(100-VpaDNota.PerDesconto)) - (VpaDNota.ValTotalProdutos + VpaDNota.ValTotalServicos);
+        vDesc := vDesc + (((VpaDNota.ValTotalProdutos + VpaDNota.ValTotalServicos) * 100)/(100-VpaDNota.PerDesconto)) - (VpaDNota.ValTotalProdutos + VpaDNota.ValTotalServicos);
       end;
     vIPI := VpaDNota.ValTotalIPI;
     vNF := VpaDNota.ValTotal;

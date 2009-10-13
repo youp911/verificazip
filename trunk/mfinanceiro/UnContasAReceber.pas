@@ -712,20 +712,6 @@ begin
       CadContas.FieldByName('D_PRO_LIG').AsDateTime := IncDia(VpfDParcela.DatVencimento,VpfDParcela.DiasCarencia)
     else
       CadContas.FieldByName('D_PRO_LIG').AsDateTime := IncDia(VpfDParcela.DatVencimento,2);
-{    if VpfDParcela.IndBaixarConta then
-    begin
-      CadContas.FieldByName('D_DAT_PAG').AsDateTime := date;
-      CadContas.FieldByName('N_VLR_PAG').AsFloat := VpfDParcela.Valor;
-      //se o cliente pagar a vista ganha o desconto da cotação.
-      if VpaDNovaCR.EsconderConta and (VpaDNovaCR.Parcelas.Count = 1) then
-      begin
-        VpfDParcela.ValDesconto := RDescontoCotacaoPgtoaVista(VpaDNovaCR.CodEmpFil,VpaDNovaCR.NroNota,VpaDNovaCR.DatEmissao);
-        if VpfDParcela.ValDesconto <> 0 then
-          AlteraValorDescontoCotacao(VpaDNovaCR.CodEmpFil,VpaDNovaCR.NroNota,VpfDParcela.ValDesconto);
-        CadContas.FieldByName('N_VLR_PAG').AsFloat := VpfDParcela.Valor - VpfDParcela.ValDesconto;
-        VpaDNovaCR.ValTotal := CadContas.FieldByName('N_VLR_PAG').AsFloat;
-      end;
-    end;}
     CadContas.FieldByName('N_VLR_PAR').AsFloat := VpfDParcela.Valor;
     CadContas.FieldByName('N_VLR_BRU').AsFloat := VpfDParcela.ValorBruto;
     if VpfDParcela.ValDesconto <> 0 then
@@ -1434,6 +1420,8 @@ begin
       VpfDParcelaBaixa.IndGeraParcial := false;
       VpfDParcelaBaixa.IndContaOculta := VpaDNovaCR.EsconderConta;
       VpfDParcelaBaixa.IndDescontado := false;
+      CalculaJuroseDescontoParcela(VpfDParcelaBaixa,date);
+      VpaDNovaCR.ValTotal := VpaDNovaCR.ValTotal - VpfDParcelaBaixa.ValDesconto;
     end;
   end;
   if VpfDBaixa.Parcelas.Count > 0 then
@@ -4053,6 +4041,13 @@ begin
     result := GeraLogReceber(VpaDParcela.CodFilial,VpaDParcela.LanReceber,VpaDParcela.NumParcela,'BAIXA');
     if result = '' then
     begin
+      if VpaDParcela.IndContaOculta  and (VpaDParcela.QtdParcelas = 1) then
+      begin
+        begin
+          if VpaDParcela.ValDesconto <> 0 then
+            AlteraValorDescontoCotacao(VpaDParcela.CodFilial,VpaDParcela.NumNotaFiscal,VpaDParcela.ValDesconto);
+        end;
+      end;
       if not VpaDBaixa.IndBaixaRetornoBancario then
         ExcluiItemRemessaSeNaoEnviado(VpaDParcela.CodFilial,VpaDParcela.LanReceber,VpaDParcela.NumParcela);
       if result = '' then

@@ -609,6 +609,13 @@ begin
                                               if (VPANOMRELATORIO = 'VENDAS POR ESTADO E CIDADE') or
                                                  (VPANOMRELATORIO = 'TOTAL VENDAS POR ESTADO E CIDADE') then
                                                 AlterarVisibleDet([PPeriodo,PTipoCotacao,PCliente,PCidade,PEstado,PCondPgto],true)
+                                              else
+                                                if (VPANOMRELATORIO = 'CLIENTES POR VENDEDOR') then
+                                                  AlterarVisibleDet([PVendedor,PSitCliente,PCidade,PEstado],true)
+                                                else
+                                                  if (VPANOMRELATORIO = 'TOTAL VENDAS POR CLIENTE') or
+                                                     (VPANOMRELATORIO = 'TOTAL VENDAS POR CLIENTE(CURVA ABC)')then
+                                                    AlterarVisibleDet([PFilial,PVendedor,PPeriodo,PCondPgto,PTipoCotacao,PCidade,PEstado],true)
 end;
 
 
@@ -701,7 +708,16 @@ begin
                                               dtRave.ImprimeVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date)
                                             else
                                               if (VPRNOMRELATORIO = 'TOTAL VENDAS POR ESTADO E CIDADE') then
-                                                dtRave.ImprimeTotalVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date);
+                                                dtRave.ImprimeTotalVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date)
+                                              else
+                                                if (VPRNOMRELATORIO = 'CLIENTES POR VENDEDOR') then
+                                                  dtRave.ImprimeClientesPorVendedor(EVendedor.AInteiro,ESituacaoCliente.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LSituacaoCliente.Caption,LCidade.CAPTION,EEstado.text)
+                                                else
+                                                  if (VPRNOMRELATORIO = 'TOTAL VENDAS POR CLIENTE') then
+                                                    dtRave.ImprimeTotalVendasCliente(EVendedor.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,EFilial.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LFilial.Caption, LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date,false)
+                                                  else
+                                                    if (VPRNOMRELATORIO = 'TOTAL VENDAS POR CLIENTE(CURVA ABC)') then
+                                                      dtRave.ImprimeTotalVendasCliente(EVendedor.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,EFilial.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LFilial.Caption, LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date,true);
   dtRave.free;
 end;
 

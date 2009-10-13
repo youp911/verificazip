@@ -11,24 +11,22 @@ object dtRave: TdtRave
     ASqlQuery.MaxBlobSize = -1
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
-      'select CLI.C_EST_CLI, CLI.C_CID_CLI, SUM(CAD.N_VLR_TOT) VALOR'
-      ''
-      'from CADCLIENTES CLI, CADORCAMENTOS CAD'
-      'WHERE CLI.I_COD_CLI = CAD.I_COD_CLI'
-      'AND CAD.D_DAT_ORC > TO_DATE('#39'01/08/2009'#39','#39'DD/MM/YYYY'#39')'
-      'AND CAD.C_IND_CAN = '#39'N'#39
-      'GROUP BY CLI.C_EST_CLI, CLI.C_CID_CLI'
-      'ORDER BY 1,3 DESC')
+      'select CLI.I_COD_CLI, CLI.C_NOM_CLI, SUM(CAD.N_VLR_TOT)VALOR '
+      ' from CADCLIENTES CLI, CADORCAMENTOS CAD '
+      ' WHERE CLI.I_COD_CLI = CAD.I_COD_CLI '
+      ' AND CAD.D_DAT_ORC > TO_DATE('#39'01/08/2009'#39','#39'DD/MM/YYYY'#39')'
+      ' AND CAD.C_IND_CAN = '#39'N'#39
+      'GROUP BY CLI.I_COD_CLI, CLI.C_NOM_CLI'
+      'ORDER BY 3 DESC')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
-      'select CLI.C_EST_CLI, CLI.C_CID_CLI, SUM(CAD.N_VLR_TOT) VALOR'
-      ''
-      'from CADCLIENTES CLI, CADORCAMENTOS CAD'
-      'WHERE CLI.I_COD_CLI = CAD.I_COD_CLI'
-      'AND CAD.D_DAT_ORC > TO_DATE('#39'01/08/2009'#39','#39'DD/MM/YYYY'#39')'
-      'AND CAD.C_IND_CAN = '#39'N'#39
-      'GROUP BY CLI.C_EST_CLI, CLI.C_CID_CLI'
-      'ORDER BY 1,3 DESC')
+      'select CLI.I_COD_CLI, CLI.C_NOM_CLI, SUM(CAD.N_VLR_TOT)VALOR '
+      ' from CADCLIENTES CLI, CADORCAMENTOS CAD '
+      ' WHERE CLI.I_COD_CLI = CAD.I_COD_CLI '
+      ' AND CAD.D_DAT_ORC > TO_DATE('#39'01/08/2009'#39','#39'DD/MM/YYYY'#39')'
+      ' AND CAD.C_IND_CAN = '#39'N'#39
+      'GROUP BY CLI.I_COD_CLI, CLI.C_NOM_CLI'
+      'ORDER BY 3 DESC')
     Left = 80
     Top = 8
   end

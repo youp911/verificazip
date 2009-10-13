@@ -325,11 +325,8 @@ begin
     SisCadastro.edit;
   SisCadastro.FieldByName('DATRESUMO').AsDateTime := VpaData;
   SisCadastro.FieldByName('QTDINICIAL').AsInteger := VpaQtdCustoPendente;
-  try
-    SisCadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVA플O DA TABELA RESUMOCUSTO!!!'#13+e.message;
-  end;
+  SisCadastro.post;
+  result := SisCadastro.AMensagemErroGravacao;
   SisCadastro.close;
 end;
 
@@ -344,11 +341,8 @@ begin
     SisCadastro.edit;
     SisCadastro.FieldByName('QTDPENDENTE').AsInteger := VpaQtdCustoPendente;
     SisCadastro.FieldByName('QTDREALIZADO').AsInteger := RQtdCustosRealizado(VpaData);
-    try
-      SisCadastro.post;
-    except
-      on e : exception do result := 'ERRO NA GRAVA플O DA TABELA RESUMOCUSTO!!!'#13+e.message;
-    end;
+    SisCadastro.post;
+    result := SisCadastro.AMensagemErroGravacao;
   end;
   SisCadastro.close;
 end;
@@ -389,15 +383,9 @@ begin
     VpfQtdGravacao := 0;
     repeat
       SisCadastro.FieldByName('SEQ_LOG').AsInteger := RSeqLogDisponivel;
-      try
-        VpfResultado := '';
-        SisCadastro.Post;
-      except
-        on e :exception do
-        begin
-          VpfResultado := 'ERRO NA GRAVA플O DO LOG!!!'#13+e.message;
-        end;
-      end;
+      VpfResultado := '';
+      SisCadastro.Post;
+      VpfResultado := SisCadastro.AMensagemErroGravacao;
       inc(VpfQtdGravacao);
     until ((VpfResultado = '') or (VpfQtdGravacao > 3));
     if VpfResultado <> '' then
@@ -484,7 +472,6 @@ begin
   VpfIni.OpenKey('GERAIS',true);
   try
     result := VpfIni.ReadDate('DATABAIXACR');
-//    AVISO(FormatDateTime('DD/MM/YYYY',Result));
   except
     result := date;
   end;
@@ -607,11 +594,8 @@ begin
   AdicionaSQLAbreTabela(SisCadastro,'Select * from CFG_GERAL');
   SisCadastro.edit;
   SisCadastro.FieldByName('D_INF_GER').AsDateTime := VpaData;
-  try
-    SisCadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVA플O DA TABELA CFG_GERAL!!!'+#13+e.message;
-  end;
+  SisCadastro.post;
+  result := SisCadastro.AMensagemErroGravacao;
   SisCadastro.close;
 end;
 

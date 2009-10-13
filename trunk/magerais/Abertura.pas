@@ -67,7 +67,7 @@ var
 
 implementation
 
-uses APrincipal, FunIni, funSistema, UnAtualizacao, FunSql, unSistema;
+uses APrincipal, FunIni, funSistema, UnAtualizacao, FunSql, unSistema, funData;
 
 {$R *.DFM}
 
@@ -256,9 +256,9 @@ begin
       tbSybase : AdicionaSQLAbreTabela(Aux,'Select getdate() DATA');
       tbOracle : AdicionaSQLAbreTabela(Aux,'Select SYSDATE DATA from DUAL');
     end;
-    if Aux.FieldByName('DATA').AsDateTime <> varia.DatInformacaoGerencial then //verifica a data com o banco de dados para não ter problema de ter alguma data errada em algum micro;
+    if DataSemHora(Aux.FieldByName('DATA').AsDateTime) <> varia.DatInformacaoGerencial then //verifica a data com o banco de dados para não ter problema de ter alguma data errada em algum micro;
     begin
-      VpfDataBD := Aux.FieldByName('DATA').AsDateTime;
+      VpfDataBD := DataSemHora(Aux.FieldByName('DATA').AsDateTime);
       VpfResultado := Sistema.AtualizaDataInformacaoGerencial(VpfDataBD);
       if VpfResultado = '' then
       begin

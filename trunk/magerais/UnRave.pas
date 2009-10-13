@@ -12,7 +12,8 @@ Type
     public
      CodTamanho : Integer;
      NomTamanho : String;
-     QtdEstoque : Double;
+     QtdEstoque,
+     ValEstoque : Double;
      constructor cria;
      destructor destroy;override;
   end;
@@ -22,7 +23,8 @@ Type
     public
       CodCor : Integer;
       NomCor : String;
-      QtdEstoque : Double;
+      QtdEstoque,
+      ValEstoque  : Double;
       Tamanhos : TList;
       constructor cria;
       destructor destroy;override;
@@ -34,8 +36,10 @@ Type
     public
       SeqProduto : Integer;
       CodProduto,
-      NomProduto : String;
-      QtdEstoque : Double;
+      NomProduto,
+      DesUM : String;
+      QtdEstoque,
+      ValEstoque : Double;
       Cores : TList;
       constructor cria;
       destructor destroy;override;
@@ -131,6 +135,7 @@ type
       procedure DefineTabelaExtratoProdutividade(VpaObjeto : TObject);
       procedure DefineTabelaCustoProjeto(VpaObjeto : TObject);
       procedure ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
+      procedure SalvaTabelaProdutosPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
       procedure ImprimeRelEstoqueProdutos(VpaObjeto : TObject);
       procedure ImprimeTotaisNiveis(VpaNiveis : TList;VpaIndice : integer);
       procedure ImprimeTotaisNiveisPlanoContas(VpaNiveis : TList;VpaIndice : integer);
@@ -146,7 +151,8 @@ type
       procedure ImprimeTituloUF(VpaCodUf : String);
       procedure ImprimeTituloClassificacao(VpaNiveis : TList;VpaTudo : boolean);
       procedure ImprimetituloPlanoContas(VpaNiveis : TList;VpaTudo : boolean);
-      procedure CarCorTamanhoProduto(VpaDProduto : TRBDProdutoRave;VpaDCor : TRBDCorProdutoRave;VpaDTamanho : TRBDTamanhoProdutoRave;VpaCodCor, VpaCodTamanho : Integer);
+      function RTamanhoProduto(VpaDCor : TRBDCorProdutoRave;VpaCodTamanho : Integer) : TRBDTamanhoProdutoRave;
+      function RCorProduto(VpaDProduto : TRBDProdutoRave;VpaCodCor : Integer):TRBDCorProdutoRave;
       function CarDNivel(VpaCodCompleto, VpaCodReduzido : String):TRBDClassificacaoRave;
       function CarregaNiveis(VpaNiveis : TList;VpaCodClassificacao : string):TRBDClassificacaoRave;
       function CarDNivelPlanoContas(VpaCodCompleto, VpaCodReduzido : String):TRBDPlanoContasRave;
@@ -314,6 +320,8 @@ constructor TRBDProdutoRave.cria;
 begin
   inherited create;
   Cores := TList.create;
+  QtdEstoque := 0;
+  ValEstoque := 0;
 end;
 
 {********************************************************************}
@@ -386,10 +394,21 @@ begin
      SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //NomeClassificacao;
      SaveTabs(1);
      clearTabs;
-     SetTab(1.5,pjLeft,1.6,0.1,Boxlinenone,0); //Codigo Produto
-     SetTab(NA,pjLeft,8.4,0.5,Boxlinenone,0); //nomeproduto
-     SetTab(NA,pjLeft,2.1,0.2,Boxlinenone,0); //Cor
-     SetTab(NA,pjLeft,1.5,0.2,Boxlinenone,0); //Tamanho
+     SetTab(1.2,pjLeft,2.6,0.1,Boxlinenone,0); //Codigo Produto
+     if (config.EstoquePorCor) and config.EstoquePorTamanho then
+       SetTab(NA,pjLeft,7.8,0.5,Boxlinenone,0) //nomeproduto
+     else
+       if (config.EstoquePorCor) then
+         SetTab(NA,pjLeft,8.7,0.5,Boxlinenone,0) //nomeproduto
+       else
+         if (config.EstoquePorTamanho) then
+           SetTab(NA,pjLeft,10.3,0.5,Boxlinenone,0) //nomeproduto
+         else
+           SetTab(NA,pjLeft,11.3,0.5,Boxlinenone,0); //nomeproduto
+     if (config.EstoquePorCor) then
+       SetTab(NA,pjLeft,2.6,0.2,Boxlinenone,0); //Cor
+     if (config.EstoquePorTamanho) then
+       SetTab(NA,pjLeft,1,0.2,Boxlinenone,0); //Tamanho
      SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Qtd
      SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Valor total
      SetTab(NA,pjLeft,0.8,0,Boxlinenone,0); //um
@@ -402,14 +421,27 @@ procedure TRBFunRave.DefineTabelaEstoqueProdutos(VpaObjeto : TObject);
 begin
    with RVSystem.BaseReport do begin
      clearTabs;
-     SetTab(1.0,pjleft,2.5,0.5,BoxlineNONE,0); //Codigo classificacao
+     SetTab(1.0,pjleft,3.0,0.5,BoxlineNONE,0); //Codigo classificacao
      SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //NomeClassificacao;
      SaveTabs(1);
      clearTabs;
-     SetTab(1.5,pjLeft,1.6,0.1,Boxlinenone,0); //Codigo Produto
-     SetTab(NA,pjLeft,8.4,0.5,Boxlinenone,0); //nomeproduto
-     SetTab(NA,pjLeft,2.6,0.2,Boxlinenone,0); //Cor
-     SetTab(NA,pjLeft,1,0.2,Boxlinenone,0); //Tamanho
+     SetTab(1.2,pjLeft,2.6,0.1,Boxlinenone,0); //Codigo Produto
+     if (config.EstoquePorCor) and config.EstoquePorTamanho then
+       SetTab(NA,pjLeft,7.8,0.5,Boxlinenone,0) //nomeproduto
+     else
+       if (config.EstoquePorCor) then
+         SetTab(NA,pjLeft,8.2,0.5,Boxlinenone,0) //nomeproduto
+       else
+         if (config.EstoquePorTamanho) then
+           SetTab(NA,pjLeft,10.3,0.5,Boxlinenone,0) //nomeproduto
+         else
+           SetTab(NA,pjLeft,11.3,0.5,Boxlinenone,0); //nomeproduto
+     if (config.EstoquePorCor) and (config.EstoquePorTamanho) then
+       SetTab(NA,pjLeft,2.6,0.2,Boxlinenone,0) //Cor
+     else
+       SetTab(NA,pjLeft,3.1,0.2,Boxlinenone,0); //Cor
+     if (config.EstoquePorTamanho) then
+       SetTab(NA,pjLeft,1,0.2,Boxlinenone,0); //Tamanho
      SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Qtd
      SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Valor total
      SetTab(NA,pjLeft,0.8,0,Boxlinenone,0); //um
@@ -689,9 +721,114 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.SalvaTabelaProdutosPorCoreTamanho(VpaDProduto: TRBDProdutoRave);
+var
+  VpfLacoCor, vpfLacoTamanho : Integer;
+  VpfDCor : TRBDCorProdutoRave;
+  VpfDTamanho : TRBDTamanhoProdutoRave;
+begin
+  with RVSystem.BaseReport do
+  begin
+    PrintTab(VpaDProduto.CodProduto);
+    PrintTab(VpaDProduto.NomProduto);
+    VpfDCor := TRBDCorProdutoRave(VpaDProduto.Cores.Items[0]);
+    VpfDTamanho := TRBDTamanhoProdutoRave(VpfDCor.Tamanhos.Items[0]);
+    if config.EstoquePorCor or config.EstoquePorTamanho  then
+    begin
+      if (VpaDProduto.Cores.Count = 1) then
+      begin
+        if config.EstoquePorCor then
+        begin
+          if (VpfDCor.CodCor <> 0) then
+            PrintTab(VpfDCor.NomCor)
+          else
+            PrintTab('');
+        end;
+        if config.EstoquePorTamanho then
+        begin
+          if (VpfDCor.Tamanhos.Count = 1) then
+          begin
+            if (VpfDTamanho.CodTamanho <> 0) then
+              PrintTab(VpfDTamanho.NomTamanho)
+            else
+              PrintTab('');
+          end;
+        end;
+      end
+      else
+      begin
+        if config.EstoquePorCor then
+          PrintTab('');
+        if config.EstoquePorTamanho then
+          PrintTab('');
+      end;
+    end;
+    PrintTab(FormatFloat(varia.MascaraQtd,VpaDProduto.QtdEstoque));
+    PrintTab(FormatFloat(varia.MascaraValor,VpaDProduto.ValEstoque));
+    PrintTab('  '+VpaDProduto.DesUM);
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    if config.EstoquePorCor or config.EstoquePorTamanho  then
+    begin
+      if (VpaDProduto.Cores.Count > 1) or (VpfDCor.Tamanhos.count > 1) then
+      begin
+        for VpfLacoCor := 0 to VpaDProduto.Cores.Count - 1 do
+        begin
+          VpfDCor := TRBDCorProdutoRave(VpaDProduto.Cores.Items[VpfLacoCor]);
+          PrintTab('');//codigo produto
+          PrintTab('');//nome produto
+          PrintTab(IntToStr(VpfDCor.CodCor)+'-'+ VpfDCor.NomCor);
+          if (VpfDCor.Tamanhos.Count = 1) and
+              config.EstoquePorTamanho then
+          begin
+            VpfDTamanho := TRBDTamanhoProdutoRave(VpfDCor.Tamanhos.Items[0]);
+            PrintTab(VpfDTamanho.NomTamanho);
+            PrintTab(FormatFloat(varia.MascaraQtd,VpfDTamanho.QtdEstoque));
+            PrintTab(FormatFloat(varia.MascaraValor,VpfDTamanho.ValEstoque));
+            PrintTab('  ');
+            newline;
+            If LinesLeft<=1 Then
+              NewPage;
+          end
+          else
+          begin
+            if config.EstoquePorTamanho then
+              PrintTab('');//tamanho
+            PrintTab(FormatFloat(varia.MascaraQtd,VpfDCor.QtdEstoque));
+            PrintTab(FormatFloat(varia.MascaraValor,VpfDCor.ValEstoque));
+            PrintTab('  ');
+            newline;
+            If LinesLeft<=1 Then
+              NewPage;
+            if config.EstoquePorTamanho then
+            begin
+              for vpfLacoTamanho := 0 to VpfDCor.Tamanhos.Count - 1 do
+              begin
+                VpfDtamanho := TRBDTamanhoProdutoRave(VpfDCor.Tamanhos.Items[VpfLacoTamanho]);
+                PrintTab('');//codigo produto
+                PrintTab('');//nome produto
+                PrintTab('');//cor
+                PrintTab(VpfDTamanho.NomTamanho);
+                PrintTab(FormatFloat(varia.MascaraQtd,VpfDTamanho.QtdEstoque));
+                PrintTab(FormatFloat(varia.MascaraValor,VpfDTamanho.ValEstoque));
+                newline;
+                If LinesLeft<=1 Then
+                  NewPage;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeRelEstoqueProdutos(VpaObjeto : TObject);
 var
-  VpfQtdProduto, VpfTotalProduto, VpfQtdGeral, VpfValGeral : Double;
+  VpfQtdGeral, VpfValGeral : Double;
   VpfProdutoAtual, VpaTamanhoAtual,VpaCorAtual : Integer;
   VpfClassificacaoAtual, VpfUM : string;
   VpfDProduto : TRBDProdutoRave;
@@ -703,24 +840,20 @@ begin
   VpfQtdGeral := 0;
   VpfValGeral := 0;
   VpfClassificacaoAtual := '';
+  VpfDClassificacao := nil;
+  VpfDProduto := nil;
   with RVSystem.BaseReport do begin
     while not Tabela.Eof  do
     begin
       if VpfProdutoAtual <> Tabela.FieldByName('I_SEQ_PRO').AsInteger then
       begin
         if VpfProdutoAtual <> 0  then
-        begin
-          PrintTab(FormatFloat(varia.MascaraQtd,VpfQtdProduto));
-          PrintTab(FormatFloat(varia.MascaraValor,VpfTotalProduto));
-          PrintTab('  '+VpfUM);
-          newline;
-          If LinesLeft<=1 Then
-            NewPage;
-        end;
+          SalvaTabelaProdutosPorCoreTamanho(VpfDProduto);
+
         if VpfDClassificacao <> nil then
         begin
-          VpfDClassificacao.QtdProduto := VpfDClassificacao.QtdProduto +VpfQtdProduto;
-          VpfDClassificacao.ValTotal := VpfDClassificacao.ValTotal + VpfTotalProduto;
+          VpfDClassificacao.QtdProduto := VpfDClassificacao.QtdProduto +VpfDProduto.QtdEstoque;
+          VpfDClassificacao.ValTotal := VpfDClassificacao.ValTotal + VpfDProduto.ValEstoque;
         end;
 
         if VpfClassificacaoAtual <> Tabela.FieldByName('C_COD_CLA').AsString then
@@ -729,37 +862,41 @@ begin
           ImprimeTituloClassificacao(VprNiveis,VpfClassificacaoAtual = '');
           VpfClassificacaoAtual := Tabela.FieldByName('C_COD_CLA').AsString;
         end;
-       VpfQtdproduto := 0;
-       VpfTotalProduto := 0;
-       VpfProdutoAtual := Tabela.FieldByname('I_SEQ_PRO').AsInteger;
-       VpfUM := Tabela.FieldByname('C_COD_UNI').AsString;
-       PrintTab(Tabela.FieldByName('C_COD_PRO').AsString);
-       PrintTab(Tabela.FieldByName('C_NOM_PRO').AsString);
-       if varia.CNPJFilial = CNPJ_AtelierduCristal then
-         PrintTab(Tabela.FieldByName('C_BAR_FOR').AsString)
-       else
-         PrintTab('');
-       PrintTab('');
+        if VpfDProduto <> nil then
+          VpfDProduto.free;
+        VpfDProduto := TRBDProdutoRave.cria;
+        VpfDProduto.SeqProduto := Tabela.FieldByname('I_SEQ_PRO').AsInteger;
+        VpfDProduto.CodProduto := Tabela.FieldByname('C_COD_PRO').AsString;
+        VpfDProduto.NomProduto := Tabela.FieldByname('C_NOM_PRO').AsString;
+        VpfDProduto.DesUM := Tabela.FieldByname('C_COD_UNI').AsString;
+        VpfProdutoAtual := Tabela.FieldByname('I_SEQ_PRO').AsInteger;
+//       if varia.CNPJFilial = CNPJ_AtelierduCristal then
+//         PrintTab(Tabela.FieldByName('C_BAR_FOR').AsString)
       end;
 
-      CarCorTamanhoProduto(VpfDProduto,vpfDCor,VpfDTamanho,Tabela.FieldByName('I_COD_COR').AsInteger,Tabela.FieldByName('I_COD_TAM').AsInteger);
+      vpfDCor := RCorProduto(VpfDProduto,Tabela.FieldByName('I_COD_COR').AsInteger);
+      VpfDTamanho := RTamanhoProduto(vpfDCor,Tabela.FieldByName('I_COD_TAM').AsInteger);
 
-      VpfQtdProduto := VpfQtdProduto + Tabela.FieldByName('N_QTD_PRO').AsFloat;
-      VpfTotalProduto := VpfTotalProduto + (Tabela.FieldByName('N_QTD_PRO').AsFloat * Tabela.FieldByName('N_VLR_CUS').AsFloat);
+      VpfDProduto.QtdEstoque := VpfDProduto.QtdEstoque + Tabela.FieldByName('N_QTD_PRO').AsFloat;
+      VpfDProduto.ValEstoque := VpfDProduto.ValEstoque + (Tabela.FieldByName('N_QTD_PRO').AsFloat * Tabela.FieldByName('N_VLR_CUS').AsFloat);;
+      vpfDCor.QtdEstoque := vpfDCor.QtdEstoque+ Tabela.FieldByName('N_QTD_PRO').AsFloat;
+      VpfDCor.ValEstoque := VpfDCor.ValEstoque + (Tabela.FieldByName('N_QTD_PRO').AsFloat * Tabela.FieldByName('N_VLR_CUS').AsFloat);;
+      VpfDTamanho.QtdEstoque := VpfDTamanho.QtdEstoque + Tabela.FieldByName('N_QTD_PRO').AsFloat;
+      VpfDTamanho.ValEstoque := VpfDTamanho.ValEstoque + (Tabela.FieldByName('N_QTD_PRO').AsFloat * Tabela.FieldByName('N_VLR_CUS').AsFloat);;
+
       VpfQtdGeral := VpfQTdGeral +Tabela.FieldByName('N_QTD_PRO').AsFloat;
       VpfValGeral := VpfValGeral + (Tabela.FieldByName('N_QTD_PRO').AsFloat * Tabela.FieldByName('N_VLR_CUS').AsFloat);
       Tabela.next;
     end;
 
     if VpfProdutoAtual <> 0  then
+      SalvaTabelaProdutosPorCoreTamanho(VpfDProduto);
+    if VpfDClassificacao <> nil then
     begin
-      PrintTab(FormatFloat(varia.MascaraQtd,VpfQtdProduto));
-      PrintTab(FormatFloat(varia.MascaraValor,VpfTotalProduto));
-      PrintTab('  '+VpfUM);
-      newline;
-      If LinesLeft<=1 Then
-        NewPage;
+      VpfDClassificacao.QtdProduto := VpfDClassificacao.QtdProduto +VpfDProduto.QtdEstoque;
+      VpfDClassificacao.ValTotal := VpfDClassificacao.ValTotal + VpfDProduto.ValEstoque;
     end;
+
     if VprNiveis.Count > 0  then
       ImprimeTotaisNiveis(VprNiveis,0);
 
@@ -772,8 +909,10 @@ begin
     bold := true;
     PrintTab('Total Geral');
     bold := true;
-    PrintTab('');
-    PrintTab('');
+    if config.EstoquePorCor then
+      PrintTab('');
+    if config.EstoquePorTamanho then
+      PrintTab('');
     PrintTab(FormatFloat(varia.MascaraQtd,VpfQtdGeral));
     PrintTab(FormatFloat(varia.MascaraValor,VpfValGeral));
     PrintTab('  ');
@@ -841,8 +980,10 @@ begin
       end
       else
       begin
-        PrintTab('');
-        PrintTab('');
+        if config.EstoquePorCor then
+          PrintTab('');
+        if config.EstoquePorTamanho then
+          PrintTab('');
         if RvSystem.Tag = 4 then
         begin
           PrintTab('');
@@ -971,13 +1112,9 @@ begin
       PrintTab('Código');
       PrintTab('Nome');
       if config.EstoquePorCor then
-        PrintTab('Cor')
-      else
-        PrintTab('');
+        PrintTab('Cor');
       if config.EstoquePorTamanho then
-        PrintTab('Tamanho')
-      else
-        printTab('');
+        PrintTab('Tamanho');
       PrintTab('Qtd');
       PrintTab('Valor');
       PrintTab('  UM');
@@ -1250,50 +1387,55 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.CarCorTamanhoProduto(VpaDProduto: TRBDProdutoRave; VpaDCor: TRBDCorProdutoRave; VpaDTamanho: TRBDTamanhoProdutoRave; VpaCodCor, VpaCodTamanho: Integer);
+function TRBFunRave.RCorProduto(VpaDProduto: TRBDProdutoRave; VpaCodCor: Integer): TRBDCorProdutoRave;
 var
-  VpfLacoCor, VpfLacoTamanho : Integer;
+  VpfLacoCor : Integer;
 begin
-  VpaDCor := nil;
-  VpaDTamanho := nil;
-  if VpaDCor.CodCor <> VpaCodCor then
+  result := nil;
+  for VpfLacoCor := 0 to VpaDProduto.Cores.Count - 1 do
   begin
-    for VpfLacoCor := 0 to VpaDProduto.Cores.Count - 1 do
+    if (TRBDCorProdutoRave(VpaDProduto.Cores.Items[VpfLacoCor]).CodCor = VpaCodCor) then
     begin
-      if (TRBDCorProdutoRave(VpaDProduto.Cores.Items[VpfLacoCor]).CodCor = VpaCodCor) then
-      begin
-        VpaDCor := TRBDCorProdutoRave(VpaDProduto.Cores.Items[VpfLacoCor]);
-        break;
-      end;
-    end;
-  end;
-  for VpfLacoTamanho := 0 to VpaDCor.Tamanhos.Count - 1 do
-  begin
-    if TRBDTamanhoProdutoRave(VpaDCor.Tamanhos.Items[VpfLacoTamanho]).CodTamanho = VpaCodTamanho then
-    begin
-      VpaDTamanho := TRBDTamanhoProdutoRave(VpaDCor.Tamanhos.Items[VpfLacoTamanho]);
+      result := TRBDCorProdutoRave(VpaDProduto.Cores.Items[VpfLacoCor]);
       break;
     end;
   end;
 
-  if VpaDCor = nil then
+  if result = nil then
   begin
-    VpaDCor := VpaDProduto.AddCor;
-    VpaDCor.CodCor := VpaCodCor;
-    if VpaDCor.CodCor = 0 then
-      VpaDCor.NomCor := 'SEM COR'
+    result := VpaDProduto.AddCor;
+    result.CodCor := VpaCodCor;
+    if result.CodCor = 0 then
+      result.NomCor := 'SEM COR'
     else
-      VpaDCor.NomCor := FunProdutos.RNomeCor(IntTosTr(VpaDCor.CodCor));
-    VpaDcor.QtdEstoque := 0;
+      result.NomCor := FunProdutos.RNomeCor(IntTosTr(Result.CodCor));
+    Result.QtdEstoque := 0;
   end;
-  if VpaDTamanho = nil then
+end;
+
+{******************************************************************************}
+function TRBFunRave.RTamanhoProduto(VpaDCor: TRBDCorProdutoRave; VpaCodTamanho: Integer): TRBDTamanhoProdutoRave;
+var
+  VpfLacoTamanho : Integer;
+begin
+  result := nil;
+  for VpfLacoTamanho := 0 to VpaDCor.Tamanhos.Count - 1 do
   begin
-    VpaDTamanho := VpaDCor.addTamanho;
-    VpaDTamanho.CodTamanho := VpaCodTamanho;
-    if VpaDTamanho.CodTamanho = 0 then
-      VpaDTamanho.NomTamanho := 'SEM TAMANHO'
+    if TRBDTamanhoProdutoRave(VpaDCor.Tamanhos.Items[VpfLacoTamanho]).CodTamanho = VpaCodTamanho then
+    begin
+      result := TRBDTamanhoProdutoRave(VpaDCor.Tamanhos.Items[VpfLacoTamanho]);
+      break;
+    end;
+  end;
+
+  if result = nil then
+  begin
+    Result := VpaDCor.addTamanho;
+    Result.CodTamanho := VpaCodTamanho;
+    if Result.CodTamanho = 0 then
+      Result.NomTamanho := 'SEM TAMANHO'
     else
-      VpaDTamanho.NomTamanho := FunProdutos.RNomeTamanho(VpaCodTamanho);
+      Result.NomTamanho := FunProdutos.RNomeTamanho(VpaCodTamanho);
   end;
 end;
 

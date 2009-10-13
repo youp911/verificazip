@@ -716,7 +716,7 @@ var
 implementation
 
 uses
-   FunSql, FunArquivos;
+   FunSql, FunArquivos, funData;
 
 {******************************************************************************}
 constructor TVariaveis.cria(VpaBaseDados : TSQLConnection);
@@ -1351,7 +1351,7 @@ begin
        NaturezaOperacaoTroca := VpfTabela.FieldByName('C_COT_NTR').AsString;
        EmailGeralCompras := VpfTabela.FieldByName('C_EMA_COM').AsString;
        QtdDiasPendenciaCompras := VpfTabela.FieldByName('I_DIA_AVC').AsInteger;
-       DatInformacaoGerencial := VpfTabela.FieldByName('D_INF_GER').AsDateTime;
+       DatInformacaoGerencial :=  DataSemHora(VpfTabela.FieldByName('D_INF_GER').AsDateTime);
        QtdMaximaMesesEntregaPedido := VpfTabela.FieldByName('I_COT_QME').AsInteger;
     end;
 

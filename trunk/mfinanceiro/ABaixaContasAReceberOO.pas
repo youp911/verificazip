@@ -476,7 +476,6 @@ begin
   Result := DigitaCheques;
   if result = '' then
   begin
-//    VpfTransacao.IsolationLevel := xilREADCOMMITTED;
     FPrincipal.BaseDados.StartTransaction(VpfTransacao);
     result := FunContasAReceber.VerificaSeGeraParcial(VprDBaixaCR,EValPago.AValor,true);
     if result = '' then

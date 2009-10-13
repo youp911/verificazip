@@ -1593,10 +1593,9 @@ var
   VpfLaco : Integer;
 begin
   for VpfLaco := 0 to VprDCotacao.Produtos.Count - 1 do
-  begin
     TRBDOrcProduto(VprDCotacao.Produtos.Items[VpfLaco]).QtdBaixado := TRBDOrcProduto(VprDCotacao.Produtos.Items[VpfLaco]).QtdProduto;
-  end;
-  VprDCotacao.IndValoresAlterados := true; 
+
+  VprDCotacao.IndValoresAlterados := true;
 end;
 
 {******************* grava a cotacao e depois imprime *************************}

@@ -87,6 +87,8 @@ type
     procedure ImprimeConsistenciaReservaEstoque(VpaSeProduto : Integer; VpaCaminho, VpaNomProduto : String;VpaDatInicio,VpaDatFim : TDateTime);
     procedure ImprimeVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime);
     procedure ImprimeTotalVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime);
+    procedure ImprimeClientesPorVendedor(VpaCodVendedor,VpaCodSituacao : Integer;VpaCaminho, VpaNomVendedor,VpaNOmSituacao,VpaCidade,VpaEstado : String);
+    procedure ImprimeTotalVendasCliente(VpaCodVendedor,VpaCodCondicaoPagamento,VpaCodTipoCotacao, VpaCodfilial : Integer;VpaCaminho, VpaNomVendedor,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaNomfilial,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime;VpaCurvaABC : Boolean);
   end;
 
 
@@ -310,6 +312,7 @@ begin
   FunRave.EnviaParametrosFilial(Rave,VprDFilial);
   AdicionaSqlAbreTabela(Principal,'select CAD.I_EMP_FIL, CAD.I_LAN_ORC, CAD.C_CON_ORC, CAD.D_DAT_ORC, CAD.T_HOR_ORC, CAD.C_ORD_COM, CAD.N_VLR_TOT, '+
                                   ' CAD.D_DAT_PRE, CAD.L_OBS_ORC, CAD.I_TIP_FRE, CAD.N_VLR_PRO, CAD.N_VLR_DES, CAD.N_PER_DES, CAD.T_HOR_ENT, '+
+                                  ' CAD.N_VLR_TRO, CAD.N_QTD_TRA, CAD.C_ESP_TRA, CAD.C_MAR_TRA, CAD.N_PES_BRU, CAD.N_PES_LIQ, '+
                                   ' TIP.I_COD_TIP, TIP.C_NOM_TIP, '+
                                   ' CLI.I_COD_CLI, CLI.C_NOM_CLI,  CLI.C_NOM_FAN, CLI.C_END_CLI, CLI.I_NUM_END, '+
                                   '  CLI.C_COM_END, CLI.C_BAI_CLI, CLI.C_CEP_CLI, CLI.C_CID_CLI, CLI.C_EST_CLI, CLI.C_CGC_CLI, '+
@@ -319,7 +322,7 @@ begin
                                   ' PAG.C_NOM_PAG, '+
                                   ' FRM.C_NOM_FRM '+
                                   ' from CADORCAMENTOS CAD, CADTIPOORCAMENTO TIP, CADCLIENTES CLI, CADVENDEDORES VEN, CADTRANSPORTADORAS TRA, '+
-                                  '           CADCONDICOESPAGTO PAG, CADFORMASPAGAMENTO FRM '+
+                                  ' CADCONDICOESPAGTO PAG, CADFORMASPAGAMENTO FRM '+
                                   ' where CAD.I_TIP_ORC = TIP.I_COD_TIP '+
                                   ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '+
                                   ' AND CAD.I_COD_VEN = VEN.I_COD_VEN '+
@@ -446,6 +449,7 @@ begin
                              ' AND '+SQLTEXTORightJoin('CON.CODTIPOCONTRATO','TIP.CODTIPOCONTRATO'));
   Rave.Execute;
 end;
+
 
 procedure TdtRave.ImprimeClientesSemPedido(VpaCodVendedor, VpaPreposto,  VpaCodSituacaoCliente, VpaCodTipoCotacao: Integer; VpaDatDesde: TDateTime;  VpaNomVendedor, VpaNomPreposto, VpaNomSituacaoCliente, VpaNomTipCotacao, VpaCaminhoRelatorio: String);
 begin
@@ -1794,6 +1798,112 @@ begin
 
   Rave.Execute;
 end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeClientesPorVendedor(VpaCodVendedor, VpaCodSituacao: Integer; VpaCaminho, VpaNomVendedor, VpaNOmSituacao, VpaCidade,VpaEstado: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Clientes por Vendedor';
+  Rave.projectfile := varia.PathRelatorios+'\Cliente\0200PL_Clientes por Vendedor.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select CLI.I_COD_CLI, CLI.C_NOM_CLI, CLI.C_CID_CLI, CLI.C_FO1_CLI, CLI.C_END_CLI, '+
+                              ' CLI.I_NUM_END, CLI.C_BAI_CLI, CLI.C_EST_CLI, '+
+                              ' VEN.I_COD_VEN, VEN.C_NOM_VEN '+
+                              ' from CADCLIENTES CLI, CADVENDEDORES VEN '+
+                              ' Where '+SQLTextoRightJoin('CLI.I_COD_VEN','VEN.I_COD_VEN')+
+                              ' AND CLI.C_IND_CLI = ''S''');
+
+  if DeletaEspaco(VpaCidade) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_CID_CLI = '''+ VpaCidade+'''');
+    Rave.SetParam('CIDADE',VpaCidade);
+  end;
+  if VpaEstado <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_EST_CLI = '''+ VpaEstado+'''');
+    Rave.SetParam('ESTADO',VpaEstado);
+  end;
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_VEN = '+InttoStr(VpaCodVendedor));
+    Rave.SetParam('VENDEDOR',VpaNomVendedor);
+  end;
+  if VpaCodSituacao <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_SIT_CLI = '+InttoStr(VpaCodSituacao));
+    Rave.SetParam('SITUACAO',VpaNOmSituacao);
+  end;
+  AdicionaSqlTabeLa(Principal,'ORDER BY VEN.C_NOM_VEN, CLI.C_EST_CLI, CLI.C_NOM_CLI');
+  Rave.SetParam('CAMINHO',VpaCaminho);
+
+  Principal.open;
+
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeTotalVendasCliente(VpaCodVendedor, VpaCodCondicaoPagamento, VpaCodTipoCotacao, VpaCodfilial: Integer; VpaCaminho,  VpaNomVendedor, VpaNomCondicaoPagamento, VpaNomTipoCotacao, VpaNomfilial, VpaCidade, VpaUF: String; VpaDatInicio, VpaDatFim: TDatetime;VpaCurvaABC: Boolean);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Total Vendas Clientes';
+  if VpaCurvaABC then
+    Rave.projectfile := varia.PathRelatorios+'\Cotacao\Venda\0301PL_Total Vendas por Cliente(Curva ABC).rav'
+  else
+    Rave.projectfile := varia.PathRelatorios+'\Cotacao\Venda\0300PL_Total Vendas por Cliente.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select CLI.I_COD_CLI, CLI.C_NOM_CLI, SUM(CAD.N_VLR_TOT)VALOR '+
+                              ' from CADCLIENTES CLI, CADORCAMENTOS CAD '+
+                              ' WHERE CLI.I_COD_CLI = CAD.I_COD_CLI '+
+                               SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,true) +
+                              ' AND CAD.C_IND_CAN = ''N''');
+
+  if DeletaEspaco(VpaCidade) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_CID_CLI = '''+ VpaCidade+'''');
+    Rave.SetParam('CIDADE',VpaCidade);
+  end;
+  if VpaUF <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_EST_CLI = '''+ VpaUf+'''');
+    Rave.SetParam('ESTADO',VpaUF);
+  end;
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_VEN = '+InttoStr(VpaCodVendedor));
+    Rave.SetParam('VENDEDOR',VpaNomVendedor);
+  end;
+  if VpaCodTipoCotacao <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_TIP_ORC = '+InttoStr(VpaCodTipoCotacao));
+    Rave.SetParam('TIPOCOTACAO',VpaNomTipoCotacao);
+  end;
+  if VpaCodCondicaoPagamento <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_PAG = '+InttoStr(VpaCodCondicaoPagamento));
+    Rave.SetParam('CONDICAOPAGAMENTO',VpaNomCondicaoPagamento);
+  end;
+  if VpaCodfilial <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_EMP_FIL = '+InttoStr(VpaCodfilial));
+    Rave.SetParam('FILIAL',VpaNomfilial );
+  end;
+  Rave.SetParam('PERIODO',FormatDateTime('DD/MM/YYYY',VpaDatInicio)+ ' até '+FormatDateTime('DD/MM/YYYY',VpaDatFim));
+  if VpaCurvaABC then
+    AdicionaSqlTabeLa(Principal,'GROUP BY CLI.I_COD_CLI, CLI.C_NOM_CLI '+
+                                'ORDER BY 3 DESC')
+  else
+    AdicionaSqlTabeLa(Principal,'GROUP BY CLI.I_COD_CLI, CLI.C_NOM_CLI '+
+                                'ORDER BY 2');
+
+  Rave.SetParam('CAMINHO',VpaCaminho);
+
+  Principal.open;
+
+  Rave.Execute;
+end;
+
 
 
 end.
