@@ -1698,10 +1698,10 @@ begin
   AdicionaSQLAbreTabela(CadNotaFiscal,'Select MNO.I_SEQ_PRO, MNO.C_COD_PRO, MNO.N_VLR_PRO, MNO.C_NOM_PRO NOMENOTA, '+
                                   ' MNO.N_QTD_PRO, MNO.N_TOT_PRO, MNO.C_COD_UNI, MNO.I_ORD_FIS, '+
                                   ' MNO.C_DES_COR, MNO.I_SEQ_MOV, MNO.I_COD_COR, MNO.D_ULT_ALT, MNO.C_PRO_REF,'+
-                                  ' MNO.C_CLA_FIS, MNO.C_COD_CST, MNO.N_PER_ICM, MNO.N_PER_IPI, MNO.N_VLR_IPI, '+
+                                  ' MNO.C_COD_CST, MNO.N_PER_ICM, MNO.N_PER_IPI, MNO.N_VLR_IPI, '+
                                   ' MNO.C_ORD_COM, '+
                                   ' PRO.C_NOM_PRO, PRO.N_PES_LIQ, PRO.N_PES_BRU,  PRO.I_ORI_PRO, '+
-                                  ' PRO.C_COD_UNI UNIORIGINAL,PRO.N_RED_ICM, PRO.N_PER_COM, '+
+                                  ' PRO.C_COD_UNI UNIORIGINAL,PRO.N_RED_ICM, PRO.N_PER_COM, PRO.C_CLA_FIS, '+
                                   ' (QTD.N_QTD_PRO - QTD.N_QTD_RES) QTDREAL, '+
                                   ' Qtd.N_QTD_MIN, QTD.N_QTD_PED, ' +
                                   ' (Pre.N_Vlr_Ven * Moe.N_Vlr_Dia) VlrReal, ' +

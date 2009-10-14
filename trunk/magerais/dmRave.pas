@@ -49,7 +49,7 @@ type
     procedure ImprimeRemessa(VpaCodFilial, VpaSeqRemessa : Integer);
     procedure ImprimePedidoPendente(VpaCodFilial,VpaCodCliente,VpaCodClienteMaster, VpaSeqProduto : Integer;VpaCodClassificacao,VpaNomClassificacao,VpaNomCliente : String;VpaDatInicio,VpaDatFim : TDateTime);
     procedure ImprimePedidoParcial(VpaCodFilial,VpaLanOrcamento, VpaSeqParcial : Integer);
-    procedure ImprimeNotasFiscaisEmitidas(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaSituacaoNota : Integer);
+    procedure ImprimeNotasFiscaisEmitidas(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodClienteMaster,VpaCodVendedor : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaSituacaoNota : Integer);
     procedure ImprimePedidosPorDia(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao : String);
     procedure ImprimePedido(VpaCodFilial,VpaNumPedido : Integer;VpaVisualizar : Boolean);
     procedure ImprimeGarantia(VpaCodFilial,VpaNumPedido : Integer;VpaVisualizar : Boolean);
@@ -160,7 +160,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimeNotasFiscaisEmitidas(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaSituacaoNota : Integer);
+procedure TdtRave.ImprimeNotasFiscaisEmitidas(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodClienteMaster, VpaCodVendedor : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaSituacaoNota : Integer);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Notas fiscais emitidas';
@@ -189,6 +189,10 @@ begin
   begin
     AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_CLI = '+InttoStr(VpaCodCliente));
     Rave.SetParam('CLIENTE',VpaNomCliente);
+  end;
+  if VpaCodClienteMaster <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.I_CLI_MAS = '+InttoStr(VpaCodClienteMaster));
   end;
   if VpaCodVendedor <> 0 then
   begin

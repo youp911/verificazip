@@ -512,7 +512,7 @@ procedure TFRelPedido.MostraFiltrosRelatorio(VpaNomRelatorio : String);
 begin
   SetarVisibleFalsePanels;
   if (VPANOMRELATORIO = 'NOTAS FISCAIS EMITIDAS') then
-    AlterarVisibleDet([PVendedor,PFilial,PCliente,PPeriodo,PCotacaoCancelada],true)
+    AlterarVisibleDet([PVendedor,PFilial,PCliente,PClienteMaster, PPeriodo,PCotacaoCancelada],true)
   else
     if (VPANOMRELATORIO = 'PEDIDOS POR DIA') then
       AlterarVisibleDet([PVendedor,PFilial,PCliente,PPeriodo,PTipoCotacao,PSituacao],true)
@@ -626,7 +626,7 @@ Var
 begin
   dtRave := TdtRave.create(self);
   if (VPRNOMRELATORIO = 'NOTAS FISCAIS EMITIDAS') then
-    dtRave.ImprimeNotasFiscaisEmitidas(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,ESituacaoCotacao.itemindex)
+    dtRave.ImprimeNotasFiscaisEmitidas(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, EVendedor.Ainteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,ESituacaoCotacao.itemindex)
   else
     if (VPRNOMRELATORIO = 'PEDIDOS POR DIA') then
       dtRave.ImprimePedidosPorDia(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,RFlagSituacao.Itemindex,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,RFlagSituacao.Items.Strings[RFlagSituacao.Itemindex])

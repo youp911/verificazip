@@ -306,6 +306,25 @@ type
     ECapacidadeLiquida: Tnumerico;
     Label99: TLabel;
     Label100: TLabel;
+    PanelColor4: TPanelColor;
+    BRepeticaoDesenho: TSpeedButton;
+    BZoomMenos: TSpeedButton;
+    BCursor: TSpeedButton;
+    BZoomMais: TSpeedButton;
+    BNovo: TSpeedButton;
+    PanelColor5: TPanelColor;
+    EProdutoInstalacao: TRBEditLocaliza;
+    SpeedButton14: TSpeedButton;
+    Label101: TLabel;
+    LNomProdutoInstalacao: TLabel;
+    LNomCorInstalacao: TLabel;
+    Label104: TLabel;
+    ECorInstalacao: TRBEditLocaliza;
+    SpeedButton15: TSpeedButton;
+    Label105: TLabel;
+    EQtdFiosLico: Tnumerico;
+    Label106: TLabel;
+    EFuncaoFio: TComboBoxColor;
 
     procedure PaginasChange(Sender: TObject);
     procedure PaginasChanging(Sender: TObject; var AllowChange: Boolean);
@@ -433,6 +452,13 @@ type
     procedure GInstalacaoGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
     procedure EQtdQuadrosExit(Sender: TObject);
     procedure EQtdColInstalacaoExit(Sender: TObject);
+    procedure GInstalacaoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure GInstalacaoMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure BZoomMaisClick(Sender: TObject);
+    procedure BZoomMenosClick(Sender: TObject);
+    procedure BNovoClick(Sender: TObject);
+    procedure EProdutoInstalacaoRetorno(VpaColunas: TRBColunasLocaliza);
+    procedure BRepeticaoDesenhoClick(Sender: TObject);
   private
     VprCodClassificacao,
     VprCodClassificacaoAnterior : String;
@@ -442,6 +468,9 @@ type
     VprImpressorasCarregadas,
     VprAcessoriosCarregados : Boolean;
     VprImpressoraAnterior: String;
+    VprLinhaInicial,VprLinhaFinal, VprColunaInicial, VprColunaFinal : Integer;
+    VprSeqProdutoInstalacao,
+    VprQtdRepeticao : Integer;
 
     VprDProduto: TRBDProduto;
     VprDFornecedor: TRBDProdutoFornecedor;
@@ -450,6 +479,7 @@ type
     VprDProAcessorio : TRBDProdutoAcessorio;
     VprDProTabelaPreco : TRBDProdutoTabelaPreco;
     VprDFigura: TRBDCombinacaoFigura;
+    VprRepeticoesInstalacao,
     VprListaImpressoras: TList;
     VprDProImpressora: TRBDProdutoImpressora;
 
@@ -514,6 +544,10 @@ type
 
     procedure ConfiguraQtdQuadros(VpaQtdQuadros : Integer);
     procedure ConfiguraQtdColunaInstalcao(VpaQtdColunas : Integer);
+    procedure ZoomGradeInstalacao(VpaIndice : Double);
+    procedure CarDProdutoInstalacao;
+    procedure CarDProdutoInstalacaoTela;
+    function DadosProdutoInstalacaoValido : String;
   public
     function NovoProduto(VpaCodClassificacao: String): TRBDProduto;
     function AlterarProduto(VpaCodEmpresa, VpaCodFilial, VpaSeqProduto: Integer): TRBDProduto;
@@ -557,6 +591,8 @@ begin
   { chamar a rotina de atualização de menus }
   FreeTObjectsList(VprListaImpressoras);
   VprListaImpressoras.Free;
+  FreeTObjectsList(VprRepeticoesInstalacao);
+  VprRepeticoesInstalacao.Free;
   FunClassificacao.Free;
   Action:= CaFree;
 end;
@@ -566,6 +602,11 @@ end;
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.BZoomMenosClick(Sender: TObject);
+begin
+  ZoomGradeInstalacao(0.80);
+end;
+
 procedure TFNovoProdutoPro.BFecharClick(Sender: TObject);
 begin
   Close;
@@ -701,6 +742,7 @@ begin
   VprDEstagio:= TRBDEstagioProduto.Cria;
   VprDCombinacao:= TRBDCombinacao.Cria;
   VprListaImpressoras:= TList.Create;
+  VprRepeticoesInstalacao := TList.Create;
   FunClassificacao:= TFuncoesClassificacao.criar(Self,FPrincipal.BaseDados);
 end;
 
@@ -955,6 +997,11 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.BZoomMaisClick(Sender: TObject);
+begin
+  ZoomGradeInstalacao(1.2);
+end;
+
 procedure TFNovoProdutoPro.SpeedButton1Click(Sender: TObject);
 begin
   LocalizaClassificacao;
@@ -1013,6 +1060,27 @@ begin
     BGravar.Enabled:= False;
     BFoto.Enabled:= False;
   end;
+end;
+
+procedure TFNovoProdutoPro.BNovoClick(Sender: TObject);
+begin
+{  EProdutoInstalacao.Clear;
+  EProdutoInstalacao.Atualiza;
+  ECorInstalacao.Clear;
+  ECor.Atualiza;
+  EQtdFiosLico.Clear;
+  EFuncaoFio.ItemIndex := -1;}
+end;
+
+procedure TFNovoProdutoPro.BRepeticaoDesenhoClick(Sender: TObject);
+var
+  VpfQtdRepeticao : String;
+begin
+  if EntradaNumero('Quantidade de repetições Desenho','Qtd Repetições : ',VpfqtdRepeticao,false,EValVenda.Color,PanelColor1.Color,false) then
+    VprQtdRepeticao := StrToInt(VpfQtdRepeticao)
+  else
+    BCursor.Down := true;
+
 end;
 
 {******************************************************************************}
@@ -2827,14 +2895,32 @@ end;
 
 {******************************************************************************}
 procedure TFNovoProdutoPro.GInstalacaoClick(Sender: TObject);
+var
+  VpfResultado : String;
 begin
-  if GInstalacao.Col < GInstalacao.ColCount - 1 then
+  if BNovo.Down then
   begin
-    if GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] = '' then
-      GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] := '1'
-    else
-      GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] := '';
-  end;
+    if (GInstalacao.Col < GInstalacao.ColCount - 1) and
+       (GInstalacao.Row < GInstalacao.RowCount -3) then
+    begin
+      VpfResultado := DadosProdutoInstalacaoValido;
+      if VpfResultado = '' then
+      begin
+        CarDProdutoInstalacao;
+        if GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] = '' then
+          GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] := '1'
+        else
+          GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] := '';
+      end
+      else
+        aviso(VpfResultado);
+    end;
+  end
+  else
+    if BCursor.Down then
+    begin
+      CarDProdutoInstalacaoTela;
+    end;
 end;
 
 {******************************************************************************}
@@ -2845,10 +2931,48 @@ begin
     if GInstalacao.Cells[Acol,ARow] = '' then
       ABrush.Color := clInfoBk
     else
-      ABrush.Color := clBlack;
+      if GInstalacao.Cells[Acol,ARow] = '1' then
+        ABrush.Color := clBlack;
   end
   else
     ABrush.Color := clGray;
+end;
+
+procedure TFNovoProdutoPro.GInstalacaoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  GInstalacao.MouseToCell(x,y,VprColunaInicial,VprLinhaInicial);
+  if (VprLinhaInicial = GInstalacao.RowCount -3) then
+  begin
+
+  end;
+end;
+
+{***********************************************************************}
+procedure TFNovoProdutoPro.GInstalacaoMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  Vpfqtd : String;
+  VpfDRepeticao : TRBDRepeticaoInstalacaoTear;
+begin
+  if BRepeticaoDesenho.Down then
+  begin
+    GInstalacao.MouseToCell(x,y,VprColunaFinal,VprLinhaFinal);
+    VpfDRepeticao := TRBDRepeticaoInstalacaoTear.cria;
+    if VprColunaInicial > VprColunaFinal then
+    begin
+      VpfDRepeticao.NumColunaInicial := VprColunaFinal;
+      VpfDRepeticao.NumColunaFinal := VprColunaInicial;
+    end
+    else
+    begin
+      VpfDRepeticao.NumColunaInicial := VprColunaInicial;
+      VpfDRepeticao.NumColunaFinal := VprColunaFinal;
+    end;
+    VpfDRepeticao.QtdRepeticao := VprQtdRepeticao;
+    //Tem que fazer a rotina para validar se a coluna ja nao esta em outra repeticao
+    //se estiver ok adicinar na lista VprRepeticoes;
+    GInstalacao.Cells[VpfDRepeticao.NumColunaInicial,GInstalacao.RowCount-2] := IntToStr(VprQtdRepeticao);
+  end;
+
 end;
 
 {******************************************************************************}
@@ -3023,6 +3147,79 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.ZoomGradeInstalacao(VpaIndice: Double);
+var
+  VpfLaco : Integer;
+begin
+  for VpfLaco := 0 to GInstalacao.RowCount - 1 do
+    GInstalacao.RowHeights[Vpflaco] := RetornaInteiro(GInstalacao.RowHeights[Vpflaco] * VpaIndice);
+  for VpfLaco := 0 to GInstalacao.ColCount - 1 do
+    GInstalacao.ColWidths[Vpflaco] := RetornaInteiro(GInstalacao.ColWidths[Vpflaco] * VpaIndice);
+end;
+
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.CarDProdutoInstalacao;
+var
+  VpfDProdutoInstalacao : TRBDProdutoInstalacaoTear;
+begin
+  if GInstalacao.Objects[GInstalacao.Col,GInstalacao.Row] <> nil then
+    GInstalacao.Objects[GInstalacao.Col,GInstalacao.Row].Free;
+  VpfDProdutoInstalacao := TRBDProdutoInstalacaoTear.cria;
+  GInstalacao.Objects[GInstalacao.Col,GInstalacao.Row] := VpfDProdutoInstalacao;
+  VpfDProdutoInstalacao.CodProduto := EProdutoInstalacao.Text;
+  VpfDProdutoInstalacao.NomProduto := LNomProdutoInstalacao.Caption;
+  VpfDProdutoInstalacao.CodCor := ECorInstalacao.AInteiro;
+  VpfDProdutoInstalacao.NomCor := LNomCorInstalacao.Caption;
+  VpfDProdutoInstalacao.QtdFioslIco := EQtdFiosLico.AsInteger;
+  VpfDProdutoInstalacao.SeqProduto := VprSeqProdutoInstalacao;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.CarDProdutoInstalacaoTela;
+var
+  VpfDProdutoInstalacao : TRBDProdutoInstalacaoTear;
+begin
+  if GInstalacao.Objects[GInstalacao.Col,GInstalacao.Row] <> nil then
+  begin
+    VpfDProdutoInstalacao :=TRBDProdutoInstalacaoTear(GInstalacao.Objects[GInstalacao.Col,GInstalacao.Row]);
+    EProdutoInstalacao.Text := VpfDProdutoInstalacao.CodProduto;
+    LNomProdutoInstalacao.Caption := VpfDProdutoInstalacao.NomProduto;
+    ECorInstalacao.AInteiro := VpfDProdutoInstalacao.CodCor;
+    LNomCorInstalacao.Caption := VpfDProdutoInstalacao.NomCor;
+    EQtdFiosLico.AsInteger := VpfDProdutoInstalacao.QtdFioslIco;
+    VprSeqProdutoInstalacao := VpfDProdutoInstalacao.SeqProduto;
+  end;
+
+end;
+
+{******************************************************************************}
+function TFNovoProdutoPro.DadosProdutoInstalacaoValido : String;
+begin
+  result := '';
+  if EProdutoInstalacao.Text = '' then
+    result := 'PRODUTO NÃO PREENCHIDO!!!'#13'É necessário selecionar o produto';
+  if result = '' then
+  begin
+    if ECorInstalacao.AInteiro = 0 then
+      result := 'COR NÃO PREENCHIDA!!!'#13'A cor do produto de instalação não foi preenchido.';
+    if result = '' then
+    begin
+      if EQtdFiosLico.AsInteger = 0 then
+        result := 'QUANTIDADE DE FIOS NO LIÇO NÃO PREENHCIDO!!!'#13'É necessário preenhcer a quantidade de fios no liço.';
+      if result = '' then
+      begin
+        if EFuncaoFio.ItemIndex < 0 then
+          result := 'FUNÇÃO FIO NÃO PREENCHIDO!!!'#13'É necessário preenhcer a função do fio.';
+      end;
+    end;
+
+  end;
+
+
+end;
+
+{******************************************************************************}
 procedure TFNovoProdutoPro.EPerLucroChange(Sender: TObject);
 begin
   if VprOperacao in [ocInsercao,ocEdicao] then
@@ -3032,6 +3229,17 @@ begin
       if EPerLucro.AValor <> 0 then
         EValVenda.AValor := ((EPerLucro.AValor/100)*EValCusto.AValor)
     end;
+  end;
+end;
+
+procedure TFNovoProdutoPro.EProdutoInstalacaoRetorno(VpaColunas: TRBColunasLocaliza);
+begin
+  if VprOperacao in [ocInsercao,ocEdicao] then
+  begin
+    if VpaColunas.items[2].AValorRetorno <> '' then
+      VprSeqProdutoInstalacao := StrToINt(VpaColunas.items[2].AValorRetorno)
+    else
+      VprSeqProdutoInstalacao := 0;
   end;
 end;
 

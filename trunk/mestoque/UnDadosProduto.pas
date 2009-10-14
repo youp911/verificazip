@@ -4,6 +4,30 @@ interface
 Uses Classes, UnDados;
 
 Type
+  TRBDRepeticaoInstalacaoTear = class
+    public
+      SeqRepeticao,
+      NumColunaInicial,
+      NumColunaFinal,
+      QtdRepeticao : Integer;
+      constructor cria;
+      destructor destroy;override;
+end;
+
+Type
+  TRBDProdutoInstalacaoTear = class
+    public
+      SeqProduto,
+      CodCor,
+      QtdFiosLico : Integer;
+      CodProduto,
+      NomProduto,
+      NomCor : String;
+    constructor cria;
+     destructor destroy;override;
+  end;
+
+Type
   TRBDFiguraGRF = class
     public
       CodFiguraGRF : Integer;
@@ -3630,5 +3654,42 @@ begin
 end;
 
 { TRBDProdutoTabelaPreco }
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Dados da Tabela de Preço do Produto
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDProdutoInstalacaoTear.cria;
+begin
+  inherited create;
+end;
+
+{******************************************************************************}
+destructor TRBDProdutoInstalacaoTear.destroy;
+begin
+
+  inherited;
+end;
+{ TRBDProdutoInstalacaoTear }
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Dados da Tabela de Preço do Produto
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDRepeticaoInstalacaoTear.cria;
+begin
+  inherited create;
+end;
+
+{******************************************************************************}
+destructor TRBDRepeticaoInstalacaoTear.destroy;
+begin
+  inherited;
+end;
+
+{ TRBDRepeticaoInstalacaoTear }
+
 
 end.

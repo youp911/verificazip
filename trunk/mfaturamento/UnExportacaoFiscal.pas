@@ -1660,7 +1660,7 @@ var
   VpfICMSPadrao : Double;
   VpfLinha : String;
 begin
-  VpfICMSPadrao := FunNotaFiscal.RValICMSPadrao(Varia.UFFilial,true,FALSE);
+  VpfICMSPadrao := FunNotaFiscal.RValICMSPadrao(Varia.UFFilial,'',TRUE,FALSE);
 
   VpaQtdRegistros := 0;
   VpaTabela.First;

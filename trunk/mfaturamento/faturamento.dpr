@@ -280,6 +280,7 @@ uses
 {$R *.RES}
 
 begin
+  ReportMemoryLeaksOnShutdown := DebugHook <> 0;
   Application.Initialize;
   Application.HelpFile := '';
   Application.CreateForm(TFPrincipal, FPrincipal);
