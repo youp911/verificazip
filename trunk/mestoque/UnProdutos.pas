@@ -4757,6 +4757,9 @@ begin
   ExecutaComandoSql(AUX,'UPDATE ORDEMSERRA '+
                         ' SET SEQPRODUTO = '+IntToStr(VpaSeqProdutoDestino)+
                         ' Where SEQPRODUTO = '+IntToStr(VpaSeqProdutoExcluir));
+  ExecutaComandoSql(AUX,'UPDATE ORDEMSERRA '+
+                        ' SET SEQMATERIAPRIMA = '+IntToStr(VpaSeqProdutoDestino)+
+                        ' Where SEQMATERIAPRIMA = '+IntToStr(VpaSeqProdutoExcluir));
   VpaLog.Insert(0,'IMPORTANDO FRACAO CONSUMO LOG');
   ExecutaComandoSql(AUX,'UPDATE FRACAOOPCONSUMOLOG '+
                         ' SET SEQPRODUTO = '+IntToStr(VpaSeqProdutoDestino)+

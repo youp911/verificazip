@@ -337,7 +337,8 @@ uses
   ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
   ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
   UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
-  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos};
+  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
+  AMotivoParada in 'AMotivoParada.pas' {FMotivoParada};
 
 {$R *.RES}
 

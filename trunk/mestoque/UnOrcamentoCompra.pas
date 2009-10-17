@@ -540,7 +540,7 @@ begin
     VpaTexto.add('</tr><tr>');
     VpaTexto.add('        <td width="10%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+{VpfDItem.DesReferenciaFornecedor +}'</td>');
     if VpfDItem.DesTecnica <> '' then
-      VpaTexto.add('      <td width="30%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.DesTecnica+'</td>')
+      VpaTexto.add('      <td width="30%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.CodProduto+'-'+VpfDItem.DesTecnica+'</td>')
     else
       VpaTexto.add('      <td width="30%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.CodProduto+'-'+VpfDItem.NomProduto+'</td>');
     VpaTexto.add('      <td width="15%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+VpfDItem.NomCor+' </td>');

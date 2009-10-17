@@ -221,7 +221,7 @@ type
     function ExisteFormaPagamento(VpaCodFormaPagamento : Integer;VpaDCheque : TRBDCheque):Boolean;overload;
     function ExisteFormaPagamento(VpaCodFormaPagamento : Integer;VpaDCaixaFormaPagamento : TRBDCaixaFormaPagamento):boolean;overload;
     function ExisteContaCorrente(VpaNumConta : String):Boolean;
-    function CompensaCheque(VpaDCheque : TRBDCheque;VpaTipOperacao : String) :string;
+    function CompensaCheque(VpaDCheque : TRBDCheque;VpaTipOperacao : String;VpaAdicionarnoCaixa : Boolean) :string;
     function DevolveCheque(VpaCheques : TList;VpaData : TDateTime) :string;
     function EstornaCheque(VpaDCheque: TRBDCheque) :string;
     function AlteraVencimentoCheque(VpaSeqCheque : Integer;VpaDatVencimento : TDatetime):string;
@@ -3810,7 +3810,7 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesContasAReceber.CompensaCheque(VpaDCheque : TRBDCheque;VpaTipOperacao : String): string;
+function TFuncoesContasAReceber.CompensaCheque(VpaDCheque : TRBDCheque;VpaTipOperacao : String;VpaAdicionarnoCaixa : Boolean): string;
 begin
   result := '';
   AdicionaSQLAbreTabela(Cadastro,'Select * from CHEQUE '+
@@ -3822,7 +3822,7 @@ begin
   Cadastro.post;
   result := Cadastro.AMensagemErroGravacao;
   if result = '' then
-    if ConfigModulos.Caixa then
+    if ConfigModulos.Caixa and VpaAdicionarnoCaixa then
     begin
       result := FunCaixa.AdicionaCompensacaoChequeCaixa(VpaDCheque,VpaTipOperacao);
     end;

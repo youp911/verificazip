@@ -258,7 +258,8 @@ begin
   end;
   if config.ControlarProjeto then
   begin
-    result  := FunContasAPagar.ValorProjetosMaiorQueContasaPagar(VprDContasAPagar,EValorTotal.avalor);
+    if VprDContasAPagar.DespesaProjeto.Count > 0  then
+      result  := FunContasAPagar.ValorProjetosMaiorQueContasaPagar(VprDContasAPagar,EValorTotal.avalor);
   end;
 
 end;

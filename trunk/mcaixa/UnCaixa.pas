@@ -157,7 +157,8 @@ begin
   for VpfLaco := 0 to VpaDBaixa.Cheques.Count - 1 do
   begin
     VpfDCheque := TRBDCheque(VpaDBaixa.Cheques.Items[VpfLaco]);
-    if VpfDCheque.DatCompensacao > MontaData(1,1,1900) then
+    if (VpfDCheque.DatCompensacao > MontaData(1,1,1900)) or
+       (VpfDCheque.TipContaCaixa = 'CA')  then
     begin
       VpfDCaixa := RCaixa(VpfDCheque.NumContaCaixa,VpaDBaixa.Caixas);
       if VpfDCaixa = nil then
@@ -340,7 +341,8 @@ begin
         VpfDItemCaixa := VpfDCaixa.AddCaixaItem;
         VpfDItemCaixa.CodUsuario := varia.CodigoUsuario;
         VpfDItemCaixa.SeqCheque := VpfDCheque.SeqCheque;
-        if VpfDCheque.TipCheque = 'C' Then
+        if (VpfDCheque.TipCheque = 'C') AND
+           (VpfDCheque.TipContaCaixa = 'CC') Then
         begin
           VpfDItemCaixa.DesDebitoCredito := 'D';
           VpfDItemCaixa.DesLancamento := 'Extorno do Cheque recebido '+IntToStr(VpfDCheque.NumCheque);
@@ -590,7 +592,8 @@ begin
   AtualizaValorFormasPagamento(VpaDCaixa);
   ExecutaComandoSql(Aux,'Delete from CAIXAFORMAPAGAMENTO '+
                         ' Where SEQCAIXA = '+IntToStr(VpaDCaixa.SeqCaixa));
-  AdicionaSQLAbreTabela(Cadastro,'Select * from CAIXAFORMAPAGAMENTO');
+  AdicionaSQLAbreTabela(Cadastro,'Select * from CAIXAFORMAPAGAMENTO '+
+                                 ' Where SEQCAIXA = 0 AND CODFORMAPAGAMENTO = 0' );
   for VpfLaco := 0 to VpaDCaixa.FormasPagamento.Count - 1 do
   begin
     VpfDFormaPagamento := TRBDCaixaFormaPagamento(VpaDCaixa.FormasPagamento.Items[VpfLaco]);

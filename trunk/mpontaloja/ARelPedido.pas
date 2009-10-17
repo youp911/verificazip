@@ -534,7 +534,8 @@ begin
             LNumerico1.Caption := 'Dia Leitura : ';
           end
           else
-            if (VPANOMRELATORIO = 'ESTOQUE PRODUTOS') then
+            if (VPANOMRELATORIO = 'ESTOQUE PRODUTOS')or
+               (VPANOMRELATORIO = 'ESTOQUE PRODUTOS RESERVADOS') then
             begin
               AlterarVisibleDet([PClassificacaoProduto,PFilial,PFundoPerdido],true);
               CFundoPerdido.Caption := 'Somente Produtos Monitorados';
@@ -717,7 +718,10 @@ begin
                                                     dtRave.ImprimeTotalVendasCliente(EVendedor.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,EFilial.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LFilial.Caption, LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date,false)
                                                   else
                                                     if (VPRNOMRELATORIO = 'TOTAL VENDAS POR CLIENTE(CURVA ABC)') then
-                                                      dtRave.ImprimeTotalVendasCliente(EVendedor.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,EFilial.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LFilial.Caption, LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date,true);
+                                                      dtRave.ImprimeTotalVendasCliente(EVendedor.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,EFilial.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LFilial.Caption, LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date,true)
+                                                  else
+                                                    if (VPRNOMRELATORIO = 'ESTOQUE PRODUTOS RESERVADOS') then
+                                                      FunRave.ImprimeEstoqueProdutosReservados(EFilial.AInteiro,VprCaminhoRelatorio,ECodClassifcacao.Text,'TOTAL',LFilial.caption,LNomClassificacao.Caption,CFundoPerdido.Checked);
   dtRave.free;
 end;
 

@@ -38,6 +38,7 @@ type
     procedure BotaoExcluir1DestroiFormulario(Sender: TObject);
     procedure ImprimirCodigoBarras1Click(Sender: TObject);
     procedure BotaoAlterar1Click(Sender: TObject);
+    procedure GradeOrdem(Ordem: string);
   private
     { Private declarations }
   public
@@ -60,6 +61,11 @@ begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
   ELocaliza.AtualizaConsulta;
+end;
+
+procedure TFTecnicos.GradeOrdem(Ordem: string);
+begin
+  ELocaliza.AOrdem := Ordem;
 end;
 
 { ******************* Quando o formulario e fechado ************************** }

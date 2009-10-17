@@ -77,7 +77,7 @@ type
     puESImprimirEtiquetaProduto, puCRSomenteProspectDoVendedor, puESPedidoCompra, puESOrcamentoCompra,puESSolicitacaoCompra,
     puSomenteClientesdoVendedor,puFIBloquearClientes, puVendedorAlteraContrato, puPLImprimirPedidoDuasVezes, puPLImprimirValoresRelatorioPedidosPendentes,
     puESPlanoCorte,puCRSomenteCadastraProspect,puESColetaQtdProduzidoOP,puESReprocessarProdutividade, puESAcertoEstoque,
-    puESMenuGerencial, puESRegerarProjeto,puSomenteCondicoesPgtoAutorizadas, puESCadastrarCelulaTrabalho);
+    puESMenuGerencial, puESRegerarProjeto,puSomenteCondicoesPgtoAutorizadas, puESCadastrarCelulaTrabalho, puESReservaEstoque);
 
   TRBDPermisaoUsuario = set of TRBDOpcoesPermisaoUsuario;
   TRBDTipoValorComissao = (vcTotalNota,vcTotalProdutos);
@@ -919,6 +919,8 @@ begin
    VpaDPermissao := VpaDPermissao + [puSomenteCondicoesPgtoAutorizadas];
   if TipoCheck(VarAux.FieldByName('C_EST_CAC').AsString) then
    VpaDPermissao := VpaDPermissao + [puESCadastrarCelulaTrabalho];
+  if TipoCheck(VarAux.FieldByName('C_EST_RES').AsString) then
+   VpaDPermissao := VpaDPermissao + [puESReservaEstoque];
 
   config.UtilizarPercentualConsulta := TipoCheck(VarAux.fieldByName('C_IND_PER').AsString);
   config.ResponsavelLeituraLocacao := TipoCheck(VarAux.fieldByName('C_RES_LEL').AsString);

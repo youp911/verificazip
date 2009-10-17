@@ -138,7 +138,9 @@ end;
 function TRBFunPedidoCompra.GravaDPedidoCompra(VpaDPedidoCompra: TRBDPedidoCompraCorpo): String;
 begin
   Result:= '';
-  AdicionaSQLAbreTabela(Cadastro,'SELECT * FROM PEDIDOCOMPRACORPO WHERE SEQPEDIDO = '+IntToStr(VpaDPedidoCompra.SeqPedido));
+  AdicionaSQLAbreTabela(Cadastro,'SELECT * FROM PEDIDOCOMPRACORPO '+
+                                ' Where CODFILIAL = '+IntToStr(VpaDPedidoCompra.CodFilial)+
+                                ' AND SEQPEDIDO = '+IntToStr(VpaDPedidoCompra.SeqPedido));
 
   if Cadastro.Eof then
     Cadastro.Insert
@@ -262,7 +264,8 @@ var
 begin
   Result:= '';
   ApagaProdutos(VpaDPedidoCompra);
-  AdicionaSQLAbreTabela(Cadastro,'SELECT * FROM PEDIDOCOMPRAITEM');
+  AdicionaSQLAbreTabela(Cadastro,'SELECT * FROM PEDIDOCOMPRAITEM'+
+                                 ' Where CODFILIAL = 0 AND SEQPEDIDO = 0 ');
   for VpfLaco:= 0 to VpaDPedidoCompra.Produtos.Count - 1 do
   begin
     Cadastro.Insert;

@@ -212,7 +212,8 @@ type
     RetiraAcentuoNomeProdutos1: TMenuItem;
     Embalagem1: TMenuItem;
     BMFReservaEstoque: TSpeedButton;
-    ReservaEstoque1: TMenuItem;
+    MReservaEstoque: TMenuItem;
+    MotivoParada1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -283,7 +284,7 @@ uses Constantes, UnRegistro, funsql,
   ADesenhosPendentes, AOrcamentoCompras, ANovoOrcamentoCompra,
   AConsultaLogSeparacaoConsumo, APrecoPendente, AAmostrasPendentes,
   AExcluiProdutoDuplicado, APendenciasCompras, AAgendamentos, AFiguraGRF,
-  AComposicoes, UnOrdemProducao, AEmbalagem;
+  AComposicoes, UnOrdemProducao, AEmbalagem, AMotivoParada;
 
 {$R *.DFM}
 
@@ -381,6 +382,8 @@ begin
       AlterarVisibleDet([MProducao,MReprocessarProdutividade],true);
     if (puESAcertoEstoque in varia.PermissoesUsuario) then
       AlterarVisibleDet([MEstoque,MFAcertoEstoque,BMFAcertoEstoque],true);
+    if (puESReservaEstoque in varia.PermissoesUsuario) then
+      AlterarVisibleDet([MEstoque,MReservaEstoque,BMFReservaEstoque],true);
     if (puESMenuGerencial in varia.PermissoesUsuario) then
       AlterarVisibleDet([MGerencial,MDesenhosPendentes,MFichasTecnicasPendentes,n38,MAmostrasPendentes,MCustoPendente,MPendenciasdeCompras],true);
     if (puESCadastrarCelulaTrabalho in varia.PermissoesUsuario) then
@@ -659,6 +662,11 @@ begin
              FMotivoReprogramacao := tFMotivoReprogramacao.CriarSDI(application , '', FPrincipal.VerificaPermisao('FMotivoReprogramacao'));
              FMotivoReprogramacao.showmodal;
              FMotivoReprogramacao.free;
+           end;
+    2960 : begin
+             FMotivoParada := TFMotivoParada.criarSDI(Application,'',verificaPermisao('FMotivoParada'));
+             FMotivoParada.ShowModal;
+             FMotivoParada.free;
            end;
     2975 : begin
              FTipoEstagioProducao := TFTipoEstagioProducao.criarSDI(Application,'',verificaPermisao('FTipoEstagioProducao'));

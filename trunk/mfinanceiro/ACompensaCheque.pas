@@ -106,7 +106,7 @@ begin
   CarDClasse;
   VpfTransacao.IsolationLevel := xilREADCOMMITTED;
   FPrincipal.BaseDados.StartTransaction(VpfTransacao);
-  VpfResultado := FunContasAReceber.CompensaCheque(VprDCheque,VprDCheque.TipCheque);
+  VpfResultado := FunContasAReceber.CompensaCheque(VprDCheque,VprDCheque.TipCheque,true);
   if VpfResultado <> '' then
   begin
     FPrincipal.BaseDados.Rollback(VpfTransacao);

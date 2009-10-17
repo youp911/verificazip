@@ -861,12 +861,14 @@ var
   VpfDParcela : TRBDParcelaCP;
 begin
   result := '';
-  AdicionaSQLAbreTabela(Cadastro,'Select * from CHEQUECP');
+  AdicionaSQLAbreTabela(Cadastro,'Select * from CHEQUECP'+
+                                 ' Where SEQCHEQUE = 0 AND CODFILIALPAGAR = 0 '+
+                                 ' AND LANPAGAR = 0 AND NUMPARCELA = 0 ');
   for VpfLacoCheque := 0 to VpaCheques.Count - 1 do
   begin
     VpfDCheque := TRBDCheque(VpaCheques.Items[VpfLacoCheque]);
     if (VpfDCheque.TipFormaPagamento = 'R') then //cheque de terceiros.
-      result := FunContasAReceber.CompensaCheque(VpfDCheque,'D');
+      result := FunContasAReceber.CompensaCheque(VpfDCheque,'D',false);
     if result = '' then
     begin
       for VpfLacoParcelas := 0 to VpaParcelas.Count - 1 do
@@ -896,7 +898,7 @@ begin
                                   ' CHE.DATVENCIMENTO, CHE.DATCOMPENSACAO, CHE.VALCHEQUE, CHE.DATDEVOLUCAO, '+
                                   ' CHE.DATALTERACAO, CHE.CODUSUARIO,CHE.NUMCONTACAIXA, CHE.TIPCHEQUE, '+
                                   ' FRM.C_NOM_FRM, FRM.C_FLA_TIP,  '+
-                                  ' CON.C_NOM_CRR ' +
+                                  ' CON.C_NOM_CRR, CON.C_TIP_CON ' +
                                   ' from CHEQUE CHE, CHEQUECP CHP, CADFORMASPAGAMENTO FRM, CADCONTAS CON ' +
                                   ' Where CHE.CODFORMAPAGAMENTO = FRM.I_COD_FRM ' +
                                   ' AND CHE.NUMCONTACAIXA = CON.C_NRO_CON ' +
@@ -929,6 +931,7 @@ begin
     VpfDCheque.TipFormaPagamento := Tabela.FieldByname('NOMEMITENTE').AsString ;
     VpfDCheque.TipFormaPagamento := Tabela.FieldByname('C_FLA_TIP').AsString ;
     VpfDCheque.TipCheque := Tabela.FieldByName('TIPCHEQUE').AsString;
+    VpfDCheque.TipContaCaixa := Tabela.FieldByName('C_TIP_CON').AsString;
     VpfDCheque.ValCheque := Tabela.FieldByname('VALCHEQUE').AsFloat ;
     VpfDCheque.DatCadastro := Tabela.FieldByname('DATCADASTRO').AsDateTime ;
     VpfDCheque.DatVencimento := Tabela.FieldByname('DATVENCIMENTO').AsDateTime ;

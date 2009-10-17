@@ -1296,6 +1296,9 @@ var
 begin
   result := '';
   OrdenaOrdemSerra(VpaDOrdemProducao);
+  ExecutaComandoSql(OrdAux,'Delete from ORDEMSERRAFRACAO'+
+                           ' Where CODFILIAL = '+IntToStr(VpaDOrdemProducao.CodEmpresafilial)+
+                           ' and SEQORDEMPRODUCAO = ' +IntToStr(VpaDOrdemProducao.SeqOrdem));
   ExecutaComandoSql(OrdAux,'Delete from ORDEMSERRA'+
                            ' Where CODFILIAL = '+IntToStr(VpaDOrdemProducao.CodEmpresafilial)+
                            ' and SEQORDEMPRODUCAO = ' +IntToStr(VpaDOrdemProducao.SeqOrdem));

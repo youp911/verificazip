@@ -27,7 +27,7 @@ object FRelPedido: TFRelPedido
     Alignment = taLeftJustify
     Font.Charset = ANSI_CHARSET
     Font.Color = clWhite
-    Font.Height = -27
+    Font.Height = -24
     Font.Name = 'Times New Roman'
     Font.Style = [fsBold]
     ParentFont = False
@@ -54,11 +54,12 @@ object FRelPedido: TFRelPedido
       Top = 1
       Width = 575
       Height = 632
+      VertScrollBar.Position = 266
       Align = alClient
       TabOrder = 0
       object PFilial: TPanelColor
         Left = 0
-        Top = 28
+        Top = -238
         Width = 554
         Height = 28
         Align = alTop
@@ -151,7 +152,7 @@ object FRelPedido: TFRelPedido
       end
       object PCliente: TPanelColor
         Left = 0
-        Top = 168
+        Top = -98
         Width = 554
         Height = 28
         Align = alTop
@@ -247,7 +248,7 @@ object FRelPedido: TFRelPedido
       end
       object PCidade: TPanelColor
         Left = 0
-        Top = 308
+        Top = 42
         Width = 554
         Height = 28
         Align = alTop
@@ -343,7 +344,7 @@ object FRelPedido: TFRelPedido
       end
       object PEstado: TPanelColor
         Left = 0
-        Top = 336
+        Top = 70
         Width = 554
         Height = 28
         Align = alTop
@@ -438,7 +439,7 @@ object FRelPedido: TFRelPedido
       end
       object PCondPgto: TPanelColor
         Left = 0
-        Top = 420
+        Top = 154
         Width = 554
         Height = 28
         Align = alTop
@@ -534,7 +535,7 @@ object FRelPedido: TFRelPedido
       end
       object PPeriodo: TPanelColor
         Left = 0
-        Top = 812
+        Top = 546
         Width = 554
         Height = 28
         Align = alTop
@@ -600,7 +601,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoCotacao: TPanelColor
         Left = 0
-        Top = 504
+        Top = 238
         Width = 554
         Height = 28
         Align = alTop
@@ -696,7 +697,7 @@ object FRelPedido: TFRelPedido
       end
       object PVendedor: TPanelColor
         Left = 0
-        Top = 280
+        Top = 14
         Width = 554
         Height = 28
         Align = alTop
@@ -794,7 +795,7 @@ object FRelPedido: TFRelPedido
       end
       object PSituacao: TPanelColor
         Left = 0
-        Top = 784
+        Top = 518
         Width = 554
         Height = 28
         Align = alTop
@@ -833,7 +834,7 @@ object FRelPedido: TFRelPedido
       end
       object PDataFinal: TPanelColor
         Left = 0
-        Top = 840
+        Top = 574
         Width = 554
         Height = 28
         Align = alTop
@@ -876,7 +877,7 @@ object FRelPedido: TFRelPedido
       end
       object PSitCliente: TPanelColor
         Left = 0
-        Top = 448
+        Top = 182
         Width = 554
         Height = 28
         Align = alTop
@@ -972,7 +973,7 @@ object FRelPedido: TFRelPedido
       end
       object PEmpresa: TPanelColor
         Left = 0
-        Top = 0
+        Top = -266
         Width = 554
         Height = 28
         Align = alTop
@@ -1065,7 +1066,7 @@ object FRelPedido: TFRelPedido
       end
       object PTabelaPreco: TPanelColor
         Left = 0
-        Top = 56
+        Top = -210
         Width = 554
         Height = 28
         Align = alTop
@@ -1162,7 +1163,7 @@ object FRelPedido: TFRelPedido
       end
       object PProduto: TPanelColor
         Left = 0
-        Top = 112
+        Top = -154
         Width = 554
         Height = 28
         Align = alTop
@@ -1253,7 +1254,7 @@ object FRelPedido: TFRelPedido
       end
       object PBanco: TPanelColor
         Left = 0
-        Top = 196
+        Top = -70
         Width = 554
         Height = 28
         Align = alTop
@@ -1347,7 +1348,7 @@ object FRelPedido: TFRelPedido
       end
       object PUsuario: TPanelColor
         Left = 0
-        Top = 364
+        Top = 98
         Width = 554
         Height = 28
         Align = alTop
@@ -1443,7 +1444,7 @@ object FRelPedido: TFRelPedido
       end
       object PFormaPagamento: TPanelColor
         Left = 0
-        Top = 392
+        Top = 126
         Width = 554
         Height = 28
         Align = alTop
@@ -1539,7 +1540,7 @@ object FRelPedido: TFRelPedido
       end
       object PClassificacaoProduto: TPanelColor
         Left = 0
-        Top = 84
+        Top = -182
         Width = 554
         Height = 28
         Align = alTop
@@ -1613,7 +1614,7 @@ object FRelPedido: TFRelPedido
       end
       object PQtdVias: TPanelColor
         Left = 0
-        Top = 896
+        Top = 630
         Width = 554
         Height = 28
         Align = alTop
@@ -1656,7 +1657,7 @@ object FRelPedido: TFRelPedido
       end
       object PEstagio: TPanelColor
         Left = 0
-        Top = 672
+        Top = 406
         Width = 554
         Height = 28
         Align = alTop
@@ -1753,7 +1754,7 @@ object FRelPedido: TFRelPedido
       end
       object PTransportadora: TPanelColor
         Left = 0
-        Top = 476
+        Top = 210
         Width = 554
         Height = 28
         Align = alTop
@@ -1849,7 +1850,7 @@ object FRelPedido: TFRelPedido
       end
       object PFundoPerdido: TPanelColor
         Left = 0
-        Top = 868
+        Top = 602
         Width = 554
         Height = 28
         Align = alTop
@@ -1877,7 +1878,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoContrato: TPanelColor
         Left = 0
-        Top = 224
+        Top = -42
         Width = 554
         Height = 28
         Align = alTop
@@ -1972,7 +1973,7 @@ object FRelPedido: TFRelPedido
       end
       object PPreposto: TPanelColor
         Left = 0
-        Top = 252
+        Top = -14
         Width = 554
         Height = 28
         Align = alTop
@@ -2070,7 +2071,7 @@ object FRelPedido: TFRelPedido
       end
       object PTecnico: TPanelColor
         Left = 0
-        Top = 644
+        Top = 378
         Width = 554
         Height = 28
         Align = alTop
@@ -2166,7 +2167,7 @@ object FRelPedido: TFRelPedido
       end
       object POperacaoEstoque: TPanelColor
         Left = 0
-        Top = 616
+        Top = 350
         Width = 554
         Height = 28
         Align = alTop
@@ -2262,7 +2263,7 @@ object FRelPedido: TFRelPedido
       end
       object PCor: TPanelColor
         Left = 0
-        Top = 588
+        Top = 322
         Width = 554
         Height = 28
         Align = alTop
@@ -2358,7 +2359,7 @@ object FRelPedido: TFRelPedido
       end
       object PCotacaoCancelada: TPanelColor
         Left = 0
-        Top = 756
+        Top = 490
         Width = 554
         Height = 28
         Align = alTop
@@ -2406,7 +2407,7 @@ object FRelPedido: TFRelPedido
       end
       object PClienteMaster: TPanelColor
         Left = 0
-        Top = 140
+        Top = -126
         Width = 554
         Height = 28
         Align = alTop
@@ -2502,7 +2503,7 @@ object FRelPedido: TFRelPedido
       end
       object PCentroCusto: TPanelColor
         Left = 0
-        Top = 560
+        Top = 294
         Width = 554
         Height = 28
         Align = alTop
@@ -2607,7 +2608,7 @@ object FRelPedido: TFRelPedido
       end
       object PNumerico1: TPanelColor
         Left = 0
-        Top = 700
+        Top = 434
         Width = 554
         Height = 28
         Align = alTop
@@ -2651,7 +2652,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoPeriodo: TPanelColor
         Left = 0
-        Top = 728
+        Top = 462
         Width = 554
         Height = 28
         Align = alTop
@@ -2700,7 +2701,7 @@ object FRelPedido: TFRelPedido
       end
       object PProjeto: TPanelColor
         Left = 0
-        Top = 532
+        Top = 266
         Width = 554
         Height = 28
         Align = alTop

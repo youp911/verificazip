@@ -1,6 +1,7 @@
 program faturamento;
 
 uses
+//  FastMM4,
   Forms,
   SysUtils,
   APrincipal in 'APrincipal.pas' {FPrincipal},
@@ -280,7 +281,7 @@ uses
 {$R *.RES}
 
 begin
-  ReportMemoryLeaksOnShutdown := DebugHook <> 0;
+//  ReportMemoryLeaksOnShutdown := DebugHook <> 0;
   Application.Initialize;
   Application.HelpFile := '';
   Application.CreateForm(TFPrincipal, FPrincipal);
