@@ -325,6 +325,7 @@ type
     EQtdFiosLico: Tnumerico;
     Label106: TLabel;
     EFuncaoFio: TComboBoxColor;
+    ECorPreco: TRBEditLocaliza;
 
     procedure PaginasChange(Sender: TObject);
     procedure PaginasChanging(Sender: TObject; var AllowChange: Boolean);
@@ -459,6 +460,8 @@ type
     procedure BNovoClick(Sender: TObject);
     procedure EProdutoInstalacaoRetorno(VpaColunas: TRBColunasLocaliza);
     procedure BRepeticaoDesenhoClick(Sender: TObject);
+    procedure ECorPrecoRetorno(VpaColunas: TRBColunasLocaliza);
+    procedure GPrecoAntesExclusao(Sender: TObject; var VpaPermiteExcluir: Boolean);
   private
     VprCodClassificacao,
     VprCodClassificacaoAnterior : String;
@@ -811,12 +814,18 @@ begin
   GPreco.Cells[3,0] := 'Valor Venda';
   GPreco.Cells[4,0] := 'Valor Revenda';
   GPreco.Cells[5,0] := '%Max Deconto';
-  GPreco.Cells[6,0] := 'Código';
-  GPreco.Cells[7,0] := 'Tamanho';
+  GPreco.Cells[6,0] := 'Valor Compra';
+  GPreco.Cells[7,0] := 'Valor Custo';
   GPreco.Cells[8,0] := 'Código';
-  GPreco.Cells[9,0] := 'Cliente';
+  GPreco.Cells[9,0] := 'Cor';
   GPreco.Cells[10,0] := 'Código';
-  GPreco.Cells[11,0] := 'Moeda';
+  GPreco.Cells[11,0] := 'Tamanho';
+  GPreco.Cells[12,0] := 'Código';
+  GPreco.Cells[13,0] := 'Cliente';
+  GPreco.Cells[14,0] := 'Código';
+  GPreco.Cells[15,0] := 'Moeda';
+  GPreco.Cells[16,0] := 'Qtd Minima';
+  GPreco.Cells[17,0] := 'Qtd Pedido';
 end;
 
 {******************************************************************************}
@@ -1154,8 +1163,8 @@ begin
     begin
       VprDProTabelaPreco.CodTamanho := StrToINt(VpaColunas.items[0].AValorRetorno);
       VprDProTabelaPreco.NomTamanho := VpaColunas.items[1].AValorRetorno;
-      GPreco.Cells[6,GPreco.ALinha] := VpaColunas.items[0].AValorRetorno;
-      GPreco.Cells[7,GPreco.ALinha] := VpaColunas.items[1].AValorRetorno;
+      GPreco.Cells[10,GPreco.ALinha] := VpaColunas.items[0].AValorRetorno;
+      GPreco.Cells[11,GPreco.ALinha] := VpaColunas.items[1].AValorRetorno;
     end
     else
     begin
@@ -1370,7 +1379,7 @@ begin
               Result:= FunProdutos.GravaProdutoImpressoras(VprDProduto.SeqProduto,VprListaImpressoras);
               if Result = '' then
               begin
-                Result:= FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,0,0, VprDProduto);
+                Result:= FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa, VprDProduto,VprOperacao = ocInsercao);
                 if Result = '' then
                 begin
                   Result:= FunProdutos.GravaDTabelaPreco(VprDProduto);
@@ -2176,6 +2185,26 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.ECorPrecoRetorno(VpaColunas: TRBColunasLocaliza);
+begin
+  if VprOperacao in [ocInsercao,ocEdicao] then
+  begin
+    if VpaColunas.items[0].AValorRetorno <> '' then
+    begin
+      VprDProTabelaPreco.CodCor := StrToINt(VpaColunas.items[0].AValorRetorno);
+      VprDProTabelaPreco.NomCor := VpaColunas.items[1].AValorRetorno;
+      GPreco.Cells[8,GPreco.ALinha] := VpaColunas.items[0].AValorRetorno;
+      GPreco.Cells[9,GPreco.ALinha] := VpaColunas.items[1].AValorRetorno;
+    end
+    else
+    begin
+      VprDProTabelaPreco.CodCor := 0;
+      VprDProTabelaPreco.NomCor := '';
+    end;
+  end;
+end;
+
+{******************************************************************************}
 procedure TFNovoProdutoPro.ECorRetorno(Retorno1, Retorno2: String);
 begin
   if GFornecedores.ALinha > 0 then
@@ -2648,6 +2677,10 @@ begin
   VprDProTabelaPreco.ValVenda := StrToFloat(DeletaChars(GPreco.Cells[3,GPreco.ALinha],'.'));
   VprDProTabelaPreco.ValReVenda := StrToFloat(DeletaChars(GPreco.Cells[4,GPreco.ALinha],'.'));
   VprDProTabelaPreco.PerMaximoDesconto := StrToFloat(DeletaChars(DeletaChars(DeletaChars(GPreco.Cells[5,GPreco.ALinha],'.'),'%'),' '));
+  VprDProTabelaPreco.ValCompra := StrToFloat(DeletaChars(GPreco.Cells[6,GPreco.ALinha],'.'));
+  VprDProTabelaPreco.ValCusto := StrToFloat(DeletaChars(GPreco.Cells[7,GPreco.ALinha],'.'));
+  VprDProTabelaPreco.QtdMinima := StrToFloat(DeletaChars(GPreco.Cells[16,GPreco.ALinha],'.'));
+  VprDProTabelaPreco.QtdIdeal := StrToFloat(DeletaChars(GPreco.Cells[17,GPreco.ALinha],'.'));
 end;
 
 {******************************************************************************}
@@ -2976,6 +3009,19 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.GPrecoAntesExclusao(Sender: TObject; var VpaPermiteExcluir: Boolean);
+begin
+  if VprOperacao = ocEdicao then
+  begin
+    if VprDProTabelaPreco.QtdEstoque <> 0 then
+    begin
+      VpaPermiteExcluir := false;
+      aviso('NÃO É PERMITIDO EXCLUIR O ITEM DO ESTOQUE!!!'#13'Esse item possui "'+FormatFloat('#,###,##0.00',VprDProTabelaPreco.QtdEstoque)+'" itens em estoque, é necessário antes zerar o estoque para depois excluir.');
+    end;
+  end;
+end;
+
+{******************************************************************************}
 procedure TFNovoProdutoPro.GPrecoCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
 begin
   VprDProTabelaPreco := TRBDProdutoTabelaPreco(VprDProduto.TabelaPreco.Items[VpaLinha-1]);
@@ -2987,21 +3033,30 @@ begin
   GPreco.Cells[3,VpaLinha] := FormatFloat(varia.MascaraValorUnitario,VprDProTabelaPreco.ValVenda);
   GPreco.Cells[4,VpaLinha] := FormatFloat(varia.MascaraValorUnitario,VprDProTabelaPreco.ValReVenda);
   GPreco.Cells[5,VpaLinha] := FormatFloat('0.00%',VprDProTabelaPreco.PerMaximoDesconto);
-  if VprDProTabelaPreco.CodTamanho <> 0 then
-    GPreco.Cells[6,VpaLinha] := IntToStr(VprDProTabelaPreco.CodTamanho)
-  else
-    GPreco.Cells[6,VpaLinha] := '';
-  GPreco.Cells[7,VpaLinha] := VprDProTabelaPreco.NomTamanho;
-  if VprDProTabelaPreco.CodCliente <> 0 then
-    GPreco.Cells[8,VpaLinha] := IntToStr(VprDProTabelaPreco.CodCliente)
+  GPreco.Cells[6,VpaLinha] := FormatFloat(varia.MascaraValorUnitario,VprDProTabelaPreco.ValCompra);
+  GPreco.Cells[7,VpaLinha] := FormatFloat(varia.MascaraValorUnitario,VprDProTabelaPreco.ValCusto);
+  if VprDProTabelaPreco.CodCor <> 0 then
+    GPreco.Cells[8,VpaLinha] := IntToStr(VprDProTabelaPreco.CodCor)
   else
     GPreco.Cells[8,VpaLinha] := '';
-  GPreco.Cells[9,VpaLinha] := VprDProTabelaPreco.NomCliente;
-  if VprDProTabelaPreco.CodMoeda <> 0 then
-    GPreco.Cells[10,VpaLinha] := IntToStr(VprDProTabelaPreco.CodMoeda)
+  GPreco.Cells[9,VpaLinha] := VprDProTabelaPreco.NomCor;
+  if VprDProTabelaPreco.CodTamanho <> 0 then
+    GPreco.Cells[10,VpaLinha] := IntToStr(VprDProTabelaPreco.CodTamanho)
   else
     GPreco.Cells[10,VpaLinha] := '';
-  GPreco.Cells[11,VpaLinha] := VprDProTabelaPreco.NomMoeda;
+  GPreco.Cells[11,VpaLinha] := VprDProTabelaPreco.NomTamanho;
+  if VprDProTabelaPreco.CodCliente <> 0 then
+    GPreco.Cells[12,VpaLinha] := IntToStr(VprDProTabelaPreco.CodCliente)
+  else
+    GPreco.Cells[12,VpaLinha] := '';
+  GPreco.Cells[13,VpaLinha] := VprDProTabelaPreco.NomCliente;
+  if VprDProTabelaPreco.CodMoeda <> 0 then
+    GPreco.Cells[14,VpaLinha] := IntToStr(VprDProTabelaPreco.CodMoeda)
+  else
+    GPreco.Cells[14,VpaLinha] := '';
+  GPreco.Cells[15,VpaLinha] := VprDProTabelaPreco.NomMoeda;
+  GPreco.Cells[16,VpaLinha] := FormatFloat(varia.MascaraQtd,VprDProTabelaPreco.QtdMinima);
+  GPreco.Cells[17,VpaLinha] := FormatFloat(varia.MascaraQtd,VprDProTabelaPreco.QtdIdeal);
 end;
 
 {******************************************************************************}
@@ -3016,33 +3071,40 @@ begin
     GPreco.Col:= 1;
   end
   else
-    if not ETamanho.AExisteCodigo(GPreco.Cells[6,GPreco.ALinha]) then
+    if not ECorPreco.AExisteCodigo(GPreco.Cells[8,GPreco.ALinha]) then
     begin
-      aviso('TAMANHO NÃO CADASTRADO!!!'#13'O tamanho digitado não existe cadastrado');
+      aviso('COR NÃO CADASTRADA!!!'#13'A cor digitada não existe cadastrada');
       VpaValidos:= False;
-      GPreco.Col:= 6;
+      GPreco.Col:= 8;
     end
     else
-      if not ECliPreco.AExisteCodigo(GPreco.Cells[8,GPreco.ALinha]) then
+      if not ETamanho.AExisteCodigo(GPreco.Cells[10,GPreco.ALinha]) then
       begin
-        aviso('CLIENTE NÃO CADASTRADO!!!'#13'O cliente digitado não existe cadastrado');
+        aviso('TAMANHO NÃO CADASTRADO!!!'#13'O tamanho digitado não existe cadastrado');
         VpaValidos:= False;
-        GPreco.Col:= 8;
+        GPreco.Col:= 10;
       end
       else
-        if not EMoeda.AExisteCodigo(GPreco.Cells[10,GPreco.ALinha]) then
+        if not ECliPreco.AExisteCodigo(GPreco.Cells[12,GPreco.ALinha]) then
         begin
-          aviso('MOEDA NÃO CADASTRADA!!!'#13'A moeda digitada não existe cadastrada');
+          aviso('CLIENTE NÃO CADASTRADO!!!'#13'O cliente digitado não existe cadastrado');
           VpaValidos:= False;
-          GPreco.Col:= 10;
-        end;
+          GPreco.Col:= 12;
+        end
+        else
+          if not EMoeda.AExisteCodigo(GPreco.Cells[14,GPreco.ALinha]) then
+          begin
+            aviso('MOEDA NÃO CADASTRADA!!!'#13'A moeda digitada não existe cadastrada');
+            VpaValidos:= False;
+            GPreco.Col:= 14;
+          end;
 
   if VpaValidos then
   begin
     CarDTabelaPreco;
     if FunProdutos.ExisteTabelaPrecoDuplicado(VprDProduto) then
     begin
-      aviso('TABELA DE PREÇO DUPLICADO!!!'#13'A tabela de preço digitado já existe digitado para esse tamanho');
+      aviso('TABELA DE PREÇO DUPLICADO!!!'#13'A tabela de preço digitado já existe digitado para essa cor e tamanho');
       VpaValidos:= False;
       GPreco.Col:= 1;
     end;
@@ -3054,7 +3116,7 @@ procedure TFNovoProdutoPro.GPrecoGetEditMask(Sender: TObject; ACol,
   ARow: Integer; var Value: string);
 begin
   case ACol of
-    1,6,8,10: Value:= '000000;0; ';
+    1,8,10,12,14: Value:= '000000;0; ';
   end;
 end;
 
@@ -3067,9 +3129,10 @@ begin
     begin                           // F3
       case GPreco.Col of
         1 : ETabelaPreco.AAbreLocalizacao;
-        6 : ETamanho.AAbreLocalizacao;
-        8 : ECliPreco.AAbreLocalizacao;
-        10: EMoeda.AAbreLocalizacao;
+        6 : ECorPreco.AAbreLocalizacao;
+        10 : ETamanho.AAbreLocalizacao;
+        12 : ECliPreco.AAbreLocalizacao;
+        14: EMoeda.AAbreLocalizacao;
       end;
     end;
   end;
@@ -3108,30 +3171,39 @@ begin
                Abort;
              end;
            end;
-        6: if not ETamanho.AExisteCodigo(GPreco.Cells[6,GPreco.ALinha]) then
+        8: if not ECorPreco.AExisteCodigo(GPreco.Cells[8,GPreco.ALinha]) then
            begin
-             if not ETamanho.AAbreLocalizacao then
-             begin
-               GPreco.Cells[6,GPreco.ALinha]:= '';
-               GPreco.Col:= 6;
-               Abort;
-             end;
-           end;
-        8: if not ECliPreco.AExisteCodigo(GPreco.Cells[8,GPreco.ALinha]) then
-           begin
-             if not ECliPreco.AAbreLocalizacao then
+             if not ECorPreco.AAbreLocalizacao then
              begin
                GPreco.Cells[8,GPreco.ALinha]:= '';
                GPreco.Col:= 8;
                Abort;
              end;
            end;
-       10: if not EMoeda.AExisteCodigo(GPreco.Cells[10,GPreco.ALinha]) then
+        10: if not ETamanho.AExisteCodigo(GPreco.Cells[10,GPreco.ALinha]) then
            begin
-             if not EMoeda.AAbreLocalizacao then
+             if not ETamanho.AAbreLocalizacao then
              begin
                GPreco.Cells[10,GPreco.ALinha]:= '';
                GPreco.Col:= 10;
+               Abort;
+             end;
+           end;
+        12: if not ECliPreco.AExisteCodigo(GPreco.Cells[12,GPreco.ALinha]) then
+           begin
+             if not ECliPreco.AAbreLocalizacao then
+             begin
+               GPreco.Cells[12,GPreco.ALinha]:= '';
+               GPreco.Col:= 12;
+               Abort;
+             end;
+           end;
+       14: if not EMoeda.AExisteCodigo(GPreco.Cells[14,GPreco.ALinha]) then
+           begin
+             if not EMoeda.AAbreLocalizacao then
+             begin
+               GPreco.Cells[14,GPreco.ALinha]:= '';
+               GPreco.Col:= 14;
                Abort;
              end;
            end;

@@ -147,7 +147,7 @@ end;
 procedure TFConsultaCondicaoPgto.EVendedorRetorno(
   VpaColunas: TRBColunasLocaliza);
 begin
-  if VpaColunas.items[2].AValorRetorno <> '' then
+  if (VpaColunas.items[2].AValorRetorno <> '') and (VprDNota.PerComissao = 0) then
     EPercComissaoVen.AValor := StrToFloat(VpaColunas.items[2].AValorRetorno);
 end;
 

@@ -608,7 +608,8 @@ type
       DatVencimentoParcial : TDateTime;
       IndPagamentoParcial,
       IndBaixaRetornoBancario,
-      IndDesconto : Boolean;
+      IndDesconto,
+      IndBaixaUtilizandoOCreditodoCliente : Boolean;
       Parcelas,
       Cheques,
       Caixas : TList;
@@ -1121,6 +1122,7 @@ begin
   Caixas := TList.Create;
   IndBaixaRetornoBancario := false;
   IndDesconto := false;
+  IndBaixaUtilizandoOCreditodoCliente := false;
 end;
 
 {******************************************************************************}

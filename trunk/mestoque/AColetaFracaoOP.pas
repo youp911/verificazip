@@ -514,7 +514,9 @@ procedure TFColetaFracaoOP.BExtratoProdutoClick(Sender: TObject);
 begin
   if ColetasCODFILIAL.AsInteger <> 0 then
   begin
-    FunCrystal.ImprimeRelatorio(Varia.PathRelatorios+ '\Ordem Produção\XX_Extrato Coleta Fracao Produto.rpt',[FormatDateTime('DD/MM/YYYY',EDatInicio.DateTime),FormatDateTime('DD/MM/YYYY',EDatFim.DateTime),ColetasI_SEQ_PRO.AsString,ColetasPRODUTO.AsString,ColetasSEQESTAGIO.AsString,ColetasDESESTAGIO.AsString]);
+    dtRave := TdtRave.create(self);
+    dtRave.ImprimeExtratoColetaFracaoOPProduto(ColetasI_SEQ_PRO.AsInteger, ColetasSEQESTAGIO.AsInteger, ColetasPRODUTO.AsString, ColetasDESESTAGIO.AsString, EDatInicio.Date,EDatFim.DateTime);
+    dtRave.free;
   end;
 end;
 

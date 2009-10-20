@@ -14,6 +14,9 @@ type
     Grade: TRBStringGridColor;
     BGravar: TBitBtn;
     BCancelar: TBitBtn;
+    BFechar: TBitBtn;
+    PanelColor1: TPanelColor;
+    Label1: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BCancelarClick(Sender: TObject);
@@ -26,6 +29,7 @@ type
     procedure GradeNovaLinha(Sender: TObject);
     procedure BGravarClick(Sender: TObject);
     procedure GradeKeyPress(Sender: TObject; var Key: Char);
+    procedure BFecharClick(Sender: TObject);
   private
     { Private declarations }
     VprCreditos : TList;
@@ -37,6 +41,7 @@ type
   public
     { Public declarations }
     function CreditoCliente(VpaCodCliente : Integer):boolean;
+    procedure ConsultaCreditoCliente(VpaCodCliente : Integer);
   end;
 
 var
@@ -83,6 +88,21 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFCreditoCliente.ConsultaCreditoCliente(VpaCodCliente: Integer);
+begin
+  VprCodCliente := vpaCodCliente;
+  AlterarVisibleDet([BGravar,BCancelar],false);
+  BFechar.Visible := true;
+  FunClientes.CarCreditoCliente(VpaCodCliente,VprCreditos,false,'C');
+  if VprCreditos.Count > 0 then
+  begin
+    Grade.ADados := VprCreditos;
+    Grade.CarregaGrade;
+    showmodal;
+  end;
+end;
+
+{******************************************************************************}
 procedure TFCreditoCliente.CarDClasse;
 begin
   VprDCreditoCliente.TipCredito := UpperCase(Grade.Cells[1,Grade.ALinha]);
@@ -101,7 +121,7 @@ end;
 function TFCreditoCliente.CreditoCliente(VpaCodCliente : Integer):boolean;
 begin
   VprCodCliente := vpaCodCliente;
-  FunClientes.CarCreditoCliente(VpaCodCliente,VprCreditos,false);
+  FunClientes.CarCreditoCliente(VpaCodCliente,VprCreditos,false,'');
   Grade.ADados := VprCreditos;
   Grade.CarregaGrade;
   showmodal;
@@ -197,6 +217,12 @@ begin
   VprDCreditoCliente := TRBDCreditoCliente.cria;
   VprCreditos.add(VprDCreditoCliente);
   VprDCreditoCliente.DatCredito := date;
+end;
+
+{******************************************************************************}
+procedure TFCreditoCliente.BFecharClick(Sender: TObject);
+begin
+  close;
 end;
 
 {******************************************************************************}

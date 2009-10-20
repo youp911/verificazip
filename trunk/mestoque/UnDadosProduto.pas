@@ -426,13 +426,20 @@ Type
       CodTabelaPreco,
       CodTamanho,
       CodCliente,
-      CodMoeda : Integer;
+      CodMoeda,
+      CodCor : Integer;
       NomTabelaPreco,
       NomMoeda,
       NomTamanho,
-      NomCliente : String;
+      NomCliente,
+      NomCor : String;
       ValVenda,
       ValRevenda,
+      ValCompra,
+      ValCusto,
+      QtdEstoque,
+      QtdMinima,
+      QtdIdeal,
       PerMaximoDesconto :Double;
       constructor cria;
       destructor destroy;override;
@@ -1518,7 +1525,8 @@ Type
       IndBrinde,
       IndCracha,
       IndMedicamentoControlado,
-      IndPermiteAlterarQtdnaSeparacao : Boolean;
+      IndPermiteAlterarQtdnaSeparacao,
+      IndImprimirEtiquetaSeparacao : Boolean;
       PerDesconto,
       PesLiquido,
       PesBruto,
@@ -1873,7 +1881,8 @@ Type
       CodBarras,
       NomCor,
       NomComposicao,
-      NumSerie : String;
+      NumSerie,
+      Cliente : String;
       IndParaEstoque : Boolean;
       constructor cria;
       destructor destroy;override;

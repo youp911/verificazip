@@ -10,7 +10,7 @@ unit UnCotacao;
 interface
 uses classes, DBTables, Db, SysUtils, ConvUnidade, UnDados, UnContasAReceber, UnProdutos, UnDadosCR, UnDadosProduto,
      Parcela, UnContasAPagar, UnSistema, UnImpressaoBoleto, Registry, IdMessage, IdSMTP, UnVendedor, windows,comctrls, variants,
-     IdAttachmentfile, idText, SQLExpr, tabela;
+     IdAttachmentfile, idText, SQLExpr, tabela, UnArgox;
 
 type TCalculosCotacao = class
   private
@@ -87,7 +87,7 @@ type TFuncoesCotacao = class(TLocalizaCotacao)
     function RSeqEmailDisponivel(VpaCodFilial, VpaLanOrcamento : Integer ): Integer;
     function RValComissao(VpaDCotacao : TRBDOrcamento;VpaTipComissao : Integer;VpaPerComissao, VpaPerComissaoPreposto : Double):Double;
     function RProdutoPendente(VpaProdutos : TList;VpaSeqProduto : Integer) : TRBDProdutoPendenteMetalVidros;
-    procedure CarDProdutoPendenteMetalVidros(VpaProdutos : TList);
+    procedure CarDProdutoPendenteMetalVidros(VpaProdutos : TList;VpaDatInicio, VpaDatFim : TDateTime);
     procedure OrdenaProdutosPendentes(VpaProdutos : TList);
     procedure SalvaArquivoProdutoPendente(VpaProduto : TList);
     procedure SubtraiQtdAlteradaCotacaoInicial(VpaDSaldoCotacao, VpaDCotacaoAlterada : TRBDOrcamento);
@@ -171,7 +171,7 @@ type TFuncoesCotacao = class(TLocalizaCotacao)
     procedure AlteraPreposto(VpaDCotacao : trbdorcamento);
     procedure AlteraTipoCotacao(VpaDCotacao : TRBDOrcamento;VpaCodTipoCotacao : Integer);
     procedure AlteraTransportadora(VpaDCotacao : TRBDOrcamento;VpaCodTransportadora : Integer);
-    function AlteraCotacaoParaPedido(VpaCodFilial, VpaLanOrcamento : Integer):String;
+    function AlteraCotacaoParaPedido(VpaDCotacao : TRBDOrcamento):String;
     function BaixaAlteracaoCotacao(VpaDCotacaoInicial, VpaDCotacao : TRBDOrcamento;VpaDCliente : TRBDCliente) : String;
     function BaixaNumero(VpaCodFilial,VpaLanOrcamento : Integer):boolean;
     function RValTotalOrcamentoNoMovEstoque(VpaCodFilial,VpaLanOrcamento : Integer) : Double;
@@ -189,8 +189,9 @@ type TFuncoesCotacao = class(TLocalizaCotacao)
     procedure CopiaDCotacaoProposta(VpaDProsposta: TRBDPropostaCorpo;  VpaDCotacao: TRBDOrcamento);
     procedure CopiaDProdutoCotacao(VpaDProCotacaoDe, VpaDProCotacaoPara : TRBDOrcProduto);overload;
     function DuplicaProduto(VpaDCotacao : TRBDOrcamento; VpaDProCotacao : TRBDOrcProduto): TRBDOrcProduto;
-    procedure ExportaProdutosPendentes;
+    procedure ExportaProdutosPendentes(VpaDatInicio, VpaDatFim : TDateTime);
     procedure AtualizaEntradaMetrosDiario(VpaDatInicio, VpaDatFim : TDatetime);
+    procedure ImprimeEtiquetaSeparacaoPedido(VpaDCotacao : TRBDOrcamento);
 end;
 
 var
@@ -198,7 +199,8 @@ var
 
 implementation
 
-uses FunSql, Constantes, FunString,FunObjeto, UnNotaFiscal, ConstMsg, unClientes, FunData;
+uses FunSql, Constantes, FunString,FunObjeto, UnNotaFiscal, ConstMsg, unClientes, FunData,
+     FunNumeros;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                           eventos da classe localiza
@@ -608,7 +610,7 @@ begin
                                   ' COT.C_ORD_COM, COT.I_COD_TAM, COT.D_DAT_GOP, '+
                                   'PRO.C_NOM_PRO, PRO.N_PES_LIQ, PRO.N_PES_BRU, PRO.C_IND_RET, PRO.C_IND_CRA,  '+
                                   ' PRO.C_COD_UNI UNIORIGINAL, PRO.C_COD_CLA, PRO.N_PER_COM, I_IND_COV, PRO.I_MES_GAR, '+
-                                  ' CLA.N_PER_COM PERCOMISSAOCLASSIFICACAO, CLA.C_ALT_QTD ,  '+
+                                  ' CLA.N_PER_COM PERCOMISSAOCLASSIFICACAO, CLA.C_ALT_QTD , CLA.C_IMP_ETI, '+
                                   ' (Pre.N_Vlr_Ven * Moe.N_Vlr_Dia) VlrReal, ' +
                                   ' (Pre.N_VLR_REV * Moe.N_Vlr_Dia) VlrRevenda, ' +
                                   ' TAM.NOMTAMANHO '+
@@ -657,6 +659,7 @@ begin
       IndFaturar := Orcamento.FieldByName('C_IND_FAT').AsString = 'S';
       IndCracha := Orcamento.FieldByName('C_IND_CRA').AsString = 'S';
       IndPermiteAlterarQtdnaSeparacao := Orcamento.FieldByName('C_ALT_QTD').AsString = 'S';
+      IndImprimirEtiquetaSeparacao := Orcamento.FieldByName('C_IMP_ETI').AsString = 'S';
       QtdEstoque := 0;
       QtdMinima := 0;
       QtdPedido := 0;
@@ -3778,9 +3781,8 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesCotacao.AlteraCotacaoParaPedido(VpaCodFilial, VpaLanOrcamento : Integer):string;
+function TFuncoesCotacao.AlteraCotacaoParaPedido(VpaDCotacao : TRBDOrcamento):string;
 var
-  VpfDCotacao : TRBDOrcamento;
   VpfDTipoCotacao : TRBDTipoCotacao;
 begin
   result := '';
@@ -3789,20 +3791,16 @@ begin
   if result = '' then
   begin
     VpfDTipoCotacao := TRBDTipoCotacao.cria;
-    VpfDCotacao := TRBDOrcamento.cria;
 
-    CarDOrcamento(VpfDCotacao,VpaCodFilial,VpaLanOrcamento);
-
-    VpfDCotacao.CodTipoOrcamento := varia.TipoCotacaoPedido;
+    VpaDCotacao.CodTipoOrcamento := varia.TipoCotacaoPedido;
     CarDtipoCotacao(VpfDTipoCotacao,varia.TipoCotacaoPedido);
-    VpfDCotacao.CodOperacaoEstoque := VpfDTipoCotacao.CodOperacaoEstoque;
-    VpfDCotacao.CodPlanoContas := VpfDTipoCotacao.CodPlanoContas;
-    VpfDCotacao.DatOrcamento := date;
-    VpfDCotacao.DatPrevista := date;
-    result := GravaDCotacao(VpfDCotacao,nil);
+    VpaDCotacao.CodOperacaoEstoque := VpfDTipoCotacao.CodOperacaoEstoque;
+    VpaDCotacao.CodPlanoContas := VpfDTipoCotacao.CodPlanoContas;
+    VpaDCotacao.DatOrcamento := date;
+    VpaDCotacao.DatPrevista := date;
+    result := GravaDCotacao(VpaDCotacao,nil);
 
     VpfDTipoCotacao.free;
-    VpfDCotacao.free;
   end;
 end;
 
@@ -4098,12 +4096,14 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFuncoesCotacao.CarDProdutoPendenteMetalVidros(VpaProdutos : TList);
+procedure TFuncoesCotacao.CarDProdutoPendenteMetalVidros(VpaProdutos : TList;VpaDatInicio, VpaDatFim : TDateTime);
 Var
   VpfDProdutoPendente : TRBDProdutoPendenteMetalVidros;
   VpfDPedidoPendente : TRBDOrcamentoProdutoPendenteMetalVidros;
 begin
-  AdicionaSQLAbreTabela(Orcamento,'Select PRO.I_SEQ_PRO, PRO.C_COD_PRO, PRO.C_NOM_PRO,  PRO.C_COD_UNI UNIORIGINAL, '+
+  Orcamento.close;
+  Orcamento.sql.clear;
+  AdicionaSQLTabela(Orcamento,'Select PRO.I_SEQ_PRO, PRO.C_COD_PRO, PRO.C_NOM_PRO,  PRO.C_COD_UNI UNIORIGINAL, '+
                                   ' CAD.I_EMP_FIL, CAD.I_LAN_ORC, CAD.D_DAT_PRE, '+
                                   ' mov.n_qtd_pro, mov.n_qtd_bai, mov.c_cod_uni '+
                              ' from cadorcamentos cad, movorcamentos mov, cadclientes cli, cadprodutos pro '+
@@ -4115,6 +4115,9 @@ begin
                              ' and (MOV.N_QTD_PRO - '+SqlTextoIsNull('MOV.N_QTD_BAI','0')+') > 0 '+
                              ' and CAD.I_TIP_ORC = '+ IntToStr(Varia.TipoCotacaoPedido)+
                              ' and CAD.C_IND_CAN = ''N''');
+  if config.ImprimirPedidoPendentesPorPeriodo then
+    AdicionaSQLTabela(Orcamento,SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_PRE',VpaDatInicio,VpaDatFim,true));
+  Orcamento.open;
   while not Orcamento.eof do
   begin
     VpfDProdutoPendente := RProdutoPendente(VpaProdutos,Orcamento.FieldByname('I_SEQ_PRO').AsInteger);
@@ -4470,12 +4473,12 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFuncoesCotacao.ExportaProdutosPendentes;
+procedure TFuncoesCotacao.ExportaProdutosPendentes(VpaDatInicio, VpaDatFim : TDateTime);
 var
   VpfProdutos : TList;
 begin
   VpfProdutos := TList.Create;
-  CarDProdutoPendenteMetalVidros(VpfProdutos);
+  CarDProdutoPendenteMetalVidros(VpfProdutos,VpaDatINicio,VpaDatFim);
   OrdenaProdutosPendentes(VpfProdutos);
   SalvaArquivoProdutoPendente(VpfProdutos);
   FreeTObjectsList(VpfProdutos);
@@ -4550,6 +4553,51 @@ begin
   CotCadastro.close;
 end;
 
+{******************************************************************************}
+procedure TFuncoesCotacao.ImprimeEtiquetaSeparacaoPedido(VpaDCotacao : TRBDOrcamento);
+var
+  VpfEtiquetas : TList;
+  VpfLaco : Integer;
+  VpfDProCotacao : TRBDOrcProduto;
+  VpfDEtiqueta : TRBDEtiquetaProduto;
+  VpfDProduto : TRBDProduto;
+  VpfFunArgox : TRBFuncoesArgox;
+begin
+  if varia.PortaComunicacaoImpTermica <> '' then
+  begin
+    VpfEtiquetas := TList.create;
+    for VpfLaco := 0 to VpaDCotacao.Produtos.Count - 1 do
+    begin
+      VpfDProCotacao := TRBDOrcProduto(VpaDCotacao.Produtos.Items[VpfLaco]);
+      if VpfDProCotacao.IndImprimirEtiquetaSeparacao then
+      begin
+        if VpfDProCotacao.QtdBaixado < VpfDProCotacao.QtdProduto then
+        begin
+          VpfDProduto := TRBDProduto.Cria;
+          FunProdutos.CarDProduto(VpfDProduto,Varia.CodigoEmpresa,VpaDCotacao.CodEmpFil,VpfDProCotacao.SeqProduto);
+          VpfDEtiqueta := TRBDEtiquetaProduto.cria;
+          VpfEtiquetas.Add(VpfDEtiqueta);
+          VpfDEtiqueta.Produto := VpfDProduto;
+          VpfDEtiqueta.CodCor := VpfDProCotacao.CodCor;
+          VpfDEtiqueta.QtdOriginalEtiquetas := RetornaInteiro(VpfDProCotacao.QtdProduto - VpfDProCotacao.QtdBaixado);
+          VpfDEtiqueta.QtdEtiquetas := RetornaInteiro(VpfDProCotacao.QtdProduto - VpfDProCotacao.QtdBaixado);
+          VpfDEtiqueta.NomCor := VpfDProCotacao.DesCor;
+          VpfDEtiqueta.NumPedido := VpaDCotacao.LanOrcamento;
+          VpfDEtiqueta.Cliente := IntToStr(VpaDCotacao.CodCliente)+ ' - '+ FunClientes.RNomCliente(IntTosTr(VpaDCotacao.CodCliente));
+        end;
+      end;
+    end;
+    if VpfEtiquetas.Count > 0  then
+    begin
+      VpfFunArgox := TRBFuncoesArgox.cria(varia.PortaComunicacaoImpTermica);
+      VpfFunArgox.ImprimeEtiquetaProduto100X38(VpfEtiquetas);
+      VpfFunArgox.free;
+    end;
+
+    FreeTObjectsList(VpfEtiquetas);
+    VpfEtiquetas.free;
+  end;
+end;
 end.
 
 

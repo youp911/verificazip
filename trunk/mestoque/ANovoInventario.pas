@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   StdCtrls, Buttons, Componentes1, ExtCtrls, PainelGradiente, Grids,
   CGrades, UnDadosProduto, ConvUnidade, UnInventario, Localizacao, Db,
-  Constantes, DBTables, UnDadosLocaliza,sqlexpr;
+  Constantes, DBTables, UnDadosLocaliza,sqlexpr, DBClient, Tabela;
 
 type
   TFNovoInventario = class(TFormularioPermissao)
@@ -17,7 +17,7 @@ type
     BCancelar: TBitBtn;
     Grade: TRBStringGridColor;
     ValidaUnidade: TValidaUnidade;
-    Aux: TQuery;
+    Aux: TSQL;
     Localiza: TConsultaPadrao;
     ECor: TEditLocaliza;
     ETamanho: TRBEditLocaliza;
@@ -45,7 +45,8 @@ type
     { Private declarations }
     VprDInventario : TRBDInventarioCorpo;
     VprDItemInventario : TRBDInventarioItem;
-    VprProdutoAnterior : String;
+    VprProdutoAnterior,
+    VprCorAnterior : String;
     VprOperacao : TRBDOperacaoCadastro;
     VprAcao : Boolean;
     FunInventario : TRBFuncoesInventario;
@@ -83,7 +84,7 @@ begin
   ValidaUnidade.AInfo.UnidadeUN := varia.UnidadeUN;
   ValidaUnidade.AInfo.UnidadeKit := varia.UnidadeKit;
   ValidaUnidade.AInfo.UnidadeBarra := varia.UnidadeBarra;
-  FunInventario := TRBFuncoesInventario.cria;
+  FunInventario := TRBFuncoesInventario.cria(FPrincipal.BaseDados);
 end;
 
 { ******************* Quando o formulario e fechado ************************** }
@@ -191,7 +192,10 @@ begin
     result := not Aux.eof;
     if result then
     begin
+      VprDItemInventario.CodCor := VpaCodCor;
+      VprDItemInventario.NomCor := Aux.FieldByName('NOM_COR').AsString;
       Grade.Cells[4,Grade.ALinha] := Aux.FieldByName('NOM_COR').AsString;
+      VprCorAnterior := IntToStr(VpacodCor);
     end;
     Aux.close;
   end;
@@ -369,7 +373,22 @@ begin
   VprDItemInventario := VprDInventario.AddInventarioItem;
   VprDItemInventario.CodUsuario := Varia.CodigoUsuario;
   VprDItemInventario.NomUsuario := varia.NomeUsuario;
+  if (config.EstoquePorCor) and (VprProdutoAnterior <> '') then
+  begin
+    Grade.Cells[1,Grade.ALinha] := VprProdutoAnterior;
+    VprProdutoAnterior := '';
+    ExisteProduto;
+    Grade.Col := 3;
+  end;
+  if config.EstoquePorTamanho and (VprCorAnterior <> '') then
+  begin
+    Grade.Cells[3,Grade.ALinha] := VprCorAnterior;
+    VprCorAnterior := '';
+    ExisteCor(StrToInt(Grade.Cells[3,Grade.ALinha]));
+    Grade.Col := 5;
+  end;
   VprProdutoAnterior := '';
+  VprCorAnterior := '';
 end;
 
 {******************************************************************************}
@@ -500,11 +519,13 @@ begin
     Grade.Cells[3,Grade.ALinha] := ECor.Text;
     Grade.Cells[4,Grade.ALinha] := Retorno1;
     Grade.AEstadoGrade := egEdicao;
+    VprCorAnterior := ECor.Text;
   end
   else
   begin
     Grade.Cells[3,Grade.ALinha] := '';
     Grade.Cells[4,Grade.ALinha] := '';
+    VprCorAnterior := '';
     Grade.AEstadoGrade := egEdicao;
   end;
 end;

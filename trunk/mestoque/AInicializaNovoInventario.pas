@@ -67,7 +67,7 @@ begin
   { chamar a rotina de atualização de menus }
   VprAcao := false;
   FunClassificacao := TFuncoesClassificacao.criar(self,FPrincipal.BaseDados);
-  FunInventario := TRBFuncoesInventario.cria;
+  FunInventario := TRBFuncoesInventario.cria(fpRINCIPAL.bASEdaDOS);
   VprDInventario := TRBDInventarioCorpo.cria;
 end;
 

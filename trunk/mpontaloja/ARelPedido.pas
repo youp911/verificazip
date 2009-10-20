@@ -169,6 +169,8 @@ type
     SpeedButton25: TSpeedButton;
     LProjeto: TLabel;
     EProjeto: TRBEditLocaliza;
+    PCheckBox1: TPanelColor;
+    CheckBox1: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
     procedure BFecharClick(Sender: TObject);
@@ -192,13 +194,6 @@ type
     FunRave : TRBFunRave;
     procedure SetarVisibleFalsePanels;
     procedure RedimensionarFormulario;
-//d5    function CriaPanel(VpaParametro: TCrpeParamFields;VpaCriarLabel : Boolean): TPanelColor;
-    function CriaLabel(VpaDono : TComponent; VpaPrompt: string): TLabel;
-    function CriaNumerico(VpaParametro: string): TNumerico;
-    function CriaCheckBox(VpaParametro : String) : TCheckBox;
-//d5    procedure CriaPanelNumerico(VpaParametro: TCrpeParamFields);
-//d5    procedure CriaPanelBooleano(VpaParametro: TCrpeParamFields);
-    function RetornaVlrFiltroGenerico(VpaParametro: string): string;
     procedure RotinasRelatoriosEspeciais;
     procedure LeParametros;
     function LocalizaClassificacao : boolean;
@@ -279,162 +274,6 @@ begin
 
   if Self.Height > 525 then
     Self.Height := 525;
-end;
-
-{d5 ******************************************************************************
-procedure TFRelPedido.ExibePanel(VpaParametro: TCrpeParamFields);
-begin
-                                PEmpresa.Visible := true;
-                                ECodEmpresa.AInteiro := varia.CodigoEmpresa;
-                                ECodEmpresa.Atualiza;
-                                begin
-                                  PTabelaPreco.Visible := true;
-                                  ECodTabelaPreco.AInteiro := varia.TabelaPreco;
-                                  ECodTabelaPreco.Atualiza;
-                                end
-                                else
-end;
-
-{d5 ******************************************************************************
-function TFRelPedido.CriaPanel(VpaParametro: TCrpeParamFields;VpaCriarLabel : Boolean): TPanelColor;
-Var
-  VpfLabel : TLabel;
-begin
-//  inc(VprTotGenerico);
-  Result        := TPanelColor.Create(Application);
-  Result.Name   := 'XXP'+VpaParametro.Name;
-  Result.Caption:= '';
-  Result.Height := 29;
-  Result.Align  := alTop;
-  Result.BevelOuter  := bvNone;
-  Result.ACorForm    := PFilial.ACorForm;
-  Result.ParentFont := false;
-  result.Font := PFilial.Font;
-  if VpaCriarLabel then
-  begin
-    VpfLabel := CriaLabel(Result, VpaParametro.Prompt);
-    result.InsertControl(VpfLabel);
-  end;
-end;
-
-{******************************************************************************}
-function TFRelPedido.CriaLabel(VpaDono : TComponent; VpaPrompt: string): TLabel;
-begin
-  Result       := TLabel.Create(VpaDono);
-  Result.AutoSize := false;
-  if screen.Height = 768 then
-    Result.Left  := 8
-  else
-    Result.Left  := 8;
-  Result.Top   := 5;
-  Result.Width := 150;
-  Result.Height:= 16;
-  Result.Alignment:= taRightJustify;
-  Result.Caption  := VpaPrompt ;
-end;
-
-{******************************************************************************}
-function TFRelPedido.CriaNumerico(VpaParametro: string): TNumerico;
-begin
-  Result     := Tnumerico.Create(Application);
-  result.ACorFoco := FPrincipal.CorFoco;
-  Result.Name:= VpaParametro;
-  if screen.Height = 768 then
-    Result.Left  := 164
-  else
-    Result.Left  := 129;
-  Result.Top   := 2;
-  Result.Width := 87;
-  Result.Height:= 24;
-  Result.ADecimal:= 3;
-  Result.AMascara:= '0';
-  Result.ParentFont := false;
-  Result.font := EFilial.Font;
-  result.ACorFoco := EFilial.ACorFoco;
-end;
-
-{******************************************************************************}
-function TFRelPedido.CriaCheckBox(VpaParametro : String) : TCheckBox;
-begin
-  Result     := TCheckBox.Create(Application);
-  Result.Name:= VpaParametro;
-  Result.Left  := 164;
-  Result.Top   := 2;
-  Result.ParentFont := false;
-  Result.font := EFilial.Font;
-  result.Width := 300;
-end;
-
-{d5 ******************************************************************************
-procedure TFRelPedido.CriaPanelNumerico(VpaParametro: TCrpeParamFields);
-var
-  VpfPanel : TPanelColor;
-  VpfNumerico : Tnumerico;
-begin
-  VpfPanel := CriaPanel(VpaParametro,true);
-  VpfPanel.ACorForm := FPrincipal.CorForm;
-  VpfNumerico := CriaNumerico(VpaParametro.Name);
-  VpfPanel.InsertControl(VpfNumerico);
-
-
-  ScrollBox1.InsertControl(VpfPanel);
-end;
-
-{d5 ******************************************************************************
-procedure TFRelPedido.CriaPanelBooleano(VpaParametro: TCrpeParamFields);
-var
-  VpfPanel : TPanelColor;
-  VpfCheckBox : TCheckBox;
-begin
-  VpfPanel := CriaPanel(VpaParametro,False);
-  VpfCheckBox := CriaCheckBox(VpaParametro.Name);
-  VpfCheckBox.Caption := VpaParametro.Prompt;
-  VpfPanel.InsertControl(VpfCheckBox);
-
-
-  ScrollBox1.InsertControl(VpfPanel);
-end;
-
-{******************************************************************************}
-function TFRelPedido.RetornaVlrFiltroGenerico(VpaParametro: string): string;
-var
-  VpfLaco, VpfLaco2: integer;
-  Vpfachou: boolean;
-  VpfPanelAtual: TPanelColor;
-  VpfComponenteAtual: TComponent;
-begin
-  Vpfachou := false;
-  Vpflaco := 0;
-  while (Vpflaco < ScrollBox1.ControlCount) and (not Vpfachou) do
-  begin
-    if ScrollBox1.Controls[Vpflaco] is TPanelColor then
-    begin
-      Vpflaco2 := 0;
-      VpfPanelAtual := TPanelColor(ScrollBox1.Controls[Vpflaco]);
-      while Vpflaco2 < VpfPanelAtual.ControlCount do
-      begin
-        VpfComponenteAtual := TComponent(VpfPanelAtual.Controls[VpfLaco2]);
-        if VpfComponenteAtual.Name = VpaParametro then
-        begin
-          Vpfachou := true;
-          if VpfComponenteAtual is TCalendario then
-            Result := DateToStr(TCalendario(VpfComponenteAtual).DateTime)
-          else
-            if VpfComponenteAtual is TCheckBox then
-            begin
-              if TCheckBox(VpfComponenteAtual).Checked then
-                result := 'true'
-              else
-                result := 'false';
-            end
-            else
-              Result := TCustomEdit(VpfComponenteAtual).Text;
-        end;
-        inc(Vpflaco2);
-      end;
-    end;
-    inc(Vpflaco);
-  end;
 end;
 
 {******************************************************************************}
@@ -537,9 +376,10 @@ begin
             if (VPANOMRELATORIO = 'ESTOQUE PRODUTOS')or
                (VPANOMRELATORIO = 'ESTOQUE PRODUTOS RESERVADOS') then
             begin
-              AlterarVisibleDet([PClassificacaoProduto,PFilial,PFundoPerdido],true);
+              AlterarVisibleDet([PClassificacaoProduto,PFilial,PFundoPerdido,PCheckBox1],true);
               CFundoPerdido.Caption := 'Somente Produtos Monitorados';
               CFundoPerdido.Checked := false;
+              Checkbox1.Caption := 'Somente Produtos que Possuem Qtd em Estoque';
             end
             else
               if (VPANOMRELATORIO = 'VENDA ANALITICO') then
@@ -643,7 +483,7 @@ begin
                                            LCliente.caption,LTecnico.Caption,LNomTipoContrato.Caption)
           else
             if (VPRNOMRELATORIO = 'ESTOQUE PRODUTOS') then
-              FunRave.ImprimeEstoqueProdutos(EFilial.AInteiro,VprCaminhoRelatorio,ECodClassifcacao.Text,'TOTAL',LFilial.caption,LNomClassificacao.Caption,CFundoPerdido.Checked)
+              FunRave.ImprimeEstoqueProdutos(EFilial.AInteiro,VprCaminhoRelatorio,ECodClassifcacao.Text,'TOTAL',LFilial.caption,LNomClassificacao.Caption,CFundoPerdido.Checked,CheckBox1.Checked)
             else
               if (VPRNOMRELATORIO = 'VENDA ANALITICO') then
                 dtRave.ImprimeVendasAnalitico(EFilial.AInteiro,ECliente.Ainteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,EVendedor.AInteiro,EPreposto.AInteiro,

@@ -570,15 +570,10 @@ begin
     Cadastro.FieldByname('VALLANCAMENTO').AsFloat := VpfDItemCaixa.ValLancamento;
     Cadastro.FieldByname('DATLANCAMENTO').AsDateTime := VpfDItemCaixa.DatLancamento;
     Cadastro.FieldByname('DATPAGAMENTO').AsDateTime := VpfDItemCaixa.DatPagamento;
-    try
-      Cadastro.post;
-    except
-      on e : exception do
-      begin
-        result := 'ERRO NA GRAVA플O DO CAIXAITEM!!!'#13+e.message;
-        break;
-      end;
-    end;
+    Cadastro.post;
+    result := Cadastro.AMensagemErroGravacao;
+    if Cadastro.AErronaGravacao then
+      break;
   end;
   Cadastro.close;
 end;
@@ -603,13 +598,10 @@ begin
     cadastro.FieldByname('VALINICIAL').AsFloat := VpfDFormaPagamento.ValInicial;
     cadastro.FieldByname('VALATUAL').AsFloat := VpfDFormaPagamento.ValAtual;
     cadastro.FieldByname('VALFINAL').AsFloat := VpfDFormaPagamento.ValFinal;
-    try
-      Cadastro.post;
-    except
-      on e : exception do result := 'ERRO NA GRAVA플O DA TABELA CAIXAFORMAPAGAMENTO!!!'+#13+e.message;
-    end;
-    if result <> '' then
-    break;
+    Cadastro.post;
+    result := Cadastro.AMensagemErroGravacao;
+    if Cadastro.AErronaGravacao then
+      break;
   end;
   Cadastro.close;
 end;
@@ -638,11 +630,8 @@ begin
                                  ' Where C_NRO_CON = '''+VpdCaixa.NumConta+'''');
   Cadastro.edit;
   Cadastro.FieldByname('N_SAL_ATU').AsFloat := VpdCaixa.ValAtual;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA ATUALIZA플O DO SALDO DA CONTA CAIXA!!!'#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
 end;
 
@@ -686,11 +675,8 @@ begin
     Cadastro.FieldByname('I_ULT_CAI').AsInteger := Cadastro.FieldByname('I_SEQ_CAI').AsInteger;
     Cadastro.FieldByname('I_SEQ_CAI').clear;
   end;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVA플O DO SEQUENCIAL DO CAIXA NO CADCONTAS!!!'#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
 end;
 
@@ -799,11 +785,8 @@ begin
   if VpaDCaixa.SeqCaixa = 0 then
     VpaDCaixa.SeqCaixa := RSeqCaixaDisponivel;
   Cadastro.FieldByname('SEQCAIXA').AsInteger := VpaDCaixa.SeqCaixa;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVA플O DO CAIXACORPO!!!'+#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
 
   if result = '' then
@@ -828,11 +811,8 @@ begin
   Cadastro.FieldByname('CODUSUARIOFECHAMENTO').AsInteger := VpaDCaixa.CodUsuarioFechamento;
   if VpaDCaixa.ValFinal <> 0 then
     Cadastro.FieldByname('VALFINAL').AsFloat := VpaDCaixa.ValFinal;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVA플O DO CAIXACORPO!!!'+#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
   if result = '' then
     result := AtualizaSeqCaixaContaCaixa(VpaDCaixa.NumConta,0);

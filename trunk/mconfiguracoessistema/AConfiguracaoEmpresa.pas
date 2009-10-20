@@ -182,6 +182,8 @@ type
     Label28: TLabel;
     DBCheckBox7: TDBCheckBox;
     CadEmpresasC_IND_ROT: TWideStringField;
+    DBCheckBox8: TDBCheckBox;
+    CadEmpresasC_COT_ICS: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BPlanoClick(Sender: TObject);

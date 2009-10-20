@@ -247,9 +247,9 @@ type
     Shape16: TShape;
     EValTroca: Tnumerico;
     Label60: TLabel;
-    Shape17: TShape;
-    Panel5: TPanel;
+    PImagem: TPanel;
     Foto: TImage;
+    Shape17: TShape;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EClienteRetorno(Retorno1, Retorno2: String);
@@ -456,7 +456,7 @@ uses APrincipal, Funsql, Constantes, FunObjeto, ALocalizaProdutos,  Fundata, UnC
   ATipoCotacao, AEmbalagem, AProdutoReferencia, AProdutosDevolvidos,
   AMostraObservacaoCliente, ANovaNotaFiscaisFor, ANovoTecnico, UnSistema,
   ANovoECF, ABrindesCliente, AMedico, ATamanhos, ANovaNotaFiscalNota, dmRave,
-  ACondicaoPagamento;
+  ACondicaoPagamento, ACreditoCliente;
 
 {$R *.DFM}
 
@@ -504,6 +504,7 @@ begin
   PDadosGrafica.Visible  := config.Grafica;
   PTecnico.Visible := Config.TecniconaCotacao;
   PObservacaoFiscal.Visible := config.ObservacaoFiscalNaCotacao;
+  PImagem.Visible := config.MostrarImagemProdutoNaTeladaCotacao;
   EDatPrevista.EditMask := FPrincipal.CorFoco.AMascaraData;
   if (varia.CNPJFilial = CNPJ_Reloponto) or
      (varia.CNPJFilial = CNPJ_RLP) then
@@ -1004,6 +1005,9 @@ begin
             FProdutosDevolvidos.free;
           end;
         end;
+        FCreditoCliente := TFCreditoCliente.CriarSDI(application , '', FPrincipal.VerificaPermisao('FCreditoCliente'));
+        FCreditoCliente.ConsultaCreditoCliente(VprDCliente.CodCliente);
+        FCreditoCliente.free;
       end;
     end
     else
@@ -1817,7 +1821,7 @@ begin
     end;
     if result = '' then
     begin
-      if StrToDate(EDatPrevista.text) < DecDia(Date,7) then
+      if StrToDate(EDatPrevista.text) < DecDia(VprDCotacao.DatOrcamento,7) then
         result := 'DATA PREVISÃO ENTREGA INVÁLIDA!!!'#13'A data de entrega prevista não pode ser menor que 1 semana atrás.';
     end;
     try

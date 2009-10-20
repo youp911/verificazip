@@ -180,7 +180,7 @@ type
       destructor destroy;override;
       procedure EnviaParametrosFilial(VpaProjeto : TrvProject;VpaDFilial : TRBDFilial);
       procedure ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String;VpaAgruparPorEstado : Boolean);
-      procedure ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
+      procedure ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados,VpaSomenteComQtd : Boolean);
       procedure ImprimeAnaliseFaturamentoMensal(VpaCodFilial,VpaCodCliente,VpaCodVendedor : Integer;VpaCaminho, VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaDatInicio, VpaDatFim : TDateTime);
       procedure ImprimeQtdMinimasEstoque(VpaCodFilial, VpaCodFornecedor : Integer;VpaCaminho,VpaCodClassificacao,VpaNomFilial, VpaNomClassificacao, VpaNomFornecedor : String);
       procedure ImprimeEstoqueFiscalProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
@@ -2387,7 +2387,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
+procedure TRBFunRave.ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados,VpaSomenteComQtd : Boolean);
 begin
   RvSystem.Tag := 2;
   FreeTObjectsList(VprNiveis);
@@ -2414,6 +2414,8 @@ begin
 
   if VpaIndProdutosMonitorados  then
     AdicionaSQLTabela(Tabela,'and PRO.C_IND_MON = ''S''');
+  if VpaSomenteComQtd then
+    AdicionaSQLTabela(Tabela,' and MOV.N_QTD_PRO <> 0 ');
 
   AdicionaSqlTabela(Tabela,' ORDER BY CLA.C_COD_CLA, PRO.C_NOM_PRO, COR.NOM_COR, TAM.NOMTAMANHO ');
   Tabela.open;
@@ -2716,7 +2718,7 @@ begin
                              ' TRA.DATPRODUTIVIDADE, TRA.PERPRODUTIVIDADE '+
                              ' from CELULATRABALHO CEL, PRODUTIVIDADECELULATRABALHO TRA '+
                              ' Where CEL.CODCELULA = TRA.CODCELULA'+
-                             ' and '+SQLTextoMes('TRA.DATPRODUTIVIDADE')+' = '+IntTostr(Mes(VpaData)));
+                              SQLTextoDataEntreAAAAMMDD('TRA.DATPRODUTIVIDADE',PrimeiroDiaMes(VpaData),UltimoDiaMes(VpaData),true));
 
   AdicionaSqlTabela(Tabela,'ORDER BY CEL.NOMCELULA, TRA.DATPRODUTIVIDADE');
   Tabela.open;

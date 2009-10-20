@@ -583,6 +583,7 @@ type
     SugerirPrecoAtacado : Boolean;
     ControlarTrocasnaCotacao : Boolean;
     ImprimirPedidoPendentesPorPeriodo : Boolean;
+    MostrarImagemProdutoNaTeladaCotacao : Boolean;
 
     //-----------------------Caixa
     VariosCaixasDia : Boolean;  // true permite abrir vários caixas no mesmo dia (um de cada vez).
@@ -1110,6 +1111,7 @@ begin
       AlterarCotacaoComOPGerada := TipoCheck(VpfTabela.fieldByName('C_ALT_COG').AsString);
       TransportadoraObrigatorianaCotacao := TipoCheck(VpfTabela.fieldByName('C_TRA_OBR').AsString);
       GerarNotaPelaQuantidadeProdutos := TipoCheck(VpfTabela.fieldByName('C_NOT_QPR').AsString);
+      MostrarImagemProdutoNaTeladaCotacao := TipoCheck(VpfTabela.fieldByName('C_COT_ICS').AsString);
     end;
   end;
 

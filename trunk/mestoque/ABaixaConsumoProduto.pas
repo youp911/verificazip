@@ -519,6 +519,8 @@ end;
 {******************************************************************************}
 procedure TFBaixaConsumoProduto.CarDConsumo;
 begin
+  VprSeqOrdem := EOrdemProducao.AInteiro;
+  VprSeqFracao := EFracao.AInteiro;
   FunProdutos.CarDBaixaConsumoProduto(VprCodFilial, EOrdemProducao.AInteiro, EFracao.AInteiro,false, VprBaixas);
   FunProdutos.CarDBaixaConsumoProduto(VprCodFilial,EOrdemProducao.AInteiro,EFracao.ainteiro,true,VprBaixaOrdemCorte);
   Grade.CarregaGrade;

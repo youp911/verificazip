@@ -1,10 +1,11 @@
 Unit UnInventario;
 {Verificado
 -.edit;
+-.post;
 }
 Interface
 
-Uses Classes, DBTables, UnProdutos, SysUtils, UnDadosProduto;
+Uses Classes, Tabela, SQlExpr, UnProdutos, SysUtils, UnDadosProduto;
 
 //classe localiza
 Type TRBLocalizaInventario = class
@@ -16,16 +17,16 @@ end;
 Type TRBFuncoesInventario = class(TRBLocalizaInventario)
   private
     Inventario,
-    InvAux,
+    InvAux : TSQLQuery;
     InvAza,
-    InvCadastro : TQuery;
+    InvCadastro : TSQL;
     function RSeqInventarioDisponivel : Integer;
     function RSeqItemInventarioDisponivel(VpaCodFilial, VpaSeqInventario : String) : Integer;
     procedure CarDItemInventario(VpaDInventario : TRBDInventarioCorpo);
     procedure AtualizaDataFechamento(VpaCodFilial, VpaSeqInventario : String);
     procedure ZeraProdutoForaInventario(VpaDInventario : TRBDInventarioCorpo);
   public
-    constructor cria;
+    constructor cria(VpaBaseDados : TSQLConnection);
     destructor destroy;override;
     function ExisteInventarioAberto(VpaCodFilial : Integer) : Boolean;
     function GravaDInventario(VpaDInventario : TRBDInventarioCorpo):String ;
@@ -59,18 +60,17 @@ end;
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
 
 {********************************* cria a classe ********************************}
-constructor TRBFuncoesInventario.cria;
+constructor TRBFuncoesInventario.cria(VpaBaseDados : TSQLConnection);
 begin
   inherited create;
-  InvAux := tQuery.create(nil);
-  InvAux.databasename := 'BaseDados';
-  InvCadastro := TQuery.create(nil);
-  invcadastro.databasename := 'BaseDados';
-  invcadastro.requestlive := true;
-  InvAza := TQuery.create(nil);
-  InvAza.databasename := 'BaseDados';
-  Inventario := TQuery.create(nil);
-  Inventario.DataBaseName := 'BaseDados';
+  InvAux := TSQLQuery.create(nil);
+  InvAux.SQLConnection := VpaBaseDados;
+  InvCadastro := TSQL.create(nil);
+  invcadastro.ASQlConnection := VpaBaseDados;
+  InvAza := TSQL.create(nil);
+  InvAza.ASQLConnection := VpaBaseDados;
+  Inventario := TSQLQuery.create(nil);;
+  Inventario.SQLConnection := VpaBaseDados;
 end;
 
 {******************************************************************************}
@@ -142,6 +142,7 @@ begin
     VpfDItemInventario.QtdProduto := InvAux.FieldByName('QTD_PRODUTO').AsFloat;
     InvAux.Next;
   end;
+  InvAux.close;
 end;
 
 {******************************************************************************}
@@ -160,6 +161,7 @@ procedure TRBFuncoesInventario.ZeraProdutoForaInventario(VpaDInventario : TRBDIn
 var
   VpfSeqEstoqueBarra : Integer;
 begin
+  InvAza.Close;
   InvAza.Sql.Clear;
   InvAza.Sql.add('SELECT MOV.I_SEQ_PRO, MOV.I_COD_COR, MOV.I_COD_TAM, MOV.N_QTD_PRO, '+
                                ' MOV.N_VLR_CUS, '+
@@ -239,14 +241,8 @@ begin
     if VpaDInventario.SeqInventario = 0 then
       VpaDInventario.SeqInventario := RSeqInventarioDisponivel;
     InvCadastro.FieldByName('SEQ_INVENTARIO').AsInteger := VpaDInventario.SeqInventario;
-    try
-      InvCadastro.post;
-    except
-      on e: exception do
-      begin
-        result := 'ERRO NA GRAVAÇÃO DO NOVO INVENTÁRIO!!!'#13+e.message;
-      end;
-    end;
+    InvCadastro.post;
+    result := InvCadastro.AMensagemErroGravacao;
   end;
   InvCadastro.Close;
 end;
@@ -303,10 +299,10 @@ begin
                                  ' MOV.N_QTD_PRO, MOV.N_VLR_CUS '+
                                  ' from INVENTARIOITEM ITE, CADPRODUTOS PRO, MOVQDADEPRODUTO MOV '+
                                  ' Where ITE.SEQ_PRODUTO = PRO.I_SEQ_PRO '+
-                                 ' AND ITE.COD_FILIAL = MOV.I_EMP_FIL '+
-                                 ' AND ITE.SEQ_PRODUTO = MOV.I_SEQ_PRO '+
-                                 ' AND ITE.COD_COR *= MOV.I_COD_COR '+
-                                 ' and ITE.COD_TAMANHO *= MOV.I_COD_TAM '+
+                                 ' AND '+SQLTextoRightJoin('ITE.COD_FILIAL','MOV.I_EMP_FIL')+
+                                 ' AND '+SQLTextoRightJoin('ITE.SEQ_PRODUTO','MOV.I_SEQ_PRO')+
+                                 ' AND '+SQLTextoRightJoin('ITE.COD_COR','MOV.I_COD_COR')+
+                                 ' and '+SQLTextoRightJoin('ITE.COD_TAMANHO','MOV.I_COD_TAM')+
                                  ' and ITE.COD_FILIAL = '+IntToStr(VpaDInventario.CodFilial)+
                                  ' and ITE.SEQ_INVENTARIO = '+IntToStr(VpaDInventario.SeqInventario)+
                                  ' ORDER BY ITE.SEQ_PRODUTO, ITE.COD_COR, ITE.COD_TAMANHO');
@@ -398,7 +394,8 @@ Var
   VpfLaco : Integer;
   VpfDItemInventario :TRBDInventarioItem;
 begin
-  AdicionaSQLAbreTabela(InvCadastro,'Select * from INVENTARIOITEM ');
+  AdicionaSQLAbreTabela(InvCadastro,'Select * from INVENTARIOITEM ' +
+                                    ' Where COD_FILIAL = 0 AND SEQ_INVENTARIO = 0 AND SEQ_ITEM = 0 ');
   for VpfLaco := 0 to VpaDInventario.ItemsInventario.Count - 1 do
   begin
     VpfDItemInventario := TRBDInventarioItem(VpaDInventario.ItemsInventario.Items[Vpflaco]);
@@ -414,15 +411,10 @@ begin
     InvCadastro.FieldByName('SEQ_PRODUTO').AsInteger := VpfDItemInventario.SeqProduto;
     InvCadastro.FieldByName('COD_TAMANHO').AsInteger := VpfDItemInventario.CodTamanho;
     InvCadastro.FieldByName('SEQ_ITEM').AsInteger := RSeqItemInventarioDisponivel(IntTostr(VpaDInventario.CodFilial),IntToStr(VpaDInventario.SeqInventario));
-    try
-      InvCadastro.Post;
-    except
-      on e : exception do
-      begin
-        result := 'ERRO NA GRAVAÇÃO DOS ITENS DO INVENTÁRIO!!!'#13+e.message;
-        exit;
-      end;
-    end;
+    InvCadastro.Post;
+    result := InvCadastro.AMensagemErroGravacao;
+    if InvCadastro.AErronaGravacao then
+      break;
   end;
   InvCadastro.close;
 end;

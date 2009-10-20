@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   StdCtrls, ComCtrls, Componentes1, Buttons, ExtCtrls, PainelGradiente, Db, UnOrdemProducao,
-  DBTables;
+  DBTables, DBClient, Tabela;
 
 type
   TFProcessaProdutividade = class(TFormularioPermissao)
@@ -18,9 +18,9 @@ type
     BFechar: TBitBtn;
     EData: TCalendario;
     Label1: TLabel;
-    Aux: TQuery;
-    Celulas: TQuery;
-    Produtividade: TQuery;
+    Aux: TSQL;
+    Celulas: TSQL;
+    Produtividade: TSQL;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BProcessarClick(Sender: TObject);

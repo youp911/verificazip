@@ -241,6 +241,7 @@ type
     CadOrcamentoC_END_ELE: TWideStringField;
     CadOrcamentoC_CON_ORC: TWideStringField;
     EValorTotal: Tnumerico;
+    MPedidosPendentesSemClienteMaster: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FlagClick(Sender: TObject);
@@ -323,6 +324,7 @@ type
     procedure MConferenciaSeparacaoClick(Sender: TObject);
     procedure rvCadOrcamentoValidateRow(Connection: TRvCustomConnection;
       var ValidRow: Boolean);
+    procedure MPedidosPendentesSemClienteMasterClick(Sender: TObject);
   private
     TeclaPressionada,
     VprPressionadoR,
@@ -1270,7 +1272,10 @@ begin
 
   if (varia.CNPJFilial = CNPJ_Kairos) or (Varia.CNPJFilial = CNPJ_AviamentosJaragua) or
      (varia.CNPJFilial = CNPJ_Zumm) or (varia.CNPJFilial = CNPJ_ZummH) then
+  begin
     AlterarVisibleDet([BImprimeOP],false);
+    AlterarVisibleDet([MPedidosPendentesSemClienteMaster],true);
+  end;
   if CONFIG.ControlarASeparacaodaCotacao then
   begin
     MGeraRomaneioParcial.Caption := 'Separação de Produtos';
@@ -1926,7 +1931,7 @@ end;
 procedure TFCotacao.BPendentesClick(Sender: TObject);
 begin
   dtRave := TdtRave.create(self);
-  dtRave.ImprimePedidoPendente(EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, VprSeqProduto,EClassificacao.Text,lNomClassificacao.caption,LCliente.Caption,DataInicial.DateTime,DataFinal.DateTime);
+  dtRave.ImprimePedidoPendente(EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, VprSeqProduto,EClassificacao.Text,lNomClassificacao.caption,LCliente.Caption,DataInicial.DateTime,DataFinal.DateTime,true);
   dtRave.free;
 end;
 
@@ -2070,6 +2075,7 @@ begin
     VpfDCliente := TRBDCliente.cria;
     VpfDCliente.CodCliente := VprDOrcamento.CodCliente;
     FunClientes.CarDCliente(VpfDCliente);
+    FunCotacao.CarDParcelaOrcamento(VprDOrcamento);
 
     VpfResultado :=  FunCotacao.EnviaEmailCliente(VprDOrcamento,VpfDCliente);
     VpfDCliente.free;
@@ -2362,12 +2368,23 @@ end;
 procedure TFCotacao.MIniciarSeparacaoClick(Sender: TObject);
 var
   VpfResultado : String;
+  VpfDCotacao : TRBDOrcamento;
+
 begin
   if CadOrcamentoI_Lan_Orc.AsInteger <> 0 then
   begin
-    VpfResultado := FunCotacao.AlteraCotacaoParaPedido(CadOrcamentoI_EMP_FIL.AsInteger,CadOrcamentoI_Lan_Orc.AsInteger);
+    VpfDCotacao := TRBDOrcamento.cria;
+
+    FunCotacao.CarDOrcamento(VpfDCotacao,CadOrcamentoI_EMP_FIL.AsInteger,CadOrcamentoI_Lan_Orc.AsInteger);
+    VpfResultado := FunCotacao.AlteraCotacaoParaPedido(VpfDCotacao);
+    if VpfResultado = '' then
+      FunCotacao.ImprimeEtiquetaSeparacaoPedido(VpfDCotacao);
+
+
     if VpfResultado <> '' then
       aviso(VpfResultado);
+
+    VpfDCotacao.free;
   end;
 end;
 
@@ -2460,7 +2477,7 @@ end;
 {******************************************************************************}
 procedure TFCotacao.MExportaProdutosPendentesClick(Sender: TObject);
 begin
-  FunCotacao.ExportaProdutosPendentes;
+  FunCotacao.ExportaProdutosPendentes(DataInicial.Date,DataFinal.Date);
 end;
 
 {******************************************************************************}
@@ -2470,6 +2487,14 @@ begin
     MovOrcamentosNOMEPRODUTO.AsString := MovOrcamentos.FieldByName('PRODUTOCOTACAO').AsString
   else
     MovOrcamentosNOMEPRODUTO.AsString := MovOrcamentos.FieldByName('C_NOM_PRO').AsString;
+end;
+
+{******************************************************************************}
+procedure TFCotacao.MPedidosPendentesSemClienteMasterClick(Sender: TObject);
+begin
+  dtRave := TdtRave.create(self);
+  dtRave.ImprimePedidoPendente(EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, VprSeqProduto,EClassificacao.Text,lNomClassificacao.caption,LCliente.Caption,DataInicial.DateTime,DataFinal.DateTime,false);
+  dtRave.free;
 end;
 
 {******************************************************************************}

@@ -459,7 +459,8 @@ begin
     begin
       if VprDBaixaCR.Cheques.Count > 0 then
       begin
-        EValPago.AValor := FunContasAReceber.RValTotalCheques(VprDBaixaCR.Cheques);
+        VprDBaixaCR.ValorPago := FunContasAReceber.RValTotalCheques(VprDBaixaCR.Cheques);
+        EValPago.AValor := VprDBaixaCR.ValorPago;
         if EValPago.AValor <>  FunContasAReceber.RValTotalParcelasBaixa(VprDBaixaCR) then
         begin
           result := FunContasAReceber.VerificaSeValorPagoQuitaTodasDuplicatas(VprDBaixaCR,EValPago.AValor);
@@ -480,6 +481,7 @@ begin
     result := FunContasAReceber.VerificaSeGeraParcial(VprDBaixaCR,EValPago.AValor,true);
     if result = '' then
       Result:= FunContasAReceber.BaixaContasAReceber(VprDBaixaCR);
+
     if result = '' then
       FPrincipal.BaseDados.Commit(VpfTransacao)
     else

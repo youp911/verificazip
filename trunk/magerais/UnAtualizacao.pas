@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1505;
+  CT_VersaoBanco = 1508;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -793,6 +793,31 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE CADGRUPOS ADD C_EST_RES CHAR(1) NULL');
         ExecutaComandoSql(Aux,'UPDATE CADGRUPOS SET C_EST_RES = ''F''');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1505');
+      end;
+      if VpaNumAtualizacao < 1506 Then
+      begin
+        VpfErro := '1506';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADEMPRESAS ADD C_COT_ICS CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CADEMPRESAS SET C_COT_ICS = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1506');
+      end;
+      if VpaNumAtualizacao < 1507 Then
+      begin
+        VpfErro := '1507';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADCLASSIFICACAO ADD C_IMP_ETI CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CADCLASSIFICACAO SET C_IMP_ETI = ''N''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1507');
+      end;
+      if VpaNumAtualizacao < 1508 Then
+      begin
+        VpfErro := '1508';
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVTABELAPRECO ADD I_COD_COR NUMBER(10) NULL');
+        ExecutaComandoSql(Aux,'UPDATE MOVTABELAPRECO SET I_COD_COR = 0');
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVTABELAPRECO MODIFY I_COD_COR NUMBER(10) NOT NULL');
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVTABELAPRECO drop PRIMARY KEY');
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVTABELAPRECO  '+
+                              ' ADD PRIMARY KEY(I_COD_EMP,I_COD_TAB,I_SEQ_PRO,I_COD_CLI,I_COD_TAM,I_COD_COR)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1508');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

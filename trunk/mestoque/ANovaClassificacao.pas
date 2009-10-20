@@ -44,6 +44,8 @@ type
     Label3: TLabel;
     Label6: TLabel;
     CadClassificacaoN_QTD_PER: TFMTBCDField;
+    DBCheckBox3: TDBCheckBox;
+    CadClassificacaoC_IMP_ETI: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BotaoGravar1DepoisAtividade(Sender: TObject);
@@ -96,6 +98,7 @@ begin
   CadClassificacaoC_CON_CLA.AsString := 'S';
   CadClassificacaoC_ALT_QTD.AsString := 'S';
   CadClassificacaoC_IND_FER.AsString := 'N';
+  CadClassificacaoC_IMP_ETI.AsString := 'N';
   CadClassificacaoC_TIP_CLA.AsString := TipoCla;
   CodCla.ReadOnly := FALSE;
   CodCla.Text := UnCla.ProximoCodigoClassificacao( VpaTamanhoPicture, codigo, TipoCla );

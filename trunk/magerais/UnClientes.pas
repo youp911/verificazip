@@ -116,7 +116,7 @@ Type TRBFuncoesClientes = class(TRBLocalizaClientes)
     procedure CarDAgenda(VpaCodUsuario,VpaSeqAgenda : Integer;VpaDAgenda : TRBDAgenda);
     procedure CarDParenteCliente(VpaCodCliente : Integer;VpaParentes : TList);
     procedure CarDVisitaCliente(VpaSeqVisita: Integer; VpaDVisitaCliente: TRBDAgendaCliente);
-    procedure CarCreditoCliente(VpaCodCliente : Integer;VpaCreditos : TList;VpaSomenteAtivos :Boolean);
+    procedure CarCreditoCliente(VpaCodCliente : Integer;VpaCreditos : TList;VpaSomenteAtivos :Boolean; VpaTipo : string);
     procedure CarDComprador(VpaDComprador : TRBDComprador;VpaCodComprador : Integer);
     procedure CarDFaixaEtaria(VpaCodCliente : Integer; VpaFaixasEtaria : TList);
     procedure CarDMarca(VpaCodCliente : Integer;VpaMarcas : TList);
@@ -145,6 +145,7 @@ Type TRBFuncoesClientes = class(TRBLocalizaClientes)
     function CadastraProdutosCliente(VpaDNota : TRBDNotaFiscal) : string;overload;
     function AtualizaNumeroSerieProdutoChamado(VpaDChamado : TRBDChamado) : string;
     function AdicionaCredito(VpaCodCliente : Integer;VpaValor : Double;VpaTipCredito, VpaDesObservacao : String):String;
+    function DiminuiCredito(VpaCodCliente : Integer;VpaValor : Double):String;
 
 end;
 
@@ -1974,7 +1975,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesClientes.CarCreditoCliente(VpaCodCliente : Integer;VpaCreditos : TList;VpaSomenteAtivos :Boolean);
+procedure TRBFuncoesClientes.CarCreditoCliente(VpaCodCliente : Integer;VpaCreditos : TList;VpaSomenteAtivos :Boolean;VpaTipo : string );
 var
   VpfDCredito : TRBDCreditoCliente;
 begin
@@ -1984,7 +1985,10 @@ begin
                                   ' Where CODCLIENTE =  '+IntToStr(VpaCodCliente));
   if VpaSomenteAtivos then
     CliTabela.sql.add(' and INDFINALIZADO = ''N''');
-  CliTabela.sql.add(' order by DATCREDITO ');
+  if VpaTipo <> '' then
+    CliTabela.sql.add(' and TIPCREDITO = '''+VpaTipo+'''');
+
+  CliTabela.sql.add(' order by DATCREDITO DESC');
   CliTabela.open;
   while not CliTabela.eof do
   begin
@@ -3044,10 +3048,12 @@ begin
   AdicionaSQLAbreTabela(CliCadastro,'Select * from CREDITOCLIENTE ');
   CliCadastro.Insert;
   CliCadastro.FieldByName('CODCLIENTE').AsInteger := VpaCodCliente;
+  CliCadastro.FieldByName('VALINICIAL').AsFloat := VpaValor;
   CliCadastro.FieldByName('VALCREDITO').AsFloat := VpaValor;
   CliCadastro.FieldByName('DATCREDITO').AsDateTime := now;
   CliCadastro.FieldByName('DESOBSERVACAO').AsString := VpaDesObservacao;
   CliCadastro.FieldByName('TIPCREDITO').AsString := VpaTipCredito;
+  CliCadastro.FieldByName('INDFINALIZADO').AsString := 'N';
   CliCadastro.FieldByName('SEQCREDITO').AsInteger := RSeqCreditoDisponivel(VpaCodCliente) ;
   try
     CliCadastro.post;
@@ -3055,6 +3061,38 @@ begin
     on e : exception do result := 'ERRO NA GRAVAÇÃO DO CREDITO DO CLIENTE!!!'#13 + e.message;
   end;
   CliCadastro.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesClientes.DiminuiCredito(VpaCodCliente : Integer;VpaValor : Double):String;
+var
+  VpfCredito : TList;
+  VpfDCredito : TRBDCreditoCliente;
+  VpfLaco : Integer;
+begin
+  VpfCredito := TList.Create;
+  CarCreditoCliente(VpaCodCliente,VpfCredito,false,'');
+  for VpfLaco := VpfCredito.Count - 1 downto 0  do
+  begin
+    VpfDCredito := TRBDCreditoCliente(VpfCredito.Items[VpfLaco]);
+    if not VpfDCredito.IndFinalizado  and
+       (VpfDCredito.TipCredito = 'C') then
+    begin
+      if VpfDCredito.ValCredito <= VpaValor then
+      begin
+        VpaValor := VpaValor - VpfDCredito.ValCredito;
+        VpfCredito.Delete(VpfLaco);
+      end
+      else
+      begin
+        VpfDCredito.ValCredito := VpfDCredito.ValCredito - VpaValor;
+        VpaValor := 0;
+      end;
+    end;
+    if VpaValor <= 0 then
+      break;
+  end;
+  result := GravaCreditoCliente(VpaCodCliente,VpfCredito);
 end;
 
 end.

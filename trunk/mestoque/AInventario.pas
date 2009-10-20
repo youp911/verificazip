@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Componentes1, ExtCtrls, PainelGradiente, Db, DBTables, Grids, DBGrids,
   Tabela, DBKeyViolation, UnInventario, StdCtrls, Localizacao, ComCtrls, UnNotasFiscaisFor,
-  Buttons, unProdutos, Undados, UnDadosProduto, sqlexpr;
+  Buttons, unProdutos, Undados, UnDadosProduto, sqlexpr, DBClient;
 
 Const
   CT_QTDINVALIDA = 'QUANTIDADE INVÁLIDA!!!'#13'Quantidade digitada inválida ou vazia...';
@@ -17,14 +17,14 @@ type
     PanelColor1: TPanelColor;
     PanelColor2: TPanelColor;
     GInv: TGridIndice;
-    InventarioCorpo: TQuery;
+    InventarioCorpo: TSQL;
     DataInventario: TDataSource;
-    InventarioCorpoCOD_FILIAL: TIntegerField;
-    InventarioCorpoSEQ_INVENTARIO: TIntegerField;
-    InventarioCorpoCOD_USUARIO: TIntegerField;
-    InventarioCorpoDAT_INICIO: TDateTimeField;
-    InventarioCorpoDAT_FIM: TDateTimeField;
-    InventarioCorpoC_NOM_USU: TStringField;
+    InventarioCorpoCOD_FILIAL: TFMTBCDField;
+    InventarioCorpoSEQ_INVENTARIO: TFMTBCDField;
+    InventarioCorpoCOD_USUARIO: TFMTBCDField;
+    InventarioCorpoDAT_INICIO: TSQLTimeStampField;
+    InventarioCorpoDAT_FIM: TSQLTimeStampField;
+    InventarioCorpoC_NOM_USU: TWideStringField;
     BCadastrar: TBitBtn;
     BAdicionarProdutos: TBitBtn;
     BFecharInventario: TBitBtn;
@@ -32,7 +32,7 @@ type
     BAlterar: TBitBtn;
     PainelTempo1: TPainelTempo;
     BImprimir: TBitBtn;
-    InventarioCorpoC_NOM_CLA: TStringField;
+    InventarioCorpoC_NOM_CLA: TWideStringField;
     BExcluir: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -60,7 +60,7 @@ var
 implementation
 
 uses APrincipal, Constantes, ConstMsg, UnSistema, FunSql, ANovoInventario, FunObjeto,
-  AInicializaNovoInventario;
+  AInicializaNovoInventario, dmRave;
 
 {$R *.DFM}
 
@@ -71,7 +71,7 @@ begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
   VprOrdem := 'order by INV.SEQ_INVENTARIO';
-  FunInventario := TRBFuncoesInventario.cria;
+  FunInventario := TRBFuncoesInventario.cria(FPrincipal.BaseDados);
   VprDInventario := TRBDInventarioCorpo.cria;
   AtualizaConsulta;
 end;
@@ -99,13 +99,14 @@ begin
     VpfCodfilial := IntTostr(Varia.CodFilialControladoraEstoque)
   else
     vpfCodfilial := InttoStr(Varia.CodigoEmpFil);
+  InventarioCorpo.Close;
   InventarioCorpo.Sql.Clear;
   InventarioCorpo.Sql.add('Select INV.COD_FILIAL, INV.SEQ_INVENTARIO, INV.DAT_INICIO, '+
                                         ' INV.DAT_FIM, INV.COD_USUARIO, USU.C_NOM_USU, CLA.C_NOM_CLA '+
                                         ' from INVENTARIOCORPO INV, CADUSUARIOS USU, CADCLASSIFICACAO CLA '+
                                         ' WHERE INV.COD_USUARIO = USU.I_COD_USU '+
                                         ' AND INV.COD_FILIAL = '+ VpfCodFilial+
-                                        ' AND INV.CODCLASSIFICACAO *= CLA.C_COD_CLA ');
+                                        '  AND '+SQLTextoRightJoin('INV.CODCLASSIFICACAO','CLA.C_COD_CLA'));
   InventarioCorpo.SQL.add(VprOrdem);
   InventarioCorpo.open;
 end;
@@ -182,10 +183,21 @@ end;
 
 {******************************************************************************}
 procedure TFInventario.BImprimirClick(Sender: TObject);
+Var
+  VpfDFilial : TRBDFilial;
 begin
- // FunCrystal.ImprimeRelatorio(Varia.PathRelatorios+ '\Produtos\XX_Produto Inventario.rpt',[InventarioCorpoCOD_FILIAL.AsString,InventarioCorpoSEQ_INVENTARIO.AsString]);
+  if InventarioCorpoSEQ_INVENTARIO.AsInteger <> 0 then
+  begin
+    VpfDFilial := TRBDFilial.cria;
+    Sistema.CarDFilial(VpfDFilial,InventarioCorpoCOD_FILIAL.AsInteger);
+    dtRave := TdtRave.create(self);
+    dtRave.ImprimeInventarioProduto(InventarioCorpoCOD_FILIAL.AsInteger,InventarioCorpoSEQ_INVENTARIO.AsInteger,'',VpfDFilial.NomFilial);
+    dtRave.free;
+    VpfDFilial.Free;
+  end;
 end;
 
+{******************************************************************************}
 procedure TFInventario.BExcluirClick(Sender: TObject);
 begin
   if InventarioCorpoDAT_FIM.IsNull then

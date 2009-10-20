@@ -441,7 +441,7 @@ begin
   Result := FunProdutos.GravaDProduto(VpfDProduto);
   if result = '' then
   begin
-    result := FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,0,0, VpfDProduto);
+    result := FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,VpfDProduto.SeqProduto);
     if result = '' then
       result := FunProdutos.AdicionaProdutoNaTabelaPreco(Varia.TabelaPreco,VpfDProduto,0);
   end;
@@ -482,7 +482,7 @@ begin
   Result := FunProdutos.GravaDProduto(VpaDProduto);
   if result = '' then
   begin
-    result := FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,0,0, VpaDProduto);
+    result := FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,VpaDProduto.SeqProduto);
     if result = '' then
       result := FunProdutos.AdicionaProdutoNaTabelaPreco(Varia.TabelaPreco,VpaDProduto,0);
   end;
@@ -610,7 +610,7 @@ begin
   VpfDProduto.IndProdutoAtivo := true;
   FunProdutos.GravaDProduto(VpfDProduto);
   Result := VpfDProduto.SeqProduto;
-  FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,0,0, VpfDProduto);
+  FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,VpfDProduto.SeqProduto);
   FunProdutos.AdicionaProdutoNaTabelaPreco(Varia.TabelaPreco,VpfDProduto,0);
   LimpaConsumo(VpfDProduto.SeqProduto);
   VpfDProduto.free;

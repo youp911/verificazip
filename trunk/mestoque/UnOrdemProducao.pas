@@ -5272,7 +5272,7 @@ begin
   AdicionaSQLAbreTabela(OrdCadastro,'Select * from PRODUTIVIDADECELULATRABALHO '+
                                     ' Where CODCELULA = 0' );
   OrdCadastro.Insert;
-  OrdCadastro.FieldByName('DATPRODUTIVIDADE').AsDateTime := VpaDAta;
+  OrdCadastro.FieldByName('DATPRODUTIVIDADE').AsDateTime := DataSemHora(VpaDAta);
   OrdCadastro.FieldByName('CODCELULA').AsInteger := VpaCodCelula;
   OrdCadastro.FieldByName('PERPRODUTIVIDADE').AsInteger := RProdutividadeCelula(VpaData,VpaCodCelula); ;
   if OrdCadastro.FieldByName('PERPRODUTIVIDADE').AsInteger = 0 then

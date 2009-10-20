@@ -154,6 +154,7 @@ type
     function VerificaSeGeraParcial(VpaDBaixa : TRBDBaixaCR;VpaValAReceber : Double;VpaIndSolicitarData : Boolean) : String;
     function RValTotalCheques(VpaCheques : TList) : Double;
     function RNumerosCheques(VpaCheques :TList) : string;
+    function RNumParcelas(VpaDBaixaCR : TRBDBaixaCR) : string;
     function RValTotalParcelasBaixa(VpaDBaixaCR : TRBDBaixaCR) : Double;
 
     // exclusao e estorno
@@ -388,7 +389,8 @@ end;
 {******************************************************************************}
 procedure TLocalizaContasAReceber.LocalizaMov(VpaTabela : TDataSet);
 begin
-  AdicionaSQLAbreTabela(Vpatabela, 'select * from MOVCONTASARECEBER');
+  AdicionaSQLAbreTabela(Vpatabela, 'select * from MOVCONTASARECEBER '+
+                                  ' Where I_EMP_FIL = 0 AND I_LAN_REC = 0 AND I_NRO_PAR = 0');
 end;
 
 {******************************************************************************}
@@ -816,7 +818,8 @@ var
   VpfLaco : Integer;
 begin
   result := '';
-  AdicionaSQLAbreTabela(Cadastro,'Select * from LOGCONTASARECEBER');
+  AdicionaSQLAbreTabela(Cadastro,'Select * from LOGCONTASARECEBER '+
+                                 ' Where CODFILIAL = 0 AND LANRECEBER = 0 AND NUMPARCELA = 0 AND SEQLOG = 0' );
   AdicionaSQLAbreTabela(Tabela,'Select * from MOVCONTASARECEBER '+
                                ' Where I_EMP_FIL = '+IntToStr(VpaCodfilial)+
                                ' and I_LAN_REC = '+InttoStr(VpaLanreceber)+
@@ -1235,7 +1238,8 @@ var
   VpfDCheque : TRBDCheque;
   VpfDParcela : TRBDParcelaBaixaCR;
 begin
-  AdicionaSQLAbreTabela(Cadastro,'Select * from CHEQUECR');
+  AdicionaSQLAbreTabela(Cadastro,'Select * from CHEQUECR '+
+                                 ' Where SEQCHEQUE = 0 AND CODFILIALRECEBER = 0 AND LANRECEBER = 0 AND NUMPARCELA = 0');
   for VpfLacoCheque := 0 to VpaDBaixa.Cheques.Count - 1 do
   begin
     VpfDCheque := TRBDCheque(VpaDBaixa.Cheques.Items[VpfLacoCheque]);
@@ -1346,7 +1350,7 @@ begin
       VpfDParcela := TRBDMovContasCR(VpaDNovaCR.Parcelas.Items[VpfLaco]);
       if VpfDParcela.IndBaixarConta then
       begin
-        if VpfDParcela.NumContaCaixa = '' then
+        if (VpfDParcela.NumContaCaixa = '') then
           result := 'NÃO É POSSIVEL BAIXAR O CONTAS A RECEBER!!!'#13'A forma de pagamento está configurada para baixar automatico, porém não foi definido no usuário a conta caixa padrão';
         if result = '' then
         begin
@@ -1578,10 +1582,12 @@ begin
         result := BaixaParcelaAutomatica(VpaDNovaCR);
         if result = '' then
         begin
-          FunClientes.CarCreditoCliente(VpaDNovaCR.CodCliente,VpfCreditoCliente,true);
+          FunClientes.CarCreditoCliente(VpaDNovaCR.CodCliente,VpfCreditoCliente,true,'C');
           if ClientePossuiCredito(VpfCreditoCliente) then
           begin
-    //        result := BaixaParcelacomCreditodoCliente(VpaDNovaCR,VpfCreditoCliente);
+            if confirmacao('CLIENTE POSSUI CRÉDITO!!!'#13'Esse cliente possui um crédito de "'+ FormatFloat('R$ #,###,###,##0.00',RValTotalCredito(VpfCreditoCliente))+
+                           '".Deseja utilizar o credito para quitar essa conta? ') then
+              result := BaixaParcelacomCreditodoCliente(VpaDNovaCR,VpfCreditoCliente);
           end;
         end;
       end;
@@ -1941,12 +1947,11 @@ var
 begin
 { O que falta:
   - A rotina ja esta baixando o contas a receber e gerando uma parcial.
-  -Quando baixa a conta nao pode tirar de nenhum caixa;
-  -Excluir o credito do cliente proporcional ao que foi pago;
   -so imprimir boleto de duplicatas em aberto;
   -Na observacao da nota imprimir quanto foi abatido do credito e quanto ainda tem de saldo;
   -Na observacao da cotacao imprimir quanto foi abatido do credito e quanto ainda tem de saldo;
-  -Quando um cliente paga a mais adicionar automaticamente o valor do credito; }
+  -Quando estorna um contas a receber que foi pago com um credito o valor tem que voltar para o credito do cliente;
+  -Um contas a receber que foi pago a maior gera um credito para o cliente, quando é estornado esse contas a receber tem que estonar o credito do cliente; }
 
   result := '';
   VpfDBaixa := TRBDBaixaCR.Cria;
@@ -1967,10 +1972,17 @@ begin
     VpfDBaixa.ValorPago := VpaDNovaCR.ValTotal
   else
     VpfDBaixa.ValorPago := RValTotalCredito(VpaCredito);
+  //baixa o contas a receber;
   result := VerificaSeGeraParcial(VpfDBaixa,VpfDBaixa.ValorPago,false);
   if result = '' then
   begin
+    VpfDBaixa.IndBaixaUtilizandoOCreditodoCliente := true;
     result := BaixaContasAReceber(VpfDBaixa);
+  end;
+  //exclui o valor do credito do cliente;
+  if result = '' then
+  begin
+    result := FunClientes.DiminuiCredito(VpfDParcelaBaixa.CodCliente,VpfDBaixa.ValorPago);
   end;
 end;
 
@@ -2006,10 +2018,22 @@ begin
       Result := GravaDChequeCR(VpaDBaixa);
     if result = '' then
     begin
-      if ConfigModulos.Caixa then
+      if ConfigModulos.Caixa and
+        not VpaDBaixa.IndBaixaUtilizandoOCreditodoCliente then
       begin
         result := FunCaixa.AdicionaBaixaCRCaixa(VpaDBaixa);
       end;
+    end;
+    if result = ''  then
+    begin
+      if VpaDBaixa.ValorPago >  RValTotalParcelasBaixa(VpaDBaixa) then
+      begin
+        if confirmacao('VALOR PAGO A MAIOR!!!'#13'Está sendo pago um valor de "'+FormatFloat('R$ #,###,###,###,##0.00',VpaDBaixa.ValorPago - RValTotalParcelasBaixa(VpaDBaixa))+
+                       '" a mais do que o valor da(s) parcela(s). Deseja gerar esse valor de crédito para o cliente?') then
+          result := FunClientes.AdicionaCredito(VpfDParcela.CodCliente,VpaDBaixa.ValorPago - RValTotalParcelasBaixa(VpaDBaixa),'C','Referente valor pago a maior das parcelas "'+RNumParcelas(VpaDBaixa)+'"');
+
+      end;
+
     end;
   end;
 end;
@@ -2488,6 +2512,18 @@ begin
 
   if VpaCheques.Count > 0 then
     result := copy(result,1,length(result)-1);
+end;
+
+{******************************************************************************}
+function TFuncoesContasAReceber.RNumParcelas(VpaDBaixaCR: TRBDBaixaCR): string;
+var
+  VpfLaco : Integer;
+begin
+  result := '';
+  for VpfLaco := 0 to VpaDBaixaCR.Parcelas.Count - 1 do
+    result := result +TRBDParcelaBaixaCR(VpaDBaixaCR.Parcelas.Items[VpfLaco]).NumDuplicata+', ';
+  if VpaDBaixaCR.Parcelas.Count > 0 then
+    result := copy(result,1,length(result)-2);
 end;
 
 {******************************************************************************}

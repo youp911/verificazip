@@ -47,7 +47,7 @@ type
     { Public declarations }
     procedure ImprimeRetorno(VpaCodFilial, VpaSeqRetorno : Integer);
     procedure ImprimeRemessa(VpaCodFilial, VpaSeqRemessa : Integer);
-    procedure ImprimePedidoPendente(VpaCodFilial,VpaCodCliente,VpaCodClienteMaster, VpaSeqProduto : Integer;VpaCodClassificacao,VpaNomClassificacao,VpaNomCliente : String;VpaDatInicio,VpaDatFim : TDateTime);
+    procedure ImprimePedidoPendente(VpaCodFilial,VpaCodCliente,VpaCodClienteMaster, VpaSeqProduto : Integer;VpaCodClassificacao,VpaNomClassificacao,VpaNomCliente : String;VpaDatInicio,VpaDatFim : TDateTime;VpaClienteMaster : Boolean);
     procedure ImprimePedidoParcial(VpaCodFilial,VpaLanOrcamento, VpaSeqParcial : Integer);
     procedure ImprimeNotasFiscaisEmitidas(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodClienteMaster,VpaCodVendedor : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaSituacaoNota : Integer);
     procedure ImprimePedidosPorDia(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao : String);
@@ -89,6 +89,8 @@ type
     procedure ImprimeTotalVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime);
     procedure ImprimeClientesPorVendedor(VpaCodVendedor,VpaCodSituacao : Integer;VpaCaminho, VpaNomVendedor,VpaNOmSituacao,VpaCidade,VpaEstado : String);
     procedure ImprimeTotalVendasCliente(VpaCodVendedor,VpaCodCondicaoPagamento,VpaCodTipoCotacao, VpaCodfilial : Integer;VpaCaminho, VpaNomVendedor,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaNomfilial,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime;VpaCurvaABC : Boolean);
+    procedure ImprimeExtratoColetaFracaoOPProduto(VpaSeqProduto, VpaSeqEstagio : Integer;VpaNomProduto, VpaNomEstagio : String; VpaDatInicio, VpaDatFim : TDateTime);
+    procedure ImprimeInventarioProduto(VpaCodFilial, VpaSeqInventario : Integer;VpaCaminho, VpaNomfilial: String);
   end;
 
 
@@ -364,6 +366,7 @@ begin
                               ' AND MOV.I_COD_FRM = FRM.I_COD_FRM '+
                               ' AND MOV.I_EMP_FIL = CAD.I_EMP_FIL '+
                               ' AND MOV.I_LAN_REC = CAD.I_LAN_REC '+
+                              ' and MOV.D_DAT_PAG IS NULL '+
                               ' AND '+SQLTextoRightJoin('MOV.C_NRO_CON','CON.C_NRO_CON')+
                               ' AND '+SQLTextoRightJoin('MOV.I_COD_BAN','BAN.I_COD_BAN'));
   Rave.Execute;
@@ -839,7 +842,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimePedidoPendente(VpaCodFilial, VpaCodCliente,VpaCodClienteMaster, VpaSeqProduto: Integer; VpaCodClassificacao,VpaNomClassificacao,VpaNomCliente: String;VpaDatInicio,VpaDatFim : TDateTime);
+procedure TdtRave.ImprimePedidoPendente(VpaCodFilial, VpaCodCliente,VpaCodClienteMaster, VpaSeqProduto: Integer; VpaCodClassificacao,VpaNomClassificacao,VpaNomCliente: String;VpaDatInicio,VpaDatFim : TDateTime;VpaClienteMaster : Boolean);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Pedidos Pendentes';
@@ -877,6 +880,9 @@ begin
     Rave.SetParam('CLIENTE','Cliente : '+IntToStr(VpaCodCliente)+' - ' +VpaNomCliente);
     PedidosPendentes.sql.add(' and CAD.I_COD_CLI = '+ IntToStr(VpaCodCliente));
   end;
+  if not VpaClienteMaster then
+    PedidosPendentes.sql.add(' and CLI.I_CLI_MAS IS NULL');
+
   if VpaCodClienteMaster <> 0 then
     PedidosPendentes.sql.add(' and CLI.I_CLI_MAS = '+ IntToStr(VpaCodClienteMaster));
   if VpaSeqProduto <> 0 then
@@ -1830,7 +1836,7 @@ begin
   end;
   if VpaCodVendedor <> 0 then
   begin
-    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_VEN = '+InttoStr(VpaCodVendedor));
+    AdicionaSqlTabeLa(Principal,'AND CLI.I_COD_VEN = '+InttoStr(VpaCodVendedor));
     Rave.SetParam('VENDEDOR',VpaNomVendedor);
   end;
   if VpaCodSituacao <> 0 then
@@ -1908,6 +1914,68 @@ begin
   Rave.Execute;
 end;
 
+{******************************************************************************}
+procedure TdtRave.ImprimeExtratoColetaFracaoOPProduto(VpaSeqProduto, VpaSeqEstagio: Integer; VpaNomProduto, VpaNomEstagio: String; VpaDatInicio,  VpaDatFim: TDateTime);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Extrato Coleta Fracao Produto - '+VpaNomProduto;
+  Rave.projectfile := varia.PathRelatorios+'\Ordem Producao\xx_Extrato Coleta Fracao Produto.rav';
+  Rave.clearParams;
+  RvSystem1.defaultDest := rdPreview;
+  AdicionaSqlAbreTabela(Principal,'select CEL.CODCELULA, CEL.NOMCELULA, '+
+                                  ' COL.CODFILIAL, COL.SEQORDEM, COL.SEQFRACAO, COL.SEQESTAGIO, COL.SEQCOLETA, COL.DESUM, COL.QTDCOLETADO, COL.QTDPRODUCAOHORA, '+
+                                  ' COL.QTDPRODUCAOIDEAL, COL.PERPRODUTIVIDADE, COL.DATINICIO, COL.DATINICIO HORAINICIO, COL.DATFIM '+
+                                  ' from CELULATRABALHO CEL, COLETAFRACAOOP COL, FRACAOOPESTAGIO FOE '+
+                                  ' Where FOE.CODFILIAL = COL.CODFILIAL '+
+                                  ' AND FOE.SEQORDEM = COL.SEQORDEM '+
+                                  ' AND FOE.SEQFRACAO = COL.SEQFRACAO '+
+                                  ' AND FOE.SEQESTAGIO = COL.SEQESTAGIO '+
+                                  ' AND COL.CODCELULA = CEL.CODCELULA '+
+                                  ' AND FOE.SEQPRODUTO = '+IntToStr(VpaSeqProduto)+
+                                  ' AND COL.SEQESTAGIO = '+ IntTosTr(VpaSeqEstagio)+
+                                  SQLTextoDataEntreAAAAMMDD('COL.DATINICIO',VpaDatInicio,IncDia(VpaDatFim,1),true)+
+                                  ' order by CEL.CODCELULA, COL.DATINICIO' );
+  AdicionaSqlAbreTabela(Item,'select MAX(COL.PERPRODUTIVIDADE) PERCENTUAL, CEL.NOMCELULA '+
+                                  ' from CELULATRABALHO CEL, COLETAFRACAOOP COL, FRACAOOPESTAGIO FOE '+
+                                  ' Where FOE.CODFILIAL = COL.CODFILIAL '+
+                                  ' AND FOE.SEQORDEM = COL.SEQORDEM '+
+                                  ' AND FOE.SEQFRACAO = COL.SEQFRACAO '+
+                                  ' AND FOE.SEQESTAGIO = COL.SEQESTAGIO '+
+                                  ' AND COL.CODCELULA = CEL.CODCELULA '+
+                                  ' AND FOE.SEQPRODUTO = '+IntToStr(VpaSeqProduto)+
+                                  ' AND COL.SEQESTAGIO = '+ IntTosTr(VpaSeqEstagio)+
+                                  SQLTextoDataEntreAAAAMMDD('COL.DATINICIO',VpaDatInicio,IncDia(VpaDatFim,1),true)+
+                                  ' GROUP BY CEL.NOMCELULA '+
+                                  ' ORDER BY 1 DESC ' );
+  Rave.SetParam('PRODUTO',VpaNomProduto);
+  Rave.SetParam('ESTAGIO',VpaNomEstagio);
+  Rave.SetParam('PERIODO','Período de  '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDateTime('DD/MM/YYY',VpaDatFim));
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeInventarioProduto(VpaCodFilial, VpaSeqInventario: Integer; VpaCaminho, VpaNomfilial: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Inventario Produto';
+  Rave.projectfile := varia.PathRelatorios+'\Produto\xx_Inventario Produto.rav';
+  Rave.clearParams;
+  RvSystem1.defaultDest := rdPreview;
+  AdicionaSqlAbreTabela(Principal,'select  PRO.C_COD_PRO, PRO.C_NOM_PRO, '+
+                                  ' COR.NOM_COR, '+
+                                  ' ITE.COD_FILIAL, ITE.SEQ_INVENTARIO, ITE.COD_UNIDADE, ITE.QTD_PRODUTO, '+
+                                  ' TAM.NOMTAMANHO '+
+                                  ' from CADPRODUTOS PRO, COR, TAMANHO TAM, INVENTARIOITEM ITE '+
+                                  ' Where ITE.SEQ_PRODUTO = PRO.I_SEQ_PRO '+
+                                  ' AND ' +SQLTextoRightJoin('ITE.COD_COR','COR.COD_COR')+
+                                  ' AND ' +SQLTextoRightJoin('ITE.COD_TAMANHO','TAM.CODTAMANHO')+
+                                  ' AND ITE.COD_FILIAL = ' + IntToStr(VpaCodFilial)+
+                                  ' AND ITE.SEQ_INVENTARIO = '+IntToStr(VpaSeqInventario)+
+                                  ' ORDER BY PRO.C_NOM_PRO, COR.NOM_COR, TAM.NOMTAMANHO');
+  Rave.SetParam('FILIAL',VpaNomfilial);
+  Rave.SetParam('INVENTARIO',IntToStr(VpaSeqInventario));
+  Rave.Execute;
+end;
 
 
 end.
