@@ -462,6 +462,11 @@ type
     procedure BRepeticaoDesenhoClick(Sender: TObject);
     procedure ECorPrecoRetorno(VpaColunas: TRBColunasLocaliza);
     procedure GPrecoAntesExclusao(Sender: TObject; var VpaPermiteExcluir: Boolean);
+    procedure EQtdMinimaExit(Sender: TObject);
+    procedure EQtdPedidoExit(Sender: TObject);
+    procedure EQuantidadeExit(Sender: TObject);
+    procedure EValRevendaExit(Sender: TObject);
+    procedure EValCustoExit(Sender: TObject);
   private
     VprCodClassificacao,
     VprCodClassificacaoAnterior : String;
@@ -906,6 +911,40 @@ begin
     end;
 
     ValidaGravacao.execute;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.EValCustoExit(Sender: TObject);
+var
+  VpfDTabelaPreco : TRBDProdutoTabelaPreco;
+begin
+  if VprOperacao in [ocInsercao,ocEdicao] then
+  begin
+    if EValCusto.AValor <> VprDProduto.VlrCusto then
+    begin
+      VpfDTabelaPreco := FunProdutos.RTabelaPreco(VprDProduto,varia.TabelaPreco,0,0,Varia.MoedaBase);
+      if VpfDTabelaPreco <> nil then
+        VpfDTabelaPreco.ValCusto := EValCusto.AValor;
+      VprDProduto.VlrCusto := EValCusto.AValor;
+    end;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.EValRevendaExit(Sender: TObject);
+var
+  VpfDTabelaPreco : TRBDProdutoTabelaPreco;
+begin
+  if VprOperacao in [ocInsercao,ocEdicao] then
+  begin
+    if EValRevenda.AValor <> VprDProduto.VlrRevenda then
+    begin
+      VpfDTabelaPreco := FunProdutos.RTabelaPreco(VprDProduto,varia.TabelaPreco,0,0,Varia.MoedaBase);
+      if VpfDTabelaPreco <> nil then
+        VpfDTabelaPreco.ValReVenda := EValReVenda.AValor;
+      VprDProduto.VlrReVenda := EValReVenda.AValor;
+    end;
   end;
 end;
 
@@ -2173,8 +2212,8 @@ begin
     begin
       VprDProTabelaPreco.CodMoeda := StrToINt(VpaColunas.items[0].AValorRetorno);
       VprDProTabelaPreco.NomMoeda := VpaColunas.items[1].AValorRetorno;
-      GPreco.Cells[11,GPreco.ALinha] := VpaColunas.items[0].AValorRetorno;
-      GPreco.Cells[12,GPreco.ALinha] := VpaColunas.items[1].AValorRetorno;
+      GPreco.Cells[14,GPreco.ALinha] := VpaColunas.items[0].AValorRetorno;
+      GPreco.Cells[15,GPreco.ALinha] := VpaColunas.items[1].AValorRetorno;
     end
     else
     begin
@@ -3322,9 +3361,60 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.EQtdMinimaExit(Sender: TObject);
+var
+  VpfDTabelaPreco : TRBDProdutoTabelaPreco;
+begin
+  if VprOperacao in [ocInsercao,ocEdicao] then
+  begin
+    if EQtdMinima.AValor <> VprDProduto.QtdMinima then
+    begin
+      VpfDTabelaPreco := FunProdutos.RTabelaPreco(VprDProduto,varia.TabelaPreco,0,0,Varia.MoedaBase);
+      if VpfDTabelaPreco <> nil then
+        VpfDTabelaPreco.QtdMinima := EQtdMinima.AValor;
+      VprDProduto.QtdMinima := EQtdMinima.AValor;
+    end;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.EQtdPedidoExit(Sender: TObject);
+var
+  VpfDTabelaPreco : TRBDProdutoTabelaPreco;
+begin
+  if VprOperacao in [ocInsercao,ocEdicao] then
+  begin
+    if EQtdPedido.AValor <> VprDProduto.QtdPedido then
+    begin
+      VpfDTabelaPreco := FunProdutos.RTabelaPreco(VprDProduto,varia.TabelaPreco,0,0,Varia.MoedaBase);
+      if VpfDTabelaPreco <> nil then
+        VpfDTabelaPreco.QtdIdeal := EQtdPedido.AValor;
+      VprDProduto.QtdPedido := EQtdPedido.AValor;
+    end;
+  end;
+end;
+
+{******************************************************************************}
 procedure TFNovoProdutoPro.EQtdQuadrosExit(Sender: TObject);
 begin
   ConfiguraQtdQuadros(EQtdQuadros.Value);
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.EQuantidadeExit(Sender: TObject);
+var
+  VpfDTabelaPreco : TRBDProdutoTabelaPreco;
+begin
+  if VprOperacao in [ocInsercao,ocEdicao] then
+  begin
+    if EQuantidade.AValor <> VprDProduto.QtdEstoque then
+    begin
+      VpfDTabelaPreco := FunProdutos.RTabelaPreco(VprDProduto,varia.TabelaPreco,0,0,Varia.MoedaBase);
+      if VpfDTabelaPreco <> nil then
+        VpfDTabelaPreco.QtdEstoque := EQuantidade.AValor;
+      VprDProduto.QtdEstoque := EQuantidade.AValor;
+    end;
+  end;
 end;
 
 {******************************************************************************}

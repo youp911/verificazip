@@ -383,6 +383,7 @@ Type TRBDAmostra = class
     CodAmostra,
     CodColecao,
     CodDesenvolvedor,
+    CodDepartamento,
     CodProspect,
     CodVendedor,
     CodAmostraIndefinida,

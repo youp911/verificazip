@@ -449,7 +449,7 @@ begin
                                             else
                                               if (VPANOMRELATORIO = 'VENDAS POR ESTADO E CIDADE') or
                                                  (VPANOMRELATORIO = 'TOTAL VENDAS POR ESTADO E CIDADE') then
-                                                AlterarVisibleDet([PPeriodo,PTipoCotacao,PCliente,PCidade,PEstado,PCondPgto],true)
+                                                AlterarVisibleDet([PPeriodo,PTipoCotacao,PCliente,PCidade,PEstado,PCondPgto, PTransportadora],true)
                                               else
                                                 if (VPANOMRELATORIO = 'CLIENTES POR VENDEDOR') then
                                                   AlterarVisibleDet([PVendedor,PSitCliente,PCidade,PEstado],true)
@@ -457,6 +457,12 @@ begin
                                                   if (VPANOMRELATORIO = 'TOTAL VENDAS POR CLIENTE') or
                                                      (VPANOMRELATORIO = 'TOTAL VENDAS POR CLIENTE(CURVA ABC)')then
                                                     AlterarVisibleDet([PFilial,PVendedor,PPeriodo,PCondPgto,PTipoCotacao,PCidade,PEstado],true)
+                                                  else
+                                                    if (VPANOMRELATORIO = 'CONTAS A RECEBER POR EMISSAO') then
+                                                      AlterarVisibleDet([PFilial,PPeriodo],true)
+                                                    else
+                                                      if (VPANOMRELATORIO = 'TOTAL AMOSTRAS POR VENDEDOR') then
+                                                        AlterarVisibleDet([PVendedor,PPeriodo],true)
 end;
 
 
@@ -546,7 +552,7 @@ begin
                                             dtRave.ImprimeFilaChamadosPorTecnico(ECodEstagio.AInteiro,ETecnico.AInteiro,VprCaminhoRelatorio,LEstagio.Caption,LTecnico.Caption,CDataIni.Date,CDataFim.Date)
                                           else
                                             if (VPRNOMRELATORIO = 'VENDAS POR ESTADO E CIDADE') then
-                                              dtRave.ImprimeVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date)
+                                              dtRave.ImprimeVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,ETransportadora.AInteiro, VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text, LTransportadora.Caption, CDataIni.Date,CDataFim.Date)
                                             else
                                               if (VPRNOMRELATORIO = 'TOTAL VENDAS POR ESTADO E CIDADE') then
                                                 dtRave.ImprimeTotalVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date)
@@ -561,7 +567,13 @@ begin
                                                       dtRave.ImprimeTotalVendasCliente(EVendedor.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,EFilial.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LFilial.Caption, LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date,true)
                                                   else
                                                     if (VPRNOMRELATORIO = 'ESTOQUE PRODUTOS RESERVADOS') then
-                                                      FunRave.ImprimeEstoqueProdutosReservados(EFilial.AInteiro,VprCaminhoRelatorio,ECodClassifcacao.Text,'TOTAL',LFilial.caption,LNomClassificacao.Caption,CFundoPerdido.Checked);
+                                                      FunRave.ImprimeEstoqueProdutosReservados(EFilial.AInteiro,VprCaminhoRelatorio,ECodClassifcacao.Text,'TOTAL',LFilial.caption,LNomClassificacao.Caption,CFundoPerdido.Checked)
+                                                    else
+                                                      if (VPRNOMRELATORIO = 'CONTAS A RECEBER POR EMISSAO') then
+                                                        dtRave.ImprimeContasaReceberPorEmissao(EFilial.AInteiro,CDataIni.Date,CDataFim.Date, VprCaminhoRelatorio,LFilial.caption,BMostrarConta.Visible)
+                                                      else
+                                                        if (VPRNOMRELATORIO = 'TOTAL AMOSTRAS POR VENDEDOR') then
+                                                          FunRave.ImprimeTotaAmostrasPorVendedor(EVendedor.AInteiro,VprCaminhoRelatorio,LVendedor.caption,CDataIni.Date,CDataFim.Date);
   dtRave.free;
 end;
 

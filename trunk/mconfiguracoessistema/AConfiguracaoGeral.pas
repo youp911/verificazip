@@ -456,6 +456,16 @@ type
     DBEditColor25: TDBEditColor;
     Label19: TLabel;
     CFGI_COT_QME: TFMTBCDField;
+    Amostra: TTabSheet;
+    PanelColor2: TPanelColor;
+    CFGI_COD_DEA: TFMTBCDField;
+    CFGI_DIA_AMO: TFMTBCDField;
+    Label112: TLabel;
+    SpeedButton39: TSpeedButton;
+    Label113: TLabel;
+    DBEditLocaliza30: TDBEditLocaliza;
+    DBEditColor26: TDBEditColor;
+    Label114: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

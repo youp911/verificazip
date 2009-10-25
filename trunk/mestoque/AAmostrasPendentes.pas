@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Componentes1, ExtCtrls, PainelGradiente, StdCtrls, Buttons, Db, Grids,
-  DBGrids, Tabela, DBKeyViolation, DBTables, Menus, UnAmostra, DBClient;
+  DBGrids, Tabela, DBKeyViolation, DBTables, Menus, UnAmostra, DBClient, Localizacao;
 
 type
   TFAmostrasPendentes = class(TFormularioPermissao)
@@ -29,16 +29,24 @@ type
     MConcluiAmostra: TMenuItem;
     PanelColor3: TPanelColor;
     Label1: TLabel;
-    EDepartamento: TComboBoxColor;
-    AmostrasDepartamento: TWideStringField;
     AmostrasDESDEPARTAMENTO: TWideStringField;
+    EDepartamento: TRBEditLocaliza;
+    SpeedButton1: TSpeedButton;
+    Label2: TLabel;
+    N2: TMenuItem;
+    GerarAmostra1: TMenuItem;
+    AmostrasCODDESENVOLVEDOR: TFMTBCDField;
+    AmostrasNOMDESENVOLVEDOR: TWideStringField;
+    AmostrasCODDEPARTAMENTOAMOSTRA: TFMTBCDField;
+    AmostrasNOMDEPARTAMENTOAMOSTRA: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
     procedure MConsultaAmostraClick(Sender: TObject);
     procedure MConcluiAmostraClick(Sender: TObject);
     procedure EDepartamentoClick(Sender: TObject);
-    procedure AmostrasCalcFields(DataSet: TDataSet);
+    procedure EDepartamentoFimConsulta(Sender: TObject);
+    procedure GerarAmostra1Click(Sender: TObject);
   private
     { Private declarations }
     FunAmostra : TRBFuncoesAmostra;
@@ -54,7 +62,7 @@ var
 
 implementation
 
-uses APrincipal, AAmostras, Constantes, FunObjeto, Constmsg;
+uses APrincipal, AAmostras, Constantes, FunObjeto, Constmsg, ANovaAmostra;
 
 {$R *.DFM}
 
@@ -66,8 +74,18 @@ begin
   { chamar a rotina de atualização de menus }
   FunAmostra := TRBFuncoesAmostra.cria(FPrincipal.BaseDados);
   ConfiguraPermissaoUsuario;
-  EDepartamento.ItemIndex := 3;
   AtualizaConsulta;
+end;
+
+
+procedure TFAmostrasPendentes.GerarAmostra1Click(Sender: TObject);
+begin
+  if AmostrasCODAMOSTRA.AsInteger <> 0 then
+  begin
+    FNovaAmostra := tFNovaAmostra.CriarSDI(Self,'',true);
+    FNovaAmostra.NovaAmostra(AmostrasCODAMOSTRA.AsInteger);
+    FNovaAmostra.free;
+  end;
 end;
 
 { ******************* Quando o formulario e fechado ************************** }
@@ -91,12 +109,16 @@ begin
   Amostras.sql.clear;
   Amostras.sql.add('SELECT CODAMOSTRA, NOMAMOSTRA, DATAMOSTRA, DATENTREGACLIENTE, AMO.QTDAMOSTRA, AMO.DESDEPARTAMENTO, '+
                    ' VEN.C_NOM_VEN, '+
-                   ' CLI.C_NOM_CLI '+
-                   ' FROM AMOSTRA AMO, CADVENDEDORES VEN, CADCLIENTES CLI '+
+                   ' CLI.C_NOM_CLI, '+
+                   ' DES.CODDESENVOLVEDOR, DES.NOMDESENVOLVEDOR, '+
+                   ' DEP.CODDEPARTAMENTOAMOSTRA, DEP.NOMDEPARTAMENTOAMOSTRA '+
+                   ' FROM AMOSTRA AMO, CADVENDEDORES VEN, CADCLIENTES CLI, DESENVOLVEDOR DES, DEPARTAMENTOAMOSTRA DEP '+
                    ' WHERE AMO.DATENTREGA IS NULL '+
                    ' AND AMO.TIPAMOSTRA = ''I'''+
                    ' AND AMO.CODVENDEDOR = VEN.I_COD_VEN '+
-                   ' AND AMO.CODCLIENTE = CLI.I_COD_CLI ');
+                   ' AND AMO.CODCLIENTE = CLI.I_COD_CLI '+
+                   ' AND AMO.CODDESENVOLVEDOR = DES.CODDESENVOLVEDOR ' +
+                   ' AND AMO.CODDEPARTAMENTOAMOSTRA = DEP.CODDEPARTAMENTOAMOSTRA');
   AdicionaFiltros(Amostras.sql);
   Amostras.sql.add(' ORDER BY AMO.DATAMOSTRA');
   Amostras.open;
@@ -105,11 +127,8 @@ end;
 {******************************************************************************}
 procedure TFAmostrasPendentes.AdicionaFiltros(VpaConsulta : TStrings);
 begin
-  case EDepartamento.ItemIndex of
-    0 : Amostras.sql.add('AND AMO.DESDEPARTAMENTO = ''D''');
-    1 : Amostras.sql.add('AND AMO.DESDEPARTAMENTO = ''F''');
-    2 : Amostras.sql.add('AND AMO.DESDEPARTAMENTO = ''A''');
-  end;
+  if EDepartamento.AInteiro <> 0 then
+    Amostras.SQL.add('AND AMO.CODDEPARTAMENTOAMOSTRA = '+EDepartamento.Text);
 end;
 
 {******************************************************************************}
@@ -153,18 +172,13 @@ begin
   AtualizaConsulta;
 end;
 
-procedure TFAmostrasPendentes.AmostrasCalcFields(DataSet: TDataSet);
+{******************************************************************************}
+procedure TFAmostrasPendentes.EDepartamentoFimConsulta(Sender: TObject);
 begin
-  if AmostrasDESDEPARTAMENTO.AsString = 'D' THEN
-    AmostrasDepartamento.AsString := 'Desenvolvimento'
-  else
-    if AmostrasDESDEPARTAMENTO.AsString = 'F' THEN
-      AmostrasDepartamento.AsString := 'Ficha Técnica'
-    else
-    if AmostrasDESDEPARTAMENTO.AsString = 'A' THEN
-      AmostrasDepartamento.AsString := 'Amostras';
+  AtualizaConsulta;
 end;
 
+{******************************************************************************}
 Initialization
 { *************** Registra a classe para evitar duplicidade ****************** }
  RegisterClasses([TFAmostrasPendentes]);

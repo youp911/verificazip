@@ -1694,6 +1694,7 @@ end;
 procedure TFuncoesNotaFiscal.CarDItensNota(VpaDNota : TRBDNotaFiscal);
 var
   VpfDProdutoNota : TRBDNotaFiscalProduto;
+  VpfValRevenda : Double;
 begin
   AdicionaSQLAbreTabela(CadNotaFiscal,'Select MNO.I_SEQ_PRO, MNO.C_COD_PRO, MNO.N_VLR_PRO, MNO.C_NOM_PRO NOMENOTA, '+
                                   ' MNO.N_QTD_PRO, MNO.N_TOT_PRO, MNO.C_COD_UNI, MNO.I_ORD_FIS, '+
@@ -1704,9 +1705,8 @@ begin
                                   ' PRO.C_COD_UNI UNIORIGINAL,PRO.N_RED_ICM, PRO.N_PER_COM, PRO.C_CLA_FIS, '+
                                   ' (QTD.N_QTD_PRO - QTD.N_QTD_RES) QTDREAL, '+
                                   ' Qtd.N_QTD_MIN, QTD.N_QTD_PED, ' +
-                                  ' (Pre.N_Vlr_Ven * Moe.N_Vlr_Dia) VlrReal, ' +
                                   ' CLA.C_COD_CLA, CLA.N_PER_COM PERCOMISSAOCLASSIFICACAO '+
-                                  ' FROM MOVNOTASFISCAIS MNO, CADPRODUTOS PRO, MOVTABELAPRECO PRE, CadMOEDAS MOE, '+
+                                  ' FROM MOVNOTASFISCAIS MNO, CADPRODUTOS PRO,  '+
                                   ' MOVQDADEPRODUTO QTD, CADCLASSIFICACAO CLA ' +
                                   ' Where MNO.I_EMP_FIL = '+IntToStr(VpaDNota.CodFilial)+
                                   ' AND  MNO.I_SEQ_NOT = '+IntToStr(VpaDNota.SeqNota)+
@@ -1715,14 +1715,10 @@ begin
                                   ' and QTD.I_Seq_Pro = PRO.I_Seq_Pro ' +
                                   ' and QTD.I_COD_COR = 0 '+
                                   ' AND QTD.I_COD_TAM = 0 '+
-                                  ' and Pre.I_Cod_Tab = ' + IntToStr(sistema.RTabelaPrecoFilial(VpaDNota.codfilial))+
-                                  ' and Pro.I_Seq_Pro = Pre.I_Seq_Pro ' +
-                                  ' and Pre.I_Cod_Moe = Moe.I_Cod_Moe '+
-                                  ' and PRE.I_COD_CLI  = 0 '+
                                   ' and PRO.I_COD_EMP = CLA.I_COD_EMP '+
                                   ' and PRO.C_COD_CLA = CLA.C_COD_CLA '+
                                   ' and PRO.C_TIP_CLA = CLA.C_TIP_CLA '+
-                                  ' order by MNO.I_SEQ_MOV, PRE.I_COD_CLI DESC');
+                                  ' order by MNO.I_SEQ_MOV');
   FreeTObjectsList(VpaDNota.Produtos);
   While not CadNotaFiscal.Eof do
   begin
@@ -1757,10 +1753,11 @@ begin
     VpfDProdutoNota.QtdProduto := CadNotaFiscal.FieldByName('N_QTD_PRO').AsFloat;
     VpfDProdutoNota.ValIPI := CadNotaFiscal.FieldByName('N_VLR_IPI').AsFloat;
     VpfDProdutoNota.ValUnitario := CadNotaFiscal.FieldByName('N_VLR_PRO').AsFloat;
-    VpfDProdutoNota.ValUnitarioOriginal := CadNotaFiscal.FieldByName('VLRREAL').AsFloat;
     VpfDProdutoNota.ValTotal := CadNotaFiscal.FieldByName('N_TOT_PRO').AsFloat;
     VpfDProdutoNota.IndReducaoICMS := (CadNotaFiscal.FieldByName('N_RED_ICM').AsFloat > 0);
     VpfDProdutoNota.IndBaixaEstoque := false;
+    FunProdutos.CarValVendaeRevendaProduto(sistema.RTabelaPrecoFilial(VpaDNota.codfilial),VpfDProdutoNota.SeqProduto,VpfDProdutoNota.CodCor,
+                                           0,VpaDNota.CodCliente,VpfDProdutoNota.ValUnitarioOriginal,VpfValRevenda);
     CadNotaFiscal.Next;
   end;
   CadNotafiscal.Close;

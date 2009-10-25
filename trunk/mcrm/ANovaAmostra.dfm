@@ -1,10 +1,9 @@
 object FNovaAmostra: TFNovaAmostra
   Left = 58
   Top = 46
-  ActiveControl = ECodigo
   Caption = 'Amostra'
-  ClientHeight = 416
-  ClientWidth = 618
+  ClientHeight = 610
+  ClientWidth = 774
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,14 +20,14 @@ object FNovaAmostra: TFNovaAmostra
   object PainelGradiente1: TPainelGradiente
     Left = 0
     Top = 0
-    Width = 618
+    Width = 774
     Height = 41
     Align = alTop
     Alignment = taLeftJustify
     Caption = '   Amostra   '
     Font.Charset = ANSI_CHARSET
     Font.Color = clWhite
-    Font.Height = -27
+    Font.Height = -24
     Font.Name = 'Times New Roman'
     Font.Style = [fsBold]
     ParentFont = False
@@ -37,8 +36,8 @@ object FNovaAmostra: TFNovaAmostra
   end
   object PanelColor2: TPanelColor
     Left = 0
-    Top = 375
-    Width = 618
+    Top = 569
+    Width = 774
     Height = 41
     Align = alBottom
     Color = clSilver
@@ -47,6 +46,7 @@ object FNovaAmostra: TFNovaAmostra
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
+    ParentBackground = False
     ParentFont = False
     TabOrder = 2
     AUsarCorForm = False
@@ -224,8 +224,8 @@ object FNovaAmostra: TFNovaAmostra
   object PanelColor1: TPanelColor
     Left = 0
     Top = 41
-    Width = 618
-    Height = 334
+    Width = 774
+    Height = 528
     Align = alClient
     Color = clSilver
     Font.Charset = DEFAULT_CHARSET
@@ -233,6 +233,7 @@ object FNovaAmostra: TFNovaAmostra
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
+    ParentBackground = False
     ParentFont = False
     TabOrder = 1
     AUsarCorForm = False
@@ -240,987 +241,1047 @@ object FNovaAmostra: TFNovaAmostra
     object Paginas: TPageControl
       Left = 1
       Top = 1
-      Width = 616
-      Height = 332
+      Width = 772
+      Height = 526
       ActivePage = PAmostra
       Align = alClient
       TabOrder = 0
       object PAmostra: TTabSheet
         Caption = 'Amostra'
-        object Label1: TLabel
-          Left = 100
-          Top = 7
-          Width = 50
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'C'#243'digo :'
-        end
-        object Label2: TLabel
-          Left = 107
-          Top = 62
-          Width = 43
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Nome :'
-        end
-        object Label3: TLabel
-          Left = 63
-          Top = 125
-          Width = 88
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Data Amostra :'
-        end
-        object Label4: TLabel
-          Left = 481
-          Top = 150
-          Width = 85
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Data Entrega :'
-        end
-        object Label5: TLabel
-          Left = 4
-          Top = 150
-          Width = 148
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Data Entrega Solicitada :'
-        end
-        object Label6: TLabel
-          Left = 511
-          Top = 176
-          Width = 57
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Cole'#231#227'o :'
-        end
-        object Label7: TLabel
-          Left = 51
-          Top = 176
-          Width = 99
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Desenvolvedor :'
-        end
-        object Label8: TLabel
-          Left = 90
-          Top = 202
-          Width = 60
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Prospect :'
-        end
-        object Label9: TLabel
-          Left = 95
-          Top = 277
-          Width = 55
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Imagem :'
-        end
-        object Label10: TLabel
-          Left = 51
-          Top = 303
-          Width = 99
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Imagem Cliente :'
-        end
-        object Label13: TLabel
-          Left = 69
-          Top = 250
-          Width = 81
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Valor Venda :'
-        end
-        object SpeedButton1: TSpeedButton
-          Left = 216
-          Top = 172
-          Width = 26
-          Height = 25
-          Glyph.Data = {
-            76010000424D7601000000000000760000002800000020000000100000000100
-            04000000000000010000CE0E0000D80E00001000000000000000000000000000
-            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-            33033333333333333F7F3333333333333000333333333333F777333333333333
-            000333333333333F777333333333333000333333333333F77733333333333300
-            033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
-            33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
-            333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
-            33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
-            333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
-            333333773FF77333333333370007333333333333777333333333}
-          NumGlyphs = 2
-        end
-        object Label14: TLabel
-          Left = 248
-          Top = 176
-          Width = 81
-          Height = 16
-          Caption = '                           '
-        end
-        object SpeedButton2: TSpeedButton
-          Left = 632
-          Top = 172
-          Width = 26
-          Height = 25
-          Glyph.Data = {
-            76010000424D7601000000000000760000002800000020000000100000000100
-            04000000000000010000CE0E0000D80E00001000000000000000000000000000
-            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-            33033333333333333F7F3333333333333000333333333333F777333333333333
-            000333333333333F777333333333333000333333333333F77733333333333300
-            033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
-            33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
-            333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
-            33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
-            333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
-            333333773FF77333333333370007333333333333777333333333}
-          NumGlyphs = 2
-        end
-        object Label15: TLabel
-          Left = 664
-          Top = 176
-          Width = 81
-          Height = 16
-          Caption = '                           '
-        end
-        object SpeedButton3: TSpeedButton
-          Left = 216
-          Top = 198
-          Width = 26
-          Height = 25
-          Glyph.Data = {
-            76010000424D7601000000000000760000002800000020000000100000000100
-            04000000000000010000CE0E0000D80E00001000000000000000000000000000
-            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-            33033333333333333F7F3333333333333000333333333333F777333333333333
-            000333333333333F777333333333333000333333333333F77733333333333300
-            033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
-            33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
-            333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
-            33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
-            333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
-            333333773FF77333333333370007333333333333777333333333}
-          NumGlyphs = 2
-        end
-        object Label16: TLabel
-          Left = 248
-          Top = 202
-          Width = 81
-          Height = 16
-          Caption = '                           '
-        end
-        object Label17: TLabel
-          Left = 502
-          Top = 202
-          Width = 66
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Vendedor :'
-        end
-        object SpeedButton4: TSpeedButton
-          Left = 632
-          Top = 198
-          Width = 26
-          Height = 25
-          Glyph.Data = {
-            76010000424D7601000000000000760000002800000020000000100000000100
-            04000000000000010000CE0E0000D80E00001000000000000000000000000000
-            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-            33033333333333333F7F3333333333333000333333333333F777333333333333
-            000333333333333F777333333333333000333333333333F77733333333333300
-            033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
-            33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
-            333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
-            33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
-            333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
-            333333773FF77333333333370007333333333333777333333333}
-          NumGlyphs = 2
-        end
-        object Label18: TLabel
-          Left = 664
-          Top = 202
-          Width = 81
-          Height = 16
-          Caption = '                           '
-        end
-        object Label11: TLabel
-          Left = 493
-          Top = 250
-          Width = 75
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Valor Custo :'
-        end
-        object Label12: TLabel
-          Left = 463
-          Top = 125
-          Width = 105
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Data Aprova'#231#227'o :'
-        end
-        object Label19: TLabel
-          Left = 14
-          Top = 329
-          Width = 136
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'C'#243'd. Requis. Amostra :'
-        end
-        object SpeedButton5: TSpeedButton
-          Left = 216
-          Top = 325
-          Width = 26
-          Height = 25
-          Glyph.Data = {
-            76010000424D7601000000000000760000002800000020000000100000000100
-            04000000000000010000CE0E0000D80E00001000000000000000000000000000
-            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-            33033333333333333F7F3333333333333000333333333333F777333333333333
-            000333333333333F777333333333333000333333333333F77733333333333300
-            033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
-            33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
-            333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
-            33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
-            333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
-            333333773FF77333333333370007333333333333777333333333}
-          NumGlyphs = 2
-        end
-        object Label20: TLabel
-          Left = 248
-          Top = 329
-          Width = 81
-          Height = 16
-          Caption = '                           '
-        end
-        object Label21: TLabel
-          Left = 62
-          Top = 413
-          Width = 88
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Observa'#231#245'es :'
-        end
-        object Label22: TLabel
-          Left = 439
-          Top = 227
-          Width = 129
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Quantidade Amostra :'
-        end
-        object Label23: TLabel
-          Left = 468
-          Top = 329
-          Width = 100
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'C'#243'digo Produto :'
-        end
-        object Label24: TLabel
-          Left = 59
-          Top = 95
-          Width = 92
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Departamento :'
-        end
-        object Label25: TLabel
-          Left = 28
-          Top = 37
-          Width = 122
-          Height = 16
-          Alignment = taRightJustify
-          Caption = 'Classifica'#231#227'o Prod. :'
-        end
-        object SpeedButton15: TSpeedButton
-          Left = 239
-          Top = 32
-          Width = 26
-          Height = 25
-          Glyph.Data = {
-            76010000424D7601000000000000760000002800000020000000100000000100
-            04000000000000010000CE0E0000D80E00001000000000000000000000000000
-            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
-            33033333333333333F7F3333333333333000333333333333F777333333333333
-            000333333333333F777333333333333000333333333333F77733333333333300
-            033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
-            33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
-            333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
-            33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
-            333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
-            333333773FF77333333333370007333333333333777333333333}
-          NumGlyphs = 2
-          OnClick = SpeedButton15Click
-        end
-        object LNomClassificacao: TLabel
-          Left = 270
-          Top = 36
-          Width = 168
-          Height = 16
-          Caption = '                                                        '
-        end
-        object ECodigo: TDBKeyViolation
-          Left = 156
-          Top = 3
-          Width = 81
-          Height = 24
-          Color = 11661566
-          DataField = 'CODAMOSTRA'
-          DataSource = DataAmostra
+        object PanelColor3: TPanelColor
+          Left = 0
+          Top = 0
+          Width = 764
+          Height = 495
+          Align = alClient
+          Color = clSilver
           Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
+          Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'MS Sans Serif'
           Font.Style = []
+          ParentBackground = False
           ParentFont = False
           TabOrder = 0
-          OnChange = ECodigoChange
-          ACampoObrigatorio = True
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-          ADataBase = FPrincipal.BaseDados
-          ATabela = 'AMOSTRA'
-        end
-        object DBEditColor1: TDBEditColor
-          Left = 156
-          Top = 58
-          Width = 501
-          Height = 24
-          Color = 11661566
-          DataField = 'NOMAMOSTRA'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 3
-          OnChange = ECodigoChange
-          ACampoObrigatorio = True
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-        end
-        object DBEditColor2: TDBEditColor
-          Left = 156
-          Top = 121
-          Width = 133
-          Height = 24
-          TabStop = False
-          Color = clInfoBk
-          DataField = 'DATAMOSTRA'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 5
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = True
-          AIgnorarTipoLetra = False
-        end
-        object EDatEntrega: TDBEditColor
-          Left = 572
-          Top = 146
-          Width = 85
-          Height = 24
-          TabStop = False
-          Color = clInfoBk
-          DataField = 'DATENTREGA'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          ReadOnly = True
-          TabOrder = 8
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = True
-          AIgnorarTipoLetra = False
-        end
-        object DBEditColor4: TDBEditColor
-          Left = 156
-          Top = 146
-          Width = 81
-          Height = 24
-          Color = clInfoBk
-          DataField = 'DATENTREGACLIENTE'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 7
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = True
-          AIgnorarTipoLetra = False
-        end
-        object DBEditLocaliza1: TDBEditLocaliza
-          Left = 572
-          Top = 172
-          Width = 58
-          Height = 24
-          Color = 11661566
-          DataField = 'CODCOLECAO'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 10
-          OnChange = ECodigoChange
-          ACampoObrigatorio = True
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-          ATexto = Label15
-          ABotao = SpeedButton2
-          ADataBase = FPrincipal.BaseDados
-          ALocaliza = Localiza
-          ASelectValida.Strings = (
-            'Select * from COLECAO'
-            'Where CODCOLECAO = @')
-          ASelectLocaliza.Strings = (
-            'Select * from COLECAO'
-            'Where NOMCOLECAO LIKE '#39'@%'#39
-            'order by NOMCOLECAO')
+          AUsarCorForm = False
           ACorForm = FPrincipal.CorForm
-          ACorPainelGra = FPrincipal.CorPainelGra
-          APermitirVazio = True
-          AInfo.CampoCodigo = 'CODCOLECAO'
-          AInfo.CampoNome = 'NOMCOLECAO'
-          AInfo.Nome1 = 'C'#243'digo'
-          AInfo.Nome2 = 'Nome'
-          AInfo.Tamanho1 = 8
-          AInfo.Tamanho2 = 40
-          AInfo.Tamanho3 = 0
-          AInfo.TituloForm = '   Localiza Cole'#231#227'o   '
-          AInfo.Cadastrar = True
-          OnCadastrar = DBEditLocaliza1Cadastrar
-        end
-        object DBEditLocaliza2: TDBEditLocaliza
-          Left = 156
-          Top = 172
-          Width = 58
-          Height = 24
-          Color = 11661566
-          DataField = 'CODDESENVOLVEDOR'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 9
-          OnChange = ECodigoChange
-          ACampoObrigatorio = True
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-          ATexto = Label14
-          ABotao = SpeedButton1
-          ADataBase = FPrincipal.BaseDados
-          ALocaliza = Localiza
-          ASelectValida.Strings = (
-            'Select * from DESENVOLVEDOR'
-            'Where CODDESENVOLVEDOR = @')
-          ASelectLocaliza.Strings = (
-            'Select * from DESENVOLVEDOR'
-            'Where NOMDESENVOLVEDOR Like '#39'@%'#39' '
-            'order by NOMDESENVOLVEDOR')
-          ACorForm = FPrincipal.CorForm
-          ACorPainelGra = FPrincipal.CorPainelGra
-          APermitirVazio = True
-          AInfo.CampoCodigo = 'CODDESENVOLVEDOR'
-          AInfo.CampoNome = 'NOMDESENVOLVEDOR'
-          AInfo.Nome1 = 'C'#243'digo'
-          AInfo.Nome2 = 'Nome'
-          AInfo.Tamanho1 = 8
-          AInfo.Tamanho2 = 40
-          AInfo.Tamanho3 = 0
-          AInfo.TituloForm = '   Localiza Desenvolvedor   '
-          AInfo.Cadastrar = True
-          OnCadastrar = DBEditLocaliza2Cadastrar
-        end
-        object DBEditLocaliza3: TDBEditLocaliza
-          Left = 156
-          Top = 198
-          Width = 58
-          Height = 24
-          Color = 11661566
-          DataField = 'CODCLIENTE'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 11
-          OnChange = ECodigoChange
-          ACampoObrigatorio = True
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-          ATexto = Label16
-          ABotao = SpeedButton3
-          ADataBase = FPrincipal.BaseDados
-          ALocaliza = Localiza
-          ASelectValida.Strings = (
-            'Select * from CADCLIENTES'
-            'Where I_COD_CLI = @ '
-            'and (C_IND_PRC = '#39'S'#39' OR'
-            ' C_IND_CLI = '#39'S'#39')'
-            '')
-          ASelectLocaliza.Strings = (
-            'Select * from CADCLIENTES'
-            'Where C_NOM_CLI Like '#39'@%'#39' '
-            'and (C_IND_PRC = '#39'S'#39' OR'
-            ' C_IND_CLI = '#39'S'#39')'
-            'order by C_NOM_CLI')
-          ACorForm = FPrincipal.CorForm
-          ACorPainelGra = FPrincipal.CorPainelGra
-          APermitirVazio = True
-          AInfo.CampoCodigo = 'I_COD_CLI'
-          AInfo.CampoNome = 'C_NOM_CLI'
-          AInfo.Nome1 = 'C'#243'digo'
-          AInfo.Nome2 = 'Nome'
-          AInfo.Tamanho1 = 8
-          AInfo.Tamanho2 = 40
-          AInfo.Tamanho3 = 0
-          AInfo.TituloForm = '   Localiza Prospect   '
-          AInfo.Cadastrar = True
-          OnCadastrar = DBEditLocaliza3Cadastrar
-        end
-        object DBEditLocaliza4: TDBEditLocaliza
-          Left = 572
-          Top = 198
-          Width = 58
-          Height = 24
-          Color = 11661566
-          DataField = 'CODVENDEDOR'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 12
-          OnChange = ECodigoChange
-          ACampoObrigatorio = True
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-          ATexto = Label18
-          ABotao = SpeedButton4
-          ADataBase = FPrincipal.BaseDados
-          ALocaliza = Localiza
-          ASelectValida.Strings = (
-            'Select * from CADVENDEDORES'
-            'Where I_COD_VEN = @')
-          ASelectLocaliza.Strings = (
-            'Select * from CADVENDEDORES'
-            'Where C_NOM_VEN Like '#39'@%'#39' '
-            'order by C_NOM_VEN')
-          ACorForm = FPrincipal.CorForm
-          ACorPainelGra = FPrincipal.CorPainelGra
-          APermitirVazio = True
-          AInfo.CampoCodigo = 'I_COD_VEN'
-          AInfo.CampoNome = 'C_NOM_VEN'
-          AInfo.Nome1 = 'C'#243'digo'
-          AInfo.Nome2 = 'Nome'
-          AInfo.Tamanho1 = 8
-          AInfo.Tamanho2 = 40
-          AInfo.Tamanho3 = 0
-          AInfo.TituloForm = '   Localiza Vendedor   '
-        end
-        object CCopia: TDBCheckBox
-          Left = 156
-          Top = 224
-          Width = 68
-          Height = 17
-          Caption = 'C'#243'pia'
-          DataField = 'INDCOPIA'
-          DataSource = DataAmostra
-          TabOrder = 13
-          ValueChecked = 'S'
-          ValueUnchecked = 'N'
-        end
-        object DBEditColor5: TDBEditColor
-          Left = 156
-          Top = 247
-          Width = 81
-          Height = 24
-          Color = clInfoBk
-          DataField = 'VALVENDA'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 16
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-        end
-        object DBEditColor6: TDBEditColor
-          Left = 572
-          Top = 247
-          Width = 85
-          Height = 24
-          Color = clInfoBk
-          DataField = 'VALCUSTO'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 17
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-        end
-        object DBEditColor7: TDBEditColor
-          Left = 156
-          Top = 273
-          Width = 457
-          Height = 24
-          Color = clInfoBk
-          DataField = 'DESIMAGEM'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          ReadOnly = True
-          TabOrder = 18
-          OnChange = ECodigoChange
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-        end
-        object DBEditColor8: TDBEditColor
-          Left = 156
-          Top = 299
-          Width = 457
-          Height = 24
-          Color = clInfoBk
-          DataField = 'DESIMAGEMCLIENTE'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          ReadOnly = True
-          TabOrder = 19
-          OnChange = ECodigoChange
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-        end
-        object EDatAprovacao: TDBEditColor
-          Left = 572
-          Top = 121
-          Width = 85
-          Height = 24
-          TabStop = False
-          Color = clInfoBk
-          DataField = 'DATAPROVACAO'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          ReadOnly = True
-          TabOrder = 6
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = True
-          AIgnorarTipoLetra = False
-        end
-        object ETipoAmostra: TDBRadioGroup
-          Left = 288
-          Top = -8
-          Width = 369
-          Height = 37
-          Columns = 2
-          DataField = 'TIPAMOSTRA'
-          DataSource = DataAmostra
-          Items.Strings = (
-            'Amostra Realizada'
-            'Requisi'#231#227'o de Amostra')
-          ParentBackground = True
-          TabOrder = 1
-          Values.Strings = (
-            'D'
-            'I')
-          OnChange = ETipoAmostraChange
-          OnClick = ETipoAmostraChange
-        end
-        object EAmostraIndefinida: TDBEditLocaliza
-          Left = 156
-          Top = 325
-          Width = 58
-          Height = 24
-          Color = clInfoBk
-          DataField = 'CODAMOSTRAINDEFINIDA'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 20
-          OnChange = ECodigoChange
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-          ATexto = Label20
-          ABotao = SpeedButton5
-          ADataBase = FPrincipal.BaseDados
-          ALocaliza = Localiza
-          ASelectValida.Strings = (
-            'Select * from AMOSTRA'
-            'Where CODAMOSTRA= @')
-          ASelectLocaliza.Strings = (
-            'Select * from AMOSTRA'
-            'Where NOMAMOSTRA LIKE '#39'@%'#39
-            'order by NOMAMOSTRA')
-          ACorForm = FPrincipal.CorForm
-          ACorPainelGra = FPrincipal.CorPainelGra
-          APermitirVazio = True
-          AInfo.CampoCodigo = 'CODAMOSTRA'
-          AInfo.CampoNome = 'NOMAMOSTRA'
-          AInfo.Nome1 = 'C'#243'digo'
-          AInfo.Nome2 = 'Nome'
-          AInfo.Tamanho1 = 8
-          AInfo.Tamanho2 = 40
-          AInfo.Tamanho3 = 0
-          AInfo.TituloForm = '   Localiza Amostra Indefinida   '
-          AInfo.Cadastrar = True
-          OnCadastrar = DBEditLocaliza2Cadastrar
-        end
-        object DBMemoColor1: TDBMemoColor
-          Left = 155
-          Top = 351
-          Width = 505
-          Height = 138
-          Color = clInfoBk
-          DataField = 'DESOBSERVACAO'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 22
-          ACampoObrigatorio = False
-          ACorFoco = FPrincipal.CorFoco
-        end
-        object DBEditColor3: TDBEditColor
-          Left = 572
-          Top = 223
-          Width = 85
-          Height = 24
-          Color = clInfoBk
-          DataField = 'QTDAMOSTRA'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 15
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-        end
-        object DBEditColor9: TDBEditColor
-          Left = 572
-          Top = 325
-          Width = 85
-          Height = 24
-          Color = clInfoBk
-          DataField = 'CODPRODUTO'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 21
-          ACampoObrigatorio = False
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
-        end
-        object BFoto: TBitBtn
-          Left = 616
-          Top = 272
-          Width = 41
-          Height = 27
-          HelpContext = 27
-          DoubleBuffered = True
-          Glyph.Data = {
-            76010000424D7601000000000000760000002800000020000000100000000100
-            04000000000000010000120B0000120B00001000000000000000000000000000
-            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0033BBBBBBBBBB
-            BB33337777777777777F33BB00BBBBBBBB33337F77333333F37F33BB0BBBBBB0
-            BB33337F73F33337FF7F33BBB0BBBB000B33337F37FF3377737F33BBB00BB00B
-            BB33337F377F3773337F33BBBB0B00BBBB33337F337F7733337F33BBBB000BBB
-            BB33337F33777F33337F33EEEE000EEEEE33337F3F777FFF337F33EE0E80000E
-            EE33337F73F77773337F33EEE0800EEEEE33337F37377F33337F33EEEE000EEE
-            EE33337F33777F33337F33EEEEE00EEEEE33337F33377FF3337F33EEEEEE00EE
-            EE33337F333377F3337F33EEEEEE00EEEE33337F33337733337F33EEEEEEEEEE
-            EE33337FFFFFFFFFFF7F33EEEEEEEEEEEE333377777777777773}
-          NumGlyphs = 2
-          ParentDoubleBuffered = False
-          TabOrder = 23
-          OnClick = BFotoClick
-        end
-        object BitBtn1: TBitBtn
-          Left = 616
-          Top = 298
-          Width = 41
-          Height = 27
-          HelpContext = 27
-          DoubleBuffered = True
-          Glyph.Data = {
-            76010000424D7601000000000000760000002800000020000000100000000100
-            04000000000000010000120B0000120B00001000000000000000000000000000
-            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0033BBBBBBBBBB
-            BB33337777777777777F33BB00BBBBBBBB33337F77333333F37F33BB0BBBBBB0
-            BB33337F73F33337FF7F33BBB0BBBB000B33337F37FF3377737F33BBB00BB00B
-            BB33337F377F3773337F33BBBB0B00BBBB33337F337F7733337F33BBBB000BBB
-            BB33337F33777F33337F33EEEE000EEEEE33337F3F777FFF337F33EE0E80000E
-            EE33337F73F77773337F33EEE0800EEEEE33337F37377F33337F33EEEE000EEE
-            EE33337F33777F33337F33EEEEE00EEEEE33337F33377FF3337F33EEEEEE00EE
-            EE33337F333377F3337F33EEEEEE00EEEE33337F33337733337F33EEEEEEEEEE
-            EE33337FFFFFFFFFFF7F33EEEEEEEEEEEE333377777777777773}
-          NumGlyphs = 2
-          ParentDoubleBuffered = False
-          TabOrder = 24
-        end
-        object DBCheckBox1: TDBCheckBox
-          Left = 237
-          Top = 224
-          Width = 97
-          Height = 17
-          Caption = 'Altera'#231#227'o'
-          DataField = 'INDALTERACAO'
-          DataSource = DataAmostra
-          TabOrder = 14
-          ValueChecked = 'S'
-          ValueUnchecked = 'N'
-        end
-        object DBRadioGroup1: TDBRadioGroup
-          Left = 156
-          Top = 82
-          Width = 501
-          Height = 36
-          Columns = 3
-          DataField = 'DESDEPARTAMENTO'
-          DataSource = DataAmostra
-          Items.Strings = (
-            'Desenvolvimento'
-            'Ficha Tecnica'
-            'Amostra')
-          ParentBackground = True
-          TabOrder = 4
-          Values.Strings = (
-            'D'
-            'F'
-            'A')
-          OnChange = ETipoAmostraChange
-          OnClick = ETipoAmostraChange
-        end
-        object ECodClassificacao: TDBEditColor
-          Left = 156
-          Top = 32
-          Width = 81
-          Height = 24
-          Color = 11661566
-          DataField = 'CODCLASSIFICACAO'
-          DataSource = DataAmostra
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlue
-          Font.Height = -13
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 2
-          OnExit = ECodClassifcacaoExit
-          OnKeyDown = ECodClassifcacaoKeyDown
-          ACampoObrigatorio = True
-          AIgnorarCor = False
-          ACorFoco = FPrincipal.CorFoco
-          AFormatoData = False
-          AIgnorarTipoLetra = False
+          object Label25: TLabel
+            Left = 28
+            Top = 37
+            Width = 122
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Classifica'#231#227'o Prod. :'
+          end
+          object Label22: TLabel
+            Left = 439
+            Top = 216
+            Width = 129
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Quantidade Amostra :'
+          end
+          object Label21: TLabel
+            Left = 62
+            Top = 388
+            Width = 88
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Observa'#231#245'es :'
+          end
+          object SpeedButton15: TSpeedButton
+            Left = 239
+            Top = 32
+            Width = 26
+            Height = 25
+            Glyph.Data = {
+              76010000424D7601000000000000760000002800000020000000100000000100
+              04000000000000010000CE0E0000D80E00001000000000000000000000000000
+              800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+              33033333333333333F7F3333333333333000333333333333F777333333333333
+              000333333333333F777333333333333000333333333333F77733333333333300
+              033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
+              33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
+              333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
+              33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
+              333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
+              333333773FF77333333333370007333333333333777333333333}
+            NumGlyphs = 2
+            OnClick = SpeedButton15Click
+          end
+          object LNomClassificacao: TLabel
+            Left = 270
+            Top = 36
+            Width = 168
+            Height = 16
+            Caption = '                                                        '
+          end
+          object Label24: TLabel
+            Left = 58
+            Top = 88
+            Width = 92
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Departamento :'
+          end
+          object Label6: TLabel
+            Left = 511
+            Top = 165
+            Width = 57
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Cole'#231#227'o :'
+          end
+          object Label5: TLabel
+            Left = 2
+            Top = 139
+            Width = 148
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Data Entrega Solicitada :'
+          end
+          object Label4: TLabel
+            Left = 481
+            Top = 139
+            Width = 85
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Data Entrega :'
+          end
+          object Label9: TLabel
+            Left = 95
+            Top = 266
+            Width = 55
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Imagem :'
+          end
+          object Label8: TLabel
+            Left = 90
+            Top = 191
+            Width = 60
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Prospect :'
+          end
+          object Label23: TLabel
+            Left = 468
+            Top = 318
+            Width = 100
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'C'#243'digo Produto :'
+          end
+          object Label10: TLabel
+            Left = 51
+            Top = 292
+            Width = 99
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Imagem Cliente :'
+          end
+          object Label27: TLabel
+            Left = 246
+            Top = 88
+            Width = 81
+            Height = 16
+            Caption = '                           '
+          end
+          object SpeedButton6: TSpeedButton
+            Left = 214
+            Top = 84
+            Width = 26
+            Height = 25
+            Glyph.Data = {
+              76010000424D7601000000000000760000002800000020000000100000000100
+              04000000000000010000CE0E0000D80E00001000000000000000000000000000
+              800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+              33033333333333333F7F3333333333333000333333333333F777333333333333
+              000333333333333F777333333333333000333333333333F77733333333333300
+              033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
+              33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
+              333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
+              33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
+              333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
+              333333773FF77333333333370007333333333333777333333333}
+            NumGlyphs = 2
+          end
+          object Label2: TLabel
+            Left = 107
+            Top = 62
+            Width = 43
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Nome :'
+          end
+          object Label1: TLabel
+            Left = 100
+            Top = 7
+            Width = 50
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'C'#243'digo :'
+          end
+          object Label7: TLabel
+            Left = 51
+            Top = 165
+            Width = 99
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Desenvolvedor :'
+          end
+          object Label3: TLabel
+            Left = 62
+            Top = 114
+            Width = 88
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Data Amostra :'
+          end
+          object Label13: TLabel
+            Left = 69
+            Top = 239
+            Width = 81
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Valor Venda :'
+          end
+          object Label19: TLabel
+            Left = 14
+            Top = 318
+            Width = 136
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'C'#243'd. Requis. Amostra :'
+          end
+          object Label18: TLabel
+            Left = 664
+            Top = 191
+            Width = 81
+            Height = 16
+            Caption = '                           '
+          end
+          object SpeedButton4: TSpeedButton
+            Left = 632
+            Top = 187
+            Width = 26
+            Height = 25
+            Glyph.Data = {
+              76010000424D7601000000000000760000002800000020000000100000000100
+              04000000000000010000CE0E0000D80E00001000000000000000000000000000
+              800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+              33033333333333333F7F3333333333333000333333333333F777333333333333
+              000333333333333F777333333333333000333333333333F77733333333333300
+              033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
+              33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
+              333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
+              33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
+              333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
+              333333773FF77333333333370007333333333333777333333333}
+            NumGlyphs = 2
+          end
+          object SpeedButton5: TSpeedButton
+            Left = 216
+            Top = 314
+            Width = 26
+            Height = 25
+            Glyph.Data = {
+              76010000424D7601000000000000760000002800000020000000100000000100
+              04000000000000010000CE0E0000D80E00001000000000000000000000000000
+              800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+              33033333333333333F7F3333333333333000333333333333F777333333333333
+              000333333333333F777333333333333000333333333333F77733333333333300
+              033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
+              33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
+              333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
+              33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
+              333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
+              333333773FF77333333333370007333333333333777333333333}
+            NumGlyphs = 2
+          end
+          object Label20: TLabel
+            Left = 248
+            Top = 318
+            Width = 81
+            Height = 16
+            Caption = '                           '
+          end
+          object Label12: TLabel
+            Left = 463
+            Top = 114
+            Width = 105
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Data Aprova'#231#227'o :'
+          end
+          object SpeedButton2: TSpeedButton
+            Left = 632
+            Top = 161
+            Width = 26
+            Height = 25
+            Glyph.Data = {
+              76010000424D7601000000000000760000002800000020000000100000000100
+              04000000000000010000CE0E0000D80E00001000000000000000000000000000
+              800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+              33033333333333333F7F3333333333333000333333333333F777333333333333
+              000333333333333F777333333333333000333333333333F77733333333333300
+              033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
+              33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
+              333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
+              33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
+              333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
+              333333773FF77333333333370007333333333333777333333333}
+            NumGlyphs = 2
+          end
+          object SpeedButton3: TSpeedButton
+            Left = 216
+            Top = 187
+            Width = 26
+            Height = 25
+            Glyph.Data = {
+              76010000424D7601000000000000760000002800000020000000100000000100
+              04000000000000010000CE0E0000D80E00001000000000000000000000000000
+              800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+              33033333333333333F7F3333333333333000333333333333F777333333333333
+              000333333333333F777333333333333000333333333333F77733333333333300
+              033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
+              33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
+              333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
+              33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
+              333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
+              333333773FF77333333333370007333333333333777333333333}
+            NumGlyphs = 2
+          end
+          object Label14: TLabel
+            Left = 248
+            Top = 165
+            Width = 81
+            Height = 16
+            Caption = '                           '
+          end
+          object SpeedButton1: TSpeedButton
+            Left = 216
+            Top = 161
+            Width = 26
+            Height = 25
+            Glyph.Data = {
+              76010000424D7601000000000000760000002800000020000000100000000100
+              04000000000000010000CE0E0000D80E00001000000000000000000000000000
+              800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+              33033333333333333F7F3333333333333000333333333333F777333333333333
+              000333333333333F777333333333333000333333333333F77733333333333300
+              033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
+              33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
+              333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
+              33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
+              333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
+              333333773FF77333333333370007333333333333777333333333}
+            NumGlyphs = 2
+          end
+          object Label16: TLabel
+            Left = 248
+            Top = 191
+            Width = 81
+            Height = 16
+            Caption = '                           '
+          end
+          object Label17: TLabel
+            Left = 502
+            Top = 191
+            Width = 66
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Vendedor :'
+          end
+          object Label15: TLabel
+            Left = 664
+            Top = 165
+            Width = 81
+            Height = 16
+            Caption = '                           '
+          end
+          object Label11: TLabel
+            Left = 493
+            Top = 239
+            Width = 75
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Valor Custo :'
+          end
+          object DBEditColor4: TDBEditColor
+            Left = 156
+            Top = 135
+            Width = 81
+            Height = 24
+            Color = clInfoBk
+            DataField = 'DATENTREGACLIENTE'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = True
+            AIgnorarTipoLetra = False
+          end
+          object DBEditColor1: TDBEditColor
+            Left = 156
+            Top = 58
+            Width = 501
+            Height = 24
+            Color = 11661566
+            DataField = 'NOMAMOSTRA'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+            OnChange = ECodigoChange
+            ACampoObrigatorio = True
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+          end
+          object ECodigo: TDBKeyViolation
+            Left = 156
+            Top = 3
+            Width = 81
+            Height = 24
+            Color = 11661566
+            DataField = 'CODAMOSTRA'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 2
+            OnChange = ECodigoChange
+            ACampoObrigatorio = True
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+            ADataBase = FPrincipal.BaseDados
+            ATabela = 'AMOSTRA'
+          end
+          object EColecao: TDBEditLocaliza
+            Left = 572
+            Top = 161
+            Width = 58
+            Height = 24
+            Color = 11661566
+            DataField = 'CODCOLECAO'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 3
+            OnChange = ECodigoChange
+            ACampoObrigatorio = True
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+            ATexto = Label15
+            ABotao = SpeedButton2
+            ADataBase = FPrincipal.BaseDados
+            ALocaliza = Localiza
+            ASelectValida.Strings = (
+              'Select * from COLECAO'
+              'Where CODCOLECAO = @')
+            ASelectLocaliza.Strings = (
+              'Select * from COLECAO'
+              'Where NOMCOLECAO LIKE '#39'@%'#39
+              'order by NOMCOLECAO')
+            ACorForm = FPrincipal.CorForm
+            ACorPainelGra = FPrincipal.CorPainelGra
+            APermitirVazio = True
+            AInfo.CampoCodigo = 'CODCOLECAO'
+            AInfo.CampoNome = 'NOMCOLECAO'
+            AInfo.Nome1 = 'C'#243'digo'
+            AInfo.Nome2 = 'Nome'
+            AInfo.Tamanho1 = 8
+            AInfo.Tamanho2 = 40
+            AInfo.Tamanho3 = 0
+            AInfo.TituloForm = '   Localiza Cole'#231#227'o   '
+            AInfo.Cadastrar = True
+            OnCadastrar = EColecaoCadastrar
+          end
+          object ECliente: TDBEditLocaliza
+            Left = 156
+            Top = 187
+            Width = 58
+            Height = 24
+            Color = 11661566
+            DataField = 'CODCLIENTE'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 4
+            OnChange = ECodigoChange
+            ACampoObrigatorio = True
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+            ATexto = Label16
+            ABotao = SpeedButton3
+            ADataBase = FPrincipal.BaseDados
+            ALocaliza = Localiza
+            ASelectValida.Strings = (
+              'Select * from CADCLIENTES'
+              'Where I_COD_CLI = @ '
+              'and (C_IND_PRC = '#39'S'#39' OR'
+              ' C_IND_CLI = '#39'S'#39')'
+              '')
+            ASelectLocaliza.Strings = (
+              'Select * from CADCLIENTES'
+              'Where C_NOM_CLI Like '#39'@%'#39' '
+              'and (C_IND_PRC = '#39'S'#39' OR'
+              ' C_IND_CLI = '#39'S'#39')'
+              'order by C_NOM_CLI')
+            ACorForm = FPrincipal.CorForm
+            ACorPainelGra = FPrincipal.CorPainelGra
+            APermitirVazio = True
+            AInfo.CampoCodigo = 'I_COD_CLI'
+            AInfo.CampoNome = 'C_NOM_CLI'
+            AInfo.Nome1 = 'C'#243'digo'
+            AInfo.Nome2 = 'Nome'
+            AInfo.Tamanho1 = 8
+            AInfo.Tamanho2 = 40
+            AInfo.Tamanho3 = 0
+            AInfo.TituloForm = '   Localiza Prospect   '
+            AInfo.Cadastrar = True
+            AInfo.RetornoExtra1 = 'I_COD_VEN'
+            OnCadastrar = EClienteCadastrar
+            OnRetorno = EClienteRetorno
+          end
+          object EDesenvolvedor: TDBEditLocaliza
+            Left = 156
+            Top = 161
+            Width = 58
+            Height = 24
+            Color = 11661566
+            DataField = 'CODDESENVOLVEDOR'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 5
+            OnChange = ECodigoChange
+            ACampoObrigatorio = True
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+            ATexto = Label14
+            ABotao = SpeedButton1
+            ADataBase = FPrincipal.BaseDados
+            ALocaliza = Localiza
+            ASelectValida.Strings = (
+              'Select * from DESENVOLVEDOR'
+              'Where CODDESENVOLVEDOR = @')
+            ASelectLocaliza.Strings = (
+              'Select * from DESENVOLVEDOR'
+              'Where NOMDESENVOLVEDOR Like '#39'@%'#39' '
+              'order by NOMDESENVOLVEDOR')
+            ACorForm = FPrincipal.CorForm
+            ACorPainelGra = FPrincipal.CorPainelGra
+            APermitirVazio = True
+            AInfo.CampoCodigo = 'CODDESENVOLVEDOR'
+            AInfo.CampoNome = 'NOMDESENVOLVEDOR'
+            AInfo.Nome1 = 'C'#243'digo'
+            AInfo.Nome2 = 'Nome'
+            AInfo.Tamanho1 = 8
+            AInfo.Tamanho2 = 40
+            AInfo.Tamanho3 = 0
+            AInfo.TituloForm = '   Localiza Desenvolvedor   '
+            AInfo.Cadastrar = True
+            OnCadastrar = EDesenvolvedorCadastrar
+          end
+          object EDatEntrega: TDBEditColor
+            Left = 572
+            Top = 135
+            Width = 85
+            Height = 24
+            TabStop = False
+            Color = clInfoBk
+            DataField = 'DATENTREGA'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 6
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = True
+            AIgnorarTipoLetra = False
+          end
+          object DBEditColor2: TDBEditColor
+            Left = 156
+            Top = 110
+            Width = 133
+            Height = 24
+            TabStop = False
+            Color = clInfoBk
+            DataField = 'DATAMOSTRA'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 7
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = True
+            AIgnorarTipoLetra = False
+          end
+          object EVendedor: TDBEditLocaliza
+            Left = 572
+            Top = 187
+            Width = 58
+            Height = 24
+            Color = 11661566
+            DataField = 'CODVENDEDOR'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 8
+            OnChange = ECodigoChange
+            ACampoObrigatorio = True
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+            ATexto = Label18
+            ABotao = SpeedButton4
+            ADataBase = FPrincipal.BaseDados
+            ALocaliza = Localiza
+            ASelectValida.Strings = (
+              'Select * from CADVENDEDORES'
+              'Where I_COD_VEN = @')
+            ASelectLocaliza.Strings = (
+              'Select * from CADVENDEDORES'
+              'Where C_NOM_VEN Like '#39'@%'#39' '
+              'order by C_NOM_VEN')
+            ACorForm = FPrincipal.CorForm
+            ACorPainelGra = FPrincipal.CorPainelGra
+            APermitirVazio = True
+            AInfo.CampoCodigo = 'I_COD_VEN'
+            AInfo.CampoNome = 'C_NOM_VEN'
+            AInfo.Nome1 = 'C'#243'digo'
+            AInfo.Nome2 = 'Nome'
+            AInfo.Tamanho1 = 8
+            AInfo.Tamanho2 = 40
+            AInfo.Tamanho3 = 0
+            AInfo.TituloForm = '   Localiza Vendedor   '
+          end
+          object DBEditColor5: TDBEditColor
+            Left = 156
+            Top = 236
+            Width = 81
+            Height = 24
+            Color = clInfoBk
+            DataField = 'VALVENDA'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 9
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+          end
+          object BFoto: TBitBtn
+            Left = 616
+            Top = 261
+            Width = 41
+            Height = 27
+            HelpContext = 27
+            DoubleBuffered = True
+            Glyph.Data = {
+              76010000424D7601000000000000760000002800000020000000100000000100
+              04000000000000010000120B0000120B00001000000000000000000000000000
+              800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0033BBBBBBBBBB
+              BB33337777777777777F33BB00BBBBBBBB33337F77333333F37F33BB0BBBBBB0
+              BB33337F73F33337FF7F33BBB0BBBB000B33337F37FF3377737F33BBB00BB00B
+              BB33337F377F3773337F33BBBB0B00BBBB33337F337F7733337F33BBBB000BBB
+              BB33337F33777F33337F33EEEE000EEEEE33337F3F777FFF337F33EE0E80000E
+              EE33337F73F77773337F33EEE0800EEEEE33337F37377F33337F33EEEE000EEE
+              EE33337F33777F33337F33EEEEE00EEEEE33337F33377FF3337F33EEEEEE00EE
+              EE33337F333377F3337F33EEEEEE00EEEE33337F33337733337F33EEEEEEEEEE
+              EE33337FFFFFFFFFFF7F33EEEEEEEEEEEE333377777777777773}
+            NumGlyphs = 2
+            ParentDoubleBuffered = False
+            TabOrder = 10
+            OnClick = BFotoClick
+          end
+          object DBEditColor9: TDBEditColor
+            Left = 572
+            Top = 314
+            Width = 85
+            Height = 24
+            Color = clInfoBk
+            DataField = 'CODPRODUTO'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 11
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+          end
+          object DBEditColor3: TDBEditColor
+            Left = 572
+            Top = 212
+            Width = 85
+            Height = 24
+            Color = clInfoBk
+            DataField = 'QTDAMOSTRA'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 12
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+          end
+          object ECodClassificacao: TDBEditColor
+            Left = 156
+            Top = 32
+            Width = 81
+            Height = 24
+            Color = 11661566
+            DataField = 'CODCLASSIFICACAO'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 13
+            OnExit = ECodClassifcacaoExit
+            OnKeyDown = ECodClassifcacaoKeyDown
+            ACampoObrigatorio = True
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+          end
+          object DBCheckBox1: TDBCheckBox
+            Left = 156
+            Top = 213
+            Width = 97
+            Height = 17
+            Caption = 'Altera'#231#227'o'
+            DataField = 'INDALTERACAO'
+            DataSource = DataAmostra
+            TabOrder = 14
+            ValueChecked = 'S'
+            ValueUnchecked = 'N'
+          end
+          object BitBtn1: TBitBtn
+            Left = 616
+            Top = 287
+            Width = 41
+            Height = 27
+            HelpContext = 27
+            DoubleBuffered = True
+            Glyph.Data = {
+              76010000424D7601000000000000760000002800000020000000100000000100
+              04000000000000010000120B0000120B00001000000000000000000000000000
+              800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0033BBBBBBBBBB
+              BB33337777777777777F33BB00BBBBBBBB33337F77333333F37F33BB0BBBBBB0
+              BB33337F73F33337FF7F33BBB0BBBB000B33337F37FF3377737F33BBB00BB00B
+              BB33337F377F3773337F33BBBB0B00BBBB33337F337F7733337F33BBBB000BBB
+              BB33337F33777F33337F33EEEE000EEEEE33337F3F777FFF337F33EE0E80000E
+              EE33337F73F77773337F33EEE0800EEEEE33337F37377F33337F33EEEE000EEE
+              EE33337F33777F33337F33EEEEE00EEEEE33337F33377FF3337F33EEEEEE00EE
+              EE33337F333377F3337F33EEEEEE00EEEE33337F33337733337F33EEEEEEEEEE
+              EE33337FFFFFFFFFFF7F33EEEEEEEEEEEE333377777777777773}
+            NumGlyphs = 2
+            ParentDoubleBuffered = False
+            TabOrder = 15
+          end
+          object DBMemoColor1: TDBMemoColor
+            Left = 155
+            Top = 340
+            Width = 505
+            Height = 117
+            Color = clInfoBk
+            DataField = 'DESOBSERVACAO'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 16
+            ACampoObrigatorio = False
+            ACorFoco = FPrincipal.CorFoco
+          end
+          object DBEditColor8: TDBEditColor
+            Left = 156
+            Top = 288
+            Width = 457
+            Height = 24
+            Color = clInfoBk
+            DataField = 'DESIMAGEMCLIENTE'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 17
+            OnChange = ECodigoChange
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+          end
+          object DBEditColor7: TDBEditColor
+            Left = 156
+            Top = 262
+            Width = 457
+            Height = 24
+            Color = clInfoBk
+            DataField = 'DESIMAGEM'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 18
+            OnChange = ECodigoChange
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+          end
+          object DBEditColor6: TDBEditColor
+            Left = 572
+            Top = 236
+            Width = 85
+            Height = 24
+            Color = clInfoBk
+            DataField = 'VALCUSTO'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 19
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+          end
+          object EAmostraIndefinida: TDBEditLocaliza
+            Left = 156
+            Top = 314
+            Width = 58
+            Height = 24
+            Color = clInfoBk
+            DataField = 'CODAMOSTRAINDEFINIDA'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 20
+            OnChange = ECodigoChange
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+            ATexto = Label20
+            ABotao = SpeedButton5
+            ADataBase = FPrincipal.BaseDados
+            ALocaliza = Localiza
+            ASelectValida.Strings = (
+              'Select * from AMOSTRA'
+              'Where CODAMOSTRA= @')
+            ASelectLocaliza.Strings = (
+              'Select * from AMOSTRA'
+              'Where NOMAMOSTRA LIKE '#39'@%'#39
+              'order by NOMAMOSTRA')
+            ACorForm = FPrincipal.CorForm
+            ACorPainelGra = FPrincipal.CorPainelGra
+            APermitirVazio = True
+            AInfo.CampoCodigo = 'CODAMOSTRA'
+            AInfo.CampoNome = 'NOMAMOSTRA'
+            AInfo.Nome1 = 'C'#243'digo'
+            AInfo.Nome2 = 'Nome'
+            AInfo.Tamanho1 = 8
+            AInfo.Tamanho2 = 40
+            AInfo.Tamanho3 = 0
+            AInfo.TituloForm = '   Localiza Amostra Indefinida   '
+            AInfo.Cadastrar = True
+            OnCadastrar = EDesenvolvedorCadastrar
+          end
+          object ETipoAmostra: TDBRadioGroup
+            Left = 288
+            Top = -8
+            Width = 369
+            Height = 37
+            Columns = 2
+            DataField = 'TIPAMOSTRA'
+            DataSource = DataAmostra
+            Items.Strings = (
+              'Amostra Realizada'
+              'Requisi'#231#227'o de Amostra')
+            ParentBackground = True
+            TabOrder = 21
+            Values.Strings = (
+              'D'
+              'I')
+            OnChange = ETipoAmostraChange
+            OnClick = ETipoAmostraChange
+          end
+          object EDatAprovacao: TDBEditColor
+            Left = 572
+            Top = 110
+            Width = 85
+            Height = 24
+            TabStop = False
+            Color = clInfoBk
+            DataField = 'DATAPROVACAO'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 22
+            ACampoObrigatorio = False
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = True
+            AIgnorarTipoLetra = False
+          end
+          object DBEditLocaliza5: TDBEditLocaliza
+            Left = 156
+            Top = 84
+            Width = 58
+            Height = 24
+            Color = 11661566
+            DataField = 'CODDEPARTAMENTOAMOSTRA'
+            DataSource = DataAmostra
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlue
+            Font.Height = -13
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 23
+            OnChange = ECodigoChange
+            ACampoObrigatorio = True
+            AIgnorarCor = False
+            ACorFoco = FPrincipal.CorFoco
+            AFormatoData = False
+            AIgnorarTipoLetra = False
+            ATexto = Label27
+            ABotao = SpeedButton6
+            ADataBase = FPrincipal.BaseDados
+            ALocaliza = Localiza
+            ASelectValida.Strings = (
+              'Select * from DEPARTAMENTOAMOSTRA'
+              'Where CODDEPARTAMENTOAMOSTRA = @')
+            ASelectLocaliza.Strings = (
+              'Select * from DEPARTAMENTOAMOSTRA'
+              'Where NOMDEPARTAMENTOAMOSTRA Like '#39'@%'#39' '
+              'order by NOMDEPARTAMENTOAMOSTRA')
+            ACorForm = FPrincipal.CorForm
+            ACorPainelGra = FPrincipal.CorPainelGra
+            APermitirVazio = True
+            AInfo.CampoCodigo = 'CODDEPARTAMENTOAMOSTRA'
+            AInfo.CampoNome = 'NOMDEPARTAMENTOAMOSTRA'
+            AInfo.Nome1 = 'C'#243'digo'
+            AInfo.Nome2 = 'Nome'
+            AInfo.Tamanho1 = 8
+            AInfo.Tamanho2 = 40
+            AInfo.Tamanho3 = 0
+            AInfo.TituloForm = '   Localiza Departamento Amostra   '
+            AInfo.Cadastrar = True
+            OnCadastrar = EDesenvolvedorCadastrar
+          end
         end
       end
     end
@@ -1246,6 +1307,8 @@ object FNovaAmostra: TFNovaAmostra
     ASQlConnection = FPrincipal.BaseDados
     ASqlQuery.MaxBlobSize = -1
     ASqlQuery.Params = <>
+    ASqlQuery.SQL.Strings = (
+      'Select * from  AMOSTRA')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
       'Select * from  AMOSTRA')
@@ -1361,6 +1424,11 @@ object FNovaAmostra: TFNovaAmostra
       FieldName = 'CODCLASSIFICACAO'
       Origin = 'BASEDADOS.AMOSTRA.CODCLASSIFICACAO'
       Size = 15
+    end
+    object AmostraCODDEPARTAMENTOAMOSTRA: TFMTBCDField
+      FieldName = 'CODDEPARTAMENTOAMOSTRA'
+      Precision = 10
+      Size = 0
     end
   end
   object DataAmostra: TDataSource

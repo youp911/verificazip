@@ -61,7 +61,6 @@ type TFuncoesCotacao = class(TLocalizaCotacao)
     procedure CarFlaPendente(VpaDCotacao : TrBDOrcamento);
     procedure CarParcelasContasAReceber(VpaDOrcamento : TRBDOrcamento);
     procedure ExcluiMovOrcamento(VpaCodFilial, VpaLanOrcamento : Integer);
-    function RPrecoClienteProduto(VpaSeqProduto, VpaCodCliente : String) : double;
     procedure VerificaPrecoCliente(VpaCodCliente : Integer;VpaDProCotacao : TRBDOrcProduto);
     function ExtornaNotaOrcamento(VpaCodFilial,VpaLanOrcamento : Integer):String;
     function EstornaEstoqueOrcamento(VpaDCotacao : TRBDOrcamento) : String;
@@ -611,21 +610,13 @@ begin
                                   'PRO.C_NOM_PRO, PRO.N_PES_LIQ, PRO.N_PES_BRU, PRO.C_IND_RET, PRO.C_IND_CRA,  '+
                                   ' PRO.C_COD_UNI UNIORIGINAL, PRO.C_COD_CLA, PRO.N_PER_COM, I_IND_COV, PRO.I_MES_GAR, '+
                                   ' CLA.N_PER_COM PERCOMISSAOCLASSIFICACAO, CLA.C_ALT_QTD , CLA.C_IMP_ETI, '+
-                                  ' (Pre.N_Vlr_Ven * Moe.N_Vlr_Dia) VlrReal, ' +
-                                  ' (Pre.N_VLR_REV * Moe.N_Vlr_Dia) VlrRevenda, ' +
                                   ' TAM.NOMTAMANHO '+
-                                  ' FROM MOVORCAMENTOS COT, CADPRODUTOS PRO, MOVTABELAPRECO PRE, CadMOEDAS MOE, '+
-                                  '      TAMANHO TAM, CADCLASSIFICACAO CLA '+
+                                  ' FROM MOVORCAMENTOS COT, CADPRODUTOS PRO, TAMANHO TAM, CADCLASSIFICACAO CLA '+
                                   ' Where COT.I_EMP_FIL = '+IntToStr(VpaDCotacao.CodEmpFil)+
                                   ' AND  COT.I_LAN_ORC = '+IntToStr(VpaDCotacao.LanOrcamento)+
                                   ' AND PRO.I_COD_EMP = ' + IntToStr(Varia.CodigoEmpresa)+
                                   ' AND PRO.I_SEQ_PRO = COT.I_SEQ_PRO' +
-                                  ' and Pre.I_Cod_Emp = ' + IntTosTr(Varia.CodigoEmpresa) +
-                                  ' and Pre.I_Cod_Tab = ' + IntToStr(Varia.TabelaPreco)+
-                                  ' and Pro.I_Seq_Pro = Pre.I_Seq_Pro ' +
-                                  ' and Pre.I_Cod_Moe = Moe.I_Cod_Moe '+
                                   ' AND '+SQLTextoRightJoin('COT.I_COD_TAM','TAM.CODTAMANHO')+
-                                  ' and PRE.I_COD_CLI = 0 '+
                                   ' AND PRO.I_COD_EMP = CLA.I_COD_EMP '+
                                   ' AND PRO.C_COD_CLA = CLA.C_COD_CLA '+
                                   ' AND PRO.C_TIP_CLA = CLA.C_TIP_CLA '+
@@ -682,14 +673,14 @@ begin
       PesBruto := Orcamento.FieldByName('N_PES_BRU').AsFloat;
       UnidadeParentes.free;
       UnidadeParentes := ValidaUnidade.UnidadesParentes(UMOriginal) ;
-      ValRevenda := Orcamento.FieldByName('VLRREVENDA').AsFloat;
-      ValUnitarioOriginal := RPrecoClienteProduto(Orcamento.FieldByName('I_SEQ_PRO').AsString,IntToStr(VpaDCotacao.CodCliente));
       IndRetornavel := (Orcamento.FieldByName('C_IND_RET').AsString = 'S');
       IndBrinde := (Orcamento.FieldByName('C_IND_BRI').AsString = 'S');
       QtdSaldoBrinde := Orcamento.FieldByName('N_SAL_BRI').AsFloat;
       DatOpGerada := Orcamento.FieldByName('D_DAT_GOP').AsDateTime;
       DatOrcamento := Orcamento.FieldByName('D_DAT_ORC').AsDateTime;
       QtdMesesGarantia := Orcamento.FieldByName('I_MES_GAR').AsInteger;
+      FunProdutos.CarValVendaeRevendaProduto(VpaDCotacao.CodTabelaPreco,VpfDProCotacao.SeqProduto,VpfDProCotacao.CodCor,VpfDProCotacao.CodTamanho,
+                                             VpaDCotacao.CodCliente,VpfDProCotacao.ValUnitarioOriginal,VpfDProCotacao.ValRevenda);
     end;
     CarDComposeProduto(VpaDCotacao,VpfDProCotacao);
     Orcamento.next;
@@ -829,23 +820,6 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesCotacao.RPrecoClienteProduto(VpaSeqProduto, VpaCodCliente : String) : double;
-begin
-  result := 0;
-  AdicionaSQLAbreTabela(Aux,'Select (Pre.N_Vlr_Ven * Moe.N_Vlr_Dia) VlrReal ' +
-                                  ' FROM  MOVTABELAPRECO PRE, CadMOEDAS MOE '+
-                                  ' Where Pre.I_Cod_Emp = ' + IntTosTr(Varia.CodigoEmpresa) +
-                                  ' and Pre.I_Cod_Tab = ' + IntToStr(Varia.TabelaPreco)+
-                                  ' and PRE.I_COD_CLI in (0,'+ VpaCodCliente +')'+
-                                  ' and PRE.I_SEQ_PRO = ' + VpaSeqProduto+
-                                  ' and Pre.I_Cod_Moe = Moe.I_Cod_Moe ' +
-                                  ' order by PRE.I_COD_CLI DESC');
-  if not Aux.Eof then
-    result := Aux.FieldByName('VlrReal').AsFloat;
-  Aux.close;
-end;
-
-{******************************************************************************}
 procedure TFuncoesCotacao.VerificaPrecoCliente(VpaCodCliente : Integer;VpaDProCotacao : TRBDOrcProduto);
 begin
   if VpaDProCotacao.ValUnitarioOriginal <> FunProdutos.CalculaValorPadrao(VpaDProCotacao.UM,VpaDProCotacao.UMOriginal,VpaDProCotacao.ValUnitario,InttoStr(VpaDProCotacao.SeqProduto)) then
@@ -862,6 +836,7 @@ begin
       CotCadastro2.FieldByName('I_COD_TAB').AsInteger := varia.TabelaPreco;
       CotCadastro2.FieldByName('I_SEQ_PRO').AsInteger := VpaDProCotacao.SeqProduto;
       CotCadastro2.FieldByName('I_COD_TAM').AsInteger := VpaDProCotacao.CodTamanho;
+      CotCadastro2.FieldByName('I_COD_COR').AsInteger := VpaDProCotacao.CodCor;
       CotCadastro2.FieldByName('I_COD_CLI').AsInteger := VpaCodCliente;
       CotCadastro2.FieldByName('I_COD_MOE').AsInteger := VARIA.MoedaBase;
       CotCadastro2.FieldByName('C_CIF_MOE').AsString := CurrencyString;
@@ -3680,7 +3655,8 @@ begin
   for VpfLaco := 0 to VpaDCotacao.Produtos.Count - 1 do
   begin
     VpfDItemCotacao := TRBDOrcProduto(VpaDCotacao.Produtos.Items[VpfLaco]);
-    VpfDItemCotacao.ValUnitario := RPrecoClienteProduto(IntToStr(VpfDItemCotacao.SeqProduto),IntToStr(VpaDCotacao.CodCliente));
+    FunProdutos.CarValVendaeRevendaProduto(VpaDCotacao.CodTabelaPreco,VpfDItemCotacao.SeqProduto,VpfDItemCotacao.CodCor,VpfDItemCotacao.CodTamanho,
+                                                      VpaDCotacao.CodCliente,VpfDItemCotacao.ValUnitario,VpfDItemCotacao.ValRevenda);
     VpfDItemCotacao.ValTotal :=  VpfDItemCotacao.ValUnitario * VpfDItemCotacao.QtdProduto;
   end;
 end;

@@ -277,6 +277,7 @@ begin
                       ' and Qtd.I_Seq_Pro = Pro.I_Seq_Pro '+
                       ' and Pre.I_Cod_Emp = Pro.I_Cod_Emp '+
                       ' and Pre.I_Seq_Pro = Pro.I_Seq_Pro '+
+                      ' and '+SQLTextoRightJoin('QTD.I_COD_COR','PRE.I_COD_COR')+
                       ' and CLA.C_TIP_CLA = ''P'''+
                       ' and Moe.I_Cod_Moe = Pro.I_Cod_Moe '+
                       ' and PRE.I_COD_EMP = '+IntToStr(Varia.codigoEmpresa)+

@@ -85,7 +85,7 @@ type
     function RDBaixaConsumoOp(VpaBaixas : TList;VpaSeqProduto,VpaCodCor : Integer; VpaIndMaterialExtra : Boolean):TRBDConsumoFracaoOP;
     function RCodProdutoDisponivelpelaClassificacao(VpaCodClassificacao : String):String;
     function RQtdMetrosBarraProduto(VpaSeqProduto : Integer):Double;
-    function RPrecoProduto(VpaDProduto : TRBDProduto;VpaCodCor,VpaCodTamanho : Integer):TList;
+    function RPrecoVendaeCustoProduto(VpaDProduto : TRBDProduto;VpaCodCor,VpaCodTamanho : Integer):TList;
     procedure CKitsProdutos(VpaSeqProduto : String; VpaSeqKit : TStringList);
     procedure CarDOperacaoEstoque(VpaDOperacao : TRBDOperacaoEstoque;VpaCodOperacao: Integer);
     procedure CarDBaixaOPConsumoProduto(VpaCodFilial, VpaSeqOrdem : Integer; VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList);
@@ -107,6 +107,7 @@ type
     procedure ImportaEstoqueTecnico(VpaSeqProdutoAExcluir, VpaSeqProdutoDestino : Integer);
     function BaixaSubmontagemFracao(VpaCodFilial,VpaSeqOrdemProducao, VpaSeqProduto, VpaCodCor : Integer;Var VpaQtdProduto : Double;VpaUM, VpaTipOperacao : String):Boolean;
     function GeraCodigoBarrasEAN13 : string;
+    procedure OrdenaTabelaPrecoProduto(VpaDProduto : TRBDProduto);
   public
     ConvUnidade : TConvUnidade;
     ValidaUnidade : TValidaUnidade;
@@ -152,7 +153,7 @@ type
     procedure OrganizaTabelaPreco(VpaCodTabela, VpaCodCliente : integer; VpaSomenteAtividade : Boolean );
     procedure AtualizaValorKit( SeqProdutoKit, CodTabelaPreco : integer );
     procedure InseriProdutoClassificacaoFilial(Vpa_SeqPro_CodCla, VpaFilial, VpaEmpresa: string; NQtdMin, NQtdPed, VpaValCusto: Double; Classificacao : Boolean);
-    procedure InsereProdutoFilial(VpaSeqProduto, VpaCodFilial, VpaCodCor, VpaCodTamanho: Integer; VpaQtdMinima, VpaQtdPedido, VpaValCusto, VpaValCompra: Double); overload;
+    procedure InsereProdutoFilial(VpaSeqProduto, VpaCodFilial, VpaCodCor, VpaCodTamanho: Integer; VpaQtdEstoque, VpaQtdMinima, VpaQtdPedido, VpaValCusto, VpaValCompra: Double); overload;
     function InsereProdutoFilial(VpaCodFilial,VpaCodCor, VpaCodTamanho : Integer; VpaDProduto: TRBDProduto): String; overload;
     procedure AdicionaProdutosFilialAtiva;
     procedure AdicionaProdutoEtiquetado(VpaEtiquetas : TList);
@@ -235,6 +236,7 @@ type
     procedure CarDBaixaConsumoProduto(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer; VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList);
     procedure CarDBaixaFracaoConsumoProduto(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer; VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList;VpaCarregarSubMontagem : Boolean);
     procedure CarPerComissoesProduto(VpaSeqProduto,VpaCodVendedor : Integer;Var VpaPerComissaoProduto : Double;Var VpaPerComissaoClassificacao : Double;var VpaPerComissaoVendedor : Double);
+    procedure CarValVendaeRevendaProduto(VpaCodTabelaPreco, VpaSeqProduto, VpaCodCor, VpaCodTamanho, VpaCodCliente : Integer;Var VpaValVenda : Double;Var VpaValRevenda : Double);
     function RMoedaProduto(VpaCodEmpresa, VpaSeqProduto : String) : integer;
     function RCombinacao(VpaDProduto : TRBDProduto;VpaCodCombinacao : Integer):TRBDCombinacao;
     function RSeqReferenciaDisponivel(VpaSeqProduto, VpaCodCliente : Integer): Integer;
@@ -676,12 +678,6 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesProduto.RPrecoProduto(VpaDProduto: TRBDProduto; VpaCodCor, VpaCodTamanho: Integer): TList;
-begin
-
-end;
-
-{******************************************************************************}
 function TFuncoesProduto.RSeqEtiquetadoDisponivel(VpaCodFilial,VpaLanOrcamento : Integer) : Integer;
 begin
   AdicionaSQLAbreTabela(AUX,'Select MAX(SEQETIQUETA) ULTIMO FROM PRODUTOETIQUETADOCOMPEDIDO '+
@@ -788,6 +784,22 @@ begin
   AdicionaSQLAbreTabela(AUX,'Select I_IND_COV from CADPRODUTOS '+
                             ' Where I_SEQ_PRO = '+IntToStr(VpaSeqProduto));
   result := AUX.FieldByName('I_IND_COV').AsFloat;
+end;
+
+{******************************************************************************}
+function TFuncoesProduto.RPrecoVendaeCustoProduto(VpaDProduto : TRBDProduto;VpaCodCor,VpaCodTamanho : Integer):TList;
+var
+  vpfLaco : Integer;
+  VpfDTabelaPreco : TRBDProdutoTabelaPreco;
+begin
+  result := TList.create;
+  for vpfLaco := 0 to VpaDProduto.TabelaPreco.Count - 1 do
+  begin
+    VpfDTabelaPreco := TRBDProdutoTabelaPreco(VpaDProduto.TabelaPreco.Items[Vpflaco]);
+    if  (VpfDTabelaPreco.CodCor = VpaCodCor) and
+        (VpfDTabelaPreco.CodTamanho = VpaCodTamanho) then
+      Result.add(VpfDTabelaPreco);
+  end;
 end;
 
 {********************* carrega os kits do produto *****************************}
@@ -1209,11 +1221,8 @@ begin
   ProCadastro.FieldByName('QTDBAIXADO').AsFloat := VpaDBaixa.QtdABaixar;
   ProCadastro.FieldByName('DESUM').AsString := VpaDBaixa.DesUM;
   ProCadastro.FieldByName('SEQLOG').AsInteger := RSeqLogFracaoOpConsumo(VpaDBaixa.CodFilial,VpaDBaixa.SeqOrdem,VpaDBaixa.SeqFracao,VpaDBaixa.SeqConsumo);
-  try
-    ProCadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVA플O DA FRACAOOPCONSUMOLOG!!!'#13+e.message;
-  end;
+  ProCadastro.post;
+  result := ProCadastro.AMensagemErroGravacao;
   ProCadastro.close;
 end;
 
@@ -1255,15 +1264,10 @@ begin
       else
         ProCadastro.FieldByName('INDBAIXADO').AsString:= 'N';
 
-      try
-        ProCadastro.Post;
-      except
-        on E:Exception do
-        begin
-          Result:= 'ERRO NA GRAVA플O DAS BAIXAS DE CONSUMO DO PRODUTO!!!'#13+E.Message;
-          Break;
-        end;
-      end;
+      ProCadastro.Post;
+      result := ProCadastro.AMensagemErroGravacao;
+      if ProCadastro.AErronaGravacao then
+        Break;
       if (VpfBaixaConsumo.QtdABaixar > 0) and not(VpfBaixaConsumo.IndOrigemCorte) then
       begin
         Result := GravaDBaixaConsumoFracaoLog(VpfBaixaConsumo,VpaCodUsuario)
@@ -1327,15 +1331,10 @@ begin
             else
               ProCadastro.FieldByName('INDBAIXADO').AsString:= 'N';
 
-            try
-              ProCadastro.Post;
-            except
-              on E:Exception do
-              begin
-                Result:= 'ERRO NA GRAVA플O DAS BAIXAS DE CONSUMO DO PRODUTO!!!'#13+E.Message;
-                Break;
-              end;
-            end;
+            ProCadastro.Post;
+            result := ProCadastro.AMensagemErroGravacao;
+            if ProCadastro.AErronaGravacao then
+              Break;
           end;
           ProCadastro.next;
         end;
@@ -1367,15 +1366,10 @@ begin
       ProCadastro.FieldByName('SEQMOVIMENTO').AsInteger := VpfDConsumo.SeqMovimento;
       ProCadastro.FieldByName('CODBASTIDOR').AsInteger := VpfDConsumoBastidor.CodBastidor;
       ProCadastro.FieldByName('QTDPECAS').AsInteger := VpfDConsumoBastidor.QtdPecas;
-      try
-        ProCadastro.Post;
-      except
-        on e : exception do
-        begin
-          result := 'ERRO NA GRAVA플O DO BASTIDOR DO CONSUMO DO PRODUTO!!!'#13+e.message;
-          break;
-        end;
-      end;
+      ProCadastro.Post;
+      result := ProCadastro.AMensagemErroGravacao;
+      if ProCadastro.AErronaGravacao then
+        break;
     end;
     if result <> '' then
       break;
@@ -1429,15 +1423,10 @@ begin
     ProCadastro.FieldByName('C_COD_UNI').AsString := ProProduto.FieldByName('C_COD_UNI').AsString;
     ProCadastro.FieldByName('D_DAT_CAD').AsDateTime := ProProduto.FieldByName('D_DAT_ORC').AsDateTime;
     ProCadastro.FieldByName('I_LAN_EST').AsInteger := GeraProximoCodigo('I_LAN_EST', 'MovEstoqueProdutos', 'I_EMP_FIL', varia.CodigoEmpFil, false,ProCadastro.ASQlConnection );
-    try
-      ProCadastro.Post;
-    except
-      on e : exception do
-      begin
-        result := 'ERRO NA GRAVA플O DA TABELA DE MOVIMENTO DE ESTOQUE!!!'#13+e.message;
-        exit;
-      end;
-    end;
+    ProCadastro.Post;
+    result := ProCadastro.AMensagemErroGravacao;
+    if ProCadastro.AErronaGravacao then
+      exit;
     ProProduto.Next;
   end;
 end;
@@ -1471,15 +1460,10 @@ begin
     ProCadastro.FieldByName('C_COD_UNI').AsString := ProProduto.FieldByName('C_COD_UNI').AsString;
     ProCadastro.FieldByName('D_DAT_CAD').AsDateTime := ProProduto.FieldByName('D_DAT_EMI').AsDateTime;
     ProCadastro.FieldByName('I_LAN_EST').AsInteger := GeraProximoCodigo('I_LAN_EST', 'MovEstoqueProdutos', 'I_EMP_FIL', varia.CodigoEmpFil,false,ProCadastro.ASqlconnection );
-    try
-      ProCadastro.Post;
-    except
-      on e : exception do
-      begin
-        result := 'ERRO NA GRAVA플O DA TABELA DE MOVIMENTO DE ESTOQUE ENTRADA!!!'#13+e.message;
-        exit;
-      end;
-    end;
+    ProCadastro.Post;
+    result := ProCadastro.AMensagemErroGravacao;
+    if ProCadastro.AErronaGravacao then
+      exit;
     ProProduto.Next;
   end;
 end;
@@ -1772,7 +1756,7 @@ begin
   LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpasequencialProduto,VpaCodCor,VpaCodTamanho);
   if ProCadastro.eof then
   begin
-    InsereProdutoFilial(VpasequencialProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho, 0,0,0,0);
+    InsereProdutoFilial(VpasequencialProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0,0,0);
     LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpasequencialProduto,VpaCodCor,VpaCodTamanho);
   end;
 
@@ -1897,7 +1881,7 @@ begin
   LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho);
   if ProCadastro.eof then
   begin
-    InsereProdutoFilial(VpaSeqProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0,0);
+    InsereProdutoFilial(VpaSeqProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0,0,0);
     LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho);
   end;
   ProCadastro.Edit;
@@ -2163,7 +2147,7 @@ begin
   LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho);
   if ProCadastro.eof then
   begin
-    InsereProdutoFilial(VpaSeqProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0,0);
+    InsereProdutoFilial(VpaSeqProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0,0,0);
     LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho);
   end;
   ProCadastro.Edit;
@@ -2264,7 +2248,7 @@ begin
   LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho);
   if ProCadastro.eof then
   begin
-    InsereProdutoFilial(VpaSeqProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0,0);
+    InsereProdutoFilial(VpaSeqProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0,0,0);
     LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho);
   end;
   ProCadastro.Edit;
@@ -2576,7 +2560,7 @@ begin
 end;
 
 {************** inseri um produto em uma determinada filial *************** }
-procedure TFuncoesProduto.InsereProdutoFilial(VpaSeqProduto, VpaCodFilial,VpaCodCor, VpaCodTamanho  : Integer;VpaQtdMinima, VpaQtdPedido,VpaValCusto, VpaValCompra: Double);
+procedure TFuncoesProduto.InsereProdutoFilial(VpaSeqProduto, VpaCodFilial,VpaCodCor, VpaCodTamanho  : Integer;VpaQtdEstoque, VpaQtdMinima, VpaQtdPedido,VpaValCusto, VpaValCompra: Double);
 begin
 
   // Verifica se o produto  ja existe.
@@ -2593,10 +2577,11 @@ begin
       IntToStr(VpaSeqProduto) + ',' +
       IntToStr(VpaCodCor)+','+
       IntToStr(VpaCodTamanho)+','+
-      '0,0,' +
+      SubstituiStr(FloatToStr(VpaQtdEstoque),',','.') + ',' +
+      '0,' +
       SubstituiStr(FloatToStr(VpaQtdMinima),',','.') + ',' +
       SubstituiStr(FloatToStr(VpaQtdPedido),',','.') + ',' +
-      SubstituiStr(FloatToStr(VpaValCusto),',','.') + ','+
+      SubstituiStr(FloatToStr(VpaValCompra),',','.') + ','+
       SubstituiStr(FloatToStr(VpaValCusto),',','.') + ','+
       SQLTextoDataAAAAMMMDD(DATE)+  ')');
   end;
@@ -2641,12 +2626,8 @@ begin
     ProCadastro.FieldByName('N_VLR_CUS').AsFloat:= VpaDProduto.VlrCusto;
     ProCadastro.FieldByName('D_ULT_ALT').AsDateTime:= Now;
 
-    try
-      ProCadastro.Post;
-    except
-      on E:Exception do
-        Result:= 'ERRO AO INSERIR O PRODUTO NA FILIAL'#13+E.Message;
-    end;
+    ProCadastro.Post;
+    result :=  ProCadastro.AMensagemErroGravacao;
   end;
 
   ProCadastro.Close;
@@ -2685,6 +2666,7 @@ begin
                                ' and not exists (select * from MOVTABELAPRECO MOV ' +
                                ' Where MOV.I_SEQ_PRO = PRO.I_SEQ_PRO ' +
                                ' and MOV.I_COD_TAM = PRO.I_COD_TAM '+
+                               ' and MOV.I_COD_COR = PRO.I_COD_COR '+
                                ' and MOV.I_COD_TAB = '+IntToStr(VARIA.TabelaPreco)+
                                ' and MOV.I_COD_EMP = '+IntToStr(Varia.CodigoEmpresa)+' )');
   While not Tabela.Eof do
@@ -2700,6 +2682,7 @@ begin
       ProCadastro.FieldByName('I_COD_EMP').AsInteger := varia.CodigoEmpresa;
       ProCadastro.FieldByName('I_SEQ_PRO').AsInteger := Tabela.FieldByName('I_SEQ_PRO').AsInteger;
       ProCadastro.FieldByName('I_COD_TAM').AsInteger := Tabela.FieldByName('I_COD_TAM').AsInteger;
+      ProCadastro.FieldByName('I_COD_COR').AsInteger := Tabela.FieldByName('I_COD_COR').AsInteger;
       ProCadastro.FieldByName('I_COD_TAB').AsInteger := Varia.TabelaPreco;
       ProCadastro.FieldByName('I_COD_MOE').AsInteger := Varia.MoedaBase;
       ProCadastro.FieldByName('N_VLR_VEN').AsInteger := 0;
@@ -2829,7 +2812,7 @@ begin
     Tabela.Open;
     while not Tabela.eof do
     begin
-      InsereProdutoFilial(VpaDProduto.SeqProduto,Tabela.FieldByName('I_EMP_FIL').AsInteger,VpfDPreco.CodCor,VpfDPreco.CodTamanho, VpfDPreco.QtdMinima,VpfDPreco.QtdMinima,VpfDPreco.ValCusto,VpfDPreco.ValCompra);
+      InsereProdutoFilial(VpaDProduto.SeqProduto,Tabela.FieldByName('I_EMP_FIL').AsInteger,VpfDPreco.CodCor,VpfDPreco.CodTamanho, VpfDPreco.QtdEstoque,VpfDPreco.QtdMinima,VpfDPreco.QtdIdeal,VpfDPreco.ValCusto,VpfDPreco.ValCompra);
       Tabela.next;
     end;
   end;
@@ -2846,7 +2829,7 @@ begin
 
   while not Tabela.eof do
   begin
-    InsereProdutoFilial(VpaSeqProduto,Tabela.FieldByName('I_EMP_FIL').AsInteger,0,0, 0,0,0,0);
+    InsereProdutoFilial(VpaSeqProduto,Tabela.FieldByName('I_EMP_FIL').AsInteger,0,0, 0,0,0,0,0);
     Tabela.next;
   end;
   Tabela.Close;
@@ -3247,6 +3230,30 @@ begin
                             ' Where COD_COR = '+VpaCodCor);
   result := not Aux.eof;
   AUX.close;
+end;
+
+{************* ************************************************ ************ }
+procedure TFuncoesProduto.OrdenaTabelaPrecoProduto(VpaDProduto: TRBDProduto);
+var
+  VpfLacoInterno, VpfLacoExterno : Integer;
+  VpfDPrecoInterno, VpfDPrecoExterno : TRBDProdutoTabelaPreco;
+begin
+  for VpfLacoExterno := 0 to VpaDProduto.TabelaPreco.Count - 2 do
+  begin
+    VpfDPrecoExterno := TRBDProdutoTabelaPreco(VpaDProduto.TabelaPreco.Items[VpfLacoExterno]);
+    for VpfLacoInterno := VpfLacoExterno + 1 to VpaDProduto.TabelaPreco.Count - 1 do
+    begin
+      VpfDPrecoInterno := TRBDProdutoTabelaPreco(VpaDProduto.TabelaPreco.Items[VpfLacoInterno]);
+      if (VpfDPrecoInterno.CodCor <  VpfDPrecoExterno.CodCor)or
+        ((VpfDPrecoInterno.CodCor =  VpfDPrecoExterno.CodCor)and
+         (VpfDPrecoInterno.CodTamanho < VpfDPrecoExterno.CodTamanho)) then
+      begin
+        VpaDProduto.TabelaPreco.Items[VpfLacoExterno] := VpaDProduto.TabelaPreco.Items[VpfLacoInterno];
+        VpaDProduto.TabelaPreco.Items[VpfLacoInterno] := VpfDPrecoExterno;
+        VpfDPrecoExterno := TRBDProdutoTabelaPreco(VpaDProduto.TabelaPreco.Items[VpfLacoExterno]);
+      end;
+    end;
+  end;
 end;
 
 {************* adiciona os produtos faltantes na tabela de preco ************ }
@@ -3788,7 +3795,7 @@ begin
         VpfValCusto := ((VpfQtdEstoque * VpfValCustoEstoque) + (VpfQtdCompra * VpfValCusto))/(VpfQtdCompra + VpfQtdEstoque)
     end
     else
-      InsereProdutoFilial(VpaSeqProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,VpfValCusto,VpfValCompraUMPadrao);
+      InsereProdutoFilial(VpaSeqProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0,VpfValCusto,VpfValCompraUMPadrao);
 
     ExecutaComandoSql(Aux,'Update MOVQDADEPRODUTO '+
                             ' Set N_VLR_CUS = '+ SubstituiStr(FloatToStr(VpfValCusto),',','.')+
@@ -3812,7 +3819,7 @@ begin
     LocalizaMovQdadeSequencial(ProCadastro,Varia.CodigoEmpFil,VpaSeqProduto,VpaCodCor,0);
     if ProProduto.eof then
     begin
-      InsereProdutoFilial(VpaSeqProduto,varia.CodigoEmpFil,VpaCodCor,0, 0,0,0,0);
+      InsereProdutoFilial(VpaSeqProduto,varia.CodigoEmpFil,VpaCodCor,0, 0,0,0,0,0);
       LocalizaMovQdadeSequencial(ProCadastro,Varia.CodigoEmpFil,VpaSeqProduto,VpaCodCor,0);
     end;
 
@@ -4072,6 +4079,7 @@ begin
   CarDFornecedores(VpaDProduto);
   CarDEstoque(VpaDProduto, VpaDProduto.CodEmpFil, VpaDProduto.SeqProduto);
   CarDPreco(VpaDProduto, VpaDProduto.CodEmpresa, VpaDProduto.SeqProduto);
+  CarDValCusto(VpaDProduto,VpaDProduto.CodEmpFil);
   CarAcessoriosProduto(VpaDProduto);
 end;
 
@@ -4596,6 +4604,26 @@ begin
     AUX.Next;
   end;
   AUX.Close;
+end;
+
+{******************************************************************************}
+procedure TFuncoesProduto.CarValVendaeRevendaProduto(VpaCodTabelaPreco, VpaSeqProduto, VpaCodCor, VpaCodTamanho, VpaCodCliente : Integer; var VpaValVenda,VpaValRevenda: Double);
+begin
+  AdicionaSQLAbreTabela(AUX,'Select (Pre.N_Vlr_Ven * Moe.N_Vlr_Dia) VlrReal, ' +
+                            ' (Pre.N_VLR_REV * Moe.N_Vlr_Dia) VlrRevenda ' +
+                            ' from MOVTABELAPRECO PRE, CADMOEDAS MOE '+
+                            ' Where PRE.I_COD_MOE = MOE.I_COD_MOE '+
+                            ' AND PRE.I_COD_MOE = '+IntToStr(Varia.MoedaBase) +
+                            ' and PRE.I_COD_EMP = ' + IntToStr(VARIA.CodigoEmpresa)+
+                            ' and PRE.I_COD_TAB = ' + IntToStr(VpaCodTabelaPreco)+
+                            ' and PRE.I_SEQ_PRO = ' + IntToStr(VpaSeqProduto)+
+                            ' and PRE.I_COD_CLI in (0,'+ IntToStr(VpaCodCliente)+')'+
+                            ' and PRE.I_COD_COR = ' + IntToStr(VpaCodCor)+
+                            ' and PRE.I_COD_TAM = ' + IntToStr(VpaCodTamanho)+
+                            ' ORDER BY PRE.I_COD_CLI DESC');
+  VpaValVenda := AUX.FieldByName('VLRREAL').AsFloat;
+  VpaValRevenda := AUX.FieldByName('VlrRevenda').AsFloat;
+  Aux.Close;
 end;
 
 {******************************************************************************}
@@ -5272,7 +5300,8 @@ begin
   result := '';
   ExecutaComandoSql(AUX,'DELETE FROM PRODUTOESTAGIO '+
                         ' Where SEQPRODUTO = '+IntToStr(VpaDProduto.SeqProduto));
-  AdicionaSQLAbreTabela(ProCadastro,'Select * from PRODUTOESTAGIO');
+  AdicionaSQLAbreTabela(ProCadastro,'Select * from PRODUTOESTAGIO '+
+                                    ' Where SEQPRODUTO = 0 AND SEQESTAGIO = 0');
   for VpfLaco := 0 to VpaDProduto.Estagios.Count - 1 do
   begin
     VpfDEstagio := TRBDEstagioProduto(VpaDProduto.Estagios.Items[VpfLaco]);
@@ -5675,6 +5704,8 @@ end;
 procedure TFuncoesProduto.CarDValCusto(VpaDProduto: TRBDProduto; VpaCodFilial : Integer);
 var
   VpfDPreco : TRBDProdutoTabelaPreco;
+  VpfPrecosVenda : TList;
+  VpfLaco : Integer;
 begin
   AdicionaSQLAbreTabela(Tabela,'select  MOV.N_QTD_PRO, MOV.N_QTD_MIN, MOV.N_QTD_PED, MOV.N_VLR_CUS, MOV.N_VLR_COM, '+
                                ' COR.COD_COR, COR.NOM_COR, '+
@@ -5684,13 +5715,41 @@ begin
                                ' AND MOV.I_EMP_FIL = '+IntToStr(VpaCodFilial)+
                                ' AND '+SQLTextoRightJoin('MOV.I_COD_COR','COR.COD_COR')+
                                ' AND '+SQLTextoRightJoin('MOV.I_COD_TAM','TAM.CODTAMANHO')+
-                               ' ORDER BY COR.COD_COR, TAM.COD_TAMANHO');
+                               ' ORDER BY COR.COD_COR, TAM.CODTAMANHO');
   while not Tabela.eof do
   begin
+    VpfPrecosVenda := RPrecoVendaeCustoProduto(VpaDProduto,Tabela.FieldByName('COD_COR').AsInteger,Tabela.FieldByName('CODTAMANHO').AsInteger);
+    if VpfPrecosVenda.Count = 0   then
+    begin
+      VpfDPreco := VpaDProduto.AddTabelaPreco;
+      VpfDPreco.CodTabelaPreco := varia.TabelaPreco;
+      VpfDPreco.NomTabelaPreco := RNomTabelaPreco(Varia.TabelaPreco);
+      VpfDPreco.CodMoeda := VARIA.MoedaBase;
+      VpfDPreco.NomMoeda := FunContasAReceber.RNomMoeda(Varia.MoedaBase);
+      VpfDPreco.CodTamanho := Tabela.FieldByName('CODTAMANHO').AsInteger;
+      VpfDPreco.NomTamanho := Tabela.FieldByName('NOMTAMANHO').AsString;
+      VpfDPreco.CodCliente := 0;
+      VpfDPreco.CodCor := Tabela.FieldByName('COD_COR').AsInteger;
+      VpfDPreco.NomCor := Tabela.FieldByName('NOM_COR').AsString;
+      VpfDPreco.ValVenda := 0;
+      VpfDPreco.ValRevenda := 0;
+      VpfPrecosVenda.Add(VpfDPreco);
+    end;
+    for VpfLaco := 0 to VpfPrecosVenda.Count - 1 do
+    begin
+      VpfDPreco := TRBDProdutoTabelaPreco(VpfPrecosVenda.Items[VpfLaco]);
+      VpfDPreco.ValCompra := Tabela.FieldByName('N_VLR_COM').AsFloat;
+      VpfDPreco.ValCusto := Tabela.FieldByName('N_VLR_CUS').AsFloat;
+      VpfDPreco.QtdEstoque := Tabela.FieldByName('N_QTD_PRO').AsFloat;
+      VpfDPreco.QtdMinima := Tabela.FieldByName('N_QTD_MIN').AsFloat;
+      VpfDPreco.QtdIdeal := Tabela.FieldByName('N_QTD_PED').AsFloat;
+    end;
 
+    VpfPrecosVenda.free;
     Tabela.next;
   end;
   Tabela.close;
+  OrdenaTabelaPrecoProduto(VpaDProduto);
 end;
 
 {******************************************************************************}
@@ -5725,7 +5784,8 @@ begin
   Result:= '';
   ExecutaComandoSql(AUX,'DELETE FROM PRODUTOFORNECEDOR '+
                         ' WHERE SEQPRODUTO = '+IntToStr(VpaDProduto.SeqProduto));
-  AdicionaSQLAbreTabela(ProCadastro,'SELECT * FROM PRODUTOFORNECEDOR');
+  AdicionaSQLAbreTabela(ProCadastro,'SELECT * FROM PRODUTOFORNECEDOR '+
+                                    ' WHERE SEQPRODUTO = 0 AND CODCLIENTE = 0 AND CODCOR = 0');
   for VpfLaco:= 0 to VpaDProduto.Fornecedores.Count - 1 do
   begin
     VpfDFornecedor:= TRBDProdutoFornecedor(VpaDProduto.Fornecedores.Items[VpfLaco]);

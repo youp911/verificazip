@@ -14,10 +14,10 @@ type
     PanelColor1: TPanelColor;
     PanelColor2: TPanelColor;
     Colecao: TRBSQL;
-    ColecaoCODCOLECAO: TIntegerField;
-    ColecaoNOMCOLECAO: TStringField;
-    ColecaoDATINICIO: TDateField;
-    ColecaoDATFIM: TDateField;
+    ColecaoCODCOLECAO: TFMTBCDField;
+    ColecaoNOMCOLECAO: TWideStringField;
+    ColecaoDATINICIO: TSQLTimeStampField;
+    ColecaoDATFIM: TSQLTimeStampField;
     ECodigo: TDBKeyViolation;
     DBEditColor1: TDBEditColor;
     DBEditColor2: TDBEditColor;

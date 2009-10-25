@@ -85,12 +85,13 @@ type
     procedure ImprimeEstoqueProdutoporTecnico(VpaCodTEcnico : Integer; VpaCaminho, VpaNomTecnico : String);
     procedure ImprimeProdutosRetornadosComDefeito(VpaCodTEcnico : Integer; VpaCaminho, VpaNomTecnico : String;VpaDatInicio,VpaDatFim : TDateTime);
     procedure ImprimeConsistenciaReservaEstoque(VpaSeProduto : Integer; VpaCaminho, VpaNomProduto : String;VpaDatInicio,VpaDatFim : TDateTime);
-    procedure ImprimeVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime);
+    procedure ImprimeVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao, VpaCodTransportadora : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF,VpaNomTransportadora : String;VpaDatInicio,VpaDatFim : TDatetime);
     procedure ImprimeTotalVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime);
     procedure ImprimeClientesPorVendedor(VpaCodVendedor,VpaCodSituacao : Integer;VpaCaminho, VpaNomVendedor,VpaNOmSituacao,VpaCidade,VpaEstado : String);
     procedure ImprimeTotalVendasCliente(VpaCodVendedor,VpaCodCondicaoPagamento,VpaCodTipoCotacao, VpaCodfilial : Integer;VpaCaminho, VpaNomVendedor,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaNomfilial,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime;VpaCurvaABC : Boolean);
     procedure ImprimeExtratoColetaFracaoOPProduto(VpaSeqProduto, VpaSeqEstagio : Integer;VpaNomProduto, VpaNomEstagio : String; VpaDatInicio, VpaDatFim : TDateTime);
     procedure ImprimeInventarioProduto(VpaCodFilial, VpaSeqInventario : Integer;VpaCaminho, VpaNomfilial: String);
+    procedure ImprimeContasaReceberPorEmissao(VpaCodFilial : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho, VpaNomFilial : String;VpaMostrarFrio : Boolean);
   end;
 
 
@@ -1707,7 +1708,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimeVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao: Integer; VpaCaminho, VpaNomCliente, VpaNomCondicaoPagamento, VpaNomTipoCotacao, VpaCidade, VpaUF: String; VpaDatInicio, VpaDatFim: TDatetime);
+procedure TdtRave.ImprimeVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao, VpaCodTransportadora : Integer; VpaCaminho, VpaNomCliente, VpaNomCondicaoPagamento, VpaNomTipoCotacao, VpaCidade, VpaUF, VpaNomTransportadora: String; VpaDatInicio, VpaDatFim: TDatetime);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Vendas por Estado e Cidade';
@@ -1747,6 +1748,10 @@ begin
   begin
     AdicionaSqlTabeLa(Principal,'AND CAD.I_TIP_ORC = '+InttoStr(VpaTipCotacao));
     Rave.SetParam('TIPOCOTACAO',VpaNomTipoCotacao);
+  end;
+  if VpaCodTransportadora <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_TRA = '+InttoStr(VpaCodTransportadora));
   end;
 
   AdicionaSQLTabela(Principal,SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,True));
@@ -1976,6 +1981,37 @@ begin
   Rave.SetParam('INVENTARIO',IntToStr(VpaSeqInventario));
   Rave.Execute;
 end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeContasaReceberPorEmissao(VpaCodFilial: Integer; VpaDatInicio, VpaDatFim: TDateTime; VpaCaminho, VpaNomFilial: String;VpaMostrarFrio: Boolean);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Contas a Receber por Emissao';
+  Rave.projectfile := varia.PathRelatorios+'\Financeiro\Contas a Receber\0100PLFI_Contas a Receber por Emissao.rav';
+  Rave.clearParams;
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'SELECT REC.I_EMP_FIL, REC.D_DAT_EMI, REC.I_NRO_NOT, REC.N_VLR_TOT, REC.I_QTD_PAR, '+
+                              ' CLI.I_COD_CLI, CLI.C_NOM_CLI '+
+                              ' FROM CADCONTASARECEBER REC, CADCLIENTES CLI '+
+                              ' Where REC.I_COD_CLI = CLI.I_COD_CLI'+
+                               SQLTextoDataEntreAAAAMMDD('REC.D_DAT_EMI',VpaDatInicio,VpaDatFim,true));
+  if VpaCodfilial <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND REC.I_EMP_FIL = '+InttoStr(VpaCodfilial));
+    Rave.SetParam('FILIAL',VpaNomfilial );
+  end;
+  if not VpaMostrarFrio then
+    AdicionaSqlTabeLa(Principal,'and C_IND_CAD = ''N''');
+  AdicionaSqlTabeLa(Principal,'order BY REC.D_DAT_EMI, REC.I_NRO_NOT');
+
+  Rave.SetParam('CAMINHO',VpaCaminho);
+
+  Rave.SetParam('PERIODO','Período de  '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDateTime('DD/MM/YYY',VpaDatFim));
+  Rave.Execute;
+end;
+
 
 
 end.

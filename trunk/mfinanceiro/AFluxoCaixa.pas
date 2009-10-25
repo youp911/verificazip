@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Componentes1, ExtCtrls, PainelGradiente, AxCtrls, OleCtrls, vcf1, UnFluxoCaixa,
-  StdCtrls, Spin, Buttons, EditorImagem, UnDadosCR;
+  StdCtrls, Spin, Buttons, EditorImagem, UnDadosCR, Grids, CGrades;
 
 type
   TFFluxoCaixa = class(TFormularioPermissao)
@@ -63,7 +63,6 @@ type
     BSituacao: TBitBtn;
     BSuprimir: TBitBtn;
     BitBtn5: TBitBtn;
-    Grade: TF1Book;
     PanelColor4: TPanelColor;
     Label7: TLabel;
     Label9: TLabel;
@@ -82,6 +81,7 @@ type
     CClientesConfiaveis: TCheckBox;
     SCorFundoCP: TShape;
     Label18: TLabel;
+    RBStringGridColor1: TRBStringGridColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
@@ -140,12 +140,12 @@ end;
 procedure TFFluxoCaixa.InicializaGrade;
 begin
   CarDClasse;
-  FunFluxoCaixa.LimpaFluxo(grade);
+//D5  FunFluxoCaixa.LimpaFluxo(grade);
   FunFluxoCaixa.CarregaCores(SCorFonteCaixa.Brush.Color,SCorFundoCaixa.Brush.Color,SCorNegativo.Brush.Color,SCorFonteTituloCR.Brush.Color,
                              SCorFonteCR.Brush.Color,SCorFundoTituloCR.Brush.Color,SCorFundoCR.Brush.Color,SCorFonteCP.Brush.Color,SCorFundoCP.Brush.Color,
                              SCorFonteTituloCP.Brush.Color,SCorFundoTituloCP.Brush.Color,
                              ENomFonte.Text,ETamFonte.Value,EAltLinha.Value);
-  FunFluxoCaixa.InicializaFluxoDiario(grade,VprDFluxo);
+//D5  FunFluxoCaixa.InicializaFluxoDiario(grade,VprDFluxo);
 end;
 
 {******************************************************************************}
@@ -180,8 +180,8 @@ begin
   EMes.Value := VpaMes;
   EAno.Value := VpaAno;
   InicializaGrade;
-  FunFluxoCaixa.CarTitulosDiarioGrade(grade,VprDFluxo);
-  FunFluxoCaixa.CarFluxoCaixa(Grade,VprDFluxo);
+//D5  FunFluxoCaixa.CarTitulosDiarioGrade(grade,VprDFluxo);
+//D5  FunFluxoCaixa.CarFluxoCaixa(Grade,VprDFluxo);
   ShowModal;
 end;
 
@@ -189,7 +189,7 @@ end;
 procedure TFFluxoCaixa.BitBtn1Click(Sender: TObject);
 begin
 //  grade.FormatAlignmentDlg;
-  Grade.SelStartCol := 5;
+{D5  Grade.SelStartCol := 5;
   Grade.SelEndCol := 5;
   Grade.SelStartRow := 5;
   Grade.SelEndRow := 5;
@@ -199,7 +199,7 @@ begin
   grade.FormatFontDlg;
   grade.SetAlignment(F1HAlignCenter,false,F1HAlignCenter,0);
   grade.SetBorder(1,-1,1,1,1,1,clRed,clRed,clRed,clRed,clRed);
-
+}
 end;
 
 {******************************************************************************}
@@ -225,7 +225,7 @@ end;
 procedure TFFluxoCaixa.BitBtn4Click(Sender: TObject);
 begin
   InicializaGrade;
-  FunFluxoCaixa.CarTitulosDiarioGrade(grade,VprDFluxo);
+//  FunFluxoCaixa.CarTitulosDiarioGrade(grade,VprDFluxo);
   PFormatos.Visible := False;
 end;
 

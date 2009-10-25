@@ -42,6 +42,10 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     function CopiaConsumoAmostraProduto(VpaCodAmostra,VpaSeqProduto : Integer):String;
     procedure CalculaValorVendaUnitario(VpaDAmostra : TRBDAmostra);
     function ExisteAmostraDefinidaDesenvolvida(VpaCodAmostra : integer):Boolean;
+    function RQtdAmostraSolicitada(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
+    function RQtdAmostraEntregue(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
+    function RQtdAmostraAprovada(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
+    function RQtdClientesAmostra(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
 end;
 
 
@@ -83,6 +87,54 @@ begin
   Aux.free;
   Amostra.free;
   inherited destroy;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.RQtdAmostraAprovada(VpaDatInicio, VpaDatFim: TDateTime; VpaCodVendedor: Integer): Integer;
+begin
+  AdicionaSQLAbreTabela(Aux,'Select count(CODAMOSTRA) QTD '+
+                            ' from AMOSTRA '+
+                            ' Where CODVENDEDOR = '+IntToStr(VpaCodVendedor)+
+                            ' and TIPAMOSTRA = ''D'''+
+                            SQLTextoDataEntreAAAAMMDD('DATAPROVACAO',VpaDatInicio,VpaDatFim,true));
+  result := Aux.FieldByName('QTD').AsInteger;
+  Aux.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.RQtdAmostraEntregue(VpaDatInicio, VpaDatFim: TDateTime; VpaCodVendedor: Integer): Integer;
+begin
+  AdicionaSQLAbreTabela(Aux,'Select count(CODAMOSTRA) QTD '+
+                            ' from AMOSTRA '+
+                            ' Where CODVENDEDOR = '+IntToStr(VpaCodVendedor)+
+                            ' and TIPAMOSTRA = ''D'''+
+                            SQLTextoDataEntreAAAAMMDD('DATENTREGA',VpaDatInicio,VpaDatFim,true));
+  result := Aux.FieldByName('QTD').AsInteger;
+  Aux.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.RQtdAmostraSolicitada(VpaDatInicio, VpaDatFim: TDateTime; VpaCodVendedor: Integer): Integer;
+begin
+  AdicionaSQLAbreTabela(Aux,'Select count(CODAMOSTRA) QTD '+
+                            ' from AMOSTRA '+
+                            ' Where CODVENDEDOR = '+IntToStr(VpaCodVendedor)+
+                            ' and TIPAMOSTRA = ''D'''+
+                            SQLTextoDataEntreAAAAMMDD('DATAMOSTRA',VpaDatInicio,INCDIA(VpaDatFim,1),true));
+  result := Aux.FieldByName('QTD').AsInteger;
+  Aux.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.RQtdClientesAmostra(VpaDatInicio, VpaDatFim: TDateTime; VpaCodVendedor: Integer): Integer;
+begin
+  AdicionaSQLAbreTabela(Aux,'Select count(DISTINCT(CODCLIENTE)) QTD '+
+                            ' from AMOSTRA '+
+                            ' Where CODVENDEDOR = '+IntToStr(VpaCodVendedor)+
+                            ' and TIPAMOSTRA = ''D'''+
+                            SQLTextoDataEntreAAAAMMDD('DATAMOSTRA',VpaDatInicio,INCDIA(VpaDatFim,1),true));
+  result := Aux.FieldByName('QTD').AsInteger;
+  Aux.close;
 end;
 
 {******************************************************************************}
@@ -484,7 +536,8 @@ begin
   VpaDAmostra.CodAmostra:= VpaCodAmostra;
   VpaDAmostra.CodColecao:= Amostra.FieldByName('CODCOLECAO').AsInteger;
   VpaDAmostra.CodDesenvolvedor:= Amostra.FieldByName('CODDESENVOLVEDOR').AsInteger;
-  VpaDAmostra.CodProspect:= Amostra.FieldByName('CODPROSPECT').AsInteger;
+  VpaDAmostra.CodDepartamento := Amostra.FieldByName('CODDEPARTAMENTOAMOSTRA').AsInteger;
+  VpaDAmostra.CodProspect:= Amostra.FieldByName('CODCLIENTE').AsInteger;
   VpaDAmostra.CodVendedor:= Amostra.FieldByName('CODVENDEDOR').AsInteger;
   VpaDAmostra.CodAmostraIndefinida:= Amostra.FieldByName('CODAMOSTRAINDEFINIDA').AsInteger;
   VpaDAmostra.QtdAmostra:= Amostra.FieldByName('QTDAMOSTRA').AsInteger;

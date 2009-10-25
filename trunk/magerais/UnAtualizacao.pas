@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1508;
+  CT_VersaoBanco = 1511;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -819,6 +819,28 @@ begin
                               ' ADD PRIMARY KEY(I_COD_EMP,I_COD_TAB,I_SEQ_PRO,I_COD_CLI,I_COD_TAM,I_COD_COR)');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1508');
       end;
+      if VpaNumAtualizacao < 1509 Then
+      begin
+        VpfErro := '1509';
+        ExecutaComandoSql(Aux,'create table DEPARTAMENTOAMOSTRA('+
+                              ' CODDEPARTAMENTOAMOSTRA NUMBER(10,0) NOT NULL,'+
+                              ' NOMDEPARTAMENTOAMOSTRA VARCHAR2(50)NULL,' +
+                              ' PRIMARY KEY(CODDEPARTAMENTOAMOSTRA))');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1509');
+      end;
+      if VpaNumAtualizacao < 1510 Then
+      begin
+        VpfErro := '1510';
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRA ADD CODDEPARTAMENTOAMOSTRA NUMBER(10,0) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1510');
+      end;
+      if VpaNumAtualizacao < 1511 Then
+      begin
+        VpfErro := '1511';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD(I_COD_DEA NUMBER(10,0) NULL , '+
+                               ' I_DIA_AMO NUMBER(3) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1511');
+      end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then
       begin
@@ -909,6 +931,10 @@ C_COT_TPR
 
 CFG_FINANCEIRO
 C_CON_CAI
+
+AMOSTRA
+DESDEPARTAMENTO
+INDCOPIA
 }
 end.
 

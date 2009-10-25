@@ -434,6 +434,11 @@ type
       NaturezaOperacaoTroca : String;
       QtdMaximaMesesEntregaPedido : Integer;
 
+      //Amostra
+      QtdDiasUteisEntregaAmostra,
+      CodDesenvolvedorRequisicaoAmostra : Integer;
+
+
       constructor cria(VpaBaseDados : TSQLConnection);
       destructor destroy;override;
       procedure CarPermissaoUsuario(var VpaDPermissao : TRBDPermisaoUsuario;VpaCodEmpFil, VpaCodGrupoUsuario : String);
@@ -1357,6 +1362,8 @@ begin
        QtdDiasPendenciaCompras := VpfTabela.FieldByName('I_DIA_AVC').AsInteger;
        DatInformacaoGerencial :=  DataSemHora(VpfTabela.FieldByName('D_INF_GER').AsDateTime);
        QtdMaximaMesesEntregaPedido := VpfTabela.FieldByName('I_COT_QME').AsInteger;
+       QtdDiasUteisEntregaAmostra := VpfTabela.FieldByName('I_DIA_AMO').AsInteger;
+       CodDesenvolvedorRequisicaoAmostra := VpfTabela.FieldByName('I_COD_DEA').AsInteger;
     end;
 
     with Config do   // boolean

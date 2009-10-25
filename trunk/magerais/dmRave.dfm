@@ -11,30 +11,20 @@ object dtRave: TdtRave
     ASqlQuery.MaxBlobSize = -1
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
-      'select  PRO.C_COD_PRO, PRO.C_NOM_PRO, '
-      '   COR.NOM_COR,'
       
-        '  ITE.COD_FILIAL, ITE.SEQ_INVENTARIO, ITE.COD_UNIDADE, ITE.QTD_P' +
-        'RODUTO,'
-      ' TAM.NOMTAMANHO'
-      ''
-      'from CADPRODUTOS PRO, COR, TAMANHO TAM, INVENTARIOITEM ITE'
-      'Where ITE.SEQ_PRODUTO = PRO.I_SEQ_PRO'
-      'AND ITE.COD_COR = COR.COD_COR'
-      'AND ITE.COD_TAMANHO = TAM.CODTAMANHO')
+        'SELECT REC.I_EMP_FIL, REC.D_DAT_EMI, REC.I_NRO_NOT, REC.N_VLR_TO' +
+        'T, REC.I_QTD_PAR, '
+      ' CLI.I_COD_CLI, CLI.C_NOM_CLI'
+      'FROM CADCONTASARECEBER REC, CADCLIENTES CLI'
+      'Where REC.I_COD_CLI = CLI.I_COD_CLI')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
-      'select  PRO.C_COD_PRO, PRO.C_NOM_PRO, '
-      '   COR.NOM_COR,'
       
-        '  ITE.COD_FILIAL, ITE.SEQ_INVENTARIO, ITE.COD_UNIDADE, ITE.QTD_P' +
-        'RODUTO,'
-      ' TAM.NOMTAMANHO'
-      ''
-      'from CADPRODUTOS PRO, COR, TAMANHO TAM, INVENTARIOITEM ITE'
-      'Where ITE.SEQ_PRODUTO = PRO.I_SEQ_PRO'
-      'AND ITE.COD_COR = COR.COD_COR'
-      'AND ITE.COD_TAMANHO = TAM.CODTAMANHO')
+        'SELECT REC.I_EMP_FIL, REC.D_DAT_EMI, REC.I_NRO_NOT, REC.N_VLR_TO' +
+        'T, REC.I_QTD_PAR, '
+      ' CLI.I_COD_CLI, CLI.C_NOM_CLI'
+      'FROM CADCONTASARECEBER REC, CADCLIENTES CLI'
+      'Where REC.I_COD_CLI = CLI.I_COD_CLI')
     Left = 80
     Top = 8
   end

@@ -123,6 +123,7 @@ type
     Gerencial1: TMenuItem;
     MInformacoesVendedor: TMenuItem;
     BaseDados: TSQLConnection;
+    DepartamentoAmostra1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -186,7 +187,7 @@ uses Constantes, UnRegistro, funsql,FunSistema, UnClientes, UnCrystal,
   AHistoricoTelemarketingProspect, ASetores, AManutencaoEmail, UnVersoes,
   APropostasCliente, AHistoricoLigacao, ATipoProposta, AFormatoFrasco,
   AMaterialFrasco, AMaterialRotulo, AMaterialLiner, ACadastraEmailSuspect,
-  ADigitacaoProspect, ATeleMarketings, AInformacoesVendedor;
+  ADigitacaoProspect, ATeleMarketings, AInformacoesVendedor, ADepartamentoAmostra;
 
 
 
@@ -506,6 +507,11 @@ begin
              FHistoricoLigacao := TFHistoricoLigacao.CriarSDI(self,'',FPrincipal.VerificaPermisao('FHistoricoLigacao'));
              FHistoricoLigacao.ShowModal;
              FHistoricoLigacao.free;
+           end;
+    2840 : begin
+             FDepartamentoAmostra := TFDepartamentoAmostra.CriarSDI(self,'',true);
+             FDepartamentoAmostra.ShowModal;
+             FDepartamentoAmostra.free;
            end;
     2850 : begin
              FDesenvolvedor := TFDesenvolvedor.CriarSDI(self,'',FPrincipal.VerificaPermisao('FDesenvolvedor'));

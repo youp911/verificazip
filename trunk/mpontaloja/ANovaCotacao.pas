@@ -352,6 +352,7 @@ type
     procedure MImpressaoPopup(Sender: TObject);
     procedure SomenteServicos1Click(Sender: TObject);
     procedure EClienteSelect(Sender: TObject);
+    procedure Label11DblClick(Sender: TObject);
   private
     { Private declarations }
     VprOperacao,
@@ -832,6 +833,15 @@ end;
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
 
 {******************************************************************************}
+procedure TFNovaCotacao.Label11DblClick(Sender: TObject);
+begin
+  if Confirmacao('Tem certeza que deseja excluir todos os produtos?')then
+  begin
+    FreeTObjectsList(VprDCotacao.Produtos);
+    GProdutos.CarregaGrade;
+  end;
+end;
+
 function TFNovaCotacao.LimiteCreditoOK(VpaDCliente : TRBDCliente) : string;
 var
   VpfValAlteracao : Double;

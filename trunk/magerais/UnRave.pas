@@ -4,7 +4,7 @@ unit UnRave;
 }
 interface
 Uses SQLExpr, RpRave, UnDados, SysUtils, RpDefine, RpBase, RpSystem,RPDevice,
-     Classes, forms, Graphics, unprodutos, UnClassificacao;
+     Classes, forms, Graphics, unprodutos, UnClassificacao, UnAmostra;
 
 
 Type
@@ -135,6 +135,7 @@ type
       procedure DefineTabelaExtratoProdutividade(VpaObjeto : TObject);
       procedure DefineTabelaCustoProjeto(VpaObjeto : TObject);
       procedure DefineTabelaTabelaPreco(VpaObjeto : TObject);
+      procedure DefineTabelaTotalAmostraporVendedor(VpaObjeto : TObject);
       procedure ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
       procedure SalvaTabelaProdutosPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
       procedure ImprimeRelEstoqueProdutos(VpaObjeto : TObject);
@@ -149,6 +150,7 @@ type
       procedure ImprimeCabecalhoPlanoContas;
       procedure ImprimeCabecalhoPlanoContasCustoProjeto;
       procedure ImprimeCabecalhoExtratoProdutividade;
+      procedure ImprimeCabecalhoTotalAmostrasVendedor;
       procedure ImprimeTituloUF(VpaCodUf : String);
       procedure ImprimeTituloClassificacao(VpaNiveis : TList;VpaTudo : boolean);
       procedure ImprimetituloPlanoContas(VpaNiveis : TList;VpaTudo : boolean);
@@ -172,6 +174,7 @@ type
       procedure ImprimeRelEntradaMetros(VpaObjeto : TObject);
       procedure ImprimeRelExtratoProdutividade(VpaObjeto : TObject);
       procedure ImprimeRelCustoProjeto(VpaObjeto : TObject);
+      procedure ImprimeRelTotalAmostrasVendedor(VpaObjeto : TObject);
 
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
@@ -191,6 +194,7 @@ type
       procedure ImprimeCustoProjeto(VpaCodProjeto : Integer;VpaCaminho, VpaNomProjeto : String);
       procedure ImprimeTabelaPreco(VpaCodCliente, VpaCodTabelaPreco : Integer;VpaCaminho,VpaNomCliente,VpaNomTabelaPreco,VpaCodClassificacao, VpaNomClassificacao : String);
       procedure ImprimeEstoqueProdutosReservados(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
+      procedure ImprimeTotaAmostrasPorVendedor(VpaCodVendedor : Integer;VpaCaminho, VpaNomVendedor : String;VpaDatInicio, VpaDatFim : TDateTime);
   end;
 implementation
 
@@ -504,6 +508,21 @@ begin
      SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Valor total
      SetTab(NA,pjLeft,0.8,0,Boxlinenone,0); //um
      SaveTabs(2);
+   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaTotalAmostraporVendedor(VpaObjeto: TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1.0,pjleft,7.0,0.5,BOXLINEALL,0); //Vendedor
+     SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Qtd solicitada
+     SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Qtd Entregue
+     SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Qtd Aprovadas
+     SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Qtd Clientes;
+     SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Per Aprovacao;
+     SaveTabs(1);
    end;
 end;
 
@@ -1176,6 +1195,23 @@ begin
       PrintTab('Val Total');
       Bold := false;
   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoTotalAmostrasVendedor;
+begin
+    with RVSystem.BaseReport do
+    begin
+      RestoreTabs(1);
+      bold := true;
+      PrintTab('Vendedor');
+      PrintTab('Qtd Solicitada ');
+      PrintTab('Qtd Entregue ');
+      PrintTab('Qtd Aprovadas ');
+      PrintTab('Qtd Clientes ');
+      PrintTab('% Aprovação ');
+      bold := false;
+    end;
 end;
 
 {******************************************************************************}
@@ -1955,6 +1991,64 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeRelTotalAmostrasVendedor(VpaObjeto: TObject);
+Var
+  VpfQtdSolicitada, VpfQtdEntregue, VpfQtdAprovada, VpfQtdCliente : Integer;
+  VpfTotSolicitada, VpfTotEntregue, VpfTotAprovada, VpfTotCliente : Integer;
+  VpfFunAmostra : TRBFuncoesAmostra;
+begin
+  VpfFunAmostra := TRBFuncoesAmostra.cria(Tabela.SQLConnection);
+  VpfTotSolicitada :=0;
+  VpfTotEntregue := 0;
+  VpfTotAprovada := 0;
+  VpfTotCliente :=0;
+  with RVSystem.BaseReport do begin
+    newline;
+    while not Tabela.Eof  do
+    begin
+      VpfQtdSolicitada := VpfFunAmostra.RQtdAmostraSolicitada(VprDatInicio,VprDatFim,Tabela.FieldByName('I_COD_VEN').AsInteger);
+      VpfQtdEntregue :=VpfFunAmostra.RQtdAmostraEntregue(VprDatInicio,VprDatFim,Tabela.FieldByName('I_COD_VEN').AsInteger);
+      VpfQtdAprovada :=VpfFunAmostra.RQtdAmostraAprovada(VprDatInicio,VprDatFim,Tabela.FieldByName('I_COD_VEN').AsInteger);
+      VpfQtdCliente :=VpfFunAmostra.RQtdClientesAmostra(VprDatInicio,VprDatFim,Tabela.FieldByName('I_COD_VEN').AsInteger);
+      if (VpfQtdSolicitada <> 0) or (VpfQtdEntregue <> 0) or
+         (VpfQtdAprovada <> 0) then
+      begin
+        PrintTab('  ' +Tabela.FieldByName('C_NOM_VEN').AsString);
+        PrintTab(IntToStr(VpfQtdSolicitada)+' ');
+        PrintTab(IntToStr(VpfQtdEntregue)+' ');
+        PrintTab(IntToStr(VpfQtdAprovada)+' ');
+        PrintTab(IntToStr(VpfQtdCliente)+' ');
+        if VpfQtdSolicitada <> 0 then
+          PrintTab(FormatFloat('#,##0.00 %',(VpfQtdAprovada *100)/VpfQtdSolicitada))
+        else
+          PrintTab(FormatFloat('#,##0.00 %',0));
+        newline;
+        If LinesLeft<=1 Then
+          NewPage;
+      end;
+      VpfTotSolicitada := VpfTotSolicitada + VpfQtdSolicitada;
+      VpfTotEntregue := VpfTotEntregue +VpfQtdEntregue;
+      VpfTotAprovada := VpfTotAprovada + VpfQtdAprovada;
+      VpfTotCliente := VpfTotCliente + VpfQTDCliente;
+      Tabela.next;
+    end;
+    Bold := true;
+    PrintTab('  TOTAL');
+    PrintTab(IntToStr(VpfTotSolicitada)+' ');
+    PrintTab(IntToStr(VpfTotEntregue)+' ');
+    PrintTab(IntToStr(VpfTotAprovada)+' ');
+    PrintTab(IntToStr(VpfTotCliente)+' ');
+    if VpfTotSolicitada <> 0 then
+      PrintTab(FormatFloat('#,##0.00 %',(VpfTotAprovada *100)/VpfTotSolicitada))
+    else
+      PrintTab(FormatFloat('#,##0.00 %',0));
+    Bold := false;
+  end;
+  Tabela.close;
+  VpfFunAmostra.free;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
 var
   VpfValPago, VpfValDuplicata, VpfTotalPago,VpfTotalDuplicata : Double;
@@ -2275,6 +2369,7 @@ begin
        3 : ImprimeCabecalhoAnaliseFaturamento;
        8 : ImprimeCabecalhoEntradaMetros;
        9 : ImprimeCabecalhoExtratoProdutividade;
+      13 : ImprimeCabecalhoTotalAmostrasVendedor;
      end;
    end;
 end;
@@ -2848,5 +2943,37 @@ begin
   RvSystem.execute;
 end;
 
+{******************************************************************************}
+procedure TRBFunRave.ImprimeTotaAmostrasPorVendedor(VpaCodVendedor: Integer; VpaCaminho, VpaNomVendedor: String; VpaDatInicio,VpaDatFim: TDateTime);
+begin
+  RvSystem.Tag := 13;
+  FreeTObjectsList(VprNiveis);
+  LimpaSQlTabela(Tabela);
+  VprDatInicio :=  VpaDatInicio;
+  VprDatFim :=  VpaDatFim;
+  AdicionaSqltabela(Tabela,'Select I_COD_VEN, C_NOM_VEN '+
+                           ' FROM CADVENDEDORES '+
+                           ' Where C_IND_ATI = ''S''');
+  if VpaCodVendedor <> 0 then
+    AdicionaSqlTabela(Tabela,' and I_COD_VEN = '+InttoStr(VpaCodVendedor));
+
+  AdicionaSqlTabela(Tabela,' ORDER BY C_NOM_VEN ');
+  Tabela.open;
+
+  rvSystem.onBeforePrint := DefineTabelaTotalAmostraporVendedor;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelTotalAmostrasVendedor;
+
+  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Amostras por Vendedor';
+  VprCabecalhoEsquerdo.Clear;
+  if  VpaCodVendedor <> 0 then
+    VprCabecalhoEsquerdo.add('Vendedor : ' +VpaNomVendedor);
+
+  VprCabecalhoDireito.Clear;
+
+  RvSystem.execute;
+end;
 
 end.

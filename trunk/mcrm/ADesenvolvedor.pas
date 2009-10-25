@@ -15,8 +15,8 @@ type
     PanelColor2: TPanelColor;
     DESENVOLVEDOR: TRBSQL;
     DataDESENVOLVEDOR: TDataSource;
-    DESENVOLVEDORCODDESENVOLVEDOR: TIntegerField;
-    DESENVOLVEDORNOMDESENVOLVEDOR: TStringField;
+    DESENVOLVEDORCODDESENVOLVEDOR: TFMTBCDField;
+    DESENVOLVEDORNOMDESENVOLVEDOR: TWideStringField;
     ECodigo: TDBKeyViolation;
     Label1: TLabel;
     Label2: TLabel;
@@ -33,7 +33,7 @@ type
     BotaoCancelar1: TBotaoCancelar;
     BFechar: TBitBtn;
     CCobrarFormaPagamento: TDBCheckBox;
-    DESENVOLVEDORINDATIVO: TStringField;
+    DESENVOLVEDORINDATIVO: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);

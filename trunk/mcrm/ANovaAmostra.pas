@@ -53,20 +53,19 @@ type
     SpeedButton1: TSpeedButton;
     AmostraDATAPROVACAO: TSQLTimeStampField;
     AmostraCODVENDEDOR: TFMTBCDField;
-    DBEditLocaliza1: TDBEditLocaliza;
-    DBEditLocaliza2: TDBEditLocaliza;
+    EColecao: TDBEditLocaliza;
+    EDesenvolvedor: TDBEditLocaliza;
     Localiza: TConsultaPadrao;
     Label14: TLabel;
     SpeedButton2: TSpeedButton;
     Label15: TLabel;
     SpeedButton3: TSpeedButton;
-    DBEditLocaliza3: TDBEditLocaliza;
+    ECliente: TDBEditLocaliza;
     Label16: TLabel;
-    DBEditLocaliza4: TDBEditLocaliza;
+    EVendedor: TDBEditLocaliza;
     Label17: TLabel;
     SpeedButton4: TSpeedButton;
     Label18: TLabel;
-    CCopia: TDBCheckBox;
     DBEditColor5: TDBEditColor;
     DBEditColor6: TDBEditColor;
     Label11: TLabel;
@@ -101,7 +100,6 @@ type
     AmostraINDALTERACAO: TWideStringField;
     DBCheckBox1: TDBCheckBox;
     AmostraCODCLIENTE: TFMTBCDField;
-    DBRadioGroup1: TDBRadioGroup;
     Label24: TLabel;
     AmostraDESDEPARTAMENTO: TWideStringField;
     Label25: TLabel;
@@ -109,14 +107,19 @@ type
     LNomClassificacao: TLabel;
     ECodClassificacao: TDBEditColor;
     AmostraCODCLASSIFICACAO: TWideStringField;
+    AmostraCODDEPARTAMENTOAMOSTRA: TFMTBCDField;
+    DBEditLocaliza5: TDBEditLocaliza;
+    SpeedButton6: TSpeedButton;
+    Label27: TLabel;
+    PanelColor3: TPanelColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
     procedure AmostraAfterInsert(DataSet: TDataSet);
     procedure ECodigoChange(Sender: TObject);
-    procedure DBEditLocaliza2Cadastrar(Sender: TObject);
-    procedure DBEditLocaliza1Cadastrar(Sender: TObject);
-    procedure DBEditLocaliza3Cadastrar(Sender: TObject);
+    procedure EDesenvolvedorCadastrar(Sender: TObject);
+    procedure EColecaoCadastrar(Sender: TObject);
+    procedure EClienteCadastrar(Sender: TObject);
     procedure AmostraAfterEdit(DataSet: TDataSet);
     procedure AmostraAfterScroll(DataSet: TDataSet);
     procedure BCadastrarClick(Sender: TObject);
@@ -132,6 +135,7 @@ type
     procedure SpeedButton15Click(Sender: TObject);
     procedure BotaoGravar1Click(Sender: TObject);
     procedure AmostraBeforePost(DataSet: TDataSet);
+    procedure EClienteRetorno(Retorno1, Retorno2: string);
   private
     { Private declarations }
     VprAcao : Boolean;
@@ -142,6 +146,7 @@ type
     function LocalizaClassificacao : boolean;
   public
     { Public declarations }
+    procedure NovaAmostra(VpaCodRequisicaoAmostra : Integer);
   end;
 
 var
@@ -150,7 +155,7 @@ var
 implementation
 
 uses APrincipal, AAmostras, ADesenvolvedor, AColecao, ANovoProspect, FunObjeto,
-  Constmsg, Constantes, AAmostraConsumo, ALocalizaClassificacao;
+  Constmsg, Constantes, AAmostraConsumo, ALocalizaClassificacao, FunData;
 
 {$R *.DFM}
 
@@ -215,7 +220,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFNovaAmostra.DBEditLocaliza2Cadastrar(Sender: TObject);
+procedure TFNovaAmostra.EDesenvolvedorCadastrar(Sender: TObject);
 begin
   FDesenvolvedor := TFDesenvolvedor.CriarSDI(self,'',FPrincipal.VerificaPermisao('FDesenvolvedor'));
   FDesenvolvedor.BotaoCadastrar1.click;
@@ -225,7 +230,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFNovaAmostra.DBEditLocaliza1Cadastrar(Sender: TObject);
+procedure TFNovaAmostra.EColecaoCadastrar(Sender: TObject);
 begin
   FColecao := TFColecao.CriarSDI(self,'',FPrincipal.VerificaPermisao('FColecao'));
   FColecao.BotaoCadastrar1.Click;
@@ -235,13 +240,23 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFNovaAmostra.DBEditLocaliza3Cadastrar(Sender: TObject);
+procedure TFNovaAmostra.EClienteCadastrar(Sender: TObject);
 begin
   FNovoProspect := tFNovoProspect.CriarSDI(self,'',FPrincipal.VerificaPermisao('FNovoProspect'));
   FNovoProspect.Prospect.Insert;
   FNovoProspect.ShowModal;
   FNovoProspect.free;
   Localiza.AtualizaConsulta;
+end;
+
+{******************************************************************************}
+procedure TFNovaAmostra.EClienteRetorno(Retorno1, Retorno2: string);
+begin
+  if Retorno1 <> '' then
+  begin
+    AmostraCODVENDEDOR.AsString := Retorno1;
+    EVendedor.Atualiza;
+  end;
 end;
 
 {******************************************************************************}
@@ -308,6 +323,30 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovaAmostra.NovaAmostra(VpaCodRequisicaoAmostra : Integer);
+var
+  VpfDAmostra : TRBDAmostra;
+begin
+  VpfDAmostra := TRBDAmostra.cria;
+  FunAmostra.CarDAmostra(VpfDAmostra,VpaCodRequisicaoAmostra);
+  Amostra.Insert;
+  AmostraCODDEPARTAMENTOAMOSTRA.AsInteger := VpfDAmostra.CodDepartamento;
+  AmostraDATENTREGACLIENTE.AsDateTime := VpfDAmostra.DatEntregaCliente;
+  AmostraCODDESENVOLVEDOR.AsInteger := VpfDAmostra.CodDesenvolvedor;
+  EDesenvolvedor.Atualiza;
+  AmostraCODCLIENTE.AsInteger := VpfDAmostra.CodProspect;
+  ECliente.Atualiza;
+  AmostraCODVENDEDOR.AsInteger := VpfDAmostra.CodVendedor;
+  EVendedor.Atualiza;
+  AmostraCODAMOSTRAINDEFINIDA.AsInteger := VpaCodRequisicaoAmostra;
+  EAmostraIndefinida.Atualiza;
+  AmostraCODCOLECAO.AsInteger := VpfDAmostra.CodColecao;
+  EColecao.Atualiza;
+  VpfDAmostra.free;
+  ShowModal;
+end;
+
+{******************************************************************************}
 procedure TFNovaAmostra.BConcluirClick(Sender: TObject);
 var
   VpfResultado : String;
@@ -344,17 +383,33 @@ end;
 {******************************************************************************}
 procedure TFNovaAmostra.ETipoAmostraChange(Sender: TObject);
 begin
-  if ETipoAmostra.ItemIndex = 0 then
+  if Amostra.State in [dsedit,dsinsert] then
   begin
-    EAmostraIndefinida.ACampoObrigatorio := true;
-    BConcluir.Enabled := true;
-  end
-  else
-  begin
-    BConcluir.Enabled := false;
-    EAmostraIndefinida.ACampoObrigatorio := false;
+    if ETipoAmostra.ItemIndex = 0 then
+    begin
+      EAmostraIndefinida.ACampoObrigatorio := true;
+      BConcluir.Enabled := true;
+    end
+    else
+    begin
+      BConcluir.Enabled := false;
+      EAmostraIndefinida.ACampoObrigatorio := false;
+      if AmostraCODDESENVOLVEDOR.AsInteger = 0  then
+      begin
+        AmostraCODDESENVOLVEDOR.AsInteger := varia.CodDesenvolvedorRequisicaoAmostra;
+        EDesenvolvedor.Atualiza;
+      end;
+      if (varia.QtdDiasUteisEntregaAmostra <> 0) and AmostraDATENTREGACLIENTE.IsNull  then
+      begin
+        AmostraDATENTREGACLIENTE.AsDateTime := IncDia(Date,Varia.QtdDiasUteisEntregaAmostra);
+        while QdadeDiasUteis(date,AmostraDATENTREGACLIENTE.AsDateTime) < varia.QtdDiasUteisEntregaAmostra do
+          AmostraDATENTREGACLIENTE.AsDateTime := IncDia(AmostraDATENTREGACLIENTE.AsDateTime,1);
+
+      end;
+
+    end;
+    ValidaGravacao1.execute;
   end;
-  ValidaGravacao1.execute;
 end;
 
 {******************************************************************************}
@@ -362,7 +417,7 @@ procedure TFNovaAmostra.ECodClassifcacaoExit(Sender: TObject);
 var
   VpfNomClassificacao : String;
 begin
-//  if Amostra.State in [dsedit,dsinsert] then
+  if Amostra.State in [dsedit,dsinsert] then
   begin
     if AmostraCODCLASSIFICACAO.AsString <> '' then
     begin

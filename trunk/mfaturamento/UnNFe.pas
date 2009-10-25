@@ -631,8 +631,8 @@ begin
 
     NFe.DANFE := Danfe;
 
-    Aviso('Protocolo da nfe : '+nfe.WebServices.Retorno.Protocolo);
-    aviso('Recibo da nfe : '+ nfe.WebServices.Retorno.Recibo);
+//    Aviso('Protocolo da nfe : '+nfe.WebServices.Retorno.Protocolo);
+//    aviso('Recibo da nfe : '+ nfe.WebServices.Retorno.Recibo);
   end;
   NFe.Configuracoes.WebServices.Visualizar := VpfVisualizar
 end;

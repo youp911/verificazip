@@ -290,7 +290,9 @@ uses
   AComposicoes in '..\mestoque\AComposicoes.pas' {FComposicoes},
   ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
   ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
-  UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas';
+  UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
+  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
+  ADepartamentoAmostra in 'ADepartamentoAmostra.pas' {FDepartamentoAmostra};
 
 {$R *.RES}
 

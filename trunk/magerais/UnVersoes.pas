@@ -5,14 +5,14 @@ interface
 
 Const
   //VersaoSistema = '';
-  VersaoEstoque = '2.877';
-  VersaoFinanceiro ='2.547';
-  VersaoFaturamento = '2.517';
-  VersaoPontoLoja = '3.341';
-  VersaoConfiguracaoSistema = '2.267';
+  VersaoEstoque = '2.884';
+  VersaoFinanceiro ='2.549';
+  VersaoFaturamento = '2.520';
+  VersaoPontoLoja = '3.346';
+  VersaoConfiguracaoSistema = '2.268';
   VersaoChamadoTecnico = '2.419';
   VersaoAgenda = '1.06';
-  VersaoCRM = '2.685';
+  VersaoCRM = '2.688';
   VersaoCaixa = '0.39';
   NomeSistema = 'Sistema Corporativo';
   PR_CONTASARECEBER = 1;
