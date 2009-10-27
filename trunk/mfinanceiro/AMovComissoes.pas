@@ -83,6 +83,10 @@ type
     MovComissoesC_NOM_CLI: TWideStringField;
     MovComissoesN_VLR_PAR: TFMTBCDField;
     PDF: TRvRenderPDF;
+    ECliente: TRBEditLocaliza;
+    Label11: TLabel;
+    Label12: TLabel;
+    SpeedButton2: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
@@ -101,6 +105,7 @@ type
       Shift: TShiftState);
     procedure GComissoesOrdem(Ordem: String);
     procedure ENotaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure EClienteFimConsulta(Sender: TObject);
   private
     FunCom : TFuncoesComissao;
     VprPressionadoR : Boolean;
@@ -171,11 +176,18 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFMovComissoes.EClienteFimConsulta(Sender: TObject);
+begin
+  AtualizaConsulta(false);
+end;
+
+{******************************************************************************}
 procedure TFMovComissoes.EDatInicioCloseUp(Sender: TObject);
 begin
   AtualizaConsulta(false);
 end;
 
+{******************************************************************************}
 procedure TFMovComissoes.ENotaKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
@@ -248,6 +260,8 @@ begin
     VpaSelect.Add(' and CAR.I_NRO_NOT = '+Enota.Text);
   if not BMostrarConta.Visible then
     VpaSelect.Add(' and MOV.C_IND_CAD = ''N''');
+  if ECliente.AInteiro <> 0  then
+    VpaSelect.Add(' and CAR.I_COD_CLI = '+ECliente.Text);
 end;
 
 {******************************************************************************}

@@ -37,6 +37,9 @@ type
     ValidaGravacao1: TValidaGravacao;
     CadPlanoContaD_ULT_ALT: TSQLTimeStampField;
     CadPlanoContaC_CLA_PLA: TWideStringField;
+    Label5: TLabel;
+    DBEditColor1: TDBEditColor;
+    CadPlanoContaN_VLR_PRE: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BotaoGravar1DepoisAtividade(Sender: TObject);

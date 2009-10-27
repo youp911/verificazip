@@ -1858,6 +1858,7 @@ begin
       if (VpfDProdutoNota.SeqProduto = VpfDProdutoNotaInterno.SeqProduto) and
          (VpfDProdutoNota.CodCor = VpfDProdutoNotaInterno.CodCor) and
          (VpfDProdutoNota.DesOrdemCompra = VpfDProdutoNotaInterno.DesOrdemCompra) and
+         (VpfDProdutoNota.DesRefCliente = VpfDProdutoNotaInterno.DesRefCliente) and
          (Config.NaNotaFazerMediaValProdutosDuplicados or (VpfDProdutoNota.ValUnitario = VpfDProdutoNotaInterno.ValUnitario)) then
       begin
         VpfDProdutoNotaInterno.QtdProduto := VpfDProdutoNotaInterno.QtdProduto + (VpfDProdutoNota.QtdProduto * ConvUnidade.Indice(VpfDProdutoNota.UM,VpfDProdutoNotaInterno.UM,VpfDProdutoNotaInterno.CodProduto,VpaDNota.CodFilial));

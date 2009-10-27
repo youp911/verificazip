@@ -60,13 +60,12 @@ begin
   Aux.SQLConnection := VpaBaseDados;
   NFe := TACBrNFe.Create(Application);
   NFe.OnStatusChange := MostraStatusOperacao;
-  if config.EmiteNFe then
-  begin
     NFe.Configuracoes.Certificados.NumeroSerie := varia.CertificadoNFE;
     NFe.Configuracoes.Geral.Salvar := true;
     NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe';
-//    NFe.Configuracoes.Geral.FormaEmissao
 
+  if config.EmiteNFe then
+  begin
     NFe.Configuracoes.WebServices.UF := Varia.UFSefazNFE;
     if config.NFEHomologacao then
       Nfe.Configuracoes.WebServices.Ambiente := taHomologacao
@@ -213,7 +212,7 @@ begin
         cProd    := VpfDProduto.CodProduto;
         xProd    := VpfDProduto.NomProduto;
         if VpfDProduto.DesCor <> '' then
-          xProd := xProd +' - '+VpfDProduto.DesCor;
+          xProd := xProd +' ('+IntToStr(VpfDProduto.CodCor)+'-'+ VpfDProduto.DesCor+')';
         if (config.numeroserieproduto) and (VpfDProduto.DesRefCliente <> '') then
           xProd := xProd +' - NS='+ VpfDProduto.DesRefCliente;
 
@@ -401,7 +400,10 @@ begin
   begin
     infCpl := VpaDNota.DesDadosAdicionaisImpressao.Text;
     if VpaDNota.DesOrdemCompra <> '' then
-      infCpl := infCpl+#13+VpaDNota.DesOrdemCompra;
+      infCpl := infCpl+'Ordem Compra : '+ SubstituiStr(VpaDNota.DesOrdemCompra,';','/');
+    if VpaDNota.NumPedidos <> '' then
+      infCpl := infCpl+#13+ SubstituiStr(VpaDNota.NumPedidos,';','/');
+
     if VpaDNota.DesObservacao.Count > 0 then
       infCpl := infCpl+#13+VpaDNota.DesObservacao.Text;
   end;
@@ -622,12 +624,15 @@ begin
     CarDObservacoesNota(VpaDNota,VpfDNFe);
 
     nfe.DANFE := nil;
-    NFe.Enviar(0);
-    VpaDNota.NumReciboNFE := nfe.WebServices.Retorno.Recibo;
-    VpaDNota.NumProtocoloNFE := nfe.WebServices.Retorno.Protocolo;
-    VpaDNota.CodMotivoNFE := IntTostr(nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].cStat);
-    VpaDNota.DesMotivoNFE := nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].xMotivo;
-    VpaDNota.DesChaveNFE := nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].chNFe;
+    if config.EmiteNFe then
+    begin
+      NFe.Enviar(0);
+      VpaDNota.NumReciboNFE := nfe.WebServices.Retorno.Recibo;
+      VpaDNota.NumProtocoloNFE := nfe.WebServices.Retorno.Protocolo;
+      VpaDNota.CodMotivoNFE := IntTostr(nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].cStat);
+      VpaDNota.DesMotivoNFE := nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].xMotivo;
+      VpaDNota.DesChaveNFE := nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].chNFe;
+    end;
 
     NFe.DANFE := Danfe;
 
@@ -682,20 +687,32 @@ begin
       else
         VpfEmail := VpaDCliente.DesEmailFinanceiro;
 
-    Danfe := TACBrNFeDANFERave.Create(Application);
-    Danfe.RavFile :=Varia.PathRelatorios+'\NotaFiscalEletronica.rav';
-    NFe.DANFE := Danfe;
-    if config.NFEDanfeRetrato then
-      NFE.DANFE.TipoDANFE := tiRetrato
+    if config.EmiteNFe then
+      NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml')
     else
-      NFE.DANFE.TipoDANFE := tiPaisagem;
-    NFe.DANFE.Logo := varia.PathVersoes+'\'+inttoStr(varia.CodigoEmpFil)+'.bmp';
+      result := EmiteNota(VpaDNota,VpaDCliente,nil);
+    if result = '' then
+    begin
+      Danfe := TACBrNFeDANFERave.Create(Application);
+      Danfe.RavFile :=Varia.PathRelatorios+'\NotaFiscalEletronica.rav';
+      NFe.DANFE := Danfe;
+      if config.NFEDanfeRetrato then
+        NFE.DANFE.TipoDANFE := tiRetrato
+      else
+        NFE.DANFE.TipoDANFE := tiPaisagem;
+      NFe.DANFE.Logo := varia.PathVersoes+'\'+inttoStr(varia.CodigoEmpFil)+'.bmp';
 
-    VpfTextoEmail :=  TStringList.create;
-    NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml');
-    NFe.DANFE.PathPDF := Varia.PathVersoes+'\nfe\';
-    Nfe.NotasFiscais.Items[0].EnviarEmail(Varia.ServidorSMTP, '25',varia.UsuarioSMTP, Varia.SenhaEmail, varia.EmailComercial, VpfEmail, 'Segue anexo NF-e '+IntToStr(VpaDNota.NumNota)+ ' - '+varia.NomeFilial,
-                                         VpfTextoEmail,false);
+      VpfTextoEmail :=  TStringList.create;
+
+      NFe.DANFE.PathPDF := Varia.PathVersoes+'\nfe\';
+
+      while VpfEmail <> '' do
+      begin
+        Nfe.NotasFiscais.Items[0].EnviarEmail(Varia.ServidorSMTP, '25',varia.UsuarioSMTP, Varia.SenhaEmail, varia.EmailComercial, DeletaChars(CopiaAteChar(VpfEmail,';'),';'), 'Segue anexo NF-e '+IntToStr(VpaDNota.NumNota)+ ' - '+varia.NomeFilial,
+                                           VpfTextoEmail,false);
+        VpfEmail := DeleteAteChar(VpfEmail,';');
+      end;
+    end;
     VpfTextoEmail.free;
     NFe.DANFE := nil;
     Danfe.FREE;

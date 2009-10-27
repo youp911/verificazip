@@ -121,6 +121,9 @@ type
     CadProdutosI_COD_TAM: TFMTBCDField;
     CadProdutosI_ORI_PRO: TFMTBCDField;
     CadProdutosN_QTD_ARE: TFMTBCDField;
+    PReferenciaCliente: TPanelColor;
+    ERefCliente: TEditColor;
+    Label7: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CProAtiClick(Sender: TObject);
@@ -154,6 +157,7 @@ type
     procedure SpeedButton6Click(Sender: TObject);
     procedure ESeqProdutoEnter(Sender: TObject);
     procedure ESeqProdutoExit(Sender: TObject);
+    procedure ERefClienteExit(Sender: TObject);
   private
     { Private declarations }
     Cadastrou : Boolean;
@@ -347,6 +351,11 @@ begin
                   ' Where IMP.SEQPRODUTO = PRO.I_SEQ_PRO '+
                   ' and IMP.SEQIMPRESSORA = ' + IntToStr(VprSeqImpressora)+
                   ')');
+  if ERefCliente.Text <> '' then
+    VpaSelect.add(' and  exists (Select REF.SEQ_PRODUTO FROM PRODUTO_REFERENCIA REF '+
+                  ' Where REF.SEQ_PRODUTO = PRO.I_SEQ_PRO '+
+                  ' and REF.DES_REFERENCIA = ''' + ERefCliente.Text+''')');
+
 end;
 
 {******************************************************************************}
@@ -357,14 +366,18 @@ begin
     GProdutos.Columns[1].Width := 300;
     GProdutos.Columns[2].Visible := false;
   end;
+
   if not config.EstoquePorTamanho then
   begin
     GProdutos.Columns[3].Visible := false;
   end;
   PCartuchos.Visible := config.ManutencaoImpressoras;
+  PReferenciaCliente.Visible := not Config.NumeroSerieProduto;
   PanelColor1.Height := PanelColor5.Height;
   if config.ManutencaoImpressoras then
     PanelColor1.Height := PanelColor1.Height + PCartuchos.Height;
+  if not config.NumeroSerieProduto then
+    PanelColor1.Height := PanelColor1.Height + PReferenciaCliente.Height;
 end;
 
 {******************************************************************************}
@@ -1150,6 +1163,12 @@ begin
   begin
     AtualizaConsulta;
   end;
+  BFechar.Default := true;
+end;
+
+procedure TFlocalizaProduto.ERefClienteExit(Sender: TObject);
+begin
+  AtualizaConsulta;
   BFechar.Default := true;
 end;
 

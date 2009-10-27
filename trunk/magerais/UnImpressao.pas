@@ -2039,10 +2039,15 @@ begin
                if config.numeroserieproduto then
                  result := TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).NomProduto+' - NS='+TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesRefCliente
                else
-                 result := TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesRefCliente +' - '+ TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).NomProduto+'-'+TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesCor
+               begin
+                 if config.ImprimirCodigoCorNaNota then
+                   result := TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesRefCliente +' - '+ TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).NomProduto+TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesRefCliente +' ('+IntToStr(TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).CodCor)+ '-' +TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesCor+')'
+                 else
+                   result := TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesRefCliente +' - '+ TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).NomProduto+'-'+TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesCor+')';
+               end;
              end
              else
-               result := TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).NomProduto+'-'+TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesCor;
+               result := TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).NomProduto+'('+IntToStr(TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).CodCor)+'-'+TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesCor+')';
              if TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesOrdemCompra <> '' then
                result := result + '- OC '+ TRBDNotaFiscalProduto(VprDNotaFiscal.Produtos.Items[VpaDImpressao.IndiceItem]).DesOrdemCompra;
              VpaDItemImpressao.IndItemDocumento := true;

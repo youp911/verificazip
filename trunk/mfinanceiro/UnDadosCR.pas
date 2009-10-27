@@ -501,6 +501,7 @@ Type
       DesObservacao: string;
       MostrarParcelas,
       EsconderConta,
+      IndDevolucao,
       IndGerarComissao,
       IndCobrarFormaPagamento : Boolean;
       CodVendedor,
@@ -1350,6 +1351,7 @@ begin
   SeqParcialCotacao := 0;
   LanOrcamento := 0;
   IndCobrarFormaPagamento := false;
+  IndDevolucao := false;
 end;
 
 {******************************************************************************}

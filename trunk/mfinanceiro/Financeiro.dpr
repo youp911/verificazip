@@ -22,7 +22,6 @@ uses
   AGraficosContasaReceber in 'AGraficosContasaReceber.pas' {FGraficosCR},
   AImprimeCR in 'AImprimeCR.pas' {FImprimeCR},
   AGraficosFluxo in 'AGraficosFluxo.pas' {FGraficoFluxo},
-  ARelContasaPagar in 'ARelContasaPagar.pas' {FRelContasaPagar},
   ARelContasaReceber in 'ARelContasaReceber.pas' {FRelContasaReceber},
   ARelFaturamento in 'ARelFaturamento.pas' {FRelFaturamento},
   AManutencaoCR in 'AManutencaoCR.pas' {FManutencaoCR},

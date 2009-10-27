@@ -466,6 +466,10 @@ type
     DBEditLocaliza30: TDBEditLocaliza;
     DBEditColor26: TDBEditColor;
     Label114: TLabel;
+    PNotaFiscal: TTabSheet;
+    n: TPanelColor;
+    DBCheckBox43: TDBCheckBox;
+    CFGC_NOF_ICO: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

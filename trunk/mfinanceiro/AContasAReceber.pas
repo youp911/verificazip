@@ -692,6 +692,7 @@ begin
                                         ' AND CHE.SEQCHEQUE = ' + IntToStr(VprSeqCheque)+')')
   else
   begin
+    VpaSelect.add(' AND CR.C_IND_DEV = ''N''');
     if (EDuplicata.Text = '') and (ELanReceber.AsInteger = 0) then
     begin
       case RPeriodo.ItemIndex of

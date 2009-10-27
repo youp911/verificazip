@@ -93,9 +93,6 @@
 			<DCCReference Include="AGraficosFluxo.pas">
 				<Form>FGraficoFluxo</Form>
 			</DCCReference>
-			<DCCReference Include="ARelContasaPagar.pas">
-				<Form>FRelContasaPagar</Form>
-			</DCCReference>
 			<DCCReference Include="ARelContasaReceber.pas">
 				<Form>FRelContasaReceber</Form>
 			</DCCReference>

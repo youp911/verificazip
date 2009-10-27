@@ -1758,6 +1758,10 @@ begin
     CadContas.FieldByName('C_IND_CAD').AsString := 'S'
   else
     CadContas.FieldByName('C_IND_CAD').AsString := 'N';
+  if VpaDNovaCR.IndDevolucao then
+    CadContas.FieldByName('C_IND_DEV').AsString := 'S'
+  else
+    CadContas.FieldByName('C_IND_DEV').AsString := 'N';
   CadContas.FieldByName('I_LAN_REC').AsInteger := VpaDNovaCR.LanReceber;
   CadContas.post;
   result := CadContas.AMensagemErroGravacao;
@@ -3023,6 +3027,7 @@ begin
     CadContas.FieldByName('I_COD_PAG').AsInteger := VpfDItemConta.CodCondicaoPagamento;
     CadContas.FieldByName('C_CLA_PLA').AsString := VpfDItemConta.CodPlanoContas;
     CadContas.FieldByName('C_IND_CON').AsString := 'S';
+    CadContas.FieldByName('C_IND_DEV').AsString := 'N';
     VpaDContas.LanReceber := GeraProximoCodigo('I_LAN_REC','CADCONTASARECEBER','I_EMP_FIL', varia.CodigoEmpFil,  false,Cadastro.ASqlConnection);
     CadContas.FieldByName('I_LAN_REC').AsInteger := VpaDContas.LanReceber;
     CadContas.Post;
@@ -4007,6 +4012,7 @@ begin
   VpfDContasAReceber.EsconderConta := false;
   VpfDContasAReceber.IndGerarComissao := true;
   VpfDContasAReceber.IndCobrarFormaPagamento := false;
+  VpfDContasAReceber.IndDevolucao := true;
   CriaContasaReceber(VpfDContasAReceber,result,true);
   VpfDContasAReceber.Free;
 end;

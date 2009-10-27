@@ -106,6 +106,7 @@ end;
 type
   TRBFunRave = class
     private
+      Aux,
       Tabela,
       Clientes : TSQLQuery;
       RvSystem: TRvSystem;
@@ -131,6 +132,7 @@ type
       procedure DefineTabelaAnaliseFaturamentoMensal(VpaObjeto : TObject);
       procedure DefineTabelaFechamentoEstoque(VpaObjeto : TObject);
       procedure DefineTabelaCPporPlanoContas(VpaObjeto : TObject);
+      procedure DefineTabelaCPporPlanoContasSintetico(VpaObjeto : TObject);
       procedure DefineTabelaEntradaMetro(VpaObjeto : TObject);
       procedure DefineTabelaExtratoProdutividade(VpaObjeto : TObject);
       procedure DefineTabelaCustoProjeto(VpaObjeto : TObject);
@@ -159,18 +161,20 @@ type
       function CarDNivel(VpaCodCompleto, VpaCodReduzido : String):TRBDClassificacaoRave;
       function CarregaNiveis(VpaNiveis : TList;VpaCodClassificacao : string):TRBDClassificacaoRave;
       function CarDNivelPlanoContas(VpaCodCompleto, VpaCodReduzido : String):TRBDPlanoContasRave;
-      function CarregaNiveisPlanoContas(VpaNiveis : TList;VpaCodPlanoContas : string):TRBDPlanoContasRave;
+      function CarregaNiveisPlanoContas(VpaNiveis : TList;VpaCodPlanoContas : string;VpaImprimirTotal : Boolean):TRBDPlanoContasRave;
       procedure ImprimeRelCustoProjetoContasAPagar;
 
       procedure InicializaVendaCliente(VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente);
       function RMesVenda(VpaDVenda : TRBDVendaCliente;VpaMes, VpaAno : Integer) : TRBDVendaClienteMes;
       procedure AtualizaTotalVenda(VpaDVenda : TRBDVendaCliente);
       function CarValoresFaturadosCliente(VpaCodCliente : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente):boolean;
+      procedure CarValoresContasAPagar(VpaPlanoContas : String; VpaDatInicio,VpaDatFim : TDateTime;Var VpaValPago : Double;Var VpaValtotal : Double);
 
       procedure ImprimeRelEstoqueMinimo(VpaObjeto : TObject);
       procedure ImprimeRelAnaliseFaturamentoAnual(VpaObjeto : TObject);
       procedure ImprimeRelFechamentoEstoque(VpaObjeto : TObject);
       procedure ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
+      procedure ImprimeRelCPporPlanoContasSintetico(VpaObjeto : TObject);
       procedure ImprimeRelEntradaMetros(VpaObjeto : TObject);
       procedure ImprimeRelExtratoProdutividade(VpaObjeto : TObject);
       procedure ImprimeRelCustoProjeto(VpaObjeto : TObject);
@@ -195,6 +199,7 @@ type
       procedure ImprimeTabelaPreco(VpaCodCliente, VpaCodTabelaPreco : Integer;VpaCaminho,VpaNomCliente,VpaNomTabelaPreco,VpaCodClassificacao, VpaNomClassificacao : String);
       procedure ImprimeEstoqueProdutosReservados(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
       procedure ImprimeTotaAmostrasPorVendedor(VpaCodVendedor : Integer;VpaCaminho, VpaNomVendedor : String;VpaDatInicio, VpaDatFim : TDateTime);
+      procedure ImprimeContasAPagarPorPlanoContasSintetico(VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho : String);
   end;
 implementation
 
@@ -351,6 +356,8 @@ end;
 constructor TRBFunRave.cria(VpaBaseDados: TSQLConnection);
 begin
   inherited create;
+  Aux := TSqlQuery.create(nil);
+  Aux.SqlConnection := VpaBaseDAdos;
   Tabela := TSqlQuery.create(nil);
   Tabela.SqlConnection := VpaBaseDAdos;
   Clientes := TSqlQuery.create(nil);
@@ -382,6 +389,8 @@ destructor TRBFunRave.destroy;
 begin
   Tabela.close;
   Tabela.free;
+  Aux.close;
+  Aux.free;
   Clientes.close;
   Clientes.free;
   RVSystem.free;
@@ -576,6 +585,23 @@ begin
      SaveTabs(3);
      clearTabs;
    end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaCPporPlanoContasSintetico(VpaObjeto: TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1.0,pjleft,2.5,0.5,BoxlineNONE,0); //Codigo planoContas
+     SetTab(NA,pjleft,8,0.5,BoxlineNONE,0); //NomPlanoContas
+     SetTab(NA,pjRight,2,0.5,Boxlinenone,0); //Valor a pagar
+     SetTab(NA,pjRight,2,0.5,Boxlinenone,0); //Valor pago
+     SetTab(NA,pjRight,2,0.5,Boxlinenone,0); //Valor total
+     SetTab(NA,pjRight,2,0.5,Boxlinenone,0); //Valor previsto
+     SetTab(NA,pjRight,2,0.5,Boxlinenone,0); //% diferenca
+     SaveTabs(1);
+   end;
+
 end;
 
 {******************************************************************************}
@@ -1574,7 +1600,7 @@ begin
 end;
 
 {******************************************************************************}
-function TRBFunRave.CarregaNiveisPlanoContas(VpaNiveis: TList;VpaCodPlanoContas: string): TRBDPlanoContasRave;
+function TRBFunRave.CarregaNiveisPlanoContas(VpaNiveis: TList;VpaCodPlanoContas: string;VpaImprimirTotal : Boolean): TRBDPlanoContasRave;
 var
   VpfDPlanoContas : TRBDPlanoContasRave;
   VpfMascaraPlanoContas : STring;
@@ -1606,7 +1632,8 @@ begin
     else
       if VpfCodPlanoContasAtual <> TRBDPlanoContasRave(VpaNiveis.Items[VpfNivel-1]).CodReduzido then
       begin
-        ImprimeTotaisNiveisPlanoContas(VpaNiveis,VpfNivel-1);
+        if VpaImprimirTotal then
+          ImprimeTotaisNiveisPlanoContas(VpaNiveis,VpfNivel-1);
         VpfDPlanoContas := CarDNivelPlanoContas(VpfCodPlanoCompleto,VpfCodPlanoContasAtual);
         VpaNiveis.add(VpfDPlanoContas);
       end;
@@ -1695,6 +1722,21 @@ begin
       if ((VpfDVendaAno.ValVenda * 0.9) < VpfDVendaAnoAnterior.ValVenda) then
         VpfDVendaAno.IndReducaoVenda := true;
   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.CarValoresContasAPagar(VpaPlanoContas: String; VpaDatInicio, VpaDatFim: TDateTime; var VpaValPago, VpaValTotal: Double);
+begin
+  AdicionaSQLAbreTabela(Aux,'SELECT SUM(N_VLR_PAG) TOTALPAGO ,  SUM(NVL(N_VLR_PAG,N_VLR_DUP)) TOTAL ' +
+                            ' FROM CADCONTASAPAGAR CAD, MOVCONTASAPAGAR MOV ' +
+                            ' Where CAD.I_EMP_FIL = MOV.I_EMP_FIL ' +
+                            ' AND CAD.I_LAN_APG = MOV.I_LAN_APG '+
+                            ' AND CAD.I_COD_EMP = '+IntToStr(VARIA.CodigoEmpresa)+
+                            ' AND CAD.C_CLA_PLA LIKE '''+VpaPlanoContas+'%'''+
+                             SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDatInicio,VpaDatFim,TRUE));
+ VpaValPago := Aux.FieldByName('TOTALPAGO').AsFloat;
+ VpaValtotal := Aux.FieldByName('TOTAL').AsFloat;
+ Aux.close;
 end;
 
 {******************************************************************************}
@@ -2071,7 +2113,7 @@ begin
           VpfDClassificacao.ValDuplicata := VpfDClassificacao.ValDuplicata + VpfValDuplicata;
         end;
 
-        VpfDClassificacao := CarregaNiveisPlanoContas(VprNiveis,Tabela.FieldByName('C_CLA_PLA').AsString);
+        VpfDClassificacao := CarregaNiveisPlanoContas(VprNiveis,Tabela.FieldByName('C_CLA_PLA').AsString,true);
         ImprimetituloPlanoContas(VprNiveis,VpfPlanoContasAtual = '');
         VpfPlanoContasAtual := Tabela.FieldByName('C_CLA_PLA').AsString;
         VpfValPago := 0;
@@ -2128,6 +2170,63 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeRelCPporPlanoContasSintetico(VpaObjeto: TObject);
+var
+  VpfValPago, VpfValDuplicata, VpfValEmAberto, VpfTotalPago,VpfTotalDuplicata, TotalGeral : Double;
+  VpfDClassificacao : TRBDPlanoContasRave;
+  VpfQtdNiveisAnterior : Integer;
+begin
+  VpfValPago := 0;
+  VpfValDuplicata := 0;
+  VpfTotalPago := 0;
+  VpfTotalDuplicata := 0;
+  with RVSystem.BaseReport do begin
+    while not Tabela.Eof  do
+    begin
+      VpfDClassificacao := CarregaNiveisPlanoContas(VprNiveis,Tabela.FieldByName('C_CLA_PLA').AsString,false);
+      if ContaLetra(VpfDClassificacao.CodPlanoCotas,'.') < VpfQtdNiveisAnterior then
+        NewLine;
+      VpfQtdNiveisAnterior := ContaLetra(VpfDClassificacao.CodPlanoCotas,'.');
+      PrintTab(AdicionaCharD(' ','',ContaLetra(VpfDClassificacao.CodPlanoCotas,'.'))+ VpfDClassificacao.CodPlanoCotas);
+      PrintTab(AdicionaCharD(' ','',ContaLetra(VpfDClassificacao.CodPlanoCotas,'.')*2)+VpfDClassificacao.NomPlanoContas);
+      CarValoresContasAPagar(Tabela.FieldByName('C_CLA_PLA').AsString,VprDatInicio,VprDatFim,VpfValPago,VpfValDuplicata);
+      VpfValEmAberto := VpfValDuplicata - VpfValPago;
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfValEmAberto));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfValPago));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfValDuplicata));
+      PrintTab(FormatFloat('#,###,###,##0.00',Tabela.FieldByName('N_VLR_PRE').AsFloat));
+
+      NewLine;
+      If LinesLeft<=1 Then
+        NewPage;
+{      VpfValPago := VpfValPago + Tabela.FieldByName('N_VLR_PAG').AsFloat;
+      VpfValDuplicata := VpfValDuplicata + Tabela.FieldByName('N_VLR_DUP').AsFloat;
+      VpfTotalPago := VpfTotalPago + Tabela.FieldByName('N_VLR_PAG').AsFloat;
+      VpfTotalDuplicata := VpfTotalDuplicata + Tabela.FieldByName('N_VLR_DUP').AsFloat;}
+      Tabela.next;
+    end;
+
+    newline;
+    newline;
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    PrintTab('');
+    bold := true;
+    PrintTab('Total Geral');
+    bold := true;
+    PrintTab('');
+    PrintTab(FormatFloat(varia.MascaraQtd,VpfTotalDuplicata));
+    PrintTab('');
+    PrintTab(FormatFloat(varia.MascaraValor,VpfTotalPago));
+    PrintTab('  ');
+    bold := false;
+  end;
+  Tabela.Close;
+  FreeTObjectsList(VprNiveis);
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeRelCustoProjeto(VpaObjeto: TObject);
 begin
   ImprimeRelCustoProjetoContasAPagar;
@@ -2162,7 +2261,7 @@ begin
         if VpfDClassificacao <> nil then
           VpfDClassificacao.ValDuplicata := VpfDClassificacao.ValDuplicata + VpfValDuplicata;
 
-        VpfDClassificacao := CarregaNiveisPlanoContas(VprNiveis,Tabela.FieldByName('C_CLA_PLA').AsString);
+        VpfDClassificacao := CarregaNiveisPlanoContas(VprNiveis,Tabela.FieldByName('C_CLA_PLA').AsString,true);
         ImprimetituloPlanoContas(VprNiveis,VpfPlanoContasAtual = '');
         VpfPlanoContasAtual := Tabela.FieldByName('C_CLA_PLA').AsString;
         VpfValDuplicata := 0;
@@ -2975,5 +3074,39 @@ begin
 
   RvSystem.execute;
 end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeContasAPagarPorPlanoContasSintetico(VpaDatInicio, VpaDatFim: TDateTime; VpaCaminho : String);
+var
+  VpfCampoData : String;
+begin
+  VpfCampoData := 'CAD.D_DAT_EMI';
+  VprDatInicio := VpaDatInicio;
+  VprDatFim := VpaDatFim;
+  RvSystem.Tag := 14;
+  FreeTObjectsList(VprNiveis);
+  LimpaSQlTabela(Tabela);
+  AdicionaSqltabela(Tabela,'SELECT * FROM CAD_PLANO_CONTA '+
+                           ' WHERE C_TIP_PLA = ''D'''+
+                           ' and I_COD_EMP = '+IntToStr(VARIA.CodigoEmpresa)+
+                           ' ORDER BY C_CLA_PLA');
+  Tabela.open;
+
+  rvSystem.onBeforePrint := DefineTabelaCPporPlanoContasSintetico;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelCPporPlanoContasSintetico;
+
+  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Contas a Pagar Sintetico por Plano de Contas';
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Empresa : ' +Varia.NomeEmpresa);
+
+  VprCabecalhoDireito.Clear;
+
+  RvSystem.execute;
+end;
+
+
 
 end.

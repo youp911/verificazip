@@ -1877,7 +1877,7 @@ end;
 procedure TFNovoCliente.DBEditColor40KeyPress(Sender: TObject;
   var Key: Char);
 begin
-  if key in [' ',',','/',';','ç','\','ã',':'] then
+  if key in [' ',',','/','ç','\','ã',':'] then
     key := #0;
 end;
 

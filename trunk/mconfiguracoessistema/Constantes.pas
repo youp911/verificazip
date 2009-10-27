@@ -621,6 +621,7 @@ type
     NotaFiscalConjugada : Boolean;
     MostrarEnderecoCobrancanaNota : Boolean;
     QuandoForQuartodeNotanoRomaneioFazeroValorFaltante : Boolean;
+    ImprimirCodigoCorNaNota : Boolean;
 
     //---------------------Ecf
     BaixarEstoqueECF, //baixar o estoque quando gera um cupom direto pela tela de cupom sem estar associado a uma cotação
@@ -1416,6 +1417,7 @@ begin
       ServidorInternetRequerAutenticacao := TipoCheck( VpfTabela.fieldByName('C_AUT_INT').AsString);
       ObservacaoProdutoPedidoCompra := TipoCheck( VpfTabela.fieldByName('C_OBP_PED').AsString);
       ConverterMTeCMparaMM := TipoCheck( VpfTabela.fieldByName('C_ORP_CMM').AsString);
+      ImprimirCodigoCorNaNota := TipoCheck( VpfTabela.fieldByName('C_NOF_ICO').AsString);
     end;
   end;
 

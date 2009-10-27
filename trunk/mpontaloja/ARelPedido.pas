@@ -463,6 +463,9 @@ begin
                                                     else
                                                       if (VPANOMRELATORIO = 'TOTAL AMOSTRAS POR VENDEDOR') then
                                                         AlterarVisibleDet([PVendedor,PPeriodo],true)
+                                                      else
+                                                        if (VPANOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO') then
+                                                          AlterarVisibleDet([PPeriodo],true)
 end;
 
 
@@ -573,7 +576,10 @@ begin
                                                         dtRave.ImprimeContasaReceberPorEmissao(EFilial.AInteiro,CDataIni.Date,CDataFim.Date, VprCaminhoRelatorio,LFilial.caption,BMostrarConta.Visible)
                                                       else
                                                         if (VPRNOMRELATORIO = 'TOTAL AMOSTRAS POR VENDEDOR') then
-                                                          FunRave.ImprimeTotaAmostrasPorVendedor(EVendedor.AInteiro,VprCaminhoRelatorio,LVendedor.caption,CDataIni.Date,CDataFim.Date);
+                                                          FunRave.ImprimeTotaAmostrasPorVendedor(EVendedor.AInteiro,VprCaminhoRelatorio,LVendedor.caption,CDataIni.Date,CDataFim.Date)
+                                                        else
+                                                          if (VPRNOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO') then
+                                                            FunRave.ImprimeContasAPagarPorPlanoContasSintetico(CDataIni.Date,CDataFim.Date,VprCaminhoRelatorio);
   dtRave.free;
 end;
 

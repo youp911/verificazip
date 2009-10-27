@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1511;
+  CT_VersaoBanco = 1513;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -840,6 +840,21 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD(I_COD_DEA NUMBER(10,0) NULL , '+
                                ' I_DIA_AMO NUMBER(3) NULL)');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1511');
+      end;
+      if VpaNumAtualizacao < 1512 Then
+      begin
+        VpfErro := '1512';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD C_NOF_ICO CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CFG_GERAL SET C_NOF_ICO = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1512');
+      end;
+      if VpaNumAtualizacao < 1513 Then
+      begin
+        VpfErro := '1513';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADCONTASARECEBER ADD C_IND_DEV CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CADCONTASARECEBER SET C_IND_DEV = ''N''');
+        ExecutaComandoSql(Aux,'CREATE INDEX CADCONTASARECEBER_CP3 ON CADCONTASARECEBER(C_IND_DEV)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1513');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then
