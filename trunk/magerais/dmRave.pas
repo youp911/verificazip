@@ -92,6 +92,8 @@ type
     procedure ImprimeExtratoColetaFracaoOPProduto(VpaSeqProduto, VpaSeqEstagio : Integer;VpaNomProduto, VpaNomEstagio : String; VpaDatInicio, VpaDatFim : TDateTime);
     procedure ImprimeInventarioProduto(VpaCodFilial, VpaSeqInventario : Integer;VpaCaminho, VpaNomfilial: String);
     procedure ImprimeContasaReceberPorEmissao(VpaCodFilial : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho, VpaNomFilial : String;VpaMostrarFrio : Boolean);
+    procedure ImprimeTotalProspectPorRamoAtividade(VpaCaminho : string);
+    procedure ImprimeProspectPorCeP(VpaSomenteNaoVisitados : boolean; VpaCaminho : string);
   end;
 
 
@@ -1988,7 +1990,6 @@ begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Contas a Receber por Emissao';
   Rave.projectfile := varia.PathRelatorios+'\Financeiro\Contas a Receber\0100PLFI_Contas a Receber por Emissao.rav';
-  Rave.clearParams;
   RvSystem1.defaultDest := rdPreview;
   Rave.clearParams;
   LimpaSqlTabela(Principal);
@@ -2012,6 +2013,46 @@ begin
   Rave.Execute;
 end;
 
+{******************************************************************************}
+procedure TdtRave.ImprimeTotalProspectPorRamoAtividade(VpaCaminho : string);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Total Prospect por Ramo Atividade';
+  Rave.projectfile := varia.PathRelatorios+'\Prospect\0300PLCRES_Total Prospects por Ramo Atividade.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'SELECT  RAM.NOM_RAMO_ATIVIDADE, COUNT(I_COD_CLI) QTD '+
+                              ' FROM CADCLIENTES CLI, RAMO_ATIVIDADE RAM '+
+                              ' Where CLI.C_IND_PRC = ''S'''+
+                              ' AND CLI.I_COD_RAM = RAM.COD_RAMO_ATIVIDADE (+) '+
+                              ' GROUP BY RAM.NOM_RAMO_ATIVIDADE '+
+                              ' ORDER BY 1 ');
+  Rave.SetParam('CAMINHO',VpaCaminho);
+
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeProspectPorCeP(VpaSomenteNaoVisitados : boolean; VpaCaminho: string);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Prospect por CEP';
+  Rave.projectfile := varia.PathRelatorios+'\Prospect\0100CRPL_Prospects por CEP.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'Select CLI.I_COD_CLI, CLI.C_NOM_CLI, C_END_CLI, CLI.C_COM_END, CLI.C_BAI_CLI, ' +
+                              ' CLI.C_CEP_CLI, CLI.C_CID_CLI, CLI.C_IND_VIS, ' +
+                              ' RAM.NOM_RAMO_ATIVIDADE ' +
+                              ' FROM CADCLIENTES CLI, RAMO_ATIVIDADE RAM ' +
+                              ' Where CLI.I_COD_RAM = RAM.COD_RAMO_ATIVIDADE (+) ');
+  if VpaSomenteNaoVisitados then
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_IND_VIS = ''N''');
+  AdicionaSqlTabeLa(Principal,' ORDER BY CLI.C_CEP_CLI');
+  Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
 
 
 end.

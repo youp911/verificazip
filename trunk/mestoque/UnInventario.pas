@@ -160,6 +160,7 @@ end;
 procedure TRBFuncoesInventario.ZeraProdutoForaInventario(VpaDInventario : TRBDInventarioCorpo);
 var
   VpfSeqEstoqueBarra : Integer;
+  VpfDProduto : TRBDProduto;
 begin
   InvAza.Close;
   InvAza.Sql.Clear;
@@ -185,19 +186,21 @@ begin
   InvAza.open;
   While not InvAza.Eof do
   begin
+    VpfDProduto := TRBDProduto.Cria;
+    FunProdutos.CarDProduto(VpfDProduto,0,varia.CodigoEmpFil,InvAza.FieldByName('I_SEQ_PRO').AsInteger);
       if InvAza.FieldByName('N_QTD_PRO').AsFloat < 0  then
-      FunProdutos.BaixaProdutoEstoque(varia.CodigoEmpFil,
-                                      InvAza.FieldByName('I_SEQ_PRO').AsInteger,VARIA.InventarioEntrada,0,0,0,InvAza.FieldByName('I_COD_MOE').AsInteger,
+      FunProdutos.BaixaProdutoEstoque(VpfDProduto, varia.CodigoEmpFil,
+                                      VARIA.InventarioEntrada,0,0,0,InvAza.FieldByName('I_COD_MOE').AsInteger,
                                       InvAza.FieldByName('I_COD_COR').AsInteger,InvAza.FieldByName('I_COD_TAM').AsInteger,Date,InvAza.FieldByName('N_QTD_PRO').AsFloat *-1,
                                       (InvAza.FieldByName('N_QTD_PRO').AsFloat * -1)*InvAza.FieldByName('N_VLR_CUS').AsFLOAT,
-                                      InvAza.FieldByName('C_COD_UNI').AsString,InvAza.FieldByName('C_COD_UNI').AsString,'',false,VpfSeqEstoqueBarra)
+                                      InvAza.FieldByName('C_COD_UNI').AsString,'',false,VpfSeqEstoqueBarra)
     else
-      FunProdutos.BaixaProdutoEstoque(varia.CodigoEmpFil,
-                                      InvAza.FieldByName('I_SEQ_PRO').AsInteger,VARIA.InventarioSaida,0,0,0,InvAza.FieldByName('I_COD_MOE').AsInteger,
+      FunProdutos.BaixaProdutoEstoque(VpfDProduto, varia.CodigoEmpFil,
+                                      VARIA.InventarioSaida,0,0,0,InvAza.FieldByName('I_COD_MOE').AsInteger,
                                         InvAza.FieldByName('I_COD_COR').AsInteger,InvAza.FieldByName('I_COD_TAM').AsInteger,Date,InvAza.FieldByName('N_QTD_PRO').AsFloat,
                                         InvAza.FieldByName('N_QTD_PRO').AsFloat*InvAza.FieldByName('N_VLR_CUS').AsFLOAT,
-                                        InvAza.FieldByName('C_COD_UNI').AsString,InvAza.FieldByName('C_COD_UNI').AsString,'',false,VpfSeqEstoqueBarra);
-
+                                        InvAza.FieldByName('C_COD_UNI').AsString,'',false,VpfSeqEstoqueBarra);
+    VpfDProduto.free;
     InvAza.Next;
   end;
   InvAza.Close;
@@ -285,6 +288,7 @@ function TRBFuncoesInventario.FechaInventario(VpaDInventario : TRBDInventarioCor
 var
   VpfProdutoAtual, VpfCorAtual, VpfTamanhoAtual, VpfSeqEstoqueBarra : Integer;
   VpfQtdProduto, VpfQtdMovimento : Double;
+  VpfDProduto : TRBDProduto;
 begin
   result := '';
   if varia.InventarioEntrada = 0 then
@@ -327,16 +331,19 @@ begin
           InvAza.Prior;
         if VpfQtdProduto <> InvAza.FieldByName('N_QTD_PRO').AsFloat then
         begin
+          VpfDProduto := TRBDProduto.Cria;
+          FunProdutos.CarDProduto(VpfDProduto,0,VpaDInventario.CodFilial, InvAza.FieldByName('SEQ_PRODUTO').AsInteger);
           if VpfQtdProduto > InvAza.FieldByName('N_QTD_PRO').AsFloat then
-            FunProdutos.BaixaProdutoEstoque(VpaDInventario.CodFilial, InvAza.FieldByName('SEQ_PRODUTO').AsInteger,VARIA.InventarioEntrada,0,0,0,InvAza.FieldByName('I_COD_MOE').AsInteger,
+            FunProdutos.BaixaProdutoEstoque(VpfDProduto,VpaDInventario.CodFilial, VARIA.InventarioEntrada,0,0,0,InvAza.FieldByName('I_COD_MOE').AsInteger,
                                             InvAza.FieldByName('COD_COR').AsInteger,InvAza.FieldByName('COD_TAMANHO').AsInteger,Date,VpfQtdProduto  - InvAza.FieldByName('N_QTD_PRO').AsFloat,
                                             (VpfQtdProduto  - InvAza.FieldByName('N_QTD_PRO').AsFloat)*InvAza.FieldByName('N_VLR_CUS').AsFLOAT,
-                                            InvAza.FieldByName('C_COD_UNI').AsString,InvAza.FieldByName('C_COD_UNI').AsString,'',false,VpfSeqEstoqueBarra)
+                                            InvAza.FieldByName('C_COD_UNI').AsString,'',false,VpfSeqEstoqueBarra)
           else
-            FunProdutos.BaixaProdutoEstoque(VpaDInventario.CodFilial, InvAza.FieldByName('SEQ_PRODUTO').AsInteger,VARIA.InventarioSaida,0,0,0,InvAza.FieldByName('I_COD_MOE').AsInteger,
+            FunProdutos.BaixaProdutoEstoque(VpfDProduto,VpaDInventario.CodFilial, VARIA.InventarioSaida,0,0,0,InvAza.FieldByName('I_COD_MOE').AsInteger,
                                               InvAza.FieldByName('COD_COR').AsInteger, InvAza.FieldByName('COD_TAMANHO').AsInteger,Date,InvAza.FieldByName('N_QTD_PRO').AsFloat - VpfQtdProduto,
                                               (InvAza.FieldByName('N_QTD_PRO').AsFloat - VpfQtdProduto)*InvAza.FieldByName('N_VLR_CUS').AsFLOAT,
-                                              InvAza.FieldByName('C_COD_UNI').AsString,InvAza.FieldByName('C_COD_UNI').AsString,'',false,VpfSeqEstoqueBarra);
+                                              InvAza.FieldByName('C_COD_UNI').AsString,'',false,VpfSeqEstoqueBarra);
+          VpfDProduto.free;
         end;
         VpfQtdProduto := 0;
       end

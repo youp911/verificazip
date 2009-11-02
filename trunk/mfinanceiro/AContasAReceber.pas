@@ -260,6 +260,11 @@ type
     AlterarCliente1: TMenuItem;
     MovParcelasC_NOS_NUM: TWideStringField;
     RvSystem: TRvSystem;
+    CTitulosDescontados: TCheckBox;
+    Label25: TLabel;
+    EClienteMaster: TRBEditLocaliza;
+    SpeedButton6: TSpeedButton;
+    Label27: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
@@ -724,6 +729,9 @@ begin
      // filtro cliente
      if ECliente.Text <> '' then
        VpaSelect.add(' and MCR.I_COD_CLI = ' + ECliente.Text );
+     if EClienteMaster.AInteiro <> 0 then
+       VpaSelect.Add(' and C.I_CLI_MAS = '+EClienteMaster.Text);
+
      IF EContaCorrente.Text <> '' then
        VpaSelect.add(' and MCR.C_NRO_CON = ''' + EContaCorrente.Text+'''' );
     if not VprMostrarContas then
@@ -744,6 +752,9 @@ begin
 
      IF EDuplicata.Text <> '' then
        VpaSelect.add(' AND MCR.C_NRO_DUP = '''+EDuplicata.Text+'''');
+    if not CTitulosDescontados.Checked then
+      VpaSelect.add(' AND MCR.C_DUP_DES IS NULL');
+
   end;
 end;
 
@@ -1643,9 +1654,9 @@ begin
   if BFiltros.Caption = '>>' then
   begin
     if screen.Height = 768 then
-      PanelColor3.Height := 243
+      PanelColor3.Height := 275
     else
-      PanelColor3.Height := 205;
+      PanelColor3.Height := 230;
     BFiltros.Caption := '<<';
   end
   else

@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Componentes1, ExtCtrls, PainelGradiente, AxCtrls, OleCtrls, vcf1, UnFluxoCaixa,
-  StdCtrls, Spin, Buttons, EditorImagem, UnDadosCR, Grids, CGrades;
+  StdCtrls, Spin, Buttons, EditorImagem, UnDadosCR, Grids, CGrades, Localizacao;
 
 type
   TFFluxoCaixa = class(TFormularioPermissao)
@@ -81,7 +81,8 @@ type
     CClientesConfiaveis: TCheckBox;
     SCorFundoCP: TShape;
     Label18: TLabel;
-    RBStringGridColor1: TRBStringGridColor;
+    Grade: TRBStringGridColor;
+    RBEditLocaliza1: TRBEditLocaliza;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
@@ -90,6 +91,7 @@ type
     procedure BitBtn5Click(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
     procedure BitBtn9Click(Sender: TObject);
+    procedure GradeMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   private
     { Private declarations }
     VprDFluxo : TRBDFluxoCaixaCorpo;
@@ -145,7 +147,7 @@ begin
                              SCorFonteCR.Brush.Color,SCorFundoTituloCR.Brush.Color,SCorFundoCR.Brush.Color,SCorFonteCP.Brush.Color,SCorFundoCP.Brush.Color,
                              SCorFonteTituloCP.Brush.Color,SCorFundoTituloCP.Brush.Color,
                              ENomFonte.Text,ETamFonte.Value,EAltLinha.Value);
-//D5  FunFluxoCaixa.InicializaFluxoDiario(grade,VprDFluxo);
+  FunFluxoCaixa.InicializaFluxoDiario(Grade,VprDFluxo);
 end;
 
 {******************************************************************************}
@@ -153,6 +155,17 @@ procedure TFFluxoCaixa.InicializaTela;
 begin
   ENomFonte.Items := screen.Fonts;
   ENomFonte.Text := 'Arial';
+end;
+
+procedure TFFluxoCaixa.GradeMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+Var
+  VpfLinha,VpfColuna : Integer;
+  VpfFormatacaoCelula : TRBFormatacaoCelula;
+begin
+  Grade.MouseToCell(x,y,VpfColuna,VpfLinha);
+  VpfFormatacaoCelula := Grade.FormatacaoCelula[VpfLinha,VpfColuna,true];
+  VpfFormatacaoCelula.CorFundo := clRed;
+  VpfFormatacaoCelula.IndMostrarFormatacao := not VpfFormatacaoCelula.IndMostrarFormatacao;
 end;
 
 {******************************************************************************}

@@ -2144,6 +2144,7 @@ function TFNovaNotaFiscalNota.BaixaEstoqueNota : string;
 var
   VpfLaco, VpfSeqEstoqueBarra : Integer;
   VpfDProdutoNota : TRBDNotaFiscalProduto;
+  VpfDProduto : TRBDProduto;
 begin
   result := '';
   try
@@ -2157,8 +2158,9 @@ begin
         for VpfLaco := 0 to VprDNota.Produtos.count - 1 do
         begin
           VpfDProdutoNota := TRBDNotaFiscalProduto(VprDNota.Produtos.Items[VpfLaco]);
-          FunProdutos.BaixaProdutoEstoque( VprDNota.CodFilial,
-                                          VpfDProdutoNota.SeqProduto,
+          VpfDProduto := TRBDProduto.Cria;
+          FunProdutos.CarDProduto(VpfDProduto,0,VprDNota.CodFilial,VpfDProdutoNota.SeqProduto);
+          FunProdutos.BaixaProdutoEstoque(VpfDProduto,VprDNota.CodFilial,
                                           MovNatureza.fieldByName('I_COD_OPE').AsInteger,
                                           VprDNota.SeqNota,
                                           VprDNota.NumNota,0,
@@ -2167,8 +2169,8 @@ begin
                                           VpfDProdutoNota.QtdProduto,
                                           VpfDProdutoNota.ValTotal,
                                           VpfDProdutoNota.UM,
-                                          VpfDProdutoNota.UMOriginal,VpfDProdutoNota.DesRefCliente,false,VpfSeqEstoqueBarra);
-
+                                          VpfDProdutoNota.DesRefCliente,false,VpfSeqEstoqueBarra);
+          VpfDProduto.free;
         end;
       end;
       if result = '' then

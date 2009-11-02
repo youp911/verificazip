@@ -147,15 +147,17 @@ type
     AlterarCliente1: TMenuItem;
     EAlteraCliente: TRBEditLocaliza;
     N11: TMenuItem;
-    MRegerarProjeto: TMenuItem;
     ImprimirConsumo1: TMenuItem;
-    N12: TMenuItem;
     PopupMenu4: TPopupMenu;
     SemQuebraPgina1: TMenuItem;
     ConsultaLogSeparao1: TMenuItem;
     N13: TMenuItem;
     N14: TMenuItem;
     SomenteConsumoaReservar1: TMenuItem;
+    N15: TMenuItem;
+    MReimportarProjeto: TMenuItem;
+    N16: TMenuItem;
+    ReimportarFrao1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -210,6 +212,9 @@ type
     procedure ImprimirConsumo1Click(Sender: TObject);
     procedure SemQuebraPgina1Click(Sender: TObject);
     procedure ConsultaLogSeparao1Click(Sender: TObject);
+    procedure ReimportarFrao1Click(Sender: TObject);
+    procedure ArvoreDblClick(Sender: TObject);
+    procedure GridIndice1Ordem(Ordem: string);
   private
     { Private declarations }
     VprOrdem : String;
@@ -272,7 +277,7 @@ begin
   EDatFim.DateTime := UltimoDiaMes(date);
   EPeriodoPor.ItemIndex := 1;
   PageControl1.ActivePage := PFracionada;
-  VprOrdem := '';
+  VprOrdem := 'order by FRA.CODFILIAL, FRA.SEQORDEM, FRA.SEQFRACAO ';
 //  VprOrdem := 'order by ORD.SEQORD';
   AtualizaConsulta(false);
 end;
@@ -313,7 +318,7 @@ procedure TFOrdemProducaoGenerica.ConfiguraPermissaoUsuario;
 begin
   if not((puAdministrador in varia.PermissoesUsuario) or (puESCompleto in varia.PermissoesUsuario)) then
   begin
-    AlterarVisibleDet([BAlterar,BExcluir,BExcluiFracao,BConsultar,MRegerarProjeto,N8],false);
+    AlterarVisibleDet([BAlterar,BExcluir,BExcluiFracao,BConsultar,N8],false);
     if (puConsultarOP in Varia.PermissoesUsuario) then
       BConsultar.Visible := true;
     if (puESAlterarOP in varia.PermissoesUsuario) then
@@ -325,12 +330,13 @@ begin
     end;
     if (puESRegerarProjeto in varia.PermissoesUsuario) then
     begin
-      MRegerarProjeto.Visible := true;
+      MReimportarProjeto.Visible := true;
       N8.Visible := true;
     end;
 
   end;
   PSubMontagem.TabVisible := (varia.TipoOrdemProducao = toSubMontagem);
+  MReimportarProjeto.Visible := (varia.TipoOrdemProducao = toSubMontagem);
 end;
 
 {******************************************************************************}
@@ -379,6 +385,7 @@ end;
 {******************************************************************************}
 procedure TFOrdemProducaoGenerica.AtualizaConsultaSubMontagem;
 begin
+  FracaoOpSubMontagem.close;
   FracaoOpSubMontagem.sql.clear;
   FracaoOpSubMontagem.Sql.Add('select FRA.CODFILIAL, FRA.SEQORDEM, FRA.SEQFRACAO, '+
                         ' FRA.CODESTAGIO, FRA.DATENTREGA, FRA.DATFINALIZACAO, ' +
@@ -597,11 +604,25 @@ end;
 
 {******************************************************************************}
 procedure TFOrdemProducaoGenerica.BConsultarClick(Sender: TObject);
+var
+  VpfDFracao : TRBDFracaoOrdemProducao;
 begin
-  if OrdemProducaoSEQORD.AsInteger <> 0 then
+  if PageControl1.ActivePage = PFracionada then
   begin
-    ConsultaFracao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger);
+    if OrdemProducaoSEQORD.AsInteger <> 0 then
+    begin
+      ConsultaFracao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger);
+    end;
+  end
+  else
+  begin
+    if (tobject(Arvore.Selected.Data) is TRBDFracaoOrdemProducao) then
+    begin
+      VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.data);
+      ConsultaFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
+    end;
   end;
+
 end;
 
 procedure TFOrdemProducaoGenerica.BImprimirClick(Sender: TObject);
@@ -700,6 +721,32 @@ end;
 procedure TFOrdemProducaoGenerica.ProdutosPendentes1Click(Sender: TObject);
 begin
   FunCrystal.ImprimeRelatorio(Varia.PathRelatorios+'\Ordem Produção\xx_MateriaPrimaPendente.rpt',[]);
+end;
+
+procedure TFOrdemProducaoGenerica.ReimportarFrao1Click(Sender: TObject);
+Var
+  VpfResultado : String;
+  VpfDFracao : TRBDFracaoOrdemProducao;
+begin
+  if Confirmacao('Tem certeza que deseja reimportar o projeto? ') then
+  begin
+    VpfResultado := '';
+    if PageControl1.ActivePage = PFracionada then
+    begin
+      if OrdemProducaoSEQORD.AsInteger <> 0 then
+        VpfResultado := FunOrdemProducao.ReImportaFracao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger);
+    end
+    else
+    begin
+      if (tobject(Arvore.Selected.Data) is TRBDFracaoOrdemProducao) then
+      begin
+        VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.data);
+        VpfResultado := FunOrdemProducao.ReImportaFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
+      end;
+    end;
+    if VpfResultado <> '' then
+      aviso(VpfResultado);
+  end;
 end;
 
 {******************************************************************************}
@@ -807,6 +854,13 @@ begin
     if Confirmacao('Tem certeza que deseja gerar a solicitação de compras?') then
       FunOrcamentoCompras.GeraOrcamentoCompraOrdemProducao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger);
   end;
+end;
+
+{******************************************************************************}
+procedure TFOrdemProducaoGenerica.ArvoreDblClick(Sender: TObject);
+begin
+  if not Arvore.Selected.HasChildren then
+    BConsultarClick(sender);
 end;
 
 {******************************************************************************}
@@ -986,6 +1040,11 @@ begin
     AdicionaFracaoImpressao;
 end;
 
+procedure TFOrdemProducaoGenerica.GridIndice1Ordem(Ordem: string);
+begin
+  VprOrdem := Ordem;
+end;
+
 {******************************************************************************}
 procedure TFOrdemProducaoGenerica.GImpressaoCarregaItemGrade(
   Sender: TObject; VpaLinha: Integer);
@@ -1058,7 +1117,6 @@ end;
 {******************************************************************************}
 procedure TFOrdemProducaoGenerica.MRegerarProjetoClick(Sender: TObject);
 begin
-  if Confirmacao('Tem certeza que deseja reimportar o projeto?') then
 end;
 
 {******************************************************************************}

@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1513;
+  CT_VersaoBanco = 1517;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -855,6 +855,28 @@ begin
         ExecutaComandoSql(Aux,'UPDATE CADCONTASARECEBER SET C_IND_DEV = ''N''');
         ExecutaComandoSql(Aux,'CREATE INDEX CADCONTASARECEBER_CP3 ON CADCONTASARECEBER(C_IND_DEV)');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1513');
+      end;
+      if VpaNumAtualizacao < 1514 Then
+      begin
+        VpfErro := '1514';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_PRODUTO ADD I_EST_REI NUMBER(10) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1514');
+      end;
+      if VpaNumAtualizacao < 1515 Then
+      begin
+        VpfErro := '1515';
+        ExecutaComandoSql(Aux,'ALTER TABLE FRACAOOPCONSUMO ADD(INDEXCLUIR CHAR(1) NULL, '+
+                              ' ALTMOLDE NUMBER(9,4) NULL, ' +
+                              ' LARMOLDE NUMBER(9,4) NULL)');
+        ExecutaComandoSql(Aux,'UPDATE FRACAOOPCONSUMO SET INDEXCLUIR = ''N''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1515');
+      end;
+      if VpaNumAtualizacao < 1516 Then
+      begin
+        VpfErro := '1516';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADCLIENTES ADD C_IND_VIS CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CADCLIENTES SET C_IND_VIS = ''N''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1516');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

@@ -745,6 +745,17 @@ type
     Label236: TLabel;
     DBEditColor105: TDBEditColor;
     CadClientesC_EMA_NFE: TWideStringField;
+    CadClientesC_IND_VIS: TWideStringField;
+    PanelColor10: TPanelColor;
+    PanelColor14: TPanelColor;
+    PanelColor15: TPanelColor;
+    PanelColor16: TPanelColor;
+    PanelColor17: TPanelColor;
+    PanelColor18: TPanelColor;
+    PanelColor19: TPanelColor;
+    PanelColor20: TPanelColor;
+    PanelColor21: TPanelColor;
+    DBCheckBox9: TDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadClientesAfterInsert(DataSet: TDataSet);

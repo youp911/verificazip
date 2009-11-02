@@ -5,7 +5,7 @@ unit UnECF;
 interface
 
 Uses Classes, UnBematech, DbTables, SysUtils, ComCtrls,db, UnDaruma, forms,
-     SQLExpr, Tabela;
+     SQLExpr, Tabela, UnDadosProduto;
 
 type
   TRBLocalizaECF = class
@@ -470,14 +470,17 @@ end;
 procedure TRBFuncoesECF.ExtornaEstoqueCupomCancelado(VpaCadNota,VpaMovNota : TDataSet);
 var
   VpfSeqEstoqueBarra : Integer;
+  VpfDProduto : TRBDProduto;
 begin
   VpaMovNota.First;
   while not VpaMovNota.Eof do
   begin
-    FunProdutos.BaixaProdutoEstoque(VpaCadNota.FieldByname('I_EMP_FIL').AsInteger, VpaMovNota.FieldByName('I_SEQ_PRO').AsInteger,Varia.OperacaoEstoqueEstornoEntrada,VpaCadNota.FieldByName('I_SEQ_NOT').AsInteger,
+    VpfDProduto := TRBDProduto.cria;
+    FunProdutos.CarDProduto(VpfDProduto,0,VpaCadNota.FieldByname('I_EMP_FIL').AsInteger, VpaMovNota.FieldByName('I_SEQ_PRO').AsInteger);
+    FunProdutos.BaixaProdutoEstoque(VpfDProduto,VpaCadNota.FieldByname('I_EMP_FIL').AsInteger, Varia.OperacaoEstoqueEstornoEntrada,VpaCadNota.FieldByName('I_SEQ_NOT').AsInteger,
                                   VpaCadNota.FieldByName('I_NRO_NOT').AsInteger,0,varia.MoedaBase,0,0,date,VpaMovNota.FieldByName('N_QTD_PRO').AsFloat,VpaMovNota.FieldByName('N_TOT_PRO').AsFloat,
-                                  VpaMovNota.FieldByName('C_COD_UNI').AsString,FunProdutos.UnidadePadrao(VpaMovNota.FieldByName('I_SEQ_PRO').AsInteger),VpaMovNota.FieldByName('C_PRO_REF').AsString,false,VpfSeqEstoqueBarra,true);
-
+                                  VpaMovNota.FieldByName('C_COD_UNI').AsString,VpaMovNota.FieldByName('C_PRO_REF').AsString,false,VpfSeqEstoqueBarra,true);
+    VpfDProduto.free;
     VpaMovNota.Next;
   end;
 end;

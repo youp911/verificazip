@@ -211,7 +211,6 @@ begin
                                     ' MovQdadeProduto mov, MovTabelaPreco Tab, CadMoedas Moe ' +
                                     ' Where pro.I_Cod_Emp = ' + IntToStr(varia.CodigoEmpresa) +
                                     ' and ' + varia.CodigoProduto + ' = ''@''' +
-                                    ' and pro.C_KIT_PRO = ''P'' ' +
                                     ' and pro.I_seq_pro = Mov.I_seq_pro ' +
                                     ' and mov.I_Emp_Fil = ' + IntTostr(varia.CodigoEmpFil) +
                                     ' and mov.I_COD_COR = 0 ' +
@@ -228,7 +227,6 @@ begin
                                     ' MovQdadeProduto mov, MovTabelaPreco Tab, CadMoedas  Moe ' +
                                     ' Where pro.I_Cod_Emp = ' + IntToStr(varia.CodigoEmpresa) +
                                     ' and pro.c_nom_pro like ''@%''' +
-                                    ' and pro.C_KIT_PRO = ''P'' ' +
                                     ' and pro.I_seq_pro = Mov.I_seq_pro ' +
                                     ' and mov.I_Emp_Fil = ' + IntTostr(varia.CodigoEmpFil) +
                                     ' and mov.I_COD_COR = 0' +
@@ -331,6 +329,7 @@ end;
 function TFAcertoEstoque.AdicionaEstoque : string;
 var
   VpfSeqEstoqueBarra : Integer;
+  VpfDProduto : TRBDProduto;
 begin
   result := '';
   if VprResevaEstoque then
@@ -348,14 +347,16 @@ begin
   end
   else
   begin
-    FunProdutos.BaixaProdutoEstoque(varia.CodigoEmpFil,
-                                   CadProduto.fieldByName('I_SEQ_PRO').AsInteger,
+    VpfDProduto := TRBDProduto.Cria;
+    FunProdutos.CarDProduto(VpfDProduto,0,varia.CodigoEmpFil,CadProduto.fieldByName('I_SEQ_PRO').AsInteger);
+    FunProdutos.BaixaProdutoEstoque(VpfDProduto, varia.CodigoEmpFil,
                                    ECodOperacao.AInteiro,
                                    0,0,0,
                                    varia.MoedaBase, ECor.Ainteiro,ETamanho.AInteiro,
                                    EData.DateTime,
                                    EQtdProduto.AValor, EValTotal.AValor,
-                                   EUnidade.text, VprUnidadePadrao,ENumSerie.Text, true,VpfSeqEstoqueBarra,true,ETecnico.AInteiro,EOrdemProducao.AInteiro);
+                                   EUnidade.text, ENumSerie.Text, true,VpfSeqEstoqueBarra,true,ETecnico.AInteiro,EOrdemProducao.AInteiro);
+    VpfDProduto.free;
     if CDefeito.Checked then
       result := FunProdutos.BaixaEstoqueDefeito(CadProduto.FieldByName('I_SEQ_PRO').AsInteger,ETecnico.AInteiro,EQtdProduto.AValor,EUnidade.Text,
                                                 ETipOperacao.Text,EDefeito.Text);

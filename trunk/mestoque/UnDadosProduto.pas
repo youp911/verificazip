@@ -253,7 +253,9 @@ type
       QtdBaixado,
       QtdABaixar,
       QtdReservado,
-      QtdAReservar : Double;
+      QtdAReservar,
+      LarMolde,
+      AltMolde : Double;
       CodProduto,
       DesObservacao,
       DesUM,
@@ -264,7 +266,8 @@ type
       NomFaca : String;
       IndBaixado,
       IndOrigemCorte,
-      IndMaterialExtra : Boolean;
+      IndMaterialExtra,
+      IndExcluir  : Boolean;
       UnidadesParentes: TStringList;
       constructor Cria;
       destructor Destroy; override;
@@ -898,6 +901,7 @@ Type
       CodBarraFornecedor,
       PatFoto,
       CifraoMoeda: String;
+      IndKit,
       IndProdutoAtivo: Boolean;
       UnidadesParentes: TStringList;
 
@@ -1299,11 +1303,14 @@ Type
       QtdABaixar,
       QtdBaixado,
       QtdReservada,
-      QtdAReservar : Double;
+      QtdAReservar,
+      AltMolde,
+      LarMolde : Double;
       IndBaixado,
       IndOrdemCorte,
       IndOrigemCorte,
-      IndMaterialExtra : Boolean;
+      IndMaterialExtra,
+      IndExcluir : Boolean;
       constructor cria;
       destructor destroy;override;
 end;
@@ -2231,6 +2238,7 @@ end;
 constructor TRBDConsumoFracaoOP.Cria;
 begin
   inherited Create;
+  IndExcluir := false;
 end;
 
 {******************************************************************************}

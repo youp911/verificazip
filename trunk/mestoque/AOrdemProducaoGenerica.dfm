@@ -29,6 +29,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
+    ParentBackground = False
     ParentFont = False
     TabOrder = 3
     AUsarCorForm = False
@@ -95,6 +96,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
             'EST.NOMEST')
           AindiceInicial = 1
           ALinhaSQLOrderBy = 0
+          OnOrdem = GridIndice1Ordem
           Columns = <
             item
               Expanded = False
@@ -280,6 +282,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           ShowHint = True
           StateImages = ImageList1
           TabOrder = 0
+          OnDblClick = ArvoreDblClick
           OnExpanded = ArvoreExpanded
           OnMouseMove = ArvoreMouseMove
         end
@@ -566,6 +569,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
+    ParentBackground = False
     ParentFont = False
     TabOrder = 1
     AUsarCorForm = False
@@ -1325,6 +1329,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
+    ParentBackground = False
     ParentFont = False
     TabOrder = 2
     AUsarCorForm = False
@@ -1380,7 +1385,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       OnClick = BAlterarClick
     end
     object BConsultar: TBitBtn
-      Left = 202
+      Left = 195
       Top = 5
       Width = 100
       Height = 30
@@ -1747,6 +1752,12 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       OnClick = AlterarCliente1Click
     end
     object N13: TMenuItem
+      Caption = '-'
+    end
+    object MReimportarProjeto: TMenuItem
+      Caption = 'Reimportar Projeto'
+    end
+    object N15: TMenuItem
       Caption = '-'
     end
     object ConsultaLogSeparao1: TMenuItem
@@ -2135,11 +2146,11 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     object N11: TMenuItem
       Caption = '-'
     end
-    object MRegerarProjeto: TMenuItem
-      Caption = 'Regerar Fra'#231#245'es do Projeto'
-      OnClick = MRegerarProjetoClick
+    object ReimportarFrao1: TMenuItem
+      Caption = 'Reimportar Fra'#231#227'o'
+      OnClick = ReimportarFrao1Click
     end
-    object N12: TMenuItem
+    object N16: TMenuItem
       Caption = '-'
     end
     object ImprimirConsumo1: TMenuItem

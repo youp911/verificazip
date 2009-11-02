@@ -58,10 +58,12 @@ const
   CNPJ_R2 = '09.364.080/0001-39';
   CNPJ_Kabran = '83.139.766/0001-89';
   CNPJ_Premer = '05.113.696/0001-86';
+  CNPJ_HALF = '07.663.782/0001-98';
   CNPJ_AGZ = '09.661.514/0001-62';
   CNPJ_REELTEX= '00.494.703/0001-13';
   CNPJ_AtelierDuCristal = '79.385.597/0001-90';
   CNPJ_VENETO = '95.757.399/0001-66';
+  CNPJ_PERFOR = '09.004.720/0001-08';
 
 type
 
@@ -237,6 +239,7 @@ type
       EstagioRetornoFaccionista,
       EstagioSerra,
       EstagioPantografo,
+      EstagioOPReimportada,
       EstagioInicialProposta,
       EstagioAguardandoRecebimentoProposta,
       EstagioPropostaEmNegociacao,
@@ -1457,6 +1460,7 @@ begin
          EstagioRetornoFaccionista := VpfTabela.fieldByName('I_EST_RFA').AsInteger;
          EstagioSerra := VpfTabela.fieldByName('I_EST_SER').AsInteger;
          EstagioPantografo := VpfTabela.fieldByName('I_EST_PAN').AsInteger;
+         EstagioOPReimportada := VpfTabela.fieldByName('I_EST_REI').AsInteger;
          TipoCotacao := VpfTabela.FieldByName('I_TIP_ORC').AsInteger;
          TipoCotacaoPedido := VpfTabela.FieldByName('I_ORC_PED').AsInteger;
          TipoCotacaoAmostra := VpfTabela.FieldByName('I_ORC_AMO').AsInteger;

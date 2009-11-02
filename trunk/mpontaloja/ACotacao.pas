@@ -189,7 +189,6 @@ type
     PanelColor3: TPanelColor;
     GridMov: TDBGridColor;
     DBMemoColor1: TDBMemoColor;
-    N9: TMenuItem;
     MVisualizarNota: TMenuItem;
     Label21: TLabel;
     ESituacao: TComboBoxColor;
@@ -242,6 +241,7 @@ type
     CadOrcamentoC_CON_ORC: TWideStringField;
     EValorTotal: Tnumerico;
     MPedidosPendentesSemClienteMaster: TMenuItem;
+    N14: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FlagClick(Sender: TObject);

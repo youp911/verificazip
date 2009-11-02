@@ -2,7 +2,7 @@ Unit UnFluxoCaixa;
 
 Interface
 
-Uses Classes, DBTables,vcf1,Graphics, unDadosCR, SysUtils;
+Uses Classes, DBTables,vcf1,Graphics, unDadosCR, SysUtils, CGrades;
 
 Const
   LinInicial = 1;
@@ -48,7 +48,7 @@ Type TRBFuncoesFluxoCaixa = class(TRBLocalizaFluxoCaixa)
     AlturaLinha : Integer;
 
     TamanhoGrade : Integer;
-    procedure InicializaGradeGeral(VpaGrade : TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
+    procedure InicializaGradeGeral(VpaGrade : TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarContasFluxo(VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarSaldoAnterior(VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarChequesSaldoAnterior(VpaDFluxo : TRBDFluxoCaixaCorpo);
@@ -64,7 +64,7 @@ Type TRBFuncoesFluxoCaixa = class(TRBLocalizaFluxoCaixa)
     procedure CarTitulosDiarioGrade(VpaGrade : TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarregaCores(VpaCorFonteCaixa, VpaCorFundoCaixa, VpaCorFonteNegativo, VpaCorFonteTituloCR, VpaCorFonteCR, VpaCorFundoTituloCR, VpaCorFundoCR, VpaCorFonteCP,VpaCorFundoCP, VpaCorFonteTituloCP, VpaCorFundoTituloCP: TColor; VpaNomFonte : string; VpaTamFonte,VpaAltLinha : Integer);
     procedure LimpaFluxo(VpaGrade : TF1Book);
-    procedure InicializaFluxoDiario(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
+    procedure InicializaFluxoDiario(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarFluxoCaixa(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
 end;
 
@@ -167,27 +167,26 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesFluxoCaixa.InicializaGradeGeral(VpaGrade : TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
+procedure TRBFuncoesFluxoCaixa.InicializaGradeGeral(VpaGrade : TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
 begin
   if VpaDFluxo.IndDiario then
-    VpaGrade.TextRC[LinInicial,ColInicial] := 'Fluxo Diário : '+IntToStr(VpaDFluxo.Mes)+'/'+IntToStr(VpaDFluxo.Ano)
+    VpaGrade.Cells[ColInicial,LinInicial] := 'Fluxo Diário : '+IntToStr(VpaDFluxo.Mes)+'/'+IntToStr(VpaDFluxo.Ano)
   else
-    VpaGrade.TextRC[LinInicial,ColInicial] := 'Fluxo Mensal : '+ IntToStr(VpaDFluxo.Ano);
-  FormataCelula(VpaGrade,ColInicial,ColInicial,LinInicial,LinInicial,TamanhoFonte+2,clwhite,clblue,true,
-                false,NomeFonte);
-  VpaGrade.TextRC[LinInicial,ColSaldoAnterior] := 'Saldo Anterior';
-  VpaGrade.TextRC[LinInicial,ColAplicacao] := 'Aplicação';
-  VpaGrade.TextRC[LinInicial,ColSaldoAtual] := 'Saldo Atual';
+    VpaGrade.Cells[ColInicial,LinInicial] := 'Fluxo Mensal : '+ IntToStr(VpaDFluxo.Ano);
+  VpaGrade.FormataCelula(ColInicial,ColInicial,LinInicial,LinInicial,TamanhoFonte+2,NomeFonte,clwhite,true,false,clblue,taCenter,vaCenter,
+                bcSemBorda);
+  VpaGrade.cells[ColSaldoAnterior,LinInicial] := 'Saldo Anterior';
+  VpaGrade.Cells[ColAplicacao,LinInicial] := 'Aplicação';
+  VpaGrade.Cells[ColSaldoAtual,LinInicial] := 'Saldo Atual';
 
-  FormataCelula(VpaGrade,ColAplicacao,ColSaldoAtual,LinInicial,LinInicial,TamanhoFonte,CorFundoCaixa,CorFonteCaixa,true,
-                false,NomeFonte);
-  FormataBordaCelula(VpaGrade,ColAplicacao,ColSaldoAtual,LinInicial,LinInicial,clBlack,false);
-  VpaGrade.SetRowHeight(LinInicial,LinInicial,AlturaLinha+100,false);
-  VpaGrade.ColWidth[ColInicial] := 500;
-  VpaGrade.ColWidth[ColTituloLinha] := 5000;
-  VpaGrade.ColWidth[ColAplicacao] := 2500;
-  VpaGrade.ColWidth[ColSaldoAnterior] := 3500;
-  VpaGrade.ColWidth[ColSaldoAtual] := 3500;
+  VpaGrade.FormataCelula(ColAplicacao,ColSaldoAtual,LinInicial,LinInicial,TamanhoFonte,NomeFonte,CorFonteCaixa,true,false,CorFundoCaixa,
+                         taLeftJustify,vacenter,bcComBorda);
+  VpaGrade.RowHeights[LinInicial] := AlturaLinha+5;
+  VpaGrade.ColWidths[ColInicial] := 50;
+  VpaGrade.ColWidths[ColTituloLinha] := 500;
+  VpaGrade.ColWidths[ColAplicacao] := 250;
+  VpaGrade.ColWidths[ColSaldoAnterior] := 350;
+  VpaGrade.ColWidths[ColSaldoAtual] := 350;
 end;
 
 {******************************************************************************}
@@ -633,14 +632,14 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesFluxoCaixa.InicializaFluxoDiario(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
+procedure TRBFuncoesFluxoCaixa.InicializaFluxoDiario(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
 var
   VpfLaco : Integer;
 begin
   TamanhoGrade := 50;
-  VpaGrade.MaxCol := TamanhoGrade;
+  VpaGrade.ColCount := TamanhoGrade;
   InicializaGradeGeral(VpaGrade,VpaDFluxo);
-  if VpaDFluxo.IndDiario then
+{  if VpaDFluxo.IndDiario then
     VpaDFluxo.QtdColunas := Dia(UltimoDiaMes(MontaData(1,VpaDFluxo.Mes,VpaDFluxo.Ano)))
   else
     VpaDFluxo.QtdColunas := 12;
@@ -660,7 +659,7 @@ begin
   VpaGrade.SetAlignment(F1HAlignRight,false,F1VAlignBottom,0);
   VpaGrade.ColWidth[ColInicial] := 2500;
 
-  VpaDFluxo.QtdColunas := VpaDFluxo.QtdColunas+ColSaldoAtual+1;
+  VpaDFluxo.QtdColunas := VpaDFluxo.QtdColunas+ColSaldoAtual+1;}
 end;
 
 {******************************************************************************}

@@ -25,6 +25,7 @@ Type TRBFuncoesPremer = class(TRBLocalizaPremer)
     function RSeqConsumoDisponivel(VpaSeqProduto,VpaCodCor : Integer) : Integer;
     function RSeqEstagioDisponivel(VpaSeqProduto : Integer):Integer;
     function RProximoCodigoProduto : string;
+    procedure CarNomeProdutoPrincipal(VpaDProduto : TRBDProduto;VpaNomArquivo : String);
     function AdicionaConsumoProduto(VpaSeqProdutoPai, VpfSeqProduto : Integer;VpaLinha : String):string;
     function AdicionaEstagioProduto(VpaSeqProduto, VpaCodEstagio : Integer):string;
     function AdicionaEstagioTipoCorte(VpaSeqProduto : Integer;VpaCodCorte : String) : String;
@@ -103,11 +104,16 @@ end;
 {******************************************************************************}
 function TRBFuncoesPremer.PrimeiraParteDoCodigoENumero( VpaCodProduto: string): Boolean;
 begin
-  try
-     StrToInt(DeletaChars(DeletaEspaco(CopiaAteChar(VpaCodProduto,' ')),'.'));
-     result := true;
-  except
-    result := false;
+  if (varia.CNPJFilial = CNPJ_PERFOR) then
+    result := false
+  else
+  begin
+    try
+       StrToInt(DeletaChars(DeletaEspaco(CopiaAteChar(VpaCodProduto,' ')),'.'));
+       result := true;
+    except
+      result := false;
+    end;
   end;
 end;
 
@@ -162,19 +168,36 @@ function TRBFuncoesPremer.RCodClassificacaoProdutoPrincipal(VpaCodProduto : Stri
 var
   VpfSigProduto : String;
 begin
-  result := '01';
-  VpfSigProduto := copy(VpaCodProduto,1,2);
-  if VpfSigProduto = 'PP' then
-    result := '0101'
-  else
-    if VpfSigProduto = 'PC' then
-      result := '0102'
+  if (Varia.CNPJFilial = CNPJ_Premer) or
+     (Varia.CNPJFilial = CNPJ_Half) then
+  begin
+    result := '01';
+    VpfSigProduto := copy(VpaCodProduto,1,2);
+    if VpfSigProduto = 'PP' then
+      result := '0101'
     else
-      if VpfSigProduto = 'PS' then
-        result := '0103'
+      if VpfSigProduto = 'PC' then
+        result := '0102'
       else
-        if VpfSigProduto = 'PM' then
-          result := '0104';
+        if VpfSigProduto = 'PS' then
+          result := '0103'
+        else
+          if VpfSigProduto = 'PM' then
+            result := '0104';
+  end
+  else
+    if (Varia.CNPJFilial = CNPJ_PERFOR) then
+    begin
+      VpfSigProduto := Copy(VpaCodProduto,1,6);
+      VpfSigProduto := DeletaChars(VpfSigProduto,' ');
+      if VpfSigProduto = '' then
+        result := '90'
+      else
+      begin
+        result := VpfSigProduto;
+        CadastraClassificacao(VpfSigProduto,'SEM NOME');
+      end;
+    end;
 end;
 
 {******************************************************************************}
@@ -344,31 +367,37 @@ function TRBFuncoesPremer.RCodClassificacaoProduto(VpaDProduto : TRBDProduto):st
 var
   VpfSigProduto, VpfResultado : String;
 begin
-  VpfSigProduto := copy(VpaDProduto.CodProduto,1,2);
-
-  if VpfSigProduto = 'PP' then
-    result := '0201'
-  else
-    if VpfSigProduto = 'PC' then
-      result := '0202'
-    else
-      if VpfSigProduto = 'PS' then
-        result := '0203'
-      else
-        if VpfSigProduto = 'PM' then
-          result := '0204'
-        else
-          result := '0301';
-  if (copy(VpaDProduto.CodProduto,2,1) = '.') or (copy(VpaDProduto.CodProduto,3,1)= '.') then
+  if (varia.CNPJFilial = CNPJ_Premer)or
+     (varia.CNPJFilial = CNPJ_HALF) then
   begin
-    result := '07' +AdicionaCharE('0',CopiaAteChar(VpaDProduto.CodProduto,'.'),2)+AdicionaCharE('0',DeletaChars(CopiaAteChar(DeleteAteChar(VpaDProduto.CodProduto,'.'),' '),' '),3);
-    VpfResultado := CadastraClassificacao(Result,VpaDProduto.CodProduto);
-    repeat
-      VpaDProduto.CodProduto := RProximoCodigoProduto;
-    until not FunProdutos.ExisteProduto(VpaDProduto.CodProduto);
-    if VpfResultado <> '' then
-      aviso(VpfResultado);
-  end;
+    VpfSigProduto := copy(VpaDProduto.CodProduto,1,2);
+    if VpfSigProduto = 'PP' then
+      result := '0201'
+    else
+      if VpfSigProduto = 'PC' then
+        result := '0202'
+      else
+        if VpfSigProduto = 'PS' then
+          result := '0203'
+        else
+          if VpfSigProduto = 'PM' then
+            result := '0204'
+          else
+            result := '0301';
+    if (copy(VpaDProduto.CodProduto,2,1) = '.') or (copy(VpaDProduto.CodProduto,3,1)= '.') then
+    begin
+      result := '07' +AdicionaCharE('0',CopiaAteChar(VpaDProduto.CodProduto,'.'),2)+AdicionaCharE('0',DeletaChars(CopiaAteChar(DeleteAteChar(VpaDProduto.CodProduto,'.'),' '),' '),3);
+      VpfResultado := CadastraClassificacao(Result,VpaDProduto.CodProduto);
+      repeat
+        VpaDProduto.CodProduto := RProximoCodigoProduto;
+      until not FunProdutos.ExisteProduto(VpaDProduto.CodProduto);
+      if VpfResultado <> '' then
+        aviso(VpfResultado);
+    end;
+  end
+  else
+    if (varia.CNPJFilial = CNPJ_PERFOR) then
+      result := RCodClassificacaoProdutoPrincipal(VpaDProduto.CodProduto);
 end;
 
 
@@ -396,17 +425,19 @@ begin
     Cadastro.Insert;
     Cadastro.FieldByName('I_COD_EMP').AsInteger := 1;
     Cadastro.FieldByName('C_COD_CLA').AsString := VpaCodClassificacao;
-    Cadastro.FieldByName('C_NOM_CLA').AsString := CopiaAteChar(DeleteAteChar(VpaCodProduto,' '),' ');
+    if (varia.CNPJFilial = CNPJ_PREMER) OR
+       (varia.CNPJFilial = CNPJ_HALF) then
+      Cadastro.FieldByName('C_NOM_CLA').AsString := CopiaAteChar(DeleteAteChar(VpaCodProduto,' '),' ')
+    else
+      if (varia.CNPJFilial = CNPJ_PERFOR) then
+        Cadastro.FieldByName('C_NOM_CLA').AsString := VpaCodProduto;
     Cadastro.FieldByName('C_CON_CLA').AsString := 'S';
     Cadastro.FieldByName('C_TIP_CLA').AsString := 'P';
     Cadastro.FieldByName('D_ULT_ALT').AsDateTime := date;
     Cadastro.FieldByName('C_ALT_QTD').AsString := 'N';
     Cadastro.FieldByName('C_IND_FER').AsString := 'N';
-    try
-      Cadastro.post;
-    except
-      on e : exception do result := 'ERRO NA GRAVACAO DA CLASSIFICACAO!!!'#13+e.message;
-    end;
+    Cadastro.post;
+    result := Cadastro.AMensagemErroGravacao;
   end;
   Cadastro.close;
 end;
@@ -417,21 +448,19 @@ var
   VpfDProduto : TRBDProduto;
 begin
   VpaNomArquivo := UpperCase(VpaNomArquivo);
+  VpaNomArquivo := RetornaNomeSemExtensao(VpaNomArquivo);
   VpfDProduto := TRBDProduto.Cria;
   VpfDProduto.CodEmpresa := varia.CodigoEmpresa;
   VpfDProduto.CodEmpFil := varia.CodigoEmpFil;
-  VpfDProduto.NomProduto := UpperCase(RetornaNomeSemExtensao(VpaNomArquivo));
-  VpfDProduto.NomProduto := RetiraAcentuacao(CopiaAteChar(VpfDProduto.NomProduto,'-'));
-  AtualizaStatus('Cadastrando o produto principal "'+VpfDProduto.NomProduto+'"');
-  VpfDProduto.CODProduto :=UpperCase(DeletaCharD(DeleteAteChar(VpfDProduto.NomProduto,' '),' '));
+  AtualizaStatus('Cadastrando o produto principal "'+VpaNomArquivo+'"');
+
+  CarNomeProdutoPrincipal(VpfDProduto,VpaNomArquivo);
 
   if FunProdutos.ExisteCodigoProduto(VpfDProduto.SeqProduto,VpfDProduto.CodProduto,VpfDProduto.NomProduto) then
     FunProdutos.CarDProduto(VpfDProduto)
   else
   begin
-    VpfDProduto.NomProduto := RetornaNomeSemExtensao(VpaNomArquivo);
-    VpfDProduto.NomProduto := RetiraAcentuacao(UpperCase(CopiaAteChar(VpfDProduto.NomProduto,'-')));
-    VpfDProduto.CODProduto :=UpperCase(DeletaCharD(DeleteAteChar(VpfDProduto.NomProduto,' '),' '));
+    CarNomeProdutoPrincipal(VpfDProduto,VpaNomArquivo);
   end;
 
   VpfDProduto.CodMoeda := Varia.MoedaBase;
@@ -443,11 +472,28 @@ begin
   begin
     result := FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,VpfDProduto.SeqProduto);
     if result = '' then
-      result := FunProdutos.AdicionaProdutoNaTabelaPreco(Varia.TabelaPreco,VpfDProduto,0);
+      result := FunProdutos.AdicionaProdutoNaTabelaPreco(Varia.TabelaPreco,VpfDProduto,0,0);
   end;
   VpaProdutos.Add(IntToStr(VpfDProduto.SeqProduto));
   LimpaConsumo(VpfDProduto.SeqProduto);
   VpfDProduto.free;
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesPremer.CarNomeProdutoPrincipal(VpaDProduto: TRBDProduto; VpaNomArquivo: String);
+begin
+  if (varia.CNPJFilial = CNPJ_Premer) or
+     (varia.CNPJFilial = CNPJ_HALF) then
+  begin
+    VpaDProduto.NomProduto := RetiraAcentuacao(CopiaAteChar(VpaNomArquivo,'-'));
+    VpaDProduto.CODProduto :=UpperCase(DeletaCharD(DeleteAteChar(VpaNomArquivo,' '),' '));
+  end
+  else
+    if varia.CNPJFilial = CNPJ_PERFOR then
+    begin
+      VpaDProduto.CODProduto :=UpperCase(DeletaEspacoD(CopiaAteChar(VpaNomArquivo,'-')));
+      VpaDProduto.NomProduto := RetiraAcentuacao(DeletaEspacoE(DeleteAteChar(VpaNomArquivo,'-')));
+    end;
 end;
 
 {******************************************************************************}
@@ -468,9 +514,10 @@ begin
       if FunProdutos.ExisteNomeProduto(VpaDProduto.SeqProduto,RetiraAcentuacao(UpperCase(LimpaAspasdoNome(CopiaAteChar(DeleteAteChar(VpaLinha,';'),';'))))) then
         FunProdutos.CarDProduto(VpaDProduto);
   end;
+
   VpaDProduto.CodProduto := UpperCase(CopiaAteChar(VpaLinha,';'));
   VpaLinha := DeleteAteChar(VpaLinha,';');
-  VpaDProduto.NomProduto := RetiraAcentuacao(UpperCase(LimpaAspasdoNome(CopiaAteChar(VpaLinha,';'))));
+  VpaDProduto.NomProduto := SubstituiStr(RetiraAcentuacao(UpperCase(LimpaAspasdoNome(CopiaAteChar(VpaLinha,';')))),#$9D,'DIAM ');
   if VpaDProduto.NomProduto = '' then
     VpaDProduto.NomProduto := VpaDProduto.CodProduto;
   AtualizaStatus('Cadastrando Produto "'+VpaDProduto.NomProduto+'"');
@@ -484,7 +531,7 @@ begin
   begin
     result := FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,VpaDProduto.SeqProduto);
     if result = '' then
-      result := FunProdutos.AdicionaProdutoNaTabelaPreco(Varia.TabelaPreco,VpaDProduto,0);
+      result := FunProdutos.AdicionaProdutoNaTabelaPreco(Varia.TabelaPreco,VpaDProduto,0,0);
   end;
   LimpaConsumo(VpaDProduto.SeqProduto);
   LimpaEstagios(VpaDProduto.SeqProduto);
@@ -596,8 +643,14 @@ begin
   VpfDProduto := TRBDProduto.Cria;
   VpfDProduto.CodEmpresa := varia.CodigoEmpresa;
   VpfDProduto.CodEmpFil := varia.CodigoEmpFil;
-  VpfDProduto.CodClassificacao :='0302';
-  VpfDProduto.CodProduto := FunProdutos.ProximoCodigoProduto('0302',length(Varia.MascaraPro));
+  if (Varia.CNPJFilial = CNPJ_Premer) or
+     (Varia.CNPJFilial = CNPJ_HALF) then
+    VpfDProduto.CodClassificacao :='0302'
+  else
+    if Varia.CNPJfilial = CNPJ_PERFOR then
+      VpfDProduto.CodClassificacao :='60';
+  VpfDProduto.CodProduto := FunProdutos.ProximoCodigoProduto(VpfDProduto.CodClassificacao,length(Varia.MascaraPro));
+  VpaNomeProduto := SubstituiStr(VpaNomeProduto,#8364,'C');
   VpfDProduto.NomProduto := VpaNomeProduto;
   VpfDProduto.CodMoeda := Varia.MoedaBase;
   if ContaLetra(VpaDimensoes,'X') = 0 then // Refil Aco colocar o comprimento;
@@ -611,7 +664,7 @@ begin
   FunProdutos.GravaDProduto(VpfDProduto);
   Result := VpfDProduto.SeqProduto;
   FunProdutos.InsereProdutoEmpresa(Varia.CodigoEmpresa,VpfDProduto.SeqProduto);
-  FunProdutos.AdicionaProdutoNaTabelaPreco(Varia.TabelaPreco,VpfDProduto,0);
+  FunProdutos.AdicionaProdutoNaTabelaPreco(Varia.TabelaPreco,VpfDProduto,0,0);
   LimpaConsumo(VpfDProduto.SeqProduto);
   VpfDProduto.free;
 end;

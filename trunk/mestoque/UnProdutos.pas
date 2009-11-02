@@ -129,9 +129,9 @@ type
     function VerificaEstoque( unidadeAtual, UnidadePadrao : string; QdadeVendida : double; VpaSeqProduto,VpaCodCor,VpaCodTamanho : Integer) : Boolean;
     procedure TextoQdadeMinimaPedido(QdadeMin, QdadePed, QdadeBaixa : double);
     procedure VerificaPontoPedido(VpaCodFilial, VpaSeqProduto,VpaCodCor,VpaCodTamanho : Integer; VpaQtdBaixar : Double );
-    function BaixaProdutoEstoque(VpaCodFilial, VpaSequencialProduto,VpaCodOperacao,VpaSeqNotaF, VpaNroNota,VpaLanOrcamento, VpaCodigoMoeda, VpaCodCor,VpaCodTamanho : Integer;
+    function BaixaProdutoEstoque(VpaDProduto : TRBDProduto;VpaCodFilial, VpaCodOperacao,VpaSeqNotaF, VpaNroNota,VpaLanOrcamento, VpaCodigoMoeda, VpaCodCor,VpaCodTamanho : Integer;
                                   VpaDataMov : TdateTime; VpaQdadeVendida, VpaValorTotal : Double;
-                                  VpaunidadeAtual, VpaUnidadePadrao, VpaNumSerie : string; VpaNotaFornecedor : Boolean;Var VpaSeqBarra : Integer;VpaGerarMovimentoEstoque : Boolean = true;VpaCodTecnico : Integer = 0;VpaSeqOrdemProducao : Integer = 0) : Boolean;overload;
+                                  VpaunidadeAtual, VpaNumSerie : string; VpaNotaFornecedor : Boolean;Var VpaSeqBarra : Integer;VpaGerarMovimentoEstoque : Boolean = true;VpaCodTecnico : Integer = 0;VpaSeqOrdemProducao : Integer = 0) : Boolean;overload;
     function BaixaEstoqueFiscal(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho : Integer;VpaQtdProduto : Double;VpaUnidadeAtual,vpaUnidadePadrao,VpaTipoOperacao : String) : String;
     function BaixaEstoqueTecnicoouConsumoFracao(VpaCodFilial,VpaSeqOrdemProducao,VpaSeqProduto,VpaCodCor,VpaCodTecnico,VpaCodTamanho : Integer;VpaQtdProduto : Double;VpaTipOperacao,VpaDesUM : String) : string;
     function BaixaEstoqueTecnico(VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTecnico,VpaCodTamanho : Integer;VpaQtdProduto : Double;VpaTipOperacao : String) : string;
@@ -143,7 +143,7 @@ type
     function BaixaQtdReservadoOP(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho, VpaSeqOrdemProducao: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao,  VpaTipOperacao :String):string;
     function AtualizaQtdKit(VpaSeqProduto : String;VpaKit : Boolean):Boolean;
     function EstornaEstoque(VpaDMovimento : TRBDMovEstoque) : String;
-    function AdicionaProdutoNaTabelaPreco(VpaCodTabela: Integer; VpaDProduto: TRBDProduto;VpaCodTamanho : Integer): String;
+    function AdicionaProdutoNaTabelaPreco(VpaCodTabela: Integer; VpaDProduto: TRBDProduto;VpaCodTamanho, VpaCodCor : Integer): String;
     function VerificaItemKit( codigoPro : string ) : Boolean;
     procedure ConverteMoedaTabela( NovaMoeda, TabelaPreco, SequencialProduto : Integer );
     procedure ConverteMoedaProduto( NovaMoeda, TabelaPreco, SequencialProduto : Integer );
@@ -224,7 +224,7 @@ type
     procedure CarDCombinacao(VpaDProduto : TRBDProduto);
     procedure CarDEstagio(VpaDProduto : TRBDProduto);
     procedure CarDFornecedores(VpaDProduto : TRBDProduto);
-    procedure CarDEstoque(VpaDProduto: TRBDProduto; VpaCodFilial, VpaSeqProduto: Integer;VpaCodCor : Integer = 0);
+    procedure CarDEstoque1(VpaDProduto: TRBDProduto; VpaCodFilial, VpaSeqProduto: Integer;VpaCodCor : Integer = 0;VpaCodTamanho : Integer = 0);
     procedure CarDPreco(VpaDProduto: TRBDProduto; VpaCodEmpresa, VpaSeqProduto: Integer);
     procedure CarDValCusto(VpaDProduto: TRBDProduto; VpaCodFilial : Integer);
     procedure CarDProdutoFornecedor(VpaCodFornecedor: Integer;VpaDProtudoPedido: TRBDProdutoPedidoCompra);
@@ -839,6 +839,7 @@ begin
   Tabela.sql.clear;
   Tabela.sql.add('SELECT FOC.SEQCONSUMO, FOC.QTDPRODUTO, FOC.QTDBAIXADO, FOC.QTDUNITARIO, '+
                                ' FOC.SEQPRODUTO, FOC.DESUMUNITARIO,FOC.DESOBSERVACAO, FOC.INDMATERIALEXTRA,  '+
+                               ' FOC.INDEXCLUIR, '+
                                ' PRO.I_SEQ_PRO, PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_COD_UNI UMORIGINAL,'+
                                ' FOC.CODCOR, COR.NOM_COR,'+
                                ' FOC.DESUM, FOC.INDBAIXADO, FOC.CODFACA, FOC.QTDRESERVADAESTOQUE, '+
@@ -897,6 +898,7 @@ begin
       VpfDBaixaConsumo.UnidadesParentes:= FunProdutos.RUnidadesParentes(VpfDBaixaConsumo.DesUM);
       VpfDBaixaConsumo.DesObservacao:= Tabela.FieldByName('DESOBSERVACAO').AsString;
       VpfDBaixaConsumo.IndOrigemCorte:= Tabela.FieldByName('INDORIGEMCORTE').AsString = 'S';
+      VpfDBaixaConsumo.IndExcluir:= Tabela.FieldByName('INDEXCLUIR').AsString = 'S';
       VpfDBaixaConsumo.CodFaca:= Tabela.FieldByName('CODFACA').AsInteger;
       VpfDBaixaConsumo.NomFaca:= Tabela.FieldByName('NOMFACA').AsString;
     end
@@ -1051,7 +1053,6 @@ begin
                                ' MOV.D_DAT_DES  '+
                                ' from MOVKIT MOV, CADPRODUTOS PRO' +
                                ' Where MOV.I_PRO_KIT = '+ IntToStr(VpaDProduto.SeqProduto)+
-                               ' and MOV.I_COD_EMP = '+ IntToStr(VpaDProduto.CodEmpresa)+
                                ' and MOV.I_COR_KIT = ' + IntToStr(VpaCorKit)+
                                ' and MOV.I_SEQ_PRO = PRO.I_SEQ_PRO' +
                                ' order by MOV.I_SEQ_MOV');
@@ -1719,19 +1720,41 @@ begin
 end;
 
 { *************** efetua baixa de estoque ************************************ }
-function TFuncoesProduto.BaixaProdutoEstoque( VpaCodFilial, VpaSequencialProduto, VpaCodOperacao,VpaSeqNotaF, VpaNroNota,VpaLanOrcamento, VpaCodigoMoeda, VpaCodCor,VpaCodTamanho : Integer;
+function TFuncoesProduto.BaixaProdutoEstoque( VpaDProduto : TRBDProduto;VpaCodFilial, VpaCodOperacao,VpaSeqNotaF, VpaNroNota,VpaLanOrcamento, VpaCodigoMoeda, VpaCodCor,VpaCodTamanho : Integer;
                                               VpaDataMov : TdateTime; VpaQdadeVendida, VpaValorTotal : Double;
-                                              VpaunidadeAtual, VpaUnidadePadrao,VpaNumSerie : string; VpaNotaFornecedor : Boolean;Var VpaSeqBarra : Integer;VpaGerarMovimentoEstoque : Boolean = true;VpaCodTecnico : Integer = 0;
+                                              VpaunidadeAtual, VpaNumSerie : string; VpaNotaFornecedor : Boolean;Var VpaSeqBarra : Integer;VpaGerarMovimentoEstoque : Boolean = true;VpaCodTecnico : Integer = 0;
                                               VpaSeqOrdemProducao : Integer = 0) : Boolean;
 var
   VpfQdadeBaixa,VpfQtdInicialEstoque,VpfQtdFinalEstoque : double;
-  VpfMoedaProduto,  VpfCodFilialParametro : Integer;
+  VpfCodFilialParametro, VpfLaco : Integer;
   VpfCifrao: string;
   VpfValCusto : double;
   VpfBaixouMovimento : Boolean;
   VpfDOperacaoEstoque : TRBDOperacaoEstoque;
   VpfResultado : String;
+  VpfDProdutoKit : TRBDProduto;
+  VpfDConsumoMP : TRBDConsumoMP;
 begin
+  // qdade conforme unidade
+  VpfQdadeBaixa := CalculaQdadePadrao( VpaunidadeAtual, VpaDProduto.CodUnidade, VpaQdadeVendida, IntTostr(VpaDProduto.SeqProduto));
+
+  if VpaDProduto.IndKit then
+  begin
+    CarConsumoProduto(VpaDProduto,VpaCodCor);
+    for vpflaco := 0 to VpaDProduto.ConsumosMP.Count - 1 do
+    begin
+      VpfDConsumoMP := TRBDConsumoMP(VpaDProduto.ConsumosMP.Items[VpfLaco]);
+      VpfDProdutoKit := TRBDProduto.cria;
+      CarDProduto(VpfDProdutoKit,0,VpaCodFilial,VpfDConsumoMP.SeqProduto);
+      BaixaProdutoEstoque(VpfDProdutoKit,VpaCodFilial,VpaCodOperacao,VpaSeqNotaF,
+                          VpaNroNota,VpaLanOrcamento,VpaCodigoMoeda,VpaCodCor,
+                          VpaCodTamanho,VpaDataMov,VpfQdadeBaixa * VpfDConsumoMP.QtdProduto,
+                          0,VpfDConsumoMP.UM,VpaNumSerie,VpaNotaFornecedor,VpaSeqBarra,VpaGerarMovimentoEstoque,
+                          VpaCodTecnico,VpaSeqOrdemProducao);
+    end;
+    exit;
+  end;
+
   VpfCodFilialParametro := VpaCodFilial;
   if config.EstoqueCentralizado then
     VpaCodFilial := Varia.CodFilialControladoraEstoque;
@@ -1740,24 +1763,22 @@ begin
   VpfDOperacaoEstoque := TRBDOperacaoEstoque.cria;
   CarDOperacaoEstoque(VpfDOperacaoEstoque,VpaCodOperacao);
 
-  // qdade conforme unidade
-  VpfQdadeBaixa := CalculaQdadePadrao( VpaunidadeAtual, VpaUnidadePadrao, VpaQdadeVendida, IntTostr(VpaSequencialProduto));
+  VpfQdadeBaixa := CalculaQdadePadrao( VpaunidadeAtual, VpaDProduto.CodUnidade, VpaQdadeVendida, IntTostr(VpaDProduto.SeqProduto));
 
-  // moeda do produto
-  VpfMoedaProduto := MoedaPadrao( VpaSequencialProduto );  // localiza a moeda do produto
 
   // coloca o produto em ativade
-  ColocaProdutoEmAtividade(IntToStr(VpaSequencialProduto));
+  if not VpaDProduto.IndProdutoAtivo then
+    ColocaProdutoEmAtividade(IntToStr(VpaDProduto.SeqProduto));
 
   // valor conforme moeda
-  VpaValorTotal := UnMoeda.ConverteValor( VpfCifrao, VpaCodigoMoeda, VpfMoedaProduto, VpaValorTotal );
+  VpaValorTotal := UnMoeda.ConverteValor( VpfCifrao, VpaCodigoMoeda, VpaDProduto.CodMoeda, VpaValorTotal );
 
   //posiciona a tabela de movqdadeproduto
-  LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpasequencialProduto,VpaCodCor,VpaCodTamanho);
+  LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaDProduto.SeqProduto,VpaCodCor,VpaCodTamanho);
   if ProCadastro.eof then
   begin
-    InsereProdutoFilial(VpasequencialProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0,0,0);
-    LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpasequencialProduto,VpaCodCor,VpaCodTamanho);
+    InsereProdutoFilial(VpaDProduto.SeqProduto,VpaCodFilial,VpaCodCor,VpaCodTamanho,0,0,0,0,0);
+    LocalizaMovQdadeSequencial(ProCadastro,VpaCodFilial,VpaDProduto.SeqProduto,VpaCodCor,VpaCodTamanho);
   end;
 
   ProCadastro.Edit;
@@ -1775,6 +1796,8 @@ begin
 
   VpfQtdFinalEstoque := ProCadastro.FieldByName('N_QTD_PRO').AsFloat;
   ProCadastro.post;
+  if ProCadastro.AErronaGravacao then
+    aviso(ProCadastro.AMensagemErroGravacao);
   ProCadastro.close;
   // inseri novo registro na movimentacao de estoque.
   if VpaGerarMovimentoEstoque then
@@ -1809,7 +1832,7 @@ begin
     begin
       ProCadastro.Insert;
       ProCadastro.FieldByName('I_EMP_FIL').AsInteger := VpfCodFilialParametro;
-      ProCadastro.FieldByName('I_SEQ_PRO').AsInteger := VpaSequencialProduto;
+      ProCadastro.FieldByName('I_SEQ_PRO').AsInteger := VpaDProduto.SeqProduto;
       ProCadastro.FieldByName('I_COD_OPE').AsInteger := VpaCodOperacao;
       ProCadastro.FieldByName('D_DAT_MOV').AsDateTime := VpaDataMov;
       ProCadastro.FieldByName('N_QTD_MOV').AsFloat := VpaQdadeVendida;
@@ -1826,7 +1849,7 @@ begin
         ProCadastro.FieldByName('I_COD_TEC').AsInteger := VpaCodTecnico;
       if VpaSeqOrdemProducao <> 0 then
         ProCadastro.FieldByName('I_SEQ_ORD').AsInteger := VpaSeqOrdemProducao;
-      ProCadastro.FieldByName('N_VLR_CUS').AsFloat := CalculaValorPadrao(VpaunidadeAtual,VpaUnidadePadrao,VpfValCusto * VpaQdadeVendida,IntToStr(VpaSequencialProduto));
+      ProCadastro.FieldByName('N_VLR_CUS').AsFloat := CalculaValorPadrao(VpaunidadeAtual,VpaDProduto.CodUnidade,VpfValCusto * VpaQdadeVendida,IntToStr(VpaDProduto.SeqProduto));
       if VpaNumSerie <> '' then
         ProCadastro.FieldByName('C_PRO_REF').AsString := VpaNumSerie;
 
@@ -1854,10 +1877,10 @@ begin
   end;
   //Atualiza as qtd dos kit's
 //    AtualizaQtdKit(IntToStr(SequencialProduto),false);
-  VpfResultado := BaixaEstoqueTecnicoouConsumoFracao(VpaCodFilial,VpaSeqOrdemProducao,VpaSequencialProduto,VpaCodCor,VpaCodTecnico,0,VpfQdadeBaixa,VpfDOperacaoEstoque.DesTipo_E_S,VpaUnidadePadrao);
+  VpfResultado := BaixaEstoqueTecnicoouConsumoFracao(VpaCodFilial,VpaSeqOrdemProducao,VpaDProduto.SeqProduto,VpaCodCor,VpaCodTecnico,0,VpfQdadeBaixa,VpfDOperacaoEstoque.DesTipo_E_S,VpaDProduto.CodUnidade);
   if VpfResultado = '' then
   begin
-    VpfResultado := BaixaEstoqueBarra(VpaSequencialProduto,VpaCodCor,VpaSeqBarra,VpaQdadeVendida,VpaunidadeAtual,VpaUnidadePadrao,VpfDOperacaoEstoque.DesTipo_E_S);
+    VpfResultado := BaixaEstoqueBarra(VpaDProduto.SeqProduto,VpaCodCor,VpaSeqBarra,VpaQdadeVendida,VpaunidadeAtual,VpaDProduto.CodUnidade,VpfDOperacaoEstoque.DesTipo_E_S);
   end;
 
   VpfDOperacaoEstoque.free;
@@ -2373,7 +2396,7 @@ begin
 end;
 
 {************ insere um novo produto na tabela de preco ***********************}
-function TFuncoesProduto.AdicionaProdutoNaTabelaPreco(VpaCodTabela: Integer; VpaDProduto: TRBDProduto;VpaCodTamanho : Integer): String;
+function TFuncoesProduto.AdicionaProdutoNaTabelaPreco(VpaCodTabela: Integer; VpaDProduto: TRBDProduto;VpaCodTamanho, VpaCodCor : Integer): String;
 begin
   LocalizaCadTabelaPreco(Tabela, VpaCodTabela);
   if not Tabela.Eof then
@@ -2393,6 +2416,7 @@ begin
     ProCadastro.FieldByName('I_COD_TAB').AsInteger:= VpaCodTabela;
     ProCadastro.FieldByName('I_SEQ_PRO').AsInteger:= VpaDProduto.SeqProduto;
     ProCadastro.FieldByName('I_COD_TAM').AsInteger:= VpaCodTamanho;
+    ProCadastro.FieldByName('I_COD_COR').AsInteger:= VpaCodCor;
     ProCadastro.FieldByName('I_COD_MOE').AsInteger:= VpaDProduto.CodMoeda;
     ProCadastro.FieldByName('N_VLR_VEN').AsFloat:= VpaDProduto.VlrVenda;
     ProCadastro.FieldByName('N_VLR_REV').AsFloat:= VpaDProduto.VlrRevenda;
@@ -3922,7 +3946,7 @@ begin
   if VpaSeqProduto <> 0 then
     VpaDProduto.SeqProduto:= VpaSeqProduto;
 
-  AdicionaSQLAbreTabela(Tabela,'SELECT'+
+  AdicionaSQLAbreTabela(Tabela,'SELECT '+
                             ' CAD.I_PES_CVA, CAD.I_QTD_PAG, CAD.C_IND_ORI,'+
                             ' CAD.C_IND_COP, CAD.C_IND_MUL, CAD.C_IND_IMP,'+
                             ' CAD.C_IND_RED, CAD.C_IND_PCL, CAD.C_IND_FAX,'+
@@ -3955,11 +3979,9 @@ begin
                             ' CAD.I_COD_COR, CAD.C_IND_COM, CAD.C_ATI_PRO,'+
                             ' CAD.I_TAB_PED, CAD.I_QTD_CTA, CAD.C_CAR_TEX,'+
                             ' CAD.D_DAT_CAD, CAD.I_COD_COM, CAD.C_IND_MON, '+
-                            ' CAD.I_ORI_PRO, CAD.N_CAP_LIQ '+
+                            ' CAD.I_ORI_PRO, CAD.N_CAP_LIQ, CAD.C_KIT_PRO '+
                             ' FROM CADPRODUTOS CAD'+
-                            ' WHERE'+
-                            ' CAD.I_COD_EMP = '+IntToStr(VpaDProduto.CodEmpresa)+
-                            ' AND CAD.I_SEQ_PRO = '+IntToStr(vpadproduto.Seqproduto));
+                            ' WHERE CAD.I_SEQ_PRO = '+IntToStr(vpadproduto.Seqproduto));
 
 // Gerais
   VpaDProduto.CodMoeda:= Tabela.FieldByName('I_COD_MOE').AsInteger;
@@ -3984,6 +4006,7 @@ begin
   VpaDProduto.PerComissao:= Tabela.FieldByName('N_PER_COM').AsFloat;
   VpaDProduto.PerLucro:= Tabela.FieldByName('N_PER_LUC').AsFloat;
   VpaDProduto.IndProdutoAtivo:= (Tabela.FieldByName('C_ATI_PRO').AsString = 'S');
+  VpaDProduto.IndKit := (Tabela.FieldByName('C_KIT_PRO').AsString = 'K');
 
 // Cadarço
   VpaDProduto.CodMaquina:= Tabela.FieldByName('CODMAQ').AsInteger;
@@ -4074,18 +4097,18 @@ begin
   VpaDProduto.CodReduzidoCartucho:= Tabela.FieldByName('C_COD_CTB').AsString;
 
   Tabela.close;
-  CarDCombinacao(VpaDProduto);
-  CarDEstagio(VpaDProduto);
-  CarDFornecedores(VpaDProduto);
-  CarDEstoque(VpaDProduto, VpaDProduto.CodEmpFil, VpaDProduto.SeqProduto);
+//  CarDCombinacao(VpaDProduto);
+//  CarDEstagio(VpaDProduto);
+//  CarDFornecedores(VpaDProduto);
+  CarDEstoque1(VpaDProduto, VpaDProduto.CodEmpFil, VpaDProduto.SeqProduto);
   CarDPreco(VpaDProduto, VpaDProduto.CodEmpresa, VpaDProduto.SeqProduto);
   CarDValCusto(VpaDProduto,VpaDProduto.CodEmpFil);
-  CarAcessoriosProduto(VpaDProduto);
+//  CarAcessoriosProduto(VpaDProduto);
 end;
 
 
 {******************************************************************************}
-procedure TFuncoesProduto.CarDEstoque(VpaDProduto: TRBDProduto; VpaCodFilial, VpaSeqProduto: Integer;VpaCodCor : Integer = 0);
+procedure TFuncoesProduto.CarDEstoque1(VpaDProduto: TRBDProduto; VpaCodFilial, VpaSeqProduto: Integer;VpaCodCor : Integer = 0;VpaCodTamanho : Integer = 0);
 begin
   AdicionaSQLAbreTabela(Tabela,'SELECT MOV.I_COD_BAR, MOV.N_QTD_MIN, MOV.N_QTD_PED,'+
                                ' MOV.N_QTD_PRO, MOV.N_VLR_CUS, MOV.N_QTD_RES, MOV.N_QTD_ARE '+
@@ -4093,7 +4116,8 @@ begin
                                ' WHERE'+
                                ' MOV.I_EMP_FIL = '+IntToStr(VpaCodFilial)+
                                ' AND MOV.I_SEQ_PRO = '+IntToStr(VpaSeqProduto)+
-                               ' AND MOV.I_COD_COR = '+IntToStr(VpaCodCor));
+                               ' AND MOV.I_COD_COR = '+IntToStr(VpaCodCor)+
+                               ' and MOV.I_COD_TAM = '+IntToStr(VpaCodTamanho));
 
   VpaDProduto.CodTipoCodBarra:= Tabela.FieldByName('I_COD_BAR').AsInteger;
   VpaDProduto.QtdMinima:= Tabela.FieldByName('N_QTD_MIN').AsFloat;
@@ -4298,7 +4322,7 @@ begin
   ProCadastro.FieldByName('I_PES_CCH').AsInteger:= VpaDProduto.PesCartucho;
   ProCadastro.FieldByName('I_QTD_MLC').AsInteger:= VpaDProduto.QtdMlCartucho;
   ProCadastro.FieldByName('I_QTD_PAG').AsInteger:= VpaDProduto.QtdPaginas;
-  
+
   if VpaDProduto.CodCorCartucho <> 0 then
     ProCadastro.FieldByName('I_COD_COR').AsInteger:= VpaDProduto.CodCorCartucho
   else
@@ -4339,7 +4363,10 @@ begin
 
 // Campos inicializados manualmente
   ProCadastro.FieldByName('C_VEN_AVU').AsString:= 'S';
-  ProCadastro.FieldByName('C_KIT_PRO').AsString:= 'P';
+  if VpaDProduto.IndKit then
+    ProCadastro.FieldByName('C_KIT_PRO').AsString:= 'K'
+  else
+    ProCadastro.FieldByName('C_KIT_PRO').AsString:= 'P';
   ProCadastro.FieldByName('C_FLA_PRO').AsString:= 'N';
   ProCadastro.FieldByName('C_IND_GEN').AsString:= 'N';
   ProCadastro.FieldByName('C_TIP_CLA').AsString:= 'P';
@@ -5409,7 +5436,7 @@ begin
   ProCadastro.close;
   if result = '' then
     if not VpaDProduto.IndProdutoCompativel then
-      BaixaProdutoEstoque(varia.CodigoEmpFil,VpaDPesoCartucho.SeqProduto,varia.OperacaoEstoqueImpressaoEtiqueta,0,0,0,varia.MoedaBase,0,0,date,1,0,'PC','PC','',false,VpfSeqBarra,true);
+      BaixaProdutoEstoque(VpaDProduto,varia.CodigoEmpFil,varia.OperacaoEstoqueImpressaoEtiqueta,0,0,0,varia.MoedaBase,0,0,date,1,0,VpaDProduto.CodUnidade,'',false,VpfSeqBarra,true);
 end;
 
 {******************************************************************************}
@@ -5908,17 +5935,21 @@ end;
 procedure TFuncoesProduto.ImportaEstoqueProdutAExcluir(VpaSeqProdutoAExcluir, VpaSeqProdutoDestino : Integer);
 var
   VpfSeqBarra : Integer;
+  VpfDProduto : TRBDProduto;
 begin
   AdicionaSQLAbreTabela(Tabela,'Select MOV.I_EMP_FIL, MOV.I_COD_COR, MOV.I_COD_TAM, MOV.N_QTD_PRO, PRO.C_COD_UNI FROM MOVQDADEPRODUTO MOV, CADPRODUTOS PRO'+
                             ' Where PRO.I_SEQ_PRO = MOV.I_SEQ_PRO '+
                             ' AND PRO.I_SEQ_PRO = '+IntToStr(VpaSeqProdutoaExcluir));
+  VpfDProduto := TRBDProduto.Cria;
+  CarDProduto(VpfDProduto,varia.CodigoEmpresa,0,VpaSeqProdutoDestino);
   while not Tabela.eof do
   begin
-    BaixaProdutoEstoque(TABELA.FieldByName('I_EMP_FIL').AsInteger,VpaSeqProdutoDestino,VARIA.OperacaoAcertoEstoqueEntrada,
+    BaixaProdutoEstoque(VpfDProduto,TABELA.FieldByName('I_EMP_FIL').AsInteger,VARIA.OperacaoAcertoEstoqueEntrada,
                         0,0,0,VARIA.MoedaBase,Tabela.FieldByName('I_COD_COR').AsInteger,Tabela.FieldByName('I_COD_TAM').AsInteger,date,Tabela.FieldByName('N_QTD_PRO').AsFloat,
-                        0,Tabela.FieldByName('C_COD_UNI').AsString,UnidadePadrao(VpaSeqProdutoDestino),'',false,VpfSeqBarra);
+                        0,Tabela.FieldByName('C_COD_UNI').AsString,'',false,VpfSeqBarra);
     Tabela.next;
   end;
+  VpfDProduto.free;
   Tabela.close;
 end;
 

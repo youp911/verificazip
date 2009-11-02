@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Grids, DBGrids, Tabela, BotaoCadastro, StdCtrls, Buttons, Componentes1,
   ExtCtrls, PainelGradiente, Localizacao, Db, DBTables, ComCtrls,
-  DBKeyViolation, unProdutos;
+  DBKeyViolation, unProdutos, UnDadosProduto;
 
 type
   TFPontoPedido = class(TFormularioPermissao)
@@ -217,10 +217,11 @@ var
   VpfQtdDigitada : String;
   VpfQtd : Double;
   VpfOperacaoEstoque, VpfSeqEstoqueBarra : Integer;
+  VpfDProduto : TRBDProduto;
 begin
   if  EntradaNumero('Quantidade produto Estoque','Quantidade Produto :',VpfQtdDigitada,false,PanelColor1.Color,PanelColor1.Color,false) then
   begin
-    VpfQtd := StrToFloat(VpfQtdDigitada); 
+    VpfQtd := StrToFloat(VpfQtdDigitada);
     if ProdutosN_QTD_PRO.AsFloat >  VpfQtd then
     begin
       VpfOperacaoEstoque := Varia.OperacaoAcertoEstoqueSaida;
@@ -231,9 +232,12 @@ begin
       VpfOperacaoEstoque := Varia.OperacaoAcertoEstoqueEntrada;
       VpfQtd := VpfQtd - ProdutosN_QTD_PRO.AsFloat;
     end;
-    FunProdutos.BaixaProdutoEstoque(varia.CodigoEmpFil,ProdutosI_SEQ_PRO.AsInteger,VpfOperacaoEstoque,0,
-                                    0,0,VARIA.MoedaBase,0,0,date,VpfQtd,0,ProdutosC_COD_UNI.AsString,ProdutosC_COD_UNI.AsString,
+    VpfDProduto := TRBDProduto.cria;
+    FunProdutos.CarDProduto(VpfDProduto,0,varia.CodigoEmpFil,ProdutosI_SEQ_PRO.AsInteger);
+    FunProdutos.BaixaProdutoEstoque(VpfDProduto, varia.CodigoEmpFil,VpfOperacaoEstoque,0,
+                                    0,0,VARIA.MoedaBase,0,0,date,VpfQtd,0,ProdutosC_COD_UNI.AsString,
                                     '',false,VpfSeqEstoqueBarra,true);
+    VpfDProduto.free;
     AtualizaConsulta;
   end;
 end;

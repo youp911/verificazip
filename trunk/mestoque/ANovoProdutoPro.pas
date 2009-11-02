@@ -326,6 +326,14 @@ type
     Label106: TLabel;
     EFuncaoFio: TComboBoxColor;
     ECorPreco: TRBEditLocaliza;
+    CProduto: TRadioButton;
+    CKit: TRadioButton;
+    PanelColor6: TPanelColor;
+    PanelColor7: TPanelColor;
+    PanelColor8: TPanelColor;
+    PanelColor9: TPanelColor;
+    PanelColor10: TPanelColor;
+    PanelColor11: TPanelColor;
 
     procedure PaginasChange(Sender: TObject);
     procedure PaginasChanging(Sender: TObject; var AllowChange: Boolean);
@@ -467,6 +475,7 @@ type
     procedure EQuantidadeExit(Sender: TObject);
     procedure EValRevendaExit(Sender: TObject);
     procedure EValCustoExit(Sender: TObject);
+    procedure PanelColor11Click(Sender: TObject);
   private
     VprCodClassificacao,
     VprCodClassificacaoAnterior : String;
@@ -861,6 +870,7 @@ begin
   VprDProduto.DesTipTear:= 'M';
   VprDProduto.QtdMesesGarantia := 12;
   VprDProduto.IndMonitorarEstoque := false;
+  VprDProduto.IndKit := false;
   InicializaGrades;
   // Iniciar os campos de marcação multipla para a tela não ficar suja
 end;
@@ -1537,6 +1547,10 @@ begin
   CProdutoAtivo.Checked:= VprDProduto.IndProdutoAtivo;
   LPatFoto.Caption:= VprDProduto.PatFoto;
   EDescricaoTecnica.Text:= VprDProduto.DesDescricaoTecnica;
+  if VprDProduto.IndKit then
+    CKit.Checked := true
+  else
+    CProduto.Checked := true;
 
   ECodClassificacaoExit(Self);
   ECodMoeda.Atualiza;
@@ -1762,6 +1776,11 @@ begin
   // Obs.: Não precisa carregar as páginas que trabalham apenas com grades.
 end;
 
+procedure TFNovoProdutoPro.PanelColor11Click(Sender: TObject);
+begin
+
+end;
+
 {******************************************************************************}
 procedure TFNovoProdutoPro.CarDClasseGerais;
 begin
@@ -1793,6 +1812,7 @@ begin
   VprDProduto.IndProdutoAtivo:= CProdutoAtivo.Checked;
   VprDProduto.PatFoto:= LPatFoto.Caption;
   VprDProduto.DesDescricaoTecnica:= EDescricaoTecnica.Text;
+  VprDProduto.IndKit := CKit.Checked;
 end;
 
 {******************************************************************************}
@@ -2727,6 +2747,10 @@ procedure TFNovoProdutoPro.CarProduto(VpaCodEmpresa, VpaCodFilial, VpaSeqProduto
 begin
   VprOperacao:= ocConsulta;
   FunProdutos.CarDProduto(VprDProduto,VpaCodEmpresa,VpaCodFilial,VpaSeqProduto);
+  FunProdutos.CarDCombinacao(VprDProduto);
+  FunProdutos.CarDEstagio(VprDProduto);
+  FunProdutos.CarDFornecedores(VprDProduto);
+  FunProdutos.CarAcessoriosProduto(VprDProduto);
   ECodClassificacao.EditMask:= RetornaPicture(Varia.MascaraCla,VprDProduto.CodClassificacao,'_');
   CarDTela;
   VprOperacao:= ocEdicao;

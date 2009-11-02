@@ -1018,6 +1018,7 @@ var
   VpfLaco, VpfOperacaoBaixa, VpfSeqEstoqueBarra : Integer;
   VpfDProdutoChamado : TRBDChamadoProduto;
   VpfDProdutoExtra : TRBDChamadoProdutoExtra;
+  VpfDProduto : TRBDProduto;
 begin
   result := '';
   if Varia.OperacaoSaidaProdutoBaixaChamado = 0 then
@@ -1033,13 +1034,16 @@ begin
           VpfOperacaoBaixa := Varia.OperacaoEntradaProdutoBaixaChamado
         else
           VpfOperacaoBaixa := Varia.OperacaoSaidaProdutoBaixaChamado;
-        if not FunProdutos.BaixaProdutoEstoque(VpaDChamado.CodFilial,VpfDProdutoChamado.SeqProduto,VpfOperacaoBaixa,
+        VpfDProduto := TRBDProduto.Cria;
+        FunProdutos.CarDProduto(VpfDProduto,0,VpaDChamado.CodFilial,VpfDProdutoChamado.SeqProduto);
+        if not FunProdutos.BaixaProdutoEstoque(VpfDProduto,VpaDChamado.CodFilial,VpfOperacaoBaixa,
                                     0,VpaDChamado.NumChamado,0,varia.MoedaBase,0,0,date,VpfDProdutoChamado.QtdABaixar,
-                                    0,VpfDProdutoChamado.DesUM,VpfDProdutoChamado.DesUMOriginal,'',false,VpfSeqEstoqueBarra,true,0)then
+                                    0,VpfDProdutoChamado.DesUM,'',false,VpfSeqEstoqueBarra,true,0)then
         begin
           result := 'ERRO NA BAIXA DE ESTOQUE DOS PRODUTOS DO CHAMADO!!!';
           break;
         end;
+        VpfDProduto.free;
       end;
     end;
   end;
@@ -1054,13 +1058,16 @@ begin
           VpfOperacaoBaixa := Varia.OperacaoEntradaProdutoBaixaChamado
         else
           VpfOperacaoBaixa := Varia.OperacaoSaidaProdutoBaixaChamado;
-        if not FunProdutos.BaixaProdutoEstoque(VpaDChamado.CodFilial,VpfDProdutoExtra.SeqProduto,VpfOperacaoBaixa,
+        VpfDProduto := TRBDProduto.Cria;
+        FunProdutos.CarDProduto(VpfDProduto,0,VpaDChamado.CodFilial,VpfDProdutoExtra.SeqProduto);
+        if not FunProdutos.BaixaProdutoEstoque(VpfDProduto,VpaDChamado.CodFilial,VpfOperacaoBaixa,
                                     0,VpaDChamado.NumChamado,0,varia.MoedaBase,0,0,date,VpfDProdutoExtra.QtdProduto,
-                                    0,VpfDProdutoExtra.UM,VpfDProdutoExtra.UMOriginal,'',false,VpfSeqEstoqueBarra,true,0)then
+                                    0,VpfDProdutoExtra.UM,'',false,VpfSeqEstoqueBarra,true,0)then
         begin
           result := 'ERRO NA BAIXA DE ESTOQUE DOS PRODUTOS EXTRAS!!!';
           break;
         end;
+        VpfDProduto.free;
       end;
     end;
   end;

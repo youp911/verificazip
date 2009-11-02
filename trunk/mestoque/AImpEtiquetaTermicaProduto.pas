@@ -128,9 +128,9 @@ begin
     begin
       VprDEtiqueta :=TRBDEtiquetaProduto(VprEtiquetas.Items[VpfLaco]);
       VprDProduto := VprDEtiqueta.Produto;
-      FunProdutos.BaixaProdutoEstoque(varia.CodigoEmpFil, VprDProduto.SeqProduto,Varia.OperacaoEstoqueImpressaoEtiqueta,0,0,0,
+      FunProdutos.BaixaProdutoEstoque(VprDProduto,varia.CodigoEmpFil, Varia.OperacaoEstoqueImpressaoEtiqueta,0,0,0,
                                     varia.MoedaBase,0,0,date,VprDEtiqueta.QtdProduto,VprDEtiqueta.QtdProduto*VprDProduto.VlrCusto,VprDProduto.CodUnidade,
-                                    VprDProduto.CodUnidade,'',false,VpfSeqEstoqueBarra,true);
+                                    '',false,VpfSeqEstoqueBarra,true);
     end;
     ActiveControl := EProduto;
   end;

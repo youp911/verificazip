@@ -399,9 +399,13 @@ end;
 procedure TFSolicitacaoCompra.SOLICITACAOCOMPRACORPOAfterScroll(DataSet: TDataSet);
 begin
   BAlterar.Enabled := SOLICITACAOCOMPRACORPODATAPROVACAO.IsNull;
+  BExcluir.Enabled := SOLICITACAOCOMPRACORPODATAPROVACAO.IsNull;
   PosItensSolicitacao;
   if (puAdministrador in varia.PermissoesUsuario) then
+  begin
     BAlterar.Enabled := true;
+    BExcluir.Enabled := True;
+  end;
 end;
 
 {******************************************************************************}

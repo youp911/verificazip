@@ -355,6 +355,11 @@ type
     CFGI_MOD_EPE: TFMTBCDField;
     CFGC_EAN_ACE: TWideStringField;
     DBCheckBox16: TDBCheckBox;
+    Label94: TLabel;
+    SpeedButton41: TSpeedButton;
+    Label95: TLabel;
+    DBEditLocaliza36: TDBEditLocaliza;
+    CFGI_EST_REI: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

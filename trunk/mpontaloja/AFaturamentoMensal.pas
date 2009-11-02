@@ -120,6 +120,7 @@ end;
 {******************************************************************************}
 procedure TFFaturamentoMensal.AtualizaConsulta;
 begin
+  ContratoProcessado.close;
   ContratoProcessado.SQL.Clear;
   ContratoProcessado.SQL.Add('select CON.CODFILIAL, CON.SEQPROCESSADO, CON.DATPROCESSADO, USU.C_NOM_USU '+
                              ' from CONTRATOPROCESSADOCORPO CON, CADUSUARIOS USU '+
@@ -133,6 +134,7 @@ end;
 {******************************************************************************}
 procedure TFFaturamentoMensal.PosConsultaItem;
 begin
+  ItensProcessados.Close;
   ItensProcessados.Sql.Clear;
   ItensProcessados.Sql.add('select CON.CODFILIAL,CON.INDPROCESSADO, CON.DESERRO, ' +
                            ' ORC.I_LAN_ORC, ORC.N_VLR_TOT, ORC.C_NRO_NOT, '+

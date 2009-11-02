@@ -462,12 +462,15 @@ end;
 procedure TFNovoECF.ExtornaEstoqueItem;
 var
   VpfSeqEstoqueBarra : Integer;
+  VpfDProduto : TRBDProduto;
 begin
   if (not VprOrcamento) and (config.BaixarEstoqueECF) then
   begin
-    FunProdutos.BaixaProdutoEstoque(CadNotaFiscalI_EMP_FIL.AsInteger, MostraItensI_SEQ_PRO.AsInteger,Varia.OperacaoEstoqueEstornoEntrada,CadNotaFiscalI_SEQ_NOT.AsInteger,
+    VpfDProduto := TRBDProduto.Cria;
+    FunProdutos.CarDProduto(VpfDProduto,0,CadNotaFiscalI_EMP_FIL.AsInteger, MostraItensI_SEQ_PRO.AsInteger);
+    FunProdutos.BaixaProdutoEstoque(VpfDProduto, CadNotaFiscalI_EMP_FIL.AsInteger, Varia.OperacaoEstoqueEstornoEntrada,CadNotaFiscalI_SEQ_NOT.AsInteger,
                                   CadNotaFiscalI_NRO_NOT.AsInteger,0,varia.MoedaBase,0,0,date,MostraItensN_QTD_PRO.AsFloat,MostraItensN_TOT_PRO.AsFloat,
-                                  MostraItensC_COD_UNI.AsString,FunProdutos.UnidadePadrao(MostraItensI_SEQ_PRO.AsInteger),MostraItensC_PRO_REF.AsString,false,VpfSeqEstoqueBarra,true);
+                                  MostraItensC_COD_UNI.AsString,MostraItensC_PRO_REF.AsString,false,VpfSeqEstoqueBarra,true);
   end;
   FunProdutos.BaixaEstoqueFiscal(CadNotaFiscalI_EMP_FIL.AsInteger, MostraItensI_SEQ_PRO.AsInteger,0,0,MostraItensN_QTD_PRO.AsFloat,MostraItensC_COD_UNI.AsString,
                                  FunProdutos.UnidadePadrao(MostraItensI_SEQ_PRO.AsInteger),'E');
@@ -962,6 +965,7 @@ var
   VpfPerAliquota,VpfTipDesconto : String;
   VPFCODIGO,VPFNOME,VPFALIQUOTA,VPFTIPOQTD,VPFQUANTIDADE,VPFVALUNITARIO,VPFTIPODESCONTO,VPFVALDESCONTO :STRING;
   VpfDecimais, VpfSeqEstoqueBarra : integer;
+  VpfDProduto : TRBDProduto;
 begin
   VpfResultado := DadosItensValidos;
   if VpfResultado = '' then
@@ -982,10 +986,14 @@ begin
         MovNotasFiscaisI_SEQ_MOV.AsInteger := FunNotaFiscal.RSeqMovNotaFiscalDisponivel(MovNotasFiscaisI_EMP_FIL.AsInteger,MovNotasFiscaisI_SEQ_NOT.AsInteger);
         MovNotasFiscais.Post;
         if (config.BaixarEstoqueECF) then
-          FunProdutos.BaixaProdutoEstoque(CadNotaFiscalI_EMP_FIL.AsInteger, MovNotasFiscaisI_SEQ_PRO.AsInteger,varia.CodOperacaoEstoqueECF,
+        begin
+          VpfDProduto := TRBDProduto.cria;
+          FunProdutos.CarDProduto(VpfDProduto,0,CadNotaFiscalI_EMP_FIL.AsInteger, MovNotasFiscaisI_SEQ_PRO.AsInteger);
+          FunProdutos.BaixaProdutoEstoque(VpfDProduto,CadNotaFiscalI_EMP_FIL.AsInteger, varia.CodOperacaoEstoqueECF,
                                         MovNotasFiscaisI_SEQ_NOT.AsInteger,CadNotaFiscalI_NRO_NOT.AsInteger,0,varia.MoedaBase,
                                         0,0,Date,MovNotasFiscaisN_QTD_PRO.AsFloat,MovNotasFiscaisN_TOT_PRO.AsFloat,
-                                        MovNotasFiscaisC_COD_UNI.asString,VprUMOriginal,'',false,VpfSeqEstoqueBarra,true);
+                                        MovNotasFiscaisC_COD_UNI.asString,'',false,VpfSeqEstoqueBarra,true);
+        end;
 
         FunProdutos.BaixaEstoqueFiscal(CadNotaFiscalI_EMP_FIL.AsInteger, MovNotasFiscaisI_SEQ_PRO.AsInteger,0,0,MovNotasFiscaisN_QTD_PRO.AsFloat,
                                        MovNotasFiscaisC_COD_UNI.asString,VprUMOriginal,'S');

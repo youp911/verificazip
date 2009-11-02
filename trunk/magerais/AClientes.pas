@@ -92,6 +92,13 @@ type
     ImprimirEnvelope1: TMenuItem;
     ImprimirEnvelopeCobrana1: TMenuItem;
     ImprimirEnvelopeEntrega1: TMenuItem;
+    N9: TMenuItem;
+    MExcluirRamoAtividade: TMenuItem;
+    CadClientesI_COD_RAM: TFMTBCDField;
+    SpeedButton2: TSpeedButton;
+    Label8: TLabel;
+    ERamoAtividade: TRBEditLocaliza;
+    Label9: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -132,6 +139,8 @@ type
     procedure ImprimirEnvelope1Click(Sender: TObject);
     procedure ImprimirEnvelopeCobrana1Click(Sender: TObject);
     procedure ImprimirEnvelopeEntrega1Click(Sender: TObject);
+    procedure CadClientesAfterScroll(DataSet: TDataSet);
+    procedure MExcluirRamoAtividadeClick(Sender: TObject);
   private
     VprOrdem,
     VprNomCliente,
@@ -376,6 +385,8 @@ begin
                     ' C_FO2_CLI LIKE '''+ETelefone.Text+'%''or '+
                     ' C_FO3_CLI LIKE '''+ETelefone.Text+'%''or '+
                     ' C_FON_FAX LIKE '''+ETelefone.Text+'%'')');
+    if ERamoAtividade.AInteiro <> 0 then
+      VpaSelect.Add(' and I_COD_RAM = '+ERamoAtividade.Text);
   end;
   if (puSomenteClientesdoVendedor in varia.PermissoesUsuario) then
     VpaSelect.Add('and I_COD_VEN in '+varia.CodigosVendedores);
@@ -527,6 +538,16 @@ begin
   end;
 end;
 
+procedure TFClientes.MExcluirRamoAtividadeClick(Sender: TObject);
+begin
+  if confirmacao('Tem certeza que deseja excluir todos os clientes do mesmo ramo de atividade?') then
+  begin
+    FunClientes.ExcluiClientesRamoAtividade(CadClientesI_COD_RAM.AsInteger);
+    ERamoAtividade.Clear;
+    AtualizaConsulta;
+  end;
+end;
+
 {******************************************************************************}
 procedure TFClientes.BChamadosClick(Sender: TObject);
 begin
@@ -575,6 +596,13 @@ begin
     FProdutosReserva.ProdutosReserva(CadClientesI_COD_CLI.AsInteger);
     FProdutosReserva.Free;
   end;
+end;
+
+
+{******************************************************************************}
+procedure TFClientes.CadClientesAfterScroll(DataSet: TDataSet);
+begin
+  MExcluirRamoAtividade.Enabled := CadClientesI_COD_RAM.AsInteger <> 0;
 end;
 
 {******************************************************************************}

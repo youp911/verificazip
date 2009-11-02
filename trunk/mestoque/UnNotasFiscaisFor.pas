@@ -574,6 +574,7 @@ var
   VpfDNota : TRBDNotaFiscalFor;
   VpfDProdutoNota : TRBDNotaFiscalForItem;
   VpfLaco,VpfSeqBarra : Integer;
+  VpfDProduto : TRBDProduto;
 begin
   VpfDNota := TRBDNotaFiscalFor.cria;
   VpfDNota.CodFilial := VpaCodFilial;
@@ -584,11 +585,14 @@ begin
     for VpfLaco := 0 to VpfDNota.ItensNota.Count - 1 do
     begin
       VpfDProdutoNota := TRBDNotaFiscalForItem(VpfDNota.ItensNota.Items[VpfLaco]);
-        FunProdutos.BaixaProdutoEstoque( VpfDNota.CodFilial, VpfDProdutoNota.SeqProduto,varia.OperacaoEstoqueEstornoSaida,
+      VpfDProduto := TRBDProduto.Cria;
+      FunProdutos.CarDProduto(VpfDProduto,0,VpfDNota.CodFilial,VpfDProdutoNota.SeqProduto);
+      FunProdutos.BaixaProdutoEstoque( VpfDProduto,VpfDNota.CodFilial,varia.OperacaoEstoqueEstornoSaida,
                                          VpfDNota.SeqNota, VpfDNota.NumNota,0,varia.MoedaBase,VpfDProdutoNota.CodCor,VpfDProdutoNota.CodTamanho,
                                          Date, VpfDProdutoNota.QtdProduto,
                                          VpfDProdutoNota.ValTotal, VpfDProdutoNota.UM ,
-                                         VpfDProdutoNota.UMOriginal,VpfDProdutoNota.DesNumSerie,true,VpfSeqBarra);
+                                         VpfDProdutoNota.DesNumSerie,true,VpfSeqBarra);
+      VpfDProduto.free;
     end;
   end;
   EstornaEstoqueFiscal(VpfDNota);
@@ -873,6 +877,7 @@ var
   VpfLaco,VpfSeqEstoqueBarra : Integer;
   VpfValDescontoNota : Double;
   VpfDItemNota : TRBDNotaFiscalForItem;
+  VpfDProduto : TRBDProduto;
 begin
   result := '';
   if VpaDNotaFor.DNaturezaOperacao.IndBaixarEstoque then
@@ -884,11 +889,14 @@ begin
                                      VpfDItemNota.UMOriginal,VpfDItemNota.um,VpaDNotaFor.DNaturezaOperacao.FuncaoOperacaoEstoque,
                                      VpfDItemNota.CodCor,VpfDItemNota.CodTamanho,VpfDItemNota.QtdProduto,VpfDItemNota.ValUnitario,VpaDNotaFor.ValTotal,VpaDNotaFor.ValFrete,
                                      VpfDItemNota.PerICMS,VpfDItemNota.PerIPI,VpaDNotaFor.ValDescontoCalculado,VpaDNotaFor.IndFreteEmitente);
-      FunProdutos.BaixaProdutoEstoque( VpaDNotaFor.CodFilial, VpfDItemNota.SeqProduto,VpaDNotaFor.DNaturezaOperacao.CodOperacaoEstoque,
+      VpfDProduto := TRBDProduto.Cria;
+      FunProdutos.CarDProduto(VpfDProduto,0,VpaDNotaFor.CodFilial,VpfDItemNota.SeqProduto);
+      FunProdutos.BaixaProdutoEstoque( VpfDProduto, VpaDNotaFor.CodFilial, VpaDNotaFor.DNaturezaOperacao.CodOperacaoEstoque,
                                        VpaDNotaFor.SeqNota, VpaDNotaFor.NumNota,0,varia.MoedaBase,VpfDItemNota.CodCor,VpfDItemNota.CodTamanho,
                                        Date, VpfDItemNota.QtdProduto,
                                        VpfDItemNota.ValTotal, VpfDItemNota.UM ,
-                                       VpfDItemNota.UMOriginal,VpfDItemNota.DesNumSerie,true,VpfSeqEstoqueBarra);
+                                       VpfDItemNota.DesNumSerie,true,VpfSeqEstoqueBarra);
+      VpfDProduto.free;
     end;
   end;
   if result = '' then

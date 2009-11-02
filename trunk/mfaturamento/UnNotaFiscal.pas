@@ -2390,6 +2390,7 @@ end;
 procedure TFuncoesNotaFiscal.BaixaEstoqueDevolucao(VpaCodFilial, VpaSeqNota : Integer; VpaNatureza, BaixaEstoque : String; VpaCodOpe : Integer);
 var
   VpfSeqEstoqueBarra : Integer;
+  VpfDProduto : TRBDProduto;
 begin
   if BaixaEstoque = 'S' Then
   begin
@@ -2404,8 +2405,11 @@ begin
                         ' and Cad.I_Seq_Not = Mov.I_Seq_Not');
     while not CadNotaFiscal.eof do
     begin
-      FunProdutos.BaixaProdutoEstoque(CadNotaFiscal.FieldByname('I_EMP_FIL').AsInteger,
-                                   CadNotaFiscal.FieldByName('I_Seq_Pro').Asinteger,VpaCodOpe,
+      VpfDProduto := TRBDProduto.Cria;
+      FunProdutos.CarDProduto(VpfDProduto,varia.codigoempresa,CadNotaFiscal.FieldByname('I_EMP_FIL').AsInteger,CadNotaFiscal.FieldByName('I_Seq_Pro').Asinteger);
+      FunProdutos.BaixaProdutoEstoque(VpfDProduto,
+                                   CadNotaFiscal.FieldByname('I_EMP_FIL').AsInteger,
+                                   VpaCodOpe,
                                    CAdNotaFiscal.FieldByName('I_Seq_Not').AsInteger,
                                    CAdNotaFiscal.FieldByName('I_Nro_Not').AsInteger,0,
                                    Varia.MoedaBase, CAdNotaFiscal.FieldByName('I_COD_COR').AsInteger,
@@ -2414,7 +2418,8 @@ begin
                                    CAdNotaFiscal.FieldByName('N_Qtd_Pro').AsFloat,
                                    CAdNotaFiscal.FieldByName('N_Tot_Pro').AsFloat,
                                    CAdNotaFiscal.FieldByName('UnidadeMov').AsString,
-                                   CAdNotaFiscal.FieldByName('UnidadePro').AsString,CAdNotaFiscal.FieldByName('C_PRO_REF').AsString,false,VpfSeqEstoqueBarra);
+                                   CAdNotaFiscal.FieldByName('C_PRO_REF').AsString,false,VpfSeqEstoqueBarra);
+      VpfDProduto.free;
       CadNotaFiscal.next;
     end;
     CadNotaFiscal.close;

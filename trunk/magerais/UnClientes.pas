@@ -68,6 +68,7 @@ Type TRBFuncoesClientes = class(TRBLocalizaClientes)
     function RCodCidade(VpaNomCidade, VpaDesUF : String ):integer;
     procedure ExcluiCliente(VpaCodClienteAExcluir,VpaCodClienteHistorico : Integer;VpaBarraStatus : TStatusBar);
     procedure ExcluiSuspect(VpaCodSuspect : Integer);
+    procedure ExcluiClientesRamoAtividade(VpaCodRamoAtividade : integer);
     function RDDDCliente(VpaNumTelefone : String ):String;
     function RTelefoneSemDDD(VpaNumTelefone : String):String;
     function RCGCCPFCliente(VpaCodCliente : Integer) : String;
@@ -1020,6 +1021,20 @@ begin
   end;
 end;
 
+
+procedure TRBFuncoesClientes.ExcluiClientesRamoAtividade(VpaCodRamoAtividade: integer);
+Var
+  VpfQtdClientes : Integer;
+begin
+  AdicionaSQLAbreTabela(CliAux,'select count(*) QTD from CADCLIENTES '+
+                           ' Where I_COD_RAM = '+IntToStr(VpaCodRamoAtividade));
+  VpfQtdClientes := CliAux.FieldByName('QTD').AsInteger;
+  ExecutaComandoSql(CliAux,'Delete from CADCLIENTES '+
+                           ' Where I_COD_RAM = '+IntToStr(VpaCodRamoAtividade));
+  aviso(IntToStr(VpfQtdClientes)+ ' clientes excluídos');
+  ExecutaComandoSql(CliAux,'Delete from RAMO_ATIVIDADE '+
+                           ' Where COD_RAMO_ATIVIDADE = '+IntToStr(VpaCodRamoAtividade));
+end;
 
 {******************************************************************************}
 procedure TRBFuncoesClientes.ExcluiSuspect(VpaCodSuspect : Integer);

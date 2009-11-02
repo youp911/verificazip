@@ -466,6 +466,12 @@ begin
                                                       else
                                                         if (VPANOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO') then
                                                           AlterarVisibleDet([PPeriodo],true)
+                                                      else
+                                                        if (VPANOMRELATORIO = 'PROSPECTS POR CEP') then
+                                                        begin
+                                                          AlterarVisibleDet([PCheckBox1],true);
+                                                          CheckBox1.Caption := 'Somente prospects não visitados';
+                                                        end;
 end;
 
 
@@ -579,7 +585,13 @@ begin
                                                           FunRave.ImprimeTotaAmostrasPorVendedor(EVendedor.AInteiro,VprCaminhoRelatorio,LVendedor.caption,CDataIni.Date,CDataFim.Date)
                                                         else
                                                           if (VPRNOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO') then
-                                                            FunRave.ImprimeContasAPagarPorPlanoContasSintetico(CDataIni.Date,CDataFim.Date,VprCaminhoRelatorio);
+                                                            FunRave.ImprimeContasAPagarPorPlanoContasSintetico(CDataIni.Date,CDataFim.Date,VprCaminhoRelatorio)
+                                                          else
+                                                            if (VPRNOMRELATORIO = 'TOTAL PROSPECTS POR RAMO ATIVIDADE') then
+                                                              dtRave.ImprimeTotalProspectPorRamoAtividade(VprCaminhoRelatorio)
+                                                            else
+                                                              if (VPRNOMRELATORIO = 'PROSPECTS POR CEP') then
+                                                                dtRave.ImprimeProspectPorCeP(CheckBox1.Checked,VprCaminhoRelatorio);
   dtRave.free;
 end;
 

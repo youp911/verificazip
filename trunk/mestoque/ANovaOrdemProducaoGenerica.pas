@@ -190,6 +190,7 @@ begin
   begin
     EEntregaPrevista.DateTime := VprDFracaoOP.DatEntrega;
     EProduto.Text := VprDFracaoOP.CodProduto;
+    EFracao.AsInteger := VprDFracaoOP.SeqFracao;
     LProduto.Caption := VprDFracaoOP.NomProduto;
     VprSeqProdutoAnterior := VprDFracaoOP.SeqProduto;
     EQtd.AValor := VprDFracaoOP.QtdProduto;

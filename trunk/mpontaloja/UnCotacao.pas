@@ -914,6 +914,7 @@ function TFuncoesCotacao.EstornaEstoqueOrcamento(VpaDCotacao : TRBDOrcamento):St
 var
   VpfDProdutoOrc : TRBDOrcProduto;
   VpfLaco,VpfSeqEstoqueBarra : Integer;
+  VpfDProduto : TRBDProduto;
 begin
   result := funprodutos.OperacoesEstornoValidas;
   if result = '' then
@@ -923,11 +924,14 @@ begin
       VpfDProdutoOrc := TRBDOrcProduto(VpaDCotacao.Produtos.Items[vpflaco]);
       if VpfDProdutoOrc.QtdBaixado > 0 then
       begin
-        FunProdutos.BaixaProdutoEstoque(VpaDCotacao.CodEmpFil, VpfDProdutoOrc.SeqProduto,varia.OperacaoEstoqueEstornoEntrada,0,
+        VpfDProduto := TRBDProduto.Cria;
+        FunProdutos.CarDProduto(VpfDProduto,0,VpaDCotacao.CodEmpFil,VpfDProdutoOrc.SeqProduto);
+        FunProdutos.BaixaProdutoEstoque(VpfDProduto, VpaDCotacao.CodEmpFil, varia.OperacaoEstoqueEstornoEntrada,0,
                                       VpaDCotacao.LanOrcamento,VpaDCotacao.LanOrcamento,varia.MoedaBase,VpfDProdutoOrc.CodCor,
                                       VpfDProdutoOrc.CodTamanho, date,VpfDProdutoOrc.QtdBaixado,VpfDProdutoOrc.ValTotal,
                                       VpfDProdutoOrc.UM,
-                                      VpfDProdutoOrc.UMOriginal,VpfDProdutoOrc.DesRefCliente, false,VpfSeqEstoqueBarra);
+                                      VpfDProdutoOrc.DesRefCliente, false,VpfSeqEstoqueBarra);
+        VpfDProduto.free;
       end;
     end;
   end;
@@ -985,6 +989,7 @@ function TFuncoesCotacao.BaixaProdutosOrcamentoQueVirouVenda(VpaDCotacaoInicial,
 var
   VpfLaco,VpfSeqEstoqueBarra : Integer;
   VpfDProdutoOrc : TRBDOrcProduto;
+  VpfDProduto : TRBDProduto;
 begin
   result := FunProdutos.OperacoesEstornoValidas;
   if result = '' then
@@ -994,19 +999,22 @@ begin
       for VpfLaco := 0 to VpaDCotacaoInicial.Produtos.Count - 1 do
       begin
         VpfDProdutoOrc := TRBDOrcProduto(VpaDCotacaoInicial.Produtos.Items[VpfLaco]);
+        VpfDProduto := TRBDProduto.Cria;
+        FunProdutos.CarDProduto(VpfDProduto,0,VpaDCotacao.CodEmpFil,VpfDProdutoOrc.SeqProduto);
         if VpaDCotacaoInicial.DatOrcamento > Varia.DataUltimoFechamento then
         begin
           FunProdutos.ExcluiMovimentoEstoqueCotacao(VpaDCotacaoInicial.CodEmpFil,VpfDProdutoOrc.SeqProduto,VpaDCotacaoInicial.LanOrcamento,VpfDProdutoOrc.CodCor);
-          FunProdutos.BaixaProdutoEstoque(VpaDCotacaoInicial.CodEmpFil,VpfDProdutoOrc.SeqProduto,Varia.OperacaoEstoqueEstornoEntrada,0,
+          FunProdutos.BaixaProdutoEstoque(VpfDProduto, VpaDCotacaoInicial.CodEmpFil,Varia.OperacaoEstoqueEstornoEntrada,0,
                                             VpaDCotacaoInicial.LanOrcamento,VpaDCotacaoInicial.LanOrcamento,varia.MoedaBase,VpfDProdutoOrc.CodCor, VpfDProdutoOrc.CodTamanho,
                                             date,VpfDProdutoOrc.QtdProduto,VpfDProdutoOrc.ValTotal,
-                                            VpfDProdutoOrc.UM,VpfDProdutoOrc.UMOriginal,VpfDProdutoOrc.DesRefCliente, false,VpfSeqEstoqueBarra,false);
-          end
-          else
-            FunProdutos.BaixaProdutoEstoque(VpaDCotacaoInicial.CodEmpFil, VpfDProdutoOrc.SeqProduto,Varia.OperacaoEstoqueEstornoEntrada,0,
-                                            VpaDCotacaoInicial.LanOrcamento,VpaDCotacaoInicial.LanOrcamento,varia.MoedaBase,VpfDProdutoOrc.CodCor, VpfDProdutoOrc.CodTamanho,
-                                            date,VpfDProdutoOrc.QtdProduto,VpfDProdutoOrc.ValTotal,
-                                            VpfDProdutoOrc.UM,VpfDProdutoOrc.UMOriginal,VpfDProdutoOrc.DesRefCliente, false,VpfSeqEstoqueBarra,true);
+                                            VpfDProdutoOrc.UM,VpfDProdutoOrc.DesRefCliente, false,VpfSeqEstoqueBarra,false);
+        end
+        else
+          FunProdutos.BaixaProdutoEstoque(VpfDProduto,VpaDCotacaoInicial.CodEmpFil, Varia.OperacaoEstoqueEstornoEntrada,0,
+                                          VpaDCotacaoInicial.LanOrcamento,VpaDCotacaoInicial.LanOrcamento,varia.MoedaBase,VpfDProdutoOrc.CodCor, VpfDProdutoOrc.CodTamanho,
+                                          date,VpfDProdutoOrc.QtdProduto,VpfDProdutoOrc.ValTotal,
+                                          VpfDProdutoOrc.UM,VpfDProdutoOrc.DesRefCliente, false,VpfSeqEstoqueBarra,true);
+        VpfDProduto.free;
       end;
     end
     else
@@ -1015,11 +1023,13 @@ begin
         for VpfLaco := 0 to VpaDCotacao.Produtos.Count - 1 do
         begin
           VpfDProdutoOrc := TRBDOrcProduto(VpaDCotacao.Produtos.Items[VpfLaco]);
-          FunProdutos.BaixaProdutoEstoque(VpaDCotacao.CodEmpFil,VpfDProdutoOrc.SeqProduto,Varia.OperacaoEstoqueEstornoSaida,0,
+          VpfDProduto := TRBDProduto.Cria;
+          FunProdutos.CarDProduto(VpfDProduto,0,VpaDCotacao.CodEmpFil,VpfDProdutoOrc.SeqProduto);
+          FunProdutos.BaixaProdutoEstoque(VpfDProduto, VpaDCotacao.CodEmpFil,Varia.OperacaoEstoqueEstornoSaida,0,
                                             VpaDCotacaoInicial.LanOrcamento,VpaDCotacaoInicial.LanOrcamento,varia.MoedaBase,VpfDProdutoOrc.CodCor,VpfDProdutoOrc.CodTamanho,
                                             date,VpfDProdutoOrc.QtdProduto,VpfDProdutoOrc.ValTotal,
-                                            VpfDProdutoOrc.UM,VpfDProdutoOrc.UMOriginal,VpfDProdutoOrc.DesRefCliente, false,VpfSeqEstoqueBarra,true);
-
+                                            VpfDProdutoOrc.UM,VpfDProdutoOrc.DesRefCliente, false,VpfSeqEstoqueBarra,true);
+          VpfDProduto.free;
         end;
       end;
   end;
@@ -1612,14 +1622,14 @@ begin
       begin
         VpfDProduto := TRBDProduto.Cria;
         FunProdutos.CarDProduto(VpfDProduto,varia.CodigoEmpresa,VpaDCotacao.CodEmpFil,VpfDCartucho.SeqProdutoTrocado);
-        FunProdutos.BaixaProdutoEstoque(VpaDCotacao.CodEmpFil,VpfDCartucho.SeqProdutoTrocado,varia.OperacaoAcertoEstoqueEntrada,
+        FunProdutos.BaixaProdutoEstoque(VpfDProduto,VpaDCotacao.CodEmpFil,varia.OperacaoAcertoEstoqueEntrada,
                                          0,VpaDCotacao.LanOrcamento,VpaDCotacao.LanOrcamento,
-                                         varia.MoedaBase,0,0,now,1,0,VpfDProduto.CodUnidade,VpfDProduto.CodUnidade,
+                                         varia.MoedaBase,0,0,now,1,0,VpfDProduto.CodUnidade,
                                          '',false,VpfSeqEstoqueBarra,true);
         FunProdutos.CarDProduto(VpfDProduto,varia.CodigoEmpresa,VpaDCotacao.CodEmpFil,VpfDCartucho.SeqProduto);
-        FunProdutos.BaixaProdutoEstoque(VpaDCotacao.CodEmpFil,VpfDCartucho.SeqProduto,varia.OperacaoAcertoEstoqueSaida,
+        FunProdutos.BaixaProdutoEstoque(VpfDProduto,VpaDCotacao.CodEmpFil,varia.OperacaoAcertoEstoqueSaida,
                                          0,VpaDCotacao.LanOrcamento,VpaDCotacao.LanOrcamento,
-                                         varia.MoedaBase,0,0,now,1,0,VpfDProduto.CodUnidade,VpfDProduto.CodUnidade,
+                                         varia.MoedaBase,0,0,now,1,0,VpfDProduto.CodUnidade,
                                          '',false,VpfSeqEstoqueBarra,true);
         VpfDProduto.free;
       end;
@@ -1691,22 +1701,31 @@ function TFuncoesCotacao.BaixaEstoqueSaldoAlteracao(VpaDSaldo : TRBDOrcamento) :
 var
   VpfLaco,VpfSeqEstoqueBarra : Integer;
   VpfDProCotacao : TRBDOrcProduto;
+  VpfDProduto : TRBDProduto;
 begin
   result := '';
   for VpfLaco := 0 to VpaDSaldo.Produtos.Count - 1 do
   begin
     VpfDProCotacao := TRBDOrcProduto(VpaDSaldo.Produtos.Items[VpfLaco]);
+    VpfDProduto := TRBDProduto.Cria;
     if VpfDProCotacao.QtdProduto > 0 then
-      FunProdutos.BaixaProdutoEstoque(VpaDSaldo.CodEmpFil, VpfDProCotacao.SeqProduto,varia.OperacaoEstoqueEstornoEntrada,0,
+    begin
+      FunProdutos.CarDProduto(VpfDProduto,0,VpaDSaldo.CodEmpFil, VpfDProCotacao.SeqProduto);
+      FunProdutos.BaixaProdutoEstoque(VpfDProduto,VpaDSaldo.CodEmpFil, varia.OperacaoEstoqueEstornoEntrada,0,
                                     VpaDSaldo.LanOrcamento,VpaDSaldo.LanOrcamento,varia.MoedaBase,VpfDProCotacao.CodCor,VpfDProCotacao.CodTamanho,
                                     date,VpfDProCotacao.QtdProduto ,VpfDProCotacao.QtdProduto *VpfDProCotacao.ValUnitario,
-                                    VpfDProCotacao.UM,VpfDProCotacao.UMOriginal,VpfDProCotacao.DesRefCliente, false,VpfSeqEstoqueBarra)
+                                    VpfDProCotacao.UM,VpfDProCotacao.DesRefCliente, false,VpfSeqEstoqueBarra)
+    end
     else
       if VpfDProCotacao.QtdProduto < 0 then
-        FunProdutos.BaixaProdutoEstoque(VpaDSaldo.CodEmpFil, VpfDProCotacao.SeqProduto,varia.OperacaoEstoqueEstornoSaida,0,
+      begin
+        FunProdutos.CarDProduto(VpfDProduto,0,VpaDSaldo.CodEmpFil, VpfDProCotacao.SeqProduto);
+        FunProdutos.BaixaProdutoEstoque(VpfDProduto, VpaDSaldo.CodEmpFil,varia.OperacaoEstoqueEstornoSaida,0,
                                     VpaDSaldo.LanOrcamento,VpaDSaldo.LanOrcamento,varia.MoedaBase,VpfDProCotacao.CodCor,VpfDProCotacao.CodTamanho,
                                     date,VpfDProCotacao.QtdProduto*-1 ,(VpfDProCotacao.QtdProduto *-1) *VpfDProCotacao.ValUnitario,
-                                    VpfDProCotacao.UM,VpfDProCotacao.UMOriginal,VpfDProCotacao.DesRefCliente, false,VpfSeqEstoqueBarra)
+                                    VpfDProCotacao.UM,VpfDProCotacao.DesRefCliente, false,VpfSeqEstoqueBarra)
+      end;
+    VpfDProduto.free;
   end;
 end;
 
@@ -2651,6 +2670,7 @@ end;
 function TFuncoesCotacao.ExcluiBaixaParcialCotacao(VpaCodFilial, VpaLanOrcamento, VpaSeqParcial : Integer) : string;
 var
   VpfSeqEstoqueBarra : Integer;
+  VpfDProduto : TRBDProduto;
 begin
   result := FunProdutos.OperacoesEstornoValidas;
   if result = '' then
@@ -2668,11 +2688,14 @@ begin
                                     ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO ');
     While not Orcamento.eof do
     begin
-      FunProdutos.BaixaProdutoEstoque(VpaCodFilial, Orcamento.FieldByName('I_SEQ_PRO').AsInteger,varia.OperacaoEstoqueEstornoEntrada,0,
+      VpfDProduto := TRBDProduto.Cria;
+      FunProdutos.CarDProduto(VpfDProduto,0,VpaCodFilial,Orcamento.FieldByName('I_SEQ_PRO').AsInteger);
+      FunProdutos.BaixaProdutoEstoque(VpfDProduto, VpaCodFilial, varia.OperacaoEstoqueEstornoEntrada,0,
                                       VpaLanOrcamento ,VpaLanOrcamento ,varia.MoedaBase,Orcamento.FieldByName('I_COD_COR').AsInteger,
                                       Orcamento.FieldByName('I_COD_TAM').AsInteger,
                                       date,Orcamento.FieldByName('QTDPARCIAL').AsFloat,Orcamento.FieldByName('QTDPARCIAL').AsFloat * Orcamento.FieldByName('N_VLR_PRO').AsFloat,
-                                      Orcamento.FieldByName('C_COD_UNI').AsString ,Orcamento.FieldByName('UNIORIGINAL').AsString,Orcamento.FieldByName('C_PRO_REF').AsString, false,VpfSeqEstoqueBarra);
+                                      Orcamento.FieldByName('C_COD_UNI').AsString ,Orcamento.FieldByName('C_PRO_REF').AsString, false,VpfSeqEstoqueBarra);
+      VpfDProduto.free;
       Orcamento.next;
     end;
     Orcamento.Close;
@@ -2786,10 +2809,14 @@ end;
 function TFuncoesCotacao.GeraFinanceiroParcial(VpaDOrcamento : TRBDOrcamento;VpaFunContaAReceber : TFuncoesContasAReceber;VpaSeqParcial : Integer;var VpaResultado : String):Boolean;
 Var
   VpfDContaReceber : TRBDContasCR;
+  VpfDCliente : TRBDCliente;
 begin
   VpaResultado := '';
   if VpaDOrcamento.CodPlanoContas <> '' then
   begin
+    VpfDCliente := TRBDCliente.cria;
+    VpfDCliente.CodCliente := VpaDOrcamento.CodCliente;
+    FunClientes.CarDCliente(VpfDCliente,false,false);
     VpfDContaReceber := TRBDContasCR.Cria;
     VpfDContaReceber.CodEmpFil := Varia.CodigoEmpFil;
     VpfDContaReceber.NroNota := VpaDOrcamento.LanOrcamento;
@@ -2805,7 +2832,22 @@ begin
     VpfDContaReceber.DatEmissao := date;
     VpfDContaReceber.PlanoConta := VpaDOrcamento.CodPlanoContas;
     VpfDContaReceber.DesObservacao := 'Parcial "'+ IntToStr(VpaSeqParcial) +'" do Romaneio "'+IntToStr(VpaDOrcamento.LanOrcamento)+'"';
-    VpfDContaReceber.ValTotal := VpaDOrcamento.ValTotal;
+    if config.QuandoForQuartodeNotanoRomaneioFazeroValorFaltante then
+    begin
+      if VpfdCliente.IndQuarto then
+        VpfDContaReceber.ValTotal := VpaDOrcamento.ValTotal * 0.75
+      else
+        if VpfDCliente.IndMeia then
+          VpfDContaReceber.ValTotal := VpaDOrcamento.ValTotal * 0.5
+        else
+          if VpfDCliente.IndVintePorcento then
+            VpfDContaReceber.ValTotal := VpaDOrcamento.ValTotal * 0.8
+          else
+            VpfDContaReceber.ValTotal := VpaDOrcamento.ValTotal;
+    end
+    else
+      VpfDContaReceber.ValTotal := VpaDOrcamento.ValTotal;
+
     VpfDContaReceber.PercentualDesAcr := 0;
     VpfDContaReceber.MostrarParcelas := true;
     VpfDContaReceber.IndGerarComissao := true;
@@ -2831,6 +2873,7 @@ begin
     VpfDContaReceber.EsconderConta := true;
     if VpfDContaReceber.ValTotal <> 0 then
       result := VpaFunContaAReceber.CriaContasaReceber(VpfDContaReceber,VpaResultado,true);
+    VpfDCliente.free;
   end
   else
     result := true;
@@ -2842,6 +2885,7 @@ var
   VpfDProdutoOrc : TRBDOrcProduto;
   VpfLaco, VpfSeqEstoqueBarra : Integer;
   VpfIndice,VpfValTotalItem : Double;
+  VpfDProduto : TRBDProduto;
 begin
   result := '';
   if VpaDOrcamento.CodOperacaoEstoque <> 0 then
@@ -2858,7 +2902,9 @@ begin
         VpfValTotalItem := (VpfDProdutoOrc.ValTotal);
         //adicina indide de acrescimo ou desconto conforme a cotacao
         VpfValTotalItem := VpfValTotalItem + ((VpfValTotalItem*VpfIndice)/100);
-        FunProduto.BaixaProdutoEstoque(VpaDOrcamento.CodEmpFil, VpfDProdutoOrc.SeqProduto,
+        VpfDProduto := TRBDProduto.Cria;
+        FunProduto.CarDProduto(VpfDProduto,0,VpaDOrcamento.CodEmpFil,VpfDProdutoOrc.SeqProduto);
+        FunProduto.BaixaProdutoEstoque(VpfDProduto, VpaDOrcamento.CodEmpFil,
                                         VpaDOrcamento.CodOperacaoEstoque,
                                         0,
                                         VpaDOrcamento.LanOrcamento,VpaDOrcamento.LanOrcamento,
@@ -2866,7 +2912,8 @@ begin
                                         VpfDProdutoOrc.QtdProduto,
                                         VpfValTotalItem,
                                         VpfDProdutoOrc.UM,
-                                        VpfDProdutoOrc.UMOriginal,VpfDProdutoOrc.DesRefCliente,false,VpfSeqEstoqueBarra);
+                                        VpfDProdutoOrc.DesRefCliente,false,VpfSeqEstoqueBarra);
+        VpfDProduto.free;
       end;
     end;
   end;

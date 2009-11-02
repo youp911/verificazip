@@ -4,6 +4,7 @@ object dtRave: TdtRave
   Height = 390
   Width = 421
   object Principal: TSQL
+    Active = True
     Aggregates = <>
     Params = <>
     ProviderName = 'InternalProvider'
@@ -12,19 +13,23 @@ object dtRave: TdtRave
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
       
-        'SELECT REC.I_EMP_FIL, REC.D_DAT_EMI, REC.I_NRO_NOT, REC.N_VLR_TO' +
-        'T, REC.I_QTD_PAR, '
-      ' CLI.I_COD_CLI, CLI.C_NOM_CLI'
-      'FROM CADCONTASARECEBER REC, CADCLIENTES CLI'
-      'Where REC.I_COD_CLI = CLI.I_COD_CLI')
+        'Select CLI.I_COD_CLI, CLI.C_NOM_CLI, C_END_CLI, CLI.C_COM_END, C' +
+        'LI.C_BAI_CLI,'
+      ' CLI.C_CEP_CLI, CLI.C_CID_CLI, CLI.C_IND_VIS,'
+      'RAM.NOM_RAMO_ATIVIDADE'
+      'FROM CADCLIENTES CLI, RAMO_ATIVIDADE RAM'
+      'Where CLI.I_COD_RAM = RAM.COD_RAMO_ATIVIDADE (+)'
+      'ORDER BY CLI.C_CEP_CLI')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
       
-        'SELECT REC.I_EMP_FIL, REC.D_DAT_EMI, REC.I_NRO_NOT, REC.N_VLR_TO' +
-        'T, REC.I_QTD_PAR, '
-      ' CLI.I_COD_CLI, CLI.C_NOM_CLI'
-      'FROM CADCONTASARECEBER REC, CADCLIENTES CLI'
-      'Where REC.I_COD_CLI = CLI.I_COD_CLI')
+        'Select CLI.I_COD_CLI, CLI.C_NOM_CLI, C_END_CLI, CLI.C_COM_END, C' +
+        'LI.C_BAI_CLI,'
+      ' CLI.C_CEP_CLI, CLI.C_CID_CLI, CLI.C_IND_VIS,'
+      'RAM.NOM_RAMO_ATIVIDADE'
+      'FROM CADCLIENTES CLI, RAMO_ATIVIDADE RAM'
+      'Where CLI.I_COD_RAM = RAM.COD_RAMO_ATIVIDADE (+)'
+      'ORDER BY CLI.C_CEP_CLI')
     Left = 80
     Top = 8
   end

@@ -54,7 +54,7 @@ end;
 
 implementation
 uses
-  constantes, FunSQL, FunData, FunObjeto, UnProdutos,  APedidosCompraAberto, FunNumeros;
+  constantes, FunSQL, FunData, FunObjeto, UnProdutos,  APedidosCompraAberto, FunNumeros, constmsg;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                                TRBFunSolicitacaoCompra
@@ -494,6 +494,7 @@ begin
                                                 ' FROM SOLICITACAOCOMPRACORPO'+
                                                 ' WHERE CODESTAGIO = '+IntToStr(VpaCodEstagio)+
                                                 ' AND CODFILIAL = '+IntToStr(VpaCodFilial));
+//                                                ' AND SEQSOLICITACAO = 938');
   while not TabelaProdutosPendentes.Eof do
   begin
     VpfDSolicitacaoCompraCorpo:= TRBDSolicitacaoCompraCorpo.Cria;
