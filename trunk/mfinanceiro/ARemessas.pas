@@ -211,28 +211,33 @@ begin
   end;
 end;
 
+{**********************************************************************************}
 procedure TFRemessas.BGerarClick(Sender: TObject);
 var
   VpfDRemessa : TRBDRemessaCorpo;
   VpfResultado : String;
 begin
-  VpfDRemessa := TRBDRemessaCorpo.cria;
-  VpfDRemessa.CodFilial := RemessaCorpoCODFILIAL.AsInteger;
-  VpfDRemessa.SeqRemessa := RemessaCorpoSEQREMESSA.AsInteger;
-  FunRemessa.CarDRemessa(VpfDRemessa);
-  VpfResultado := FunRemessa.GeraRemessa(VpfDRemessa,BarraStatus);
-  if VpfResultado <> '' then
-    aviso(VpfResultado)
-  else
+  if RemessaCorpoCODFILIAL.AsInteger <> 0 then
   begin
-    dtRave := TdtRave.create(self);
-    dtRave.ImprimeRemessa(RemessaCorpoCodFilial.AsInteger,RemessaCorpoSEQremessa.AsInteger);
-    dtRave.free;
-    AtualizaConsulta(true);
+    VpfDRemessa := TRBDRemessaCorpo.cria;
+    VpfDRemessa.CodFilial := RemessaCorpoCODFILIAL.AsInteger;
+    VpfDRemessa.SeqRemessa := RemessaCorpoSEQREMESSA.AsInteger;
+    FunRemessa.CarDRemessa(VpfDRemessa);
+    VpfResultado := FunRemessa.GeraRemessa(VpfDRemessa,BarraStatus);
+    if VpfResultado <> '' then
+      aviso(VpfResultado)
+    else
+    begin
+      dtRave := TdtRave.create(self);
+      dtRave.ImprimeRemessa(RemessaCorpoCodFilial.AsInteger,RemessaCorpoSEQremessa.AsInteger);
+      dtRave.free;
+      AtualizaConsulta(true);
+    end;
+    VpfDRemessa.free;
   end;
-  VpfDRemessa.free;
 end;
 
+{**********************************************************************************}
 procedure TFRemessas.BImprimirClick(Sender: TObject);
 begin
   if RemessaCorpoSEQremessa.AsInteger <> 0 then

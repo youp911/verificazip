@@ -2784,6 +2784,8 @@ begin
       VpaDContaReceber.TipComissao := FunVendedor.RTipComissao(VpaDOrcamento.CodVendedor);
       VpaDContaReceber.PerComissao := VpaDOrcamento.PerComissao;
       VpaDContaReceber.ValComissao := RValComissao(VpaDOrcamento,VpaDContaReceber.TipComissao,VpaDOrcamento.PerComissao,VpaDOrcamento.PerComissaoPreposto);
+      if VpaDContaReceber.ValComissao = 0 then
+        VpaDContaReceber.ValComissaoPreposto := 0;
     end;
     VpaDContaReceber.EsconderConta := true;
     result := VpaFunContaAReceber.CriaContasaReceber(VpaDContaReceber,VpaResultado,VpaGravarRegistro);
@@ -4054,6 +4056,7 @@ var
   VpfCodClassificacao : String;
   VpfPerComissaoVendedor : Double;
 begin
+  result := 0;
   if VpaTipComissao = 0 then //comissao direta;
     result := (VpaDCotacao.ValTotalLiquido * (VpaPerComissao - VpaPerComissaoPreposto))/100
   else
@@ -4074,7 +4077,8 @@ begin
         if VpfPerComissaoVendedor <> 0 then
           Result := result + ((VpfDProdutoCotacao.ValTotal * (VpfPerComissaoVendedor - VpaPerComissaoPreposto))/100)
         else
-          Result := result + ((VpfDProdutoCotacao.ValTotal * (VpfDProdutoCotacao.PerComissaoClassificacao - VpaPerComissaoPreposto))/100);
+          if VpfDProdutoCotacao.PerComissaoClassificacao <> 0 then
+            Result := result + ((VpfDProdutoCotacao.ValTotal * (VpfDProdutoCotacao.PerComissaoClassificacao - VpaPerComissaoPreposto))/100);
       end;
     end;
     VpfCodClassificacao := '';

@@ -69,7 +69,7 @@ type
     procedure ImprimePedidoCompraPendente;
     procedure ImprimeVendasAnalitico(VpaCodFilial,VpaCodCliente,VpaCodCondicaoPagamento, VpaCodTipoCotacao,VpaCodVendedor,VpaCodPreposto : Integer;VpaDatInicio,VpaDatFim : TDatetime;VpaCaminhoRelatorio,VpaDesCidade,VpaUF,VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaNomVendedor,VpaNomFilial,VpaNomPreposto : string);
     procedure ImprimeConsistenciadeEstoque(VpaCodFilial, VpaSeProduto : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaCaminhoRelatorio,VpaNomFilial,VpaNomProduto : String;VpaIndSomenteMonitorados : Boolean);
-    procedure ImprimeConsumoSubmontagem(VpaCodFilial, VpaSeqOrdemProduccao, VpaSeqFracao : Integer;VpaSomenteAReservar : Boolean);
+    procedure ImprimeConsumoSubmontagem(VpaCodFilial, VpaSeqOrdemProduccao, VpaSeqFracao : Integer;VpaSomenteAReservar, VpaConsumoExcluir : Boolean);
     procedure ImprimeRecibo(VpaCodFilial : Integer;VpaDCliente : TRBDCliente;VpaDesDuplicata, VpaValDuplicata,VpaValExtenso,VpaLocaleData : String);
     procedure ImprimeDevolucoesPendente(VpaCodFilial,VpaCodCliente,VpaCodTransportadora,VpaCodEstagio : Integer; VpaData : TDatetime;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomTranportadora,VpaNomEstagio : String);
     procedure ImprimeEstoqueFiscal(VpaCodFilial,VpaSeqProduto : integer;VpaCaminhoRelatorio,VpaNomFilial, VpaNomProduto : String);
@@ -94,6 +94,7 @@ type
     procedure ImprimeContasaReceberPorEmissao(VpaCodFilial : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho, VpaNomFilial : String;VpaMostrarFrio : Boolean);
     procedure ImprimeTotalProspectPorRamoAtividade(VpaCaminho : string);
     procedure ImprimeProspectPorCeP(VpaSomenteNaoVisitados : boolean; VpaCaminho : string);
+    procedure ImprimeNotasFiscaisEmitidasPorNaturezaOperacao(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodClienteMaster,VpaCodVendedor : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaSituacaoNota : Integer);
   end;
 
 
@@ -212,6 +213,57 @@ begin
   Rave.Execute;
 end;
 
+{******************************************************************************}
+procedure TdtRave.ImprimeNotasFiscaisEmitidasPorNaturezaOperacao(VpaDatInicio, VpaDatFim: TDateTime; VpaCodFilial, VpaCodCliente,
+  VpaCodClienteMaster, VpaCodVendedor: Integer; VpaCaminhoRelatorio, VpaNomFilial, VpaNomCliente, VpaNomVendedor: String;
+  VpaSituacaoNota: Integer);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Notas fiscais emitidas por Natureza Operacao';
+  Rave.projectfile := varia.PathRelatorios+'\Faturamento\2000FA_Notas Fiscais Emitidas por Natureza Operacao.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select CAD.D_DAT_EMI, CAD.C_COD_NAT, CAD.I_NRO_NOT, CAD.N_TOT_NOT, CAD.C_TIP_NOT,' +
+                             ' CAD.N_VLR_ICM, CAD.N_TOT_IPI, CAD.C_NOT_IMP, CAD.C_NOT_CAN, CAD.C_FIN_GER, ' +
+                             ' CAD.N_TOT_PRO, '+
+                             ' CLI.C_NOM_CLI,  ' +
+                             ' NAT.C_NOM_NAT '+
+                             ' from CADNOTAFISCAIS CAD, CADCLIENTES CLI, CADNATUREZA NAT ' +
+                             ' WHERE CAD.I_COD_CLI = CLI.I_COD_CLI ' +
+                             ' AND CAD.C_COD_NAT = NAT.C_COD_NAT '+
+                             ' AND CAD.D_DAT_EMI BETWEEN '+SQLTextoDataAAAAMMMDD(VpaDatInicio)+
+                             ' AND ' +SQLTextoDataAAAAMMMDD(VpaDatFim));
+  Rave.SetParam('PERIODO','Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDatetime('DD/MM/YYYY',VpaDatFim));
+  case VpaSituacaoNota of
+    1 : Principal.sql.add('AND CAD.C_NOT_CAN = ''S''');
+    2 : Principal.sql.add('AND CAD.C_NOT_CAN = ''N''');
+  end;
+  if vpacodfilial <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_EMP_FIL = '+InttoStr(VpaCodFilial));
+    Rave.SetParam('FILIAL',VpaNomFilial);
+  end;
+  if VpaCodCliente <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_CLI = '+InttoStr(VpaCodCliente));
+    Rave.SetParam('CLIENTE',VpaNomCliente);
+  end;
+  if VpaCodClienteMaster <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.I_CLI_MAS = '+InttoStr(VpaCodClienteMaster));
+  end;
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_VEN = '+InttoStr(VpaCodVendedor));
+    Rave.SetParam('VENDEDOR',VpaNomVendedor);
+  end;
+  Rave.SetParam('CAMINHO',VpaCaminhoRelatorio);
+
+  AdicionaSqlTabeLa(Principal,'ORDER BY CAD.C_COD_NAT, CAD.D_DAT_EMI');
+  Principal.open;
+
+  Rave.Execute;
+end;
 
 {******************************************************************************}
 procedure TdtRave.ImprimePedidosPorDia(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao : String);
@@ -1322,7 +1374,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimeConsumoSubmontagem(VpaCodFilial, VpaSeqOrdemProduccao, VpaSeqFracao : Integer;VpaSomenteAReservar : Boolean);
+procedure TdtRave.ImprimeConsumoSubmontagem(VpaCodFilial, VpaSeqOrdemProduccao, VpaSeqFracao : Integer;VpaSomenteAReservar, VpaConsumoExcluir : Boolean);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Consumo Submontagem op '+IntToStr(VpaSeqOrdemProduccao);
@@ -1351,6 +1403,8 @@ begin
 
   AdicionaSqlTabela(Principal,' ORDER BY PRO.C_COD_PRO, CLA.C_COD_CLA, MP.C_NOM_PRO');
   Principal.open;
+  if  VpaConsumoExcluir then
+    Rave.SetParam('DESTITULO','PRODUTOS A EXCLUIR');
   Rave.Execute;
 end;
 
@@ -2049,7 +2103,7 @@ begin
                               ' Where CLI.I_COD_RAM = RAM.COD_RAMO_ATIVIDADE (+) ');
   if VpaSomenteNaoVisitados then
     AdicionaSqlTabeLa(Principal,'AND CLI.C_IND_VIS = ''N''');
-  AdicionaSqlTabeLa(Principal,' ORDER BY CLI.C_CEP_CLI');
+  AdicionaSqlTabeLa(Principal,' ORDER BY CLI.C_CEP_CLI, C_END_CLI');
   Rave.SetParam('CAMINHO',VpaCaminho);
   Rave.Execute;
 end;

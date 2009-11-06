@@ -27,7 +27,7 @@ object FRelPedido: TFRelPedido
     Alignment = taLeftJustify
     Font.Charset = ANSI_CHARSET
     Font.Color = clWhite
-    Font.Height = -27
+    Font.Height = -24
     Font.Name = 'Times New Roman'
     Font.Style = [fsBold]
     ParentFont = False
@@ -2851,7 +2851,7 @@ object FRelPedido: TFRelPedido
     AUsarCorForm = False
     ACorForm = FPrincipal.CorForm
     object BMostrarConta: TSpeedButton
-      Left = 122
+      Left = 213
       Top = 6
       Width = 26
       Height = 27
@@ -2898,6 +2898,7 @@ object FRelPedido: TFRelPedido
       OnClick = BFecharClick
     end
     object BImprimir: TBitBtn
+      Tag = 10
       Left = 6
       Top = 5
       Width = 100
@@ -2920,6 +2921,18 @@ object FRelPedido: TFRelPedido
       NumGlyphs = 2
       ParentDoubleBuffered = False
       TabOrder = 1
+      OnClick = BImprimirClick
+    end
+    object BitBtn1: TBitBtn
+      Left = 110
+      Top = 5
+      Width = 100
+      Height = 30
+      Caption = '&PDF'
+      DoubleBuffered = True
+      NumGlyphs = 2
+      ParentDoubleBuffered = False
+      TabOrder = 2
       OnClick = BImprimirClick
     end
   end

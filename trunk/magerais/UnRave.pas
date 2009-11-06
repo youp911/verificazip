@@ -4,7 +4,8 @@ unit UnRave;
 }
 interface
 Uses SQLExpr, RpRave, UnDados, SysUtils, RpDefine, RpBase, RpSystem,RPDevice,
-     Classes, forms, Graphics, unprodutos, UnClassificacao, UnAmostra;
+     Classes, forms, Graphics, unprodutos, UnClassificacao, UnAmostra, RpRenderPDF,
+     unDadosProduto;
 
 
 Type
@@ -110,6 +111,7 @@ type
       Tabela,
       Clientes : TSQLQuery;
       RvSystem: TRvSystem;
+      RvPDF :  TRvRenderPDF;
       VprCabecalhoEsquerdo,
       VprCabecalhoDireito : TStringList;
       VprCaminhoRelatorio,
@@ -186,7 +188,7 @@ type
       constructor cria(VpaBaseDados : TSQLConnection);
       destructor destroy;override;
       procedure EnviaParametrosFilial(VpaProjeto : TrvProject;VpaDFilial : TRBDFilial);
-      procedure ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String;VpaAgruparPorEstado : Boolean);
+      procedure ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaCodClienteMaster  : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao, VpaNomClienteMaster : String;VpaAgruparPorEstado, VpaPDF : Boolean);
       procedure ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados,VpaSomenteComQtd : Boolean);
       procedure ImprimeAnaliseFaturamentoMensal(VpaCodFilial,VpaCodCliente,VpaCodVendedor : Integer;VpaCaminho, VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaDatInicio, VpaDatFim : TDateTime);
       procedure ImprimeQtdMinimasEstoque(VpaCodFilial, VpaCodFornecedor : Integer;VpaCaminho,VpaCodClassificacao,VpaNomFilial, VpaNomClassificacao, VpaNomFornecedor : String);
@@ -200,6 +202,7 @@ type
       procedure ImprimeEstoqueProdutosReservados(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
       procedure ImprimeTotaAmostrasPorVendedor(VpaCodVendedor : Integer;VpaCaminho, VpaNomVendedor : String;VpaDatInicio, VpaDatFim : TDateTime);
       procedure ImprimeContasAPagarPorPlanoContasSintetico(VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho : String);
+      procedure ImprimeFichaAmosta(VpaDAmostra : TRBDAmostra;VpaPDF : Boolean);
   end;
 implementation
 
@@ -376,6 +379,7 @@ begin
   RVSystem.SystemPrinter.UnitsFactor   := 2.54;
   rpDev.SelectPaper('A4',false);
   rpDev.Copies                          := 1;
+  RvPDF := TRvRenderPDF.Create(nil);
   RVSystem.SystemPrinter.Copies        := rpDev.Copies;
   rpDev.Orientation                     := poPortrait;
   RVSystem.SystemPrinter.Orientation   := rpDev.Orientation;
@@ -394,6 +398,7 @@ begin
   Clientes.close;
   Clientes.free;
   RVSystem.free;
+  RvPDF.free;
   VprCabecalhoEsquerdo.free;
   VprCabecalhoDireito.free;
   FunClassificacao.free;
@@ -2519,7 +2524,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente, VpaCodVendedor, VpaCodTipoCotacao: Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho, VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String;VpaAgruparPorEstado : Boolean);
+procedure TRBFunRave.ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente, VpaCodVendedor, VpaCodTipoCotacao, VpaCodClienteMaster : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho, VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao, VpaNomClienteMaster : String;VpaAgruparPorEstado, VpaPDF : Boolean);
 begin
   RvSystem.Tag := 1;
   VprAgruparPorEstado := VpaAgruparPorEstado;
@@ -2551,6 +2556,8 @@ begin
     AdicionaSqlTabela(Tabela,' and CAD.I_COD_CLI = '+InttoStr(VpaCodCliente));
   if VpaCodTipoCotacao <> 0  then
     AdicionaSqlTabela(Tabela,' and CAD.I_TIP_ORC = '+InttoStr(VpaCodTipoCotacao));
+  if VpaCodClienteMaster <> 0  then
+    AdicionaSqlTabela(Tabela,' and CLI.I_CLI_MAS = '+InttoStr(VpaCodClienteMaster));
 
   if VpaAgruparPorEstado then
     AdicionaSqlTabela(Tabela,' ORDER BY CLI.C_EST_CLI, CLA.C_COD_CLA, PRO.C_COD_PRO, COR.NOM_COR, TAM.NOMTAMANHO ')
@@ -2571,6 +2578,8 @@ begin
     VprCabecalhoEsquerdo.add('Cliente : ' +VpaNomCliente);
   if DeletaChars(VpaNomTipoCotacao,' ') <> '' then
     VprCabecalhoEsquerdo.add('Tipo Cotação : ' +VpaNomTipoCotacao);
+  if VpaCodClienteMaster <> 0 then
+    VprCabecalhoEsquerdo.add('Cliente Master : ' +VpaNomClienteMaster);
 
   VprCabecalhoDireito.Clear;
   VprCabecalhoDireito.add('Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até ' +FormatDatetime('DD/MM/YYYY',VpaDatFim)+'     ');
@@ -3105,6 +3114,27 @@ begin
   VprCabecalhoDireito.Clear;
 
   RvSystem.execute;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeFichaAmosta(VpaDAmostra: TRBDAmostra; VpaPDF: Boolean);
+begin
+  RvSystem.Tag := 15;
+  FreeTObjectsList(VprNiveis);
+
+  rvSystem.onBeforePrint := DefineTabelaCPporPlanoContasSintetico;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelCPporPlanoContasSintetico;
+
+  VprNomeRelatorio := 'Ficha Amostra';
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Empresa : ' +Varia.NomeEmpresa);
+
+  VprCabecalhoDireito.Clear;
+
+  RvSystem.execute;
+
 end;
 
 

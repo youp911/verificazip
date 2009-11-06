@@ -50,6 +50,7 @@ type
       procedure AgruparProdutosPendentes(VpaListaOrcamentos, VpaListaProdutosPendentes: TList);
       function AssociaOrcamentoCompraProposta(VpaDProposta : TRBDPropostaCorpo;VpaDOrcamentoCompra : TRBDSolicitacaoCompraCorpo) : string;
       function GeraOrcamentoCompraOrdemProducao(VpaCodFilial,VpaSeqOrdem : Integer) : String;
+      procedure OrdenaProdutosPendentesPorClassificacao(VpaListaProdutosPendentes : TList);
 end;
 
 implementation
@@ -329,7 +330,7 @@ var
 begin
   AdicionaSQLAbreTabela(Tabela,'SELECT SCI.CODFILIAL, SCI.SEQSOLICITACAO, SCI.SEQITEM, SCI.SEQPRODUTO, SCI.CODCOR,'+
                                ' SCI.DESUM, SCI.QTDPRODUTO, SCI.QTDAPROVADO, SCI.QTDCOMPRADA, PRO.C_COD_PRO, PRO.C_COD_UNI UMORIGINAL, '+
-                               ' PRO.C_NOM_PRO, PRO.L_DES_TEC, '+
+                               ' PRO.C_NOM_PRO, PRO.L_DES_TEC, PRO.C_COD_CLA, '+
                                ' COR.NOM_COR, SCI.INDCOMPRADO'+
                                ' FROM SOLICITACAOCOMPRAITEM SCI, CADPRODUTOS PRO, COR COR'+
                                ' WHERE SCI.CODFILIAL = '+IntToStr(VpaDOrcamentoCompraCorpo.CodFilial)+
@@ -340,10 +341,13 @@ begin
   begin
     VpfOrcamentoProduto:= VpaDOrcamentoCompraCorpo.AddProduto;
 
+//    if Tabela.FieldByName('SEQPRODUTO').AsInteger = 6997 then
+//      aviso('oi');
     VpfOrcamentoProduto.SeqItem:= Tabela.FieldByName('SEQITEM').AsInteger;
     VpfOrcamentoProduto.SeqProduto:= Tabela.FieldByName('SEQPRODUTO').AsInteger;
     VpfOrcamentoProduto.CodCor:= Tabela.FieldByName('CODCOR').AsInteger;
     VpfOrcamentoProduto.CodProduto:= Tabela.FieldByName('C_COD_PRO').AsString;
+    VpfOrcamentoProduto.CodClassificacao := Tabela.FieldByName('C_COD_CLA').AsString;
     VpfOrcamentoProduto.NomProduto:= Tabela.FieldByName('C_NOM_PRO').AsString;
     VpfOrcamentoProduto.DesTecnica := Tabela.FieldByName('L_DES_TEC').AsString;
     VpfOrcamentoProduto.NomCor:= Tabela.FieldByName('NOM_COR').AsString;
@@ -522,6 +526,8 @@ begin
     for VpfLacoProduto:= 0 to VpfDOrcamentoCompraCorpo.Produtos.Count-1 do
     begin
       VpfDOrcamentoCompraProduto:= TRBDSolicitacaoCompraItem(VpfDOrcamentoCompraCorpo.Produtos.Items[VpfLacoProduto]);
+//      if VpfDOrcamentoCompraProduto.SeqProduto = 2558 then
+//        aviso('oi');
       if not VpfDOrcamentoCompraProduto.IndComprado then
       begin
         VpfDProdutoPendente := RProdutoPendente(VpfDOrcamentoCompraProduto.SeqProduto,VpfDOrcamentoCompraProduto.CodCor,VpaListaProdutosPendentes);
@@ -533,6 +539,7 @@ begin
           VpfDProdutoPendente.IndMarcado:= False;
           VpfDProdutoPendente.IndAlterado:= False;
           VpfDProdutoPendente.SeqProduto:= VpfDOrcamentoCompraProduto.SeqProduto;
+          VpfDProdutoPendente.CodClassificacao := VpfDOrcamentoCompraProduto.CodClassificacao;
           VpfDProdutoPendente.CodCor:= VpfDOrcamentoCompraProduto.CodCor;
           VpfDProdutoPendente.CodProduto:= VpfDOrcamentoCompraProduto.CodProduto;
           VpfDProdutoPendente.NomProduto:= VpfDOrcamentoCompraProduto.NomProduto;
@@ -702,6 +709,32 @@ begin
         VpaFracoes.add(VpfDFracao);
     end;
   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunSolicitacaoCompra.OrdenaProdutosPendentesPorClassificacao(VpaListaProdutosPendentes: TList);
+var
+  VpfLacoInterno, VpfLacoExterno : Integer;
+  VpfProExterno, VpfProInterno : TRBDProdutoPendenteCompra;
+begin
+  for VpfLacoExterno := 0 to VpaListaProdutosPendentes.Count - 2 do
+  begin
+    VpfProExterno := TRBDProdutoPendenteCompra(VpaListaProdutosPendentes.Items[VpfLacoExterno]);
+    for VpfLacoInterno := VpfLacoExterno + 1 to VpaListaProdutosPendentes.Count - 1 do
+    begin
+      VpfProInterno := TRBDProdutoPendenteCompra(VpaListaProdutosPendentes.Items[VpfLacoInterno]);
+      if (VpfProExterno.CodClassificacao > VpfProInterno.CodClassificacao)or
+         ((VpfProExterno.CodClassificacao = VpfProInterno.CodClassificacao)and
+         (VpfProExterno.NomProduto > VpfProInterno.NomProduto)) then
+      begin
+
+        VpaListaProdutosPendentes.Items[VpfLacoInterno] := VpaListaProdutosPendentes.Items[VpfLacoExterno];
+        VpaListaProdutosPendentes.Items[VpfLacoExterno] := VpfProInterno;
+        VpfProExterno := VpfProInterno;
+      end;
+    end;
+  end;
+
 end;
 
 {******************************************************************************}

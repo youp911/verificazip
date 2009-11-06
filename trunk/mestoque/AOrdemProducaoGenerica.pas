@@ -118,7 +118,7 @@ type
     Image7: TImage;
     Label19: TLabel;
     N7: TMenuItem;
-    Legenda1: TMenuItem;
+    MLegenda: TMenuItem;
     N8: TMenuItem;
     PedidosdeCompra1: TMenuItem;
     N9: TMenuItem;
@@ -158,6 +158,8 @@ type
     MReimportarProjeto: TMenuItem;
     N16: TMenuItem;
     ReimportarFrao1: TMenuItem;
+    N12: TMenuItem;
+    ListaProdutosaExcluir1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -188,7 +190,7 @@ type
     procedure AlterarDataEntrega1Click(Sender: TObject);
     procedure TextoMove1Click(Sender: TObject);
     procedure PLegendaClick(Sender: TObject);
-    procedure Legenda1Click(Sender: TObject);
+    procedure MLegendaClick(Sender: TObject);
     procedure ArvoreMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure PedidosdeCompra1Click(Sender: TObject);
@@ -215,6 +217,7 @@ type
     procedure ReimportarFrao1Click(Sender: TObject);
     procedure ArvoreDblClick(Sender: TObject);
     procedure GridIndice1Ordem(Ordem: string);
+    procedure ListaProdutosaExcluir1Click(Sender: TObject);
   private
     { Private declarations }
     VprOrdem : String;
@@ -337,6 +340,9 @@ begin
   end;
   PSubMontagem.TabVisible := (varia.TipoOrdemProducao = toSubMontagem);
   MReimportarProjeto.Visible := (varia.TipoOrdemProducao = toSubMontagem);
+  if (varia.TipoOrdemProducao = toSubMontagem) then
+    AlterarVisibleDet([BAlterar,BImprimir],false);
+
 end;
 
 {******************************************************************************}
@@ -583,9 +589,9 @@ begin
         VpfSomenteASeparar := true;
       if PageControl1.ActivePage = PFracionada then
       begin
-        FunOrdemProducao.GeraImpressaoConsumoFracao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger);
+        FunOrdemProducao.GeraImpressaoConsumoFracao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,false);
         dtRave := TdtRave.create(self);
-        dtRave.ImprimeConsumoSubmontagem(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,VpfSomenteASeparar);
+        dtRave.ImprimeConsumoSubmontagem(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,VpfSomenteASeparar,false);
         dtRave.free;
       end
       else
@@ -593,9 +599,9 @@ begin
         if (TObject(Arvore.Selected.Data) is TRBDFracaoOrdemProducao) then
         begin
           VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.Data);
-          FunOrdemProducao.GeraImpressaoConsumoFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
+          FunOrdemProducao.GeraImpressaoConsumoFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,false);
           dtRave := TdtRave.create(self);
-          dtRave.ImprimeConsumoSubmontagem(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,VpfSomenteASeparar);
+          dtRave.ImprimeConsumoSubmontagem(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,VpfSomenteASeparar,false);
           dtRave.free;
         end;
       end;
@@ -915,9 +921,10 @@ begin
   PLegenda.Visible := false;
 end;
 
-procedure TFOrdemProducaoGenerica.Legenda1Click(Sender: TObject);
+procedure TFOrdemProducaoGenerica.MLegendaClick(Sender: TObject);
 begin
-  PLegenda.Visible := true;
+  MLegenda.Checked := not MLegenda.Checked;
+  PLegenda.Visible := MLegenda.Checked;
 end;
 
 {******************************************************************************}
@@ -1127,8 +1134,36 @@ begin
   if (TObject(Arvore.Selected.Data) is TRBDFracaoOrdemProducao) then
   begin
     VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.Data);
-    FunOrdemProducao.GeraImpressaoConsumoFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
+    FunOrdemProducao.GeraImpressaoConsumoFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,false);
     FunCrystal.ImprimeRelatorio(varia.PathRelatorios+'\Ordem Produção\XX_ConsumoOPSubmontagem.rpt',[IntToStr(VpfDFracao.CodFilial)]);
+  end;
+end;
+
+{******************************************************************************}
+procedure TFOrdemProducaoGenerica.ListaProdutosaExcluir1Click(Sender: TObject);
+var
+  VpfDFracao : TRBDFracaoOrdemProducao;
+begin
+  if (varia.TipoOrdemProducao = toSubMontagem) then
+  begin
+    if PageControl1.ActivePage = PFracionada then
+    begin
+      FunOrdemProducao.GeraImpressaoConsumoFracao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,true);
+      dtRave := TdtRave.create(self);
+      dtRave.ImprimeConsumoSubmontagem(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,false,true);
+      dtRave.free;
+    end
+    else
+    begin
+      if (TObject(Arvore.Selected.Data) is TRBDFracaoOrdemProducao) then
+      begin
+        VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.Data);
+        FunOrdemProducao.GeraImpressaoConsumoFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,true);
+        dtRave := TdtRave.create(self);
+        dtRave.ImprimeConsumoSubmontagem(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,false,true);
+        dtRave.free;
+      end;
+    end;
   end;
 end;
 
@@ -1138,6 +1173,7 @@ begin
   BFichaConsumoClick(Self);
 end;
 
+{******************************************************************************}
 procedure TFOrdemProducaoGenerica.ConsultaLogSeparao1Click(
   Sender: TObject);
 begin

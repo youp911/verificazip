@@ -5,13 +5,20 @@ Unit UnNFe;
 Interface
 
 Uses Classes, SqlExpr, ACBrNFe, forms, pcnConversao,ComCtrls,ACBrNFeDANFEClass, ACBrNFeDANFERave,
-  UnDadosProduto,pcnNFe, SysUtils, UnDados;
+  UnDadosProduto,pcnNFe, SysUtils, UnDados, IdAttachmentfile, idText,IdMessage, IdSMTP,
+  UnSistema;
 
 //classe funcoes
 Type TRBFuncoesNFe = class
   private
     VprStatusBar : TStatusBar;
     Aux : TSQLQuery;
+    VprMensagem : TidMessage;
+    VprSMTP : TIdSMTP;
+    function MontaHTML(VpaDNota : TRBDNotaFiscal;VpaDCliente : TRBDCliente):string;
+    procedure GeraNFEPDF;
+    function AnexaNFE(VpaDNota : TRBDNotaFiscal):string;
+    function EnviaEmail(VpaMensagem : TIdMessage;VpaSMTP : TIdSMTP;VpaDFilial : TRBDFilial) : string;
     procedure AtualizaStatus(VpaStatus : TStatusBar;VpaTexto : String);
     procedure HigienizaPais(VpaErros : TStrings;VpaStatus : TStatusBar);
     procedure HigienizarCidades(VpaErros : TStrings;VpaStatus : TStatusBar);
@@ -46,7 +53,8 @@ end;
 
 implementation
 
-Uses FunSql, Constantes, funString, Constmsg, UnNotaFiscal, UnClientes, FunValida, FunNumeros;
+Uses FunSql, Constantes, funString, Constmsg, UnNotaFiscal, UnClientes, FunValida, FunNumeros,
+     FunArquivos;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                             eventos da classe TRBFuncoesNFe
@@ -60,9 +68,9 @@ begin
   Aux.SQLConnection := VpaBaseDados;
   NFe := TACBrNFe.Create(Application);
   NFe.OnStatusChange := MostraStatusOperacao;
-    NFe.Configuracoes.Certificados.NumeroSerie := varia.CertificadoNFE;
-    NFe.Configuracoes.Geral.Salvar := true;
-    NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe';
+  NFe.Configuracoes.Certificados.NumeroSerie := varia.CertificadoNFE;
+  NFe.Configuracoes.Geral.Salvar := true;
+  NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe';
 
   if config.EmiteNFe then
   begin
@@ -72,14 +80,19 @@ begin
     else
       Nfe.Configuracoes.WebServices.Ambiente := taProducao;
     NFe.Configuracoes.WebServices.Visualizar := true;
-
   end;
+  //componentes indy
+  VprMensagem := TIdMessage.Create(nil);
+  VprSMTP := TIdSMTP.Create(nil);
 end;
 
 {******************************************************************************}
 destructor TRBFuncoesNFe.destroy;
 begin
   NFE.free;
+  Aux.Free;
+  VprMensagem.free;
+  VprSMTP.free;
   inherited;
 end;
 
@@ -149,6 +162,41 @@ begin
   VpaDNFe.Emit.IM                := Varia.InscricaoMunicipal;
   VpaDNFe.Emit.CNAE              := VARIA.CodCNAE;
 
+end;
+
+{******************************************************************************}
+function TRBFuncoesNFe.AnexaNFE(VpaDNota: TRBDNotaFiscal): string;
+var
+  VpfAnexo : TIdAttachmentfile;
+  VpfNomArquivo : String;
+begin
+  result := '';
+  if ExisteArquivo(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml') and
+     (VpaDNota.DesChaveNFE <> '') then
+    VpfNomArquivo := VpaDNota.DesChaveNFE+'-nfe.xml'
+  else
+    VpfNomArquivo := IntToStr(VpaDNota.NumNota)+'-NFe.xml';
+
+  if not ExisteArquivo(Varia.PathVersoes+'\nfe\'+NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf') then
+    result := 'Falta arquivo "'+Varia.PathVersoes+'\nfe\'+NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf"';
+  if not ExisteArquivo(varia.PathVersoes+'\efi.jpg') then
+    result := 'Falta arquivo "'+varia.PathVersoes+'\efi.jpg'+'"';
+  if result = '' then
+  begin
+    VpfAnexo := TIdAttachmentfile.Create(VprMensagem.MessageParts,Varia.PathVersoes+'\nfe\'+NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf');
+    VpfAnexo.ContentType := 'application/pdf';
+    VpfAnexo.ContentDisposition := 'inline';
+    VpfAnexo.DisplayName:=NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf';
+    VpfAnexo.ExtraHeaders.Values['content-id'] := NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf';
+    VpfAnexo.DisplayName := NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf';
+
+    VpfAnexo := TIdAttachmentfile.Create(VprMensagem.MessageParts,Varia.PathVersoes+'\nfe\'+VpfNomArquivo);
+    VpfAnexo.ContentType := 'application/xml';
+    VpfAnexo.ContentDisposition := 'inline';
+    VpfAnexo.DisplayName:=VpfNomArquivo;
+    VpfAnexo.ExtraHeaders.Values['content-id'] := VpfNomArquivo;
+    VpfAnexo.DisplayName := VpfNomArquivo;
+  end;
 end;
 
 {******************************************************************************}
@@ -411,6 +459,109 @@ begin
 end;
 
 {******************************************************************************}
+function TRBFuncoesNFe.MontaHTML(VpaDNota: TRBDNotaFiscal;VpaDCliente : TRBDCliente) : string;
+var
+  VpfEmailHTML : TIdText;
+  Vpfbmppart : TIdAttachmentfile;
+begin
+  result := '';
+  if not ExisteArquivo(varia.PathVersoes+'\'+inttoStr(VpaDNota.CodFilial)+'.jpg') then
+    result := 'Falta arquivo "'+varia.PathVersoes+'\'+inttoStr(VpaDNota.CodFilial)+'.jpg'+'"';
+  if not ExisteArquivo(varia.PathVersoes+'\efi.jpg') then
+    result := 'Falta arquivo "'+varia.PathVersoes+'\efi.jpg'+'"';
+  if result = '' then
+  begin
+    Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\'+inttoStr(VpaDNota.CodFilial)+'.jpg');
+    Vpfbmppart.ContentType := 'image/jpg';
+    Vpfbmppart.ContentDisposition := 'attachment';
+    Vpfbmppart.ExtraHeaders.Values['content-id'] := inttoStr(VpaDNota.CodFilial)+'.jpg';
+    Vpfbmppart.FileName := '';
+    Vpfbmppart.DisplayName := '';
+
+    Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\efi.jpg');
+    Vpfbmppart.ContentType := 'image/jpg';
+    Vpfbmppart.ContentDisposition := 'inline';
+    Vpfbmppart.ExtraHeaders.Values['content-id'] := 'efi.jpg';
+    Vpfbmppart.FileName := '';
+    Vpfbmppart.DisplayName := '';
+
+    VpfEmailHTML := TIdText.Create(VprMensagem.MessageParts);
+    VpfEmailHTML.ContentType := 'text/html';
+    VpfEmailHTML.DisplayName := 'Proposta Seguranca2';
+    VpfEmailHTML.CharSet := 'ISO-8859-1'; // NOSSA LINGUAGEM PT-BR (Latin-1)!!!!
+    VpfEmailHTML.ContentTransfer := '16bit'; // para SAIR ACENTUADO !!!! Pois, 8bit SAI SEM
+
+    VpfEmailHtml.Body.Clear;
+    VpfEmailHtml.Body.Add('<html>');
+    VpfEmailHtml.Body.Add('<head>');
+    VpfEmailHtml.Body.add('  <title>Nf-e Eficacia Sistemas e Consultoria ltda');
+    VpfEmailHtml.Body.Add('</title>');
+    VpfEmailHtml.Body.add('<body>');
+    VpfEmailHtml.Body.Add('<center>');
+    VpfEmailHtml.Body.add('<table width=80%  border=1 bordercolor="black" cellspacing="0" >');
+    VpfEmailHtml.Body.Add('<tr>');
+    VpfEmailHtml.Body.add('<td>');
+    VpfEmailHtml.Body.Add('<table width=100%  border=0 >');
+    VpfEmailHtml.Body.add(' <tr>');
+    VpfEmailHtml.Body.Add('  <td width=40%>');
+    VpfEmailHtml.Body.add('    <a > <img src="cid:'+IntToStr(VpaDNota.CodFilial)+'.jpg" width='+IntToStr(varia.CRMTamanhoLogo)+' height = '+IntToStr(Varia.CRMAlturaLogo)+' boder=0>');
+    VpfEmailHtml.Body.Add('  </td>');
+    VpfEmailHtml.Body.add('  <td width=20% align="center" > <font face="Verdana" size="5"><b>NF-e');
+    VpfEmailHtml.Body.Add('  <td width=40% align="right" > <font face="Verdana" size="5"><right> <img src="cid:efi.jpg"');
+    VpfEmailHtml.Body.add('  </td>');
+    VpfEmailHtml.Body.Add('  </td>');
+    VpfEmailHtml.Body.add('  </tr>');
+    VpfEmailHtml.Body.Add('</table>');
+    VpfEmailHtml.Body.add('<br>');
+    VpfEmailHtml.Body.Add('<br>');
+    VpfEmailHtml.Body.add('<table width=100%  border=0 cellpadding="0" cellspacing="0" >');
+    VpfEmailHtml.Body.Add(' <tr>');
+    VpfEmailHtml.Body.add('  <td width=100% bgcolor=#6699FF ><font face="Verdana" size="3">');
+    VpfEmailHtml.Body.Add('   <br> <center>');
+    VpfEmailHtml.Body.add('   <br>Esta mensagem refere-se a Nota Fiscal Eletronica Nacional "'+IntToStr(VpaDNota.NumNota)+'"');
+    VpfEmailHtml.Body.Add('   <br></center>');
+    VpfEmailHtml.Body.add('   <br>');
+    VpfEmailHtml.Body.Add('   <br>');
+    VpfEmailHtml.Body.add(' </tr><tr>');
+    VpfEmailHtml.Body.Add('  <td width=100% bgcolor="silver" ><font face="Verdana" size="3">');
+    VpfEmailHtml.Body.add('   <br><center>');
+    VpfEmailHtml.Body.Add('   <br>Cliente : '+VpaDCliente.NomCliente );
+    VpfEmailHtml.Body.add('   <br>CNPJ :'+VpaDCliente.CGC_CPF);
+    VpfEmailHtml.Body.Add('   <br>');
+    VpfEmailHtml.Body.add('   <br>');
+    VpfEmailHtml.Body.Add('   <br>');
+    VpfEmailHtml.Body.add(' </tr><tr>');
+    VpfEmailHtml.Body.Add('  <td width=100% bgcolor=#6699FF ><font face="Verdana" size="2">');
+    VpfEmailHtml.Body.add('   <br><center>');
+    VpfEmailHtml.Body.Add('   <br>Para verificar a autorização da SEFAZ referente à nota acima mencionada, acesse o site <a href="http://www.nfe.fazenda.gov.br/portal"> http://www.nfe.fazenda.gov.br/portal');
+    VpfEmailHtml.Body.add('   <br>');
+    VpfEmailHtml.Body.Add('   <br>');
+    VpfEmailHtml.Body.add('   <br>');
+    VpfEmailHtml.Body.Add('   <br>');
+    VpfEmailHtml.Body.add(' </tr>');
+    VpfEmailHtml.Body.Add(' </tr><tr>');
+    VpfEmailHtml.Body.add('  <td width=100% bgcolor="silver" ><font face="Verdana" size="3">');
+    VpfEmailHtml.Body.Add('   <br><center>');
+    VpfEmailHtml.Body.add('   <br>Chave Acesso : '+VpaDNota.DesChaveNFE);
+    VpfEmailHtml.Body.Add('   <br>Protocolo : '+ VpaDNota.NumProtocoloNFE);
+    VpfEmailHtml.Body.add('   <br>');
+    VpfEmailHtml.Body.Add('   <br>');
+    VpfEmailHtml.Body.add('   <br>');
+    VpfEmailHtml.Body.Add(' </tr><tr>');
+    VpfEmailHtml.Body.add('</table>');
+    VpfEmailHtml.Body.Add('</td>');
+    VpfEmailHtml.Body.add('</tr>');
+    VpfEmailHtml.Body.Add('</table>');
+    VpfEmailHtml.Body.add('<hr>');
+    VpfEmailHtml.Body.Add('<center>');
+    VpfEmailHtml.Body.add('<address>Sistema de gestão desenvolvido por <a href="http://www.eficaciaconsultoria.com.br">Eficácia Sistemas e Consultoria Ltda.</a>  </address>');
+    VpfEmailHtml.Body.Add('</center>');
+    VpfEmailHtml.Body.add('</body>');
+    VpfEmailHtml.Body.Add('');
+    VpfEmailHtml.Body.add('</html>');
+  end;
+end;
+
 procedure TRBFuncoesNFe.MostraStatusOperacao(VpaObjeto : TObject);
 begin
   if VprStatusBar <> nil then
@@ -668,10 +819,50 @@ begin
 end;
 
 {******************************************************************************}
+function TRBFuncoesNFe.EnviaEmail(VpaMensagem: TIdMessage; VpaSMTP: TIdSMTP; VpaDFilial: TRBDFilial): string;
+begin
+  VpaMensagem.Priority := TIdMessagePriority(0);
+  VpaMensagem.ContentType := 'multipart/mixed';
+  VpaMensagem.From.Address := VpaDFilial.DesEmailComercial;
+  VpaMensagem.From.Name := VpaDFilial.NomFantasia;
+
+  VpaSMTP.UserName := varia.UsuarioSMTP;
+  VpaSMTP.Password := Varia.SenhaEmail;
+  VpaSMTP.Host := Varia.ServidorSMTP;
+  VpaSMTP.Port := 25;
+  VpaSMTP.AuthType := satdefault;
+
+
+  if VpaMensagem.ReceiptRecipient.Address = '' then
+    result := 'E-MAIL DA FILIAL !!!'#13'É necessário preencher o e-mail da filial.';
+  if VpaSMTP.UserName = '' then
+    result := 'USUARIO DO E-MAIL ORIGEM NÃO CONFIGURADO!!!'#13'É necessário preencher nas configurações o e-mail de origem.';
+  if VpaSMTP.Password = '' then
+    result := 'SENHA SMTP DO E-MAIL ORIGEM NÃO CONFIGURADO!!!'#13'É necessário preencher nas configurações a senha do e-mail de origem';
+  if VpaSMTP.Host = '' then
+    result := 'SERVIDOR DE SMTP NÃO CONFIGURADO!!!'#13'É necessário configurar qual o servidor de SMTP...';
+  if result = '' then
+  begin
+    VpaSMTP.Connect;
+    try
+      VpaSMTP.Send(VpaMensagem);
+    except
+      on e : exception do
+      begin
+        result := 'ERRO AO ENVIAR O E-MAIL!!!'#13+e.message;
+        VpaSMTP.Disconnect;
+      end;
+    end;
+    VpaSMTP.Disconnect;
+  end;
+end;
+
+{******************************************************************************}
 function TRBFuncoesNFe.EnviaEmailDanfe(VpaDNota : TRBDNotaFiscal;VpaDCliente : TRBDCliente):String;
 var
   VpfTextoEmail : TStringList;
   VpfEmail : string;
+  VpfDFilial : TRBDFilial;
 begin
   Result := '';
   if (VpaDCliente.DesEmail = '') and (VpaDCliente.DesEmailFinanceiro = '') and
@@ -687,36 +878,75 @@ begin
       else
         VpfEmail := VpaDCliente.DesEmailFinanceiro;
 
+    VprMensagem.ReceiptRecipient.Text  := varia.EmailComercial;
+    VprMensagem.Recipients.Add.Address := varia.EmailComercial;
+    VprMensagem.ReplyTo.EMailAddresses := varia.EmailComercial;
+
     if config.EmiteNFe then
-      NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml')
+    begin
+      if ExisteArquivo(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml') then
+        NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml')
+      else
+        if ExisteArquivo(Varia.PathVersoes+'\nfe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml') then
+          NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml')
+        else
+        begin
+          result := EmiteNota(VpaDNota,VpaDCliente,nil);
+          NFe.NotasFiscais.SaveToFile;
+        end;
+    end
     else
+    begin
       result := EmiteNota(VpaDNota,VpaDCliente,nil);
+      NFe.NotasFiscais.SaveToFile;
+    end;
+
     if result = '' then
     begin
-      Danfe := TACBrNFeDANFERave.Create(Application);
-      Danfe.RavFile :=Varia.PathRelatorios+'\NotaFiscalEletronica.rav';
-      NFe.DANFE := Danfe;
-      if config.NFEDanfeRetrato then
-        NFE.DANFE.TipoDANFE := tiRetrato
-      else
-        NFE.DANFE.TipoDANFE := tiPaisagem;
-      NFe.DANFE.Logo := varia.PathVersoes+'\'+inttoStr(varia.CodigoEmpFil)+'.bmp';
-
-      VpfTextoEmail :=  TStringList.create;
-
-      NFe.DANFE.PathPDF := Varia.PathVersoes+'\nfe\';
-
-      while VpfEmail <> '' do
+      result := MontaHTML(VpaDNota,VpaDCliente);
+      if result = '' then
       begin
-        Nfe.NotasFiscais.Items[0].EnviarEmail(Varia.ServidorSMTP, '25',varia.UsuarioSMTP, Varia.SenhaEmail, varia.EmailComercial, DeletaChars(CopiaAteChar(VpfEmail,';'),';'), 'Segue anexo NF-e '+IntToStr(VpaDNota.NumNota)+ ' - '+varia.NomeFilial,
-                                           VpfTextoEmail,false);
-        VpfEmail := DeleteAteChar(VpfEmail,';');
+        GeraNFEPDF;
+        result := AnexaNFE(VpaDNota);
+        if result = '' then
+        begin
+          VprMensagem.Recipients.Clear;
+          while VpfEmail <> '' do
+          begin
+            VprMensagem.Recipients.add.Address := DeletaChars(CopiaAteChar(VpfEmail,';'),';');
+            VpfEmail := DeleteAteChar(VpfEmail,';');
+          end;
+
+          VpfDFilial := TRBDFilial.cria;
+          Sistema.CarDFilial(VpfDFilial,VpaDNota.CodFilial);
+
+          VprMensagem.Subject :=VpfDFilial.NomFilial + ' - nfe '+IntToStr(VpaDNota.NumNota);
+
+          result := EnviaEmail(VprMensagem,VprSMTP,VpfDFilial);
+          VpfDFilial.Free;
+        end;
       end;
     end;
     VpfTextoEmail.free;
     NFe.DANFE := nil;
     Danfe.FREE;
   end;
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesNFe.GeraNFEPDF;
+begin
+  Danfe := TACBrNFeDANFERave.Create(Application);
+  Danfe.RavFile :=Varia.PathRelatorios+'\NotaFiscalEletronica.rav';
+  NFe.DANFE := Danfe;
+  if config.NFEDanfeRetrato then
+    NFE.DANFE.TipoDANFE := tiRetrato
+  else
+    NFE.DANFE.TipoDANFE := tiPaisagem;
+  NFe.DANFE.Logo := varia.PathVersoes+'\'+inttoStr(varia.CodigoEmpFil)+'.bmp';
+
+  NFe.DANFE.PathPDF := Varia.PathVersoes+'\nfe\';
+  NFe.DANFE.ImprimirDANFEPDF;
 end;
 
 {******************************************************************************}

@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   ExtCtrls, PainelGradiente, Componentes1, StdCtrls, ComCtrls, Buttons,
   Localizacao, Grids, DBGrids, Tabela, DBKeyViolation, Db, DBTables, Mask,
-  numericos, UnPedidoCompra, UnDados, Menus, UnNotasFiscaisFor, DBClient;
+  numericos, UnPedidoCompra, UnDados, Menus, UnNotasFiscaisFor, DBClient, UnProdutos;
 
 type
   TFPedidoCompra = class(TFormularioPermissao)
@@ -116,6 +116,12 @@ type
     ConsultarNotasFiscais1: TMenuItem;
     N4: TMenuItem;
     ConsultaAgendamento1: TMenuItem;
+    Label20: TLabel;
+    SpeedButton2: TSpeedButton;
+    Label21: TLabel;
+    EProduto: TEditColor;
+    N5: TMenuItem;
+    ConsultaSolicitaoCompra1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -144,8 +150,13 @@ type
       Shift: TShiftState);
     procedure ConsultarNotasFiscais1Click(Sender: TObject);
     procedure ConsultaAgendamento1Click(Sender: TObject);
+    procedure EProdutoExit(Sender: TObject);
+    procedure EProdutoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure ConsultaSolicitaoCompra1Click(Sender: TObject);
   private
     FunNotaFor: TFuncoesNFFor;
+    VprSeqProduto: Integer;
     FunPedidoCompra: TRBFunPedidoCompra;
     VprOrdem: String;
     VprOrdemItens: String;
@@ -156,6 +167,8 @@ type
     procedure AtualizaTotais;
     procedure InsereNaListaPedidos(VpaListaPedidos: TList; VpaDPedidoCompraCorpo: TRBDPedidoCompraCorpo);
     procedure CarDClassePedidos(VpaListaPedidos: TList);
+    function ExisteProduto: Boolean;
+    function LocalizaProduto: Boolean;
   public
     procedure ConsultaPedidosSolicitacao(VpaSeqSolicitacao: Integer);
     procedure ConsultaPedidosOrdemProducao(VpaCodFilial, VpaSeqOrdemProducao, VpaSeqFracao : Integer);
@@ -168,7 +181,7 @@ implementation
 uses
   APrincipal, ANovoPedidoCompra, ConstMSG, Constantes, FunSQL, FunData,
   AAlteraEstagioPedidoCompra, UnCrystal, FunObjeto, ANovaNotaFiscaisFor,
-  UnDadosProduto, AAgendamentos, dmRave;
+  UnDadosProduto, AAgendamentos, dmRave, ALocalizaProdutos, ASolicitacaoCompras;
 
 {$R *.DFM}
 
@@ -261,6 +274,12 @@ begin
                     ' WHERE PSC.CODFILIAL = PCC.CODFILIAL'+
                     ' AND PSC.SEQSOLICITACAO = '+ESolicitacao.Text+
                     ' AND PCC.SEQPEDIDO = PSC.SEQPEDIDO)');
+    if EProduto.Text <> '' then
+      VpaSelect.Add(' AND EXISTS (SELECT PCI.SEQPEDIDO '+
+                    '             FROM PEDIDOCOMPRAITEM PCI'+
+                    '             WHERE PCI.SEQPRODUTO = '+IntToStr(VprSeqProduto)+
+                    '             AND PCC.CODFILIAL = PCI.CODFILIAL'+
+                    '             AND PCC.SEQPEDIDO = PCI.SEQPEDIDO )');
     if (EOrdemProducao.AInteiro <> 0) or (EFracao.AInteiro <> 0) then
     begin
       VpaSelect.Add('AND EXISTS '+
@@ -368,6 +387,12 @@ begin
   end
   else
     PRODUTOPEDIDO.Close;
+end;
+
+procedure TFPedidoCompra.SpeedButton2Click(Sender: TObject);
+begin
+  if LocalizaProduto then
+    AtualizaConsulta(false);
 end;
 
 {******************************************************************************}
@@ -548,6 +573,19 @@ begin
 end;
 
 {******************************************************************************}
+function TFPedidoCompra.ExisteProduto: Boolean;
+var
+  VpfUM,
+  VpfNomProduto: String;
+begin
+  Result:= FunProdutos.ExisteProduto(EProduto.Text,VprSeqProduto,VpfNomProduto,VpfUM);
+  if Result then
+    Label21.Caption:= VpfNomProduto
+  else
+    Label21.Caption:= '';
+end;
+
+{******************************************************************************}
 procedure TFPedidoCompra.ExtornarPedidoCompra1Click(Sender: TObject);
 var
   VpfResultado: String;
@@ -674,6 +712,30 @@ begin
 end;
 
 {******************************************************************************}
+function TFPedidoCompra.LocalizaProduto: Boolean;
+var
+  VpfCodProduto,
+  VpfNomProduto,
+  VpfDesUM,
+  VpfClaFiscal: String;
+begin
+  FlocalizaProduto := TFlocalizaProduto.criarSDI(Application,'',FPrincipal.VerificaPermisao('FlocalizaProduto'));
+  Result:= FlocalizaProduto.LocalizaProduto(VprSeqProduto,VpfCodProduto,VpfNomProduto,VpfDesUM,VpfClaFiscal);
+  FlocalizaProduto.free;
+  if Result then
+  begin
+    EProduto.Text:= VpfCodProduto;
+    Label21.Caption:= VpfNomProduto;
+  end
+  else
+  begin
+    EProduto.Text:= '';
+    Label21.Caption:= '';
+  end;
+
+end;
+
+{******************************************************************************}
 procedure TFPedidoCompra.ImprimirPedidosPendentes1Click(Sender: TObject);
 begin
   dtRave := TdtRave.create(self);
@@ -711,10 +773,40 @@ begin
 
 end;
 
+procedure TFPedidoCompra.EProdutoExit(Sender: TObject);
+begin
+  ExisteProduto;
+  AtualizaConsulta(false);
+end;
+
+{******************************************************************************}
+procedure TFPedidoCompra.EProdutoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    13: begin
+          if ExisteProduto then
+            AtualizaConsulta(false)
+          else
+            if LocalizaProduto then
+              AtualizaConsulta(false);
+        end;
+    114: if LocalizaProduto then
+           AtualizaConsulta(false);
+  end;
+end;
+
 {******************************************************************************}
 procedure TFPedidoCompra.ConsultarNotasFiscais1Click(Sender: TObject);
 begin
   FunPedidoCompra.ConsultaNotasFiscais(PEDIDOCOMPRACORPOSEQPEDIDO.AsInteger);
+end;
+
+{******************************************************************************}
+procedure TFPedidoCompra.ConsultaSolicitaoCompra1Click(Sender: TObject);
+begin
+  FSolicitacaoCompra := TFSolicitacaoCompra.CriarSDI(self,'',true);
+  FSolicitacaoCompra.ConsultaPedidoCompa(PEDIDOCOMPRACORPOCODFILIAL.AsInteger,PEDIDOCOMPRACORPOSEQPEDIDO.AsInteger);
+  FSolicitacaoCompra.free;
 end;
 
 {******************************************************************************}

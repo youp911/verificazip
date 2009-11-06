@@ -2,6 +2,7 @@ Unit UnAmostra;
 {Verificado
 -.edit;
 -*= e =*
+-.post;
 
 }
 Interface
@@ -46,6 +47,7 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     function RQtdAmostraEntregue(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
     function RQtdAmostraAprovada(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
     function RQtdClientesAmostra(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
+    function RLegendaDisponivel(VpaDAmostra : TRBDAmostra):String;
 end;
 
 
@@ -135,6 +137,31 @@ begin
                             SQLTextoDataEntreAAAAMMDD('DATAMOSTRA',VpaDatInicio,INCDIA(VpaDatFim,1),true));
   result := Aux.FieldByName('QTD').AsInteger;
   Aux.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.RLegendaDisponivel(VpaDAmostra : TRBDAmostra):String;
+var
+  VpfLaco : Integer;
+  VpfDConsumo : TRBDConsumoAmostra;
+begin
+  result := '';
+  if VpaDAmostra.Consumos.Count = 1 then
+    result := 'A'
+  else
+  begin
+    for VpfLaco := 0 to VpaDAmostra.Consumos.Count - 1 do
+    begin
+      VpfDConsumo := TRBDConsumoAmostra(VpaDAmostra.Consumos.Items[VpfLaco]);
+      if VpfDConsumo.DesLegenda <> '' then
+      begin
+        result := '';
+        if Length(VpfDConsumo.DesLegenda) > 1 then
+          result := copy(VpfDConsumo.DesLegenda,1,Length(VpfDConsumo.DesLegenda)-1);
+        result := result + char(ord(VpfDConsumo.DesLegenda[Length(VpfDConsumo.DesLegenda)])+1);
+      end;
+    end;
+  end;
 end;
 
 {******************************************************************************}
@@ -239,15 +266,10 @@ begin
     Cadastro.FieldByName('VALTOTAL').AsFloat := VpfDSerAmostra.ValTotal;
     Cadastro.FieldByName('QTDSERVICO').AsFloat := VpfDSerAmostra.QtdServico;
     Cadastro.FieldByName('DESADICIONAL').AsString := VpfDSerAmostra.DesAdicional;
-    try
-      Cadastro.post;
-    except
-      on e : exception do
-      begin
-        result := 'ERRO NA GRAVAÇÃO DO SERVICO DA AMOSTRA!!!!'#13+e.message;
-        break;
-      end;
-    end;
+    Cadastro.post;
+    result := Cadastro.AMensagemErroGravacao;
+    if Cadastro.AErronaGravacao then
+      break;
   end;
   Cadastro.close;
 end;
@@ -278,15 +300,10 @@ begin
     Cadastro.FieldByName('VALTOTAL').AsFloat := VpfDSerAmostra.ValTotal;
     Cadastro.FieldByName('QTDSERVICO').AsFloat := VpfDSerAmostra.QtdServico;
     Cadastro.FieldByName('DESADICIONAL').AsString := VpfDSerAmostra.DesAdicional;
-    try
-      Cadastro.post;
-    except
-      on e : exception do
-      begin
-        result := 'ERRO NA GRAVAÇÃO DO SERVICO FIXO DA AMOSTRA!!!!'#13+e.message;
-        break;
-      end;
-    end;
+    Cadastro.post;
+    result := Cadastro.AMensagemErroGravacao;
+    if Cadastro.AErronaGravacao then
+      break;
   end;
   Cadastro.close;
 end;
@@ -302,11 +319,8 @@ begin
     Cadastro.edit;
     Cadastro.FieldByname('DATENTREGA').AsDateTime := VpaDatConclusao;
     Cadastro.FieldByname('DATALTERADOENTREGA').AsDateTime := now;
-    try
-      Cadastro.post;
-    except
-      on e : exception do result := 'ERRO NA GRAVAÇÃO DA DATA DE ENTREGA DA AMOSTRA!!!'#13+e.message;
-    end;
+    Cadastro.post;
+    result := Cadastro.AMensagemErroGravacao;
   end;
   Cadastro.close;
 end;
@@ -319,11 +333,8 @@ begin
                                  ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
   Cadastro.edit;
   Cadastro.FieldByname('DATPRECO').AsDateTime := VpaDatConclusao;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVAÇÃO DA DATA DO PREÇO DA AMOSTRA!!!'#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
 end;
 
@@ -335,11 +346,8 @@ begin
                                  ' Where SEQREQUISICAO = '+IntToStr(VpaSeqRequisicao));
   cadastro.edit;
   Cadastro.FieldByName('DATCONCLUSAO').AsDateTime := now;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVAÇÃO DA REQUISICAOMAQUINA!!!'#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
 end;
 
@@ -353,11 +361,8 @@ begin
   begin
     Cadastro.edit;
     Cadastro.FieldByname('DATAPROVACAO').AsDateTime := DATE;
-    try
-      Cadastro.post;
-    except
-      on e : exception do result := 'ERRO NA GRAVAÇÃO DA DATA DE APROVACAO DA AMOSTRA!!!'#13+e.message;
-    end;
+    Cadastro.post;
+    result := Cadastro.AMensagemErroGravacao;
   end;
   Cadastro.close;
 end;
@@ -370,11 +375,8 @@ begin
                                  ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
   Cadastro.edit;
   Cadastro.FieldByname('DATFICHA').AsDateTime := now;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVAÇÃO DA DATA DA FICHA DA AMOSTRA!!!'#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
 end;
 
@@ -386,11 +388,8 @@ begin
                                  ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
   Cadastro.edit;
   Cadastro.FieldByname('DATAPROVACAO').Clear;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVAÇÃO DO ESTORNO DA APROVAÇÃO DA AMOSTRA!!!'#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
 end;
 
@@ -403,7 +402,7 @@ begin
   Amostra.Close;
   Amostra.SQL.Clear;
   Amostra.SQL.Add('Select CON.SEQCONSUMO, CON.SEQPRODUTO, CON.DESUM, CON.NOMPRODUTO, CON.CODCOR,' +
-                  ' CON.DESOBSERVACAO, CON.VALUNITARIO, CON.QTDPRODUTO, CON.VALTOTAL,'+
+                  ' CON.DESOBSERVACAO, CON.DESLEGENDA, CON.VALUNITARIO, CON.QTDPRODUTO, CON.VALTOTAL,'+
                   ' CON.CODFACA, CON.ALTMOLDE, CON.LARMOLDE, CON.CODMAQUINA,  '+
                   ' CON.DESOBSERVACAO, '+
                   ' PRO.C_COD_PRO, PRO.I_ALT_PRO, '+
@@ -438,6 +437,7 @@ begin
     VpfDConsumo.AltMolde := Amostra.FieldByname('ALTMOLDE').AsFloat;
     VpfDConsumo.CodMaquina := Amostra.FieldByname('CODMAQUINA').AsInteger;
     VpfDConsumo.DesObservacao := Amostra.FieldByname('DESOBSERVACAO').AsString;
+    VpfDConsumo.DesLegenda := Amostra.FieldByname('DESLEGENDA').AsString;
     if VpfDConsumo.CodFaca <> 0 then
       FunProdutos.ExisteFaca(VpfDConsumo.CodFaca,VpfDConsumo.Faca);
     if VpfDConsumo.CodMaquina <> 0 then
@@ -477,6 +477,7 @@ begin
     Cadastro.FieldByName('VALUNITARIO').AsFloat := VpfdConsumo.ValUnitario;
     Cadastro.FieldByName('VALTOTAL').AsFloat := VpfdConsumo.ValTotal;
     Cadastro.FieldByName('DESOBSERVACAO').AsString := VpfdConsumo.DesObservacao;
+    Cadastro.FieldByName('DESLEGENDA').AsString := VpfdConsumo.DesLegenda;
     if VpfDConsumo.CodFaca <> 0 then
       Cadastro.FieldByName('CODFACA').AsInteger := VpfDConsumo.CodFaca;
     if VpfDConsumo.LarMolde <> 0 then
@@ -489,15 +490,10 @@ begin
       Cadastro.FieldByName('QTDPECAEMMETRO').AsFloat := VpfDConsumo.QtdPecasemMetro;
     if VpfDConsumo.ValIndiceConsumo <> 0 then
       Cadastro.FieldByName('VALINDICEMETRO').AsFloat := VpfDConsumo.ValIndiceConsumo;
-    try
-      Cadastro.Post;
-    except
-      on e : exception do
-      begin
-        result := 'ERRO NA GRAVAÇÃO DO CONSUMO DA AMOSTRA!!!'#13+e.message;
-        exit;
-      end;
-    end;
+    Cadastro.Post;
+    result := Cadastro.AMensagemErroGravacao;
+    if Cadastro.AErronaGravacao then
+      exit;
   end;
   Cadastro.close;
   if result = '' then
@@ -521,11 +517,8 @@ begin
   Cadastro.FieldByName('DESREQUISICAO').AsString := VpaDesRequisicao;
   Cadastro.FieldByName('DATREQUISICAO').AsDateTime := now;
   Cadastro.FieldByName('SEQREQUISICAO').AsInteger := RSeqRequisicaoMaquinaDisponivel;
-  try
-    Cadastro.post;
-  except
-    on e : exception do result := 'ERRO NA GRAVAÇÃO DA REQUISICAOMAQUINA!!!'#13+e.message;
-  end;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
 end;
 
 {******************************************************************************}
@@ -570,14 +563,8 @@ begin
   begin
     Cadastro.Edit;
     Cadastro.FieldByName('CODPRODUTO').AsString:= VpaDAmostra.CodProduto;
-    try
-      Cadastro.Post;
-    except
-      on E:Exception do
-      begin
-        Result:= 'ERRO AO ATUALIZAR A AMOSTRA!!!'#13+E.Message;
-      end;
-    end;
+    Cadastro.Post;
+    result := Cadastro.AMensagemErroGravacao;
   end;
   Cadastro.Close;
 end;
@@ -619,11 +606,10 @@ begin
     Cadastro.FieldByname('N_VLR_TOT').AsFloat := Amostra.FieldByname('VALTOTAL').AsFloat;
     Cadastro.FieldByname('N_PEC_MET').AsFloat := Amostra.FieldByname('QTDPECAEMMETRO').AsFloat;
     Cadastro.FieldByname('N_IND_MET').AsFloat := Amostra.FieldByname('VALINDICEMETRO').AsFloat;
-    try
-      Cadastro.post;
-    except
-      on e : Exception do result := 'ERRO NA COPIA DOS CONSUMOS DA AMOSTRA PARA O PRODUTO!!!'#13+e.message;
-    end;
+    Cadastro.post;
+    result := Cadastro.AMensagemErroGravacao;
+    if Cadastro.AErronaGravacao then
+      break;
     Amostra.next;
   end;
   Amostra.close;

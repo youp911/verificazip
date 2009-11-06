@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
-  UnSolicitacaoCompra, UnDados, UnProdutos, Grids, CGrades, ExtCtrls,
-  Componentes1, PainelGradiente, StdCtrls, Buttons, ConstMsg, Menus;
+  UnSolicitacaoCompra, Menus, PainelGradiente, StdCtrls, Buttons, Grids, CGrades, Componentes1, ExtCtrls, UnDados, UnProdutos,
+  Constmsg;
 
 type
   TFSolicitacaoCompraProdutosPendentes = class(TFormularioPermissao)
@@ -19,6 +19,8 @@ type
     PanelColor2: TPanelColor;
     EDescricaoTecnica: TMemoColor;
     Grade: TRBStringGridColor;
+    N1: TMenuItem;
+    MOrdenaPorClassificacao: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -30,6 +32,8 @@ type
     procedure BGerarPedidoClick(Sender: TObject);
     procedure ConsultaOrcamentoCompra1Click(Sender: TObject);
     procedure BGeraOrcamentoCompraClick(Sender: TObject);
+    procedure MOrdenaPorClassificacaoClick(Sender: TObject);
+    procedure GradeGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
   private
     VprAcao: Boolean;
     VprListaOrcamentos: TList;
@@ -158,6 +162,11 @@ begin
   end;
 end;
 
+procedure TFSolicitacaoCompraProdutosPendentes.GradeGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush;
+  AFont: TFont);
+begin
+end;
+
 {******************************************************************************}
 procedure TFSolicitacaoCompraProdutosPendentes.GradeCarregaItemGrade(
   Sender: TObject; VpaLinha: Integer);
@@ -195,6 +204,14 @@ begin
     VprDProdutoPendente:= TRBDProdutoPendenteCompra(VprProdutosPendentes.Items[VpaLinhaAtual-1]);
     EDescricaoTecnica.Lines.Text := VprDProdutoPendente.DesTecnica;
   end;
+end;
+
+{******************************************************************************}
+procedure TFSolicitacaoCompraProdutosPendentes.MOrdenaPorClassificacaoClick(Sender: TObject);
+begin
+  MOrdenaPorClassificacao.Checked := not MOrdenaPorClassificacao.Checked;
+  FunSolicitacao.OrdenaProdutosPendentesPorClassificacao(VprProdutosPendentes);
+  Grade.CarregaGrade;
 end;
 
 {******************************************************************************}

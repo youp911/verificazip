@@ -234,7 +234,7 @@ type
     procedure CarProdutoImpressoras(VpaSeqProduto : Integer;VpaImpresoras : TList);
     procedure CarAcessoriosProduto(VpaDProduto : TRBDProduto);
     procedure CarDBaixaConsumoProduto(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer; VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList);
-    procedure CarDBaixaFracaoConsumoProduto(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer; VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList;VpaCarregarSubMontagem : Boolean);
+    procedure CarDBaixaFracaoConsumoProduto(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer; VpaIndConsumoOrdemCorte : Boolean; VpaBaixas: TList;VpaCarregarSubMontagem, VpaConsumoAExcluir : Boolean);
     procedure CarPerComissoesProduto(VpaSeqProduto,VpaCodVendedor : Integer;Var VpaPerComissaoProduto : Double;Var VpaPerComissaoClassificacao : Double;var VpaPerComissaoVendedor : Double);
     procedure CarValVendaeRevendaProduto(VpaCodTabelaPreco, VpaSeqProduto, VpaCodCor, VpaCodTamanho, VpaCodCliente : Integer;Var VpaValVenda : Double;Var VpaValRevenda : Double);
     function RMoedaProduto(VpaCodEmpresa, VpaSeqProduto : String) : integer;
@@ -831,7 +831,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFuncoesProduto.CarDBaixaFracaoConsumoProduto(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer; VpaIndConsumoOrdemCorte : Boolean;  VpaBaixas: TList;VpaCarregarSubMontagem : Boolean);
+procedure TFuncoesProduto.CarDBaixaFracaoConsumoProduto(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer; VpaIndConsumoOrdemCorte : Boolean;  VpaBaixas: TList;VpaCarregarSubMontagem,VpaConsumoAExcluir : Boolean);
 var
   VpfDBaixaConsumo: TRBDConsumoFracaoOP;
   VpfTabela : TSQLQUERY;
@@ -856,6 +856,12 @@ begin
     Tabela.sql.add(' AND FOC.INDORDEMCORTE = ''S''')
   else
     Tabela.sql.add(' AND FOC.INDORDEMCORTE = ''N''');
+  if VpaConsumoAExcluir then
+    Tabela.sql.add(' AND FOC.INDEXCLUIR = ''S''')
+  else
+    Tabela.sql.add(' AND FOC.INDEXCLUIR = ''N''');
+
+
   Tabela.Open;
 
   while not Tabela.Eof do
@@ -931,7 +937,7 @@ begin
                                      ' and SEQFRACAOPAI = '+IntToStr(VpaSeqFracao));
     while not VpfTabela.eof do
     begin
-      CarDBaixaFracaoConsumoProduto(VpaCodFilial,VpaSeqOrdem,VpfTabela.FieldByName('SEQFRACAO').AsInteger,VpaIndConsumoOrdemCorte,VpaBaixas,true);
+      CarDBaixaFracaoConsumoProduto(VpaCodFilial,VpaSeqOrdem,VpfTabela.FieldByName('SEQFRACAO').AsInteger,VpaIndConsumoOrdemCorte,VpaBaixas,true,VpaConsumoAExcluir);
       VpfTabela.next;
     end;
     VpfTabela.close;
@@ -1154,7 +1160,7 @@ procedure TFuncoesProduto.CarDBaixaConsumoProduto(VpaCodFilial, VpaSeqOrdem, Vpa
 begin
   FreeTObjectsList(VpaBaixas);
   if VpaSeqFracao <> 0 then
-    CarDBaixaFracaoConsumoProduto(VpaCodFilial,VpaSeqOrdem,VpaSeqFracao,VpaIndConsumoOrdemCorte, VpaBaixas,true)
+    CarDBaixaFracaoConsumoProduto(VpaCodFilial,VpaSeqOrdem,VpaSeqFracao,VpaIndConsumoOrdemCorte, VpaBaixas,true,false)
   else
     CarDBaixaOPConsumoProduto(VpaCodFilial,VpaSeqOrdem,VpaIndConsumoOrdemCorte, VpaBaixas);
 end;
@@ -3088,7 +3094,8 @@ begin
   Result:= False;
   if VpaCodProduto <> '' then
   begin
-    AdicionaSQLAbreTabela(ProProduto,'SELECT PRO.C_COD_PRO, PRO.I_SEQ_PRO, PRO.C_COD_UNI, PRO.C_NOM_PRO'+
+    AdicionaSQLAbreTabela(ProProduto,'SELECT PRO.C_COD_PRO, PRO.I_SEQ_PRO, PRO.C_COD_UNI, PRO.C_NOM_PRO, '+
+                                     ' PRO.C_COD_CLA '+
                                      ' FROM CADPRODUTOS PRO'+
                                      ' WHERE PRO.C_COD_PRO = '''+VpaCodProduto+'''');
     Result:= not ProProduto.Eof;
@@ -3096,6 +3103,7 @@ begin
     begin
       VpaDOrcamentoItem.SeqProduto:= ProProduto.FieldByName('I_SEQ_PRO').AsInteger;
       VpaDOrcamentoItem.CodProduto:= ProProduto.FieldByName('C_COD_PRO').AsString;
+      VpaDOrcamentoItem.CodClassificacao := ProProduto.FieldByName('C_COD_CLA').AsString;
       VpaDOrcamentoItem.DesUM:= ProProduto.FieldByName('C_COD_UNI').AsString;
       VpaDOrcamentoItem.NomProduto:= ProProduto.FieldByName('C_NOM_PRO').AsString;
 

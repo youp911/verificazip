@@ -878,6 +878,12 @@ begin
         ExecutaComandoSql(Aux,'UPDATE CADCLIENTES SET C_IND_VIS = ''N''');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1516');
       end;
+      if VpaNumAtualizacao < 1517 Then
+      begin
+        VpfErro := '1517';
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRACONSUMO ADD DESLEGENDA CHAR(4)NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1517');
+      end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then
       begin

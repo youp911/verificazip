@@ -2,34 +2,34 @@ Unit UnFluxoCaixa;
 
 Interface
 
-Uses Classes, DBTables,vcf1,Graphics, unDadosCR, SysUtils, CGrades;
+Uses Classes, vcf1,Graphics, unDadosCR, SysUtils, CGrades, SqlExpr,Tabela;
 
 Const
   LinInicial = 1;
   LinFinal = 20;
   LinPrimeiraContaCaixa = 2;
-  ColInicial = 1;
-  ColTituloLinha = 2;
-  ColAplicacao = 3;
-  ColSaldoAnterior = 4;
-  ColSaldoAtual = 5;
-  ColFinal = 20;
+  ColInicial = 0;
+  ColTituloLinha = 1;
+  ColAplicacao = 2;
+  ColSaldoAnterior = 3;
+  ColSaldoAtual = 4;
+  ColFinal = 19;
 
 //classe localiza
 Type TRBLocalizaFluxoCaixa = class
   private
   public
-    procedure LocalizaContas(VpaTabela : TQuery);
-    procedure LocalizaSaldoAnteriorCR(VpaTabela : TQuery;VpaDatInicio : TDateTime);
-    procedure LocalizaChequeSaldoAnteriorCR(VpaTabela : TQuery;VpaDatInicio : TDateTime);
-    procedure LocalizaContasAReceber(VpaTabela : TQuery;VpaDatInicio,VpaDatFim : TDateTime);
+    procedure LocalizaContas(VpaTabela : TSQl);
+    procedure LocalizaSaldoAnteriorCR(VpaTabela : TSql;VpaDatInicio : TDateTime);
+    procedure LocalizaChequeSaldoAnteriorCR(VpaTabela : TSQl;VpaDatInicio : TDateTime);
+    procedure LocalizaContasAReceber(VpaTabela : TSQl;VpaDatInicio,VpaDatFim : TDateTime);
     constructor cria;
 end;
 //classe funcoes
 Type TRBFuncoesFluxoCaixa = class(TRBLocalizaFluxoCaixa)
   private
     Aux,
-    Tabela : TQuery;
+    Tabela : TSQL;
     // cores
     CorFonteCaixa,
     CorFundoCaixa,
@@ -55,17 +55,17 @@ Type TRBFuncoesFluxoCaixa = class(TRBLocalizaFluxoCaixa)
     procedure CarContasaReceber(VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarMesContasaReceberGrade(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo;VpaMes,VpaAno : Integer);
     procedure CarValorAplicacaoGrade(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
-    procedure CarContaCaixaGrade(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
+    procedure CarContaCaixaGrade(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure RContaCaixaDia(VpanumConta :string; VpaFluxoDia : TRBDFluxoCaixaDia;VpaDFluxoMes : TRBDFluxoCaixaMes; VpaDFluxo : TRBDFluxoCaixaCorpo);
     function RContaFluxoCaixa(VpaNumConta : string; VpaDFluxo : TRBDFluxoCaixaCorpo):TRBDFluxoCaixaConta;
   public
-    constructor cria;
+    constructor cria(VpaBaseDados : TSQLConnection);
     destructor destroy;override;
     procedure CarTitulosDiarioGrade(VpaGrade : TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarregaCores(VpaCorFonteCaixa, VpaCorFundoCaixa, VpaCorFonteNegativo, VpaCorFonteTituloCR, VpaCorFonteCR, VpaCorFundoTituloCR, VpaCorFundoCR, VpaCorFonteCP,VpaCorFundoCP, VpaCorFonteTituloCP, VpaCorFundoTituloCP: TColor; VpaNomFonte : string; VpaTamFonte,VpaAltLinha : Integer);
     procedure LimpaFluxo(VpaGrade : TF1Book);
     procedure InicializaFluxoDiario(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
-    procedure CarFluxoCaixa(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
+    procedure CarFluxoCaixa(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
 end;
 
 
@@ -85,7 +85,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBLocalizaFluxoCaixa.LocalizaContas(VpaTabela : TQuery);
+procedure TRBLocalizaFluxoCaixa.LocalizaContas(VpaTabela : TSQL);
 begin
   AdicionaSQLAbreTabela(VpaTabela,'Select CON.C_NRO_CON, C_NOM_CRR, CON.N_LIM_CRE, CON.N_SAL_ATU, '+
                                   '       CON.N_VAL_APL, '+
@@ -97,7 +97,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBLocalizaFluxoCaixa.LocalizaSaldoAnteriorCR(VpaTabela : TQuery;VpaDatInicio: TDateTime);
+procedure TRBLocalizaFluxoCaixa.LocalizaSaldoAnteriorCR(VpaTabela : TSQL;VpaDatInicio: TDateTime);
 begin
   AdicionaSQLAbreTabela(VpaTabela,'Select  MOV.C_NRO_CON, MOV.I_EMP_FIL, MOV.I_LAN_REC, MOV.I_PAR_FIL, MOV.I_COD_FRM, MOV.D_DAT_VEN, MOV.C_NRO_DUP, MOV.N_VLR_PAR, '+
                                   ' MOV.D_DAT_PRO, '+
@@ -113,7 +113,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBLocalizaFluxoCaixa.LocalizaChequeSaldoAnteriorCR(VpaTabela : TQuery;VpaDatInicio : TDateTime);
+procedure TRBLocalizaFluxoCaixa.LocalizaChequeSaldoAnteriorCR(VpaTabela : TSQL;VpaDatInicio : TDateTime);
 begin
   AdicionaSQLAbreTabela(VpaTabela,'Select CHE.SEQCHEQUE, CHE.CODBANCO, CHE.CODFORMAPAGAMENTO, CHE.NUMCHEQUE, '+
                                   ' CHE.CODUSUARIO, CHE.NUMCONTACAIXA, CHE.NOMEMITENTE, CHE.TIPCHEQUE, '+
@@ -129,7 +129,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBLocalizaFluxoCaixa.LocalizaContasAReceber(VpaTabela : TQuery;VpaDatInicio,VpaDatFim : TDateTime);
+procedure TRBLocalizaFluxoCaixa.LocalizaContasAReceber(VpaTabela : TSQL;VpaDatInicio,VpaDatFim : TDateTime);
 begin
   AdicionaSQLAbreTabela(VpaTabela,'Select  MOV.C_NRO_CON, MOV.I_EMP_FIL, MOV.I_LAN_REC, MOV.I_PAR_FIL, MOV.I_COD_FRM, MOV.D_DAT_VEN, MOV.C_NRO_DUP, MOV.N_VLR_PAR, '+
                                   ' MOV.D_DAT_PRO, '+
@@ -149,13 +149,13 @@ end;
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
 
 {********************************* cria a classe ********************************}
-constructor TRBFuncoesFluxoCaixa.cria;
+constructor TRBFuncoesFluxoCaixa.cria(VpaBaseDados : TSQLConnection);
 begin
   inherited create;
-  Tabela := TQuery.Create(nil);
-  Tabela.DatabaseName := 'BaseDados';
-  Aux := TQuery.Create(nil);
-  Aux.DataBaseName := 'BaseDados';
+  Tabela := TSQL.Create(nil);
+  Tabela.ASQlConnection := VpaBaseDados;
+  Aux := TSQL.Create(nil);
+  Aux.ASQlConnection := VpaBaseDados;
 end;
 
 {******************************************************************************}
@@ -173,7 +173,7 @@ begin
     VpaGrade.Cells[ColInicial,LinInicial] := 'Fluxo Diário : '+IntToStr(VpaDFluxo.Mes)+'/'+IntToStr(VpaDFluxo.Ano)
   else
     VpaGrade.Cells[ColInicial,LinInicial] := 'Fluxo Mensal : '+ IntToStr(VpaDFluxo.Ano);
-  VpaGrade.FormataCelula(ColInicial,ColInicial,LinInicial,LinInicial,TamanhoFonte+2,NomeFonte,clwhite,true,false,clblue,taCenter,vaCenter,
+  VpaGrade.FormataCelula(ColInicial,ColInicial,LinInicial,LinInicial,TamanhoFonte+2,NomeFonte,clblue,true,false,clwhite,taCenter,vaCenter,
                 bcSemBorda);
   VpaGrade.cells[ColSaldoAnterior,LinInicial] := 'Saldo Anterior';
   VpaGrade.Cells[ColAplicacao,LinInicial] := 'Aplicação';
@@ -182,11 +182,11 @@ begin
   VpaGrade.FormataCelula(ColAplicacao,ColSaldoAtual,LinInicial,LinInicial,TamanhoFonte,NomeFonte,CorFonteCaixa,true,false,CorFundoCaixa,
                          taLeftJustify,vacenter,bcComBorda);
   VpaGrade.RowHeights[LinInicial] := AlturaLinha+5;
-  VpaGrade.ColWidths[ColInicial] := 50;
-  VpaGrade.ColWidths[ColTituloLinha] := 500;
-  VpaGrade.ColWidths[ColAplicacao] := 250;
-  VpaGrade.ColWidths[ColSaldoAnterior] := 350;
-  VpaGrade.ColWidths[ColSaldoAtual] := 350;
+  VpaGrade.ColWidths[ColInicial] := 10;
+  VpaGrade.ColWidths[ColTituloLinha] := 200;
+  VpaGrade.ColWidths[ColAplicacao] := 100;
+  VpaGrade.ColWidths[ColSaldoAnterior] := 100;
+  VpaGrade.ColWidths[ColSaldoAtual] := 100;
 end;
 
 {******************************************************************************}
@@ -389,29 +389,28 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesFluxoCaixa.CarContaCaixaGrade(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
+procedure TRBFuncoesFluxoCaixa.CarContaCaixaGrade(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
 Var
   vpfLinha : Integer;
   VpfLaco : integer;
   VpfDConta : TRBDFluxoCaixaConta;
 begin
-  VpaGrade.ColWidth[ColInicial] := 500;
-  VpaGrade.ColWidth[ColInicial+1] := 6000;
+//  VpaGrade.ColWidth[ColInicial] := 500;
+// VpaGrade.ColWidth[ColInicial+1] := 6000;
   for VpfLaco := 0 to VpaDFluxo.ContasCaixa.Count -1 do
   begin
     VpfDConta := TRBDFluxoCaixaConta(VpaDFluxo.ContasCaixa.Items[VpfLaco]);
     vpfLinha := LinPrimeiraContaCaixa +1 +(VpfLaco*23);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := VpfDConta.NumContaCaixa+ '-'+VpfDConta.NomContaCaixa;
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha+100,false);
-    FormataCelula(VpaGrade,ColInicial,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+3,clblue,clwhite,true,
-                false,NomeFonte);
-    FormataBordaCelula(VpaGrade,ColInicial,VpaDFluxo.QtdColunas,VpfLinha,vpfLinha,clBlue,false);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := VpfDConta.NumContaCaixa+ '-'+VpfDConta.NomContaCaixa;
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha+1;
+    VpaGrade.FormataCelula(ColInicial,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+3,NomeFonte,clwhite,true,
+                false,clblue,taLeftJustify,vaCenter,bcComBorda);
 
     //formata a cor da primeira coluna em azul
-    FormataCelula(VpaGrade,ColInicial,ColInicial,VpfLinha,VpfLinha+20,TamanhoFonte+3,clblue,clwhite,true,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(ColInicial,ColInicial,VpfLinha,VpfLinha+20,TamanhoFonte+3,NomeFonte,clwhite,true,
+                false,clblue,taLeftJustify,vaCenter,bcSemBorda);
 
-    //Titulo Contas a receber;
+{    //Titulo Contas a receber;
     inc(vpflinha);
     FormataCelula(VpaGrade,ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+2,CorFundoTituloCR,CorFonteTituloCR,true,
                 false,NomeFonte);
@@ -556,9 +555,9 @@ begin
     FormataCelula(VpaGrade,ColInicial,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,clblue,clwhite,false,
                 false,NomeFonte);
     VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Total Acumulado Conta ' +VpfDConta.NumContaCaixa+ ' :';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
+    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);}
   end;
-
+{
   inc(vpflinha);
   //Total dia
   inc(vpflinha);
@@ -573,13 +572,13 @@ begin
   FormataCelula(VpaGrade,ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,clGray,clBlack,true,
               false,NomeFonte);
   VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Total Acumulado : ';
-  VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha+100,false);
+  VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha+100,false);}
 end;
 
 {******************************************************************************}
 procedure TRBFuncoesFluxoCaixa.RContaCaixaDia(VpanumConta :string; VpaFluxoDia : TRBDFluxoCaixaDia;VpaDFluxoMes : TRBDFluxoCaixaMes; VpaDFluxo : TRBDFluxoCaixaCorpo);
 begin
-  
+
 end;
 
 {******************************************************************************}
@@ -639,39 +638,36 @@ begin
   TamanhoGrade := 50;
   VpaGrade.ColCount := TamanhoGrade;
   InicializaGradeGeral(VpaGrade,VpaDFluxo);
-{  if VpaDFluxo.IndDiario then
+  if VpaDFluxo.IndDiario then
     VpaDFluxo.QtdColunas := Dia(UltimoDiaMes(MontaData(1,VpaDFluxo.Mes,VpaDFluxo.Ano)))
   else
     VpaDFluxo.QtdColunas := 12;
 
   for VpfLaco := 1 to VpaDFluxo.QtdColunas do
   begin
-    VpaGrade.TextRC[LinInicial,ColSaldoAtual+VpfLaco] := IntToStr(VpfLaco);
-    FormataCelula(VpaGrade,ColSaldoAtual+VpfLaco,ColSaldoAtual+VpfLaco,LinInicial,LinInicial,TamanhoFonte,CorFundoCaixa,CorFonteCaixa,true,
-                false,NomeFonte);
-    FormataBordaCelula(VpaGrade,ColSaldoAtual+VpfLaco,ColSaldoAtual+VpfLaco,LinInicial,LinInicial,clBlack,false);
-    VpaGrade.SetAlignment(F1HAlignRight,false,F1VAlignBottom,0);
-    VpaGrade.ColWidth[ColInicial] := 2500;
+    VpaGrade.cells[ColSaldoAtual+VpfLaco,LinInicial] := IntToStr(VpfLaco);
+    VpaGrade.FormataCelula(ColSaldoAtual+VpfLaco,ColSaldoAtual+VpfLaco,LinInicial,LinInicial,TamanhoFonte,NomeFonte,CorFonteCaixa,true,
+                false,CorFundoCaixa,taRightJustify,vacenter,bcComBorda);
+    VpaGrade.ColWidths[ColInicial] := 100;
   end;
-  VpaGrade.TextRC[LinInicial,ColSaldoAtual+VpaDFluxo.QtdColunas+1] := 'Total';
-  FormataCelula(VpaGrade,ColSaldoAtual+VpaDFluxo.QtdColunas+1,ColSaldoAtual+VpaDFluxo.QtdColunas+1,LinInicial,LinInicial,TamanhoFonte,CorFundoCaixa,CorFonteCaixa,true,
-                false,NomeFonte);
-  VpaGrade.SetAlignment(F1HAlignRight,false,F1VAlignBottom,0);
-  VpaGrade.ColWidth[ColInicial] := 2500;
+  VpaGrade.cells[ColSaldoAtual+VpaDFluxo.QtdColunas+1,LinInicial] := 'Total';
+  VpaGrade.FormataCelula(ColSaldoAtual+VpaDFluxo.QtdColunas+1,ColSaldoAtual+VpaDFluxo.QtdColunas+1,LinInicial,LinInicial,TamanhoFonte,NomeFonte,CorFonteCaixa,true,
+                false,CorFundoCaixa,taRightJustify,vaCenter,bcComBorda);
+  VpaGrade.ColWidths[VpaDFluxo.QtdColunas+ColSaldoAtual+1] := 120;
 
-  VpaDFluxo.QtdColunas := VpaDFluxo.QtdColunas+ColSaldoAtual+1;}
+  VpaDFluxo.QtdColunas := VpaDFluxo.QtdColunas+ColSaldoAtual+1;
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesFluxoCaixa.CarFluxoCaixa(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
+procedure TRBFuncoesFluxoCaixa.CarFluxoCaixa(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
 begin
   CarContasFluxo(VpaDFluxo);
   CarContaCaixaGrade(VpaGrade,VpaDFluxo);
-  CarSaldoAnterior(VpaDFluxo);
+{  CarSaldoAnterior(VpaDFluxo);
   CarChequesSaldoAnterior(VpaDFluxo);
   CarContasaReceber(VpaDFluxo);
   CarValorAplicacaoGrade(VpaGrade,VpaDFluxo);
-  CarMesContasaReceberGrade(VpaGrade,VpaDFluxo,VpaDFluxo.Mes,VpaDFluxo.Ano);
+  CarMesContasaReceberGrade(VpaGrade,VpaDFluxo,VpaDFluxo.Mes,VpaDFluxo.Ano);}
 end;
 
 end.

@@ -120,7 +120,7 @@ begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
   VprDFluxo := TRBDFluxoCaixaCorpo.cria;
-  FunFluxoCaixa := TRBFuncoesFluxoCaixa.cria;
+  FunFluxoCaixa := TRBFuncoesFluxoCaixa.cria(FPrincipal.BaseDados);
   InicializaTela;
 end;
 
@@ -162,6 +162,7 @@ Var
   VpfLinha,VpfColuna : Integer;
   VpfFormatacaoCelula : TRBFormatacaoCelula;
 begin
+  exit;
   Grade.MouseToCell(x,y,VpfColuna,VpfLinha);
   VpfFormatacaoCelula := Grade.FormatacaoCelula[VpfLinha,VpfColuna,true];
   VpfFormatacaoCelula.CorFundo := clRed;
@@ -193,8 +194,8 @@ begin
   EMes.Value := VpaMes;
   EAno.Value := VpaAno;
   InicializaGrade;
-//D5  FunFluxoCaixa.CarTitulosDiarioGrade(grade,VprDFluxo);
-//D5  FunFluxoCaixa.CarFluxoCaixa(Grade,VprDFluxo);
+//  FunFluxoCaixa.CarTitulosDiarioGrade(grade,VprDFluxo);
+  FunFluxoCaixa.CarFluxoCaixa(Grade,VprDFluxo);
   ShowModal;
 end;
 

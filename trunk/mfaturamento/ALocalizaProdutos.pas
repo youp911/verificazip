@@ -922,6 +922,7 @@ begin
     VpaDOrcamentoItens.NomProduto:= CadProdutosC_NOM_PRO.AsString;
     VpaDOrcamentoItens.DesUM:= CadProdutosC_COD_UNI.AsString;
     VpaDOrcamentoItens.UMOriginal:= CadProdutosC_COD_UNI.AsString;
+    VpaDOrcamentoItens.CodClassificacao := CadProdutosC_COD_CLA.AsString;
 
     VpaDOrcamentoItens.UnidadesParentes.Free;
     VpaDOrcamentoItens.UnidadesParentes:= FunProdutos.RUnidadesParentes(VpaDOrcamentoItens.DesUM);

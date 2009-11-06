@@ -180,6 +180,7 @@ begin
       VprDOPGeral.CodEstagio := varia.EstagioOrdemProducao;
       VprDOPGeral.DatEntrega := VprDOrcamento.DatPrevista;
       FunProdutos.CarDProduto(VprDOPGeral.DProduto,Varia.CodigoEmpresa,Varia.CodigoEmpFil,VprDOPGeral.SeqProduto);
+      FunProdutos.CarDEstagio(VprDOPGeral.DProduto);
       VprDOPGeral.DesObservacoes := VprDOPGeral.DProduto.DesObservacao;
       VprDOPGeral.DesReferenciaCliente := VpfDGerarOP.DesReferenciaCliente;
       VprDOPGeral.ValUnitario := VpfDGerarOP.ValUnitario;
@@ -331,7 +332,7 @@ begin
       VpfDFracao.IndEstagioGerado := true;
       VpfDFracao.IndEstagiosCarregados := true;
       FunOrdemProducao.VplQtdFracoes := 0;
-      FunOrdemProducao.AdicionaProdutosSubMontagem(VprDOPGeral,VpfDFracao,StatusBar1);
+      FunOrdemProducao.AdicionaProdutosSubMontagem(VprDOPGeral,VpfDFracao,StatusBar1,true);
     end;
   end;
 

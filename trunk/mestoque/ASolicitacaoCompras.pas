@@ -117,6 +117,10 @@ type
     N3: TMenuItem;
     ConsultaPropostasVendas1: TMenuItem;
     SOLICITACAOCOMPRAITEMQTDCOMPRADA: TFMTBCDField;
+    ESolicitacao: Tnumerico;
+    Label21: TLabel;
+    EPedidoCompra: Tnumerico;
+    Label22: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -143,6 +147,8 @@ type
     procedure EFracaoSelect(Sender: TObject);
     procedure BFiltrosClick(Sender: TObject);
     procedure ConsultaPropostasVendas1Click(Sender: TObject);
+    procedure ESolicitacaoExit(Sender: TObject);
+    procedure ESolicitacaoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     VprSeqProduto: Integer;
     VprOrdem,
@@ -158,6 +164,7 @@ type
   public
     procedure ConsultaOP(VpaCodFilial,VpaSeqOrdem : Integer);
     procedure ConsultaProposta(VpaCodFilial, VpaSeqProposta : Integer);
+    procedure ConsultaPedidoCompa(VpaCodfilial,VpaSeqPedido : Integer);
   end;
 
 var
@@ -222,6 +229,16 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFSolicitacaoCompra.ConsultaPedidoCompa(VpaCodfilial,VpaSeqPedido : Integer);
+begin
+  EFilial.AInteiro := VpaCodFilial;
+  EPedidoCompra.AsInteger := VpaSeqPedido;
+  CPeriodo.Checked := false;
+  AtualizaConsulta(false);
+  ShowModal;
+end;
+
+{******************************************************************************}
 procedure TFSolicitacaoCompra.BFecharClick(Sender: TObject);
 begin
   Close;
@@ -277,50 +294,64 @@ end;
 {******************************************************************************}
 procedure TFSolicitacaoCompra.AdicionaFiltros(VpaSelect: TStrings);
 begin
-  if CPeriodo.Checked then
+  if ESolicitacao.AsInteger <> 0 then
+    VpaSelect.Add('and SCC.SEQSOLICITACAO = '+ESolicitacao.Text)
+  else
   begin
-    case ETipoPeriodo.ItemIndex of
-      0: VpaSelect.Add(SQLTextoDataEntreAAAAMMDD('SCC.DATEMISSAO',DataInicial.DateTime,DataFinal.DateTime,True));
-      1: VpaSelect.Add(SQLTextoDataEntreAAAAMMDD('SCC.DATPREVISTA',DataInicial.DateTime,DataFinal.DateTime,True));
+    if CPeriodo.Checked then
+    begin
+      case ETipoPeriodo.ItemIndex of
+        0: VpaSelect.Add(SQLTextoDataEntreAAAAMMDD('SCC.DATEMISSAO',DataInicial.DateTime,DataFinal.DateTime,True));
+        1: VpaSelect.Add(SQLTextoDataEntreAAAAMMDD('SCC.DATPREVISTA',DataInicial.DateTime,DataFinal.DateTime,True));
+      end;
     end;
-  end;
-  case ESituacao.ItemIndex of
-    1: VpaSelect.Add(' AND SCC.DATAPROVACAO IS NOT NULL');
-    2: VpaSelect.Add(' AND SCC.DATAPROVACAO IS NULL');
-  end;
-  if EEstagio.Text <> '' then
-    VpaSelect.Add(' AND SCC.CODESTAGIO = '+EEstagio.Text);
-  if EFilial.Text <> '' then
-    VpaSelect.Add(' AND SCC.CODFILIAL = '+EFilial.Text);
-  if EComprador.Text <> '' then
-    VpaSelect.Add(' AND SCC.CODCOMPRADOR = '+EComprador.Text);
-  if EProduto.Text <> '' then
-    VpaSelect.Add(' AND EXISTS (SELECT SCI.SEQSOLICITACAO'+
-                  '             FROM SOLICITACAOCOMPRAITEM SCI'+
-                  '             WHERE SCI.SEQPRODUTO = '+IntToStr(VprSeqProduto)+
-                  '             AND SCC.CODFILIAL = SCI.CODFILIAL'+
-                  '             AND SCC.SEQSOLICITACAO = SCI.SEQSOLICITACAO)');
-  if (EOrdemProducao.AInteiro <> 0) or (EFracao.AInteiro <> 0) then
-  begin
-    VpaSelect.Add('AND EXISTS '+
-                  '( SELECT * FROM SOLICITACAOCOMPRAFRACAOOP FRA '+
-                  ' Where FRA.CODFILIALFRACAO = '+IntToStr(EFilialOP.AInteiro));
-    if EOrdemProducao.AInteiro <> 0 then
-      VpaSelect.add(' and FRA.SEQORDEM = '+IntToStr(EOrdemProducao.AInteiro));
-    if EFracao.AInteiro <> 0 then
-      VpaSelect.add(' AND FRA.SEQFRACAO = '+IntToStr(EFracao.AInteiro));
-    VpaSelect.add('AND FRA.CODFILIAL = SCC.CODFILIAL '+
-                  ' AND FRA.SEQSOLICITACAO = SCC.SEQSOLICITACAO )');
-  end;
-  if (EProposta.AsInteger <> 0) then
-  begin
-    VpaSelect.Add('AND EXISTS '+
-                  '( SELECT * FROM PROPOSTASOLICITACAOCOMPRA PRT '+
-                  ' Where PRT.SEQPROPOSTA = '+IntToStr(EProposta.AsInteger));
-    if EFilial.AInteiro <> 0 then
-      VpaSelect.add(' and PRT.CODFILIAL = '+IntToStr(EFilial.AInteiro));
-    VpaSelect.add('AND PRT.CODFILIAL = SCC.CODFILIAL '+
-                  ' AND PRT.SEQSOLICITACAO = SCC.SEQSOLICITACAO )');
+    case ESituacao.ItemIndex of
+      1: VpaSelect.Add(' AND SCC.DATAPROVACAO IS NOT NULL');
+      2: VpaSelect.Add(' AND SCC.DATAPROVACAO IS NULL');
+    end;
+    if EEstagio.Text <> '' then
+      VpaSelect.Add(' AND SCC.CODESTAGIO = '+EEstagio.Text);
+    if EFilial.Text <> '' then
+      VpaSelect.Add(' AND SCC.CODFILIAL = '+EFilial.Text);
+    if EComprador.Text <> '' then
+      VpaSelect.Add(' AND SCC.CODCOMPRADOR = '+EComprador.Text);
+    if EProduto.Text <> '' then
+      VpaSelect.Add(' AND EXISTS (SELECT SCI.SEQSOLICITACAO'+
+                    '             FROM SOLICITACAOCOMPRAITEM SCI'+
+                    '             WHERE SCI.SEQPRODUTO = '+IntToStr(VprSeqProduto)+
+                    '             AND SCC.CODFILIAL = SCI.CODFILIAL'+
+                    '             AND SCC.SEQSOLICITACAO = SCI.SEQSOLICITACAO)');
+    if (EOrdemProducao.AInteiro <> 0) or (EFracao.AInteiro <> 0) then
+    begin
+      VpaSelect.Add('AND EXISTS '+
+                    '( SELECT * FROM SOLICITACAOCOMPRAFRACAOOP FRA '+
+                    ' Where FRA.CODFILIALFRACAO = '+IntToStr(EFilialOP.AInteiro));
+      if EOrdemProducao.AInteiro <> 0 then
+        VpaSelect.add(' and FRA.SEQORDEM = '+IntToStr(EOrdemProducao.AInteiro));
+      if EFracao.AInteiro <> 0 then
+        VpaSelect.add(' AND FRA.SEQFRACAO = '+IntToStr(EFracao.AInteiro));
+      VpaSelect.add('AND FRA.CODFILIAL = SCC.CODFILIAL '+
+                    ' AND FRA.SEQSOLICITACAO = SCC.SEQSOLICITACAO )');
+    end;
+    if (EPedidoCompra.AsInteger <> 0) then
+      VpaSelect.Add(' AND EXISTS('+
+                    ' SELECT *'+
+                    ' FROM PEDIDOSOLICITACAOCOMPRA PSC'+
+                    ' WHERE PSC.CODFILIAL = SCC.CODFILIAL'+
+                    ' AND PSC.SEQPEDIDO = '+EPedidoCompra.Text+
+                    ' AND PSC.SEQSOLICITACAO = SCC.SEQSOLICITACAO)');
+
+
+    if (EProposta.AsInteger <> 0) then
+    begin
+      VpaSelect.Add('AND EXISTS '+
+                    '( SELECT * FROM PROPOSTASOLICITACAOCOMPRA PRT '+
+                    ' Where PRT.SEQPROPOSTA = '+IntToStr(EProposta.AsInteger));
+      if EFilial.AInteiro <> 0 then
+        VpaSelect.add(' and PRT.CODFILIAL = '+IntToStr(EFilial.AInteiro));
+      VpaSelect.add('AND PRT.CODFILIAL = SCC.CODFILIAL '+
+                    ' AND PRT.SEQSOLICITACAO = SCC.SEQSOLICITACAO )');
+    end;
   end;
 end;
 
@@ -569,6 +600,18 @@ begin
     114: if LocalizaProduto then
            AtualizaConsulta(false);
   end;
+end;
+
+procedure TFSolicitacaoCompra.ESolicitacaoExit(Sender: TObject);
+begin
+
+end;
+
+{******************************************************************************}
+procedure TFSolicitacaoCompra.ESolicitacaoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if key = 13 then
+    AtualizaConsulta(false);
 end;
 
 {******************************************************************************}

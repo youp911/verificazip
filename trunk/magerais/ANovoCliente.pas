@@ -849,6 +849,7 @@ type
     procedure EPlanoKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure ECondicaoPagamentoSelect(Sender: TObject);
+    procedure PanelColor17Click(Sender: TObject);
   private
     VprProspectImportado: Boolean;
     VprEmail,
@@ -1031,6 +1032,7 @@ begin
   CadClientesC_IND_CLI.Value := 'S';
   CadClientesC_IND_FOR.Value := 'N';
   CadClientesC_IND_PRC.Value := 'N';
+  CadClientesC_IND_VIS.Value := 'N';
   CadClientesC_TIP_FAT.AsString := 'N';
   CadClientesC_IND_REV.AsString := 'N';
   CadClientesC_DES_ISS.AsString := 'N';
@@ -1972,6 +1974,11 @@ begin
     else
       if Paginas.ActivePage = PAGZ then
         AtualizaTelaAGZ;
+end;
+
+procedure TFNovoCliente.PanelColor17Click(Sender: TObject);
+begin
+
 end;
 
 {******************************************************************************}

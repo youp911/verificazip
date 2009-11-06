@@ -153,6 +153,7 @@ type
       SeqProduto,
       CodCor,
       SeqPedidoGerado: Integer;
+      CodClassificacao,
       CodProduto,
       NomProduto,
       NomCor,
@@ -310,6 +311,7 @@ type
       SeqItem,
       SeqProduto,
       CodCor: Integer;
+      CodClassificacao,
       CodProduto,
       NomProduto,
       DesTecnica,

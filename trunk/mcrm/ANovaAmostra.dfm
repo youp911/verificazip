@@ -27,7 +27,7 @@ object FNovaAmostra: TFNovaAmostra
     Caption = '   Amostra   '
     Font.Charset = ANSI_CHARSET
     Font.Color = clWhite
-    Font.Height = -24
+    Font.Height = -27
     Font.Name = 'Times New Roman'
     Font.Style = [fsBold]
     ParentFont = False
@@ -629,7 +629,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 0
+            TabOrder = 7
             ACampoObrigatorio = False
             AIgnorarCor = False
             ACorFoco = FPrincipal.CorFoco
@@ -650,7 +650,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 1
+            TabOrder = 3
             OnChange = ECodigoChange
             ACampoObrigatorio = True
             AIgnorarCor = False
@@ -672,7 +672,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 2
+            TabOrder = 0
             OnChange = ECodigoChange
             ACampoObrigatorio = True
             AIgnorarCor = False
@@ -696,7 +696,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 3
+            TabOrder = 10
             OnChange = ECodigoChange
             ACampoObrigatorio = True
             AIgnorarCor = False
@@ -742,7 +742,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 4
+            TabOrder = 11
             OnChange = ECodigoChange
             ACampoObrigatorio = True
             AIgnorarCor = False
@@ -795,7 +795,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 5
+            TabOrder = 9
             OnChange = ECodigoChange
             ACampoObrigatorio = True
             AIgnorarCor = False
@@ -843,7 +843,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Style = []
             ParentFont = False
             ReadOnly = True
-            TabOrder = 6
+            TabOrder = 8
             ACampoObrigatorio = False
             AIgnorarCor = False
             ACorFoco = FPrincipal.CorFoco
@@ -865,7 +865,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 7
+            TabOrder = 5
             ACampoObrigatorio = False
             AIgnorarCor = False
             ACorFoco = FPrincipal.CorFoco
@@ -886,7 +886,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 8
+            TabOrder = 12
             OnChange = ECodigoChange
             ACampoObrigatorio = True
             AIgnorarCor = False
@@ -930,7 +930,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 9
+            TabOrder = 14
             ACampoObrigatorio = False
             AIgnorarCor = False
             ACorFoco = FPrincipal.CorFoco
@@ -959,7 +959,7 @@ object FNovaAmostra: TFNovaAmostra
               EE33337FFFFFFFFFFF7F33EEEEEEEEEEEE333377777777777773}
             NumGlyphs = 2
             ParentDoubleBuffered = False
-            TabOrder = 10
+            TabOrder = 15
             OnClick = BFotoClick
           end
           object DBEditColor9: TDBEditColor
@@ -976,7 +976,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 11
+            TabOrder = 21
             ACampoObrigatorio = False
             AIgnorarCor = False
             ACorFoco = FPrincipal.CorFoco
@@ -997,7 +997,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 12
+            TabOrder = 16
             ACampoObrigatorio = False
             AIgnorarCor = False
             ACorFoco = FPrincipal.CorFoco
@@ -1018,7 +1018,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 13
+            TabOrder = 2
             OnExit = ECodClassifcacaoExit
             OnKeyDown = ECodClassifcacaoKeyDown
             ACampoObrigatorio = True
@@ -1035,7 +1035,7 @@ object FNovaAmostra: TFNovaAmostra
             Caption = 'Altera'#231#227'o'
             DataField = 'INDALTERACAO'
             DataSource = DataAmostra
-            TabOrder = 14
+            TabOrder = 13
             ValueChecked = 'S'
             ValueUnchecked = 'N'
           end
@@ -1061,7 +1061,7 @@ object FNovaAmostra: TFNovaAmostra
               EE33337FFFFFFFFFFF7F33EEEEEEEEEEEE333377777777777773}
             NumGlyphs = 2
             ParentDoubleBuffered = False
-            TabOrder = 15
+            TabOrder = 23
           end
           object DBMemoColor1: TDBMemoColor
             Left = 155
@@ -1077,7 +1077,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 16
+            TabOrder = 22
             ACampoObrigatorio = False
             ACorFoco = FPrincipal.CorFoco
           end
@@ -1096,7 +1096,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Style = []
             ParentFont = False
             ReadOnly = True
-            TabOrder = 17
+            TabOrder = 19
             OnChange = ECodigoChange
             ACampoObrigatorio = False
             AIgnorarCor = False
@@ -1141,7 +1141,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 19
+            TabOrder = 17
             ACampoObrigatorio = False
             AIgnorarCor = False
             ACorFoco = FPrincipal.CorFoco
@@ -1206,7 +1206,7 @@ object FNovaAmostra: TFNovaAmostra
               'Amostra Realizada'
               'Requisi'#231#227'o de Amostra')
             ParentBackground = True
-            TabOrder = 21
+            TabOrder = 1
             Values.Strings = (
               'D'
               'I')
@@ -1229,7 +1229,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Style = []
             ParentFont = False
             ReadOnly = True
-            TabOrder = 22
+            TabOrder = 6
             ACampoObrigatorio = False
             AIgnorarCor = False
             ACorFoco = FPrincipal.CorFoco
@@ -1250,7 +1250,7 @@ object FNovaAmostra: TFNovaAmostra
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
-            TabOrder = 23
+            TabOrder = 4
             OnChange = ECodigoChange
             ACampoObrigatorio = True
             AIgnorarCor = False

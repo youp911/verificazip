@@ -4,7 +4,6 @@ object dtRave: TdtRave
   Height = 390
   Width = 421
   object Principal: TSQL
-    Active = True
     Aggregates = <>
     Params = <>
     ProviderName = 'InternalProvider'
@@ -13,23 +12,35 @@ object dtRave: TdtRave
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
       
-        'Select CLI.I_COD_CLI, CLI.C_NOM_CLI, C_END_CLI, CLI.C_COM_END, C' +
-        'LI.C_BAI_CLI,'
-      ' CLI.C_CEP_CLI, CLI.C_CID_CLI, CLI.C_IND_VIS,'
-      'RAM.NOM_RAMO_ATIVIDADE'
-      'FROM CADCLIENTES CLI, RAMO_ATIVIDADE RAM'
-      'Where CLI.I_COD_RAM = RAM.COD_RAMO_ATIVIDADE (+)'
-      'ORDER BY CLI.C_CEP_CLI')
+        'select CAD.D_DAT_EMI, CAD.C_COD_NAT, CAD.I_NRO_NOT, CAD.N_TOT_NO' +
+        'T, CAD.C_TIP_NOT,'
+      
+        ' CAD.N_VLR_ICM, CAD.N_TOT_IPI, CAD.C_NOT_IMP, CAD.C_NOT_CAN, CAD' +
+        '.C_FIN_GER, '
+      ' CAD.N_TOT_PRO, '
+      ' CLI.C_NOM_CLI ,'
+      'NAT.C_NOM_NAT'
+      ' from CADNOTAFISCAIS CAD, CADCLIENTES CLI, CADNATUREZA NAT '
+      ' WHERE CAD.I_COD_CLI = CLI.I_COD_CLI '
+      'AND CAD.C_COD_NAT = NAT.C_COD_NAT'
+      'AND CAD.D_DAT_EMI > TO_DATE('#39'01/09/2009'#39','#39'DD/MM/YYYY'#39')'
+      'ORDER BY CAD.C_COD_NAT')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
       
-        'Select CLI.I_COD_CLI, CLI.C_NOM_CLI, C_END_CLI, CLI.C_COM_END, C' +
-        'LI.C_BAI_CLI,'
-      ' CLI.C_CEP_CLI, CLI.C_CID_CLI, CLI.C_IND_VIS,'
-      'RAM.NOM_RAMO_ATIVIDADE'
-      'FROM CADCLIENTES CLI, RAMO_ATIVIDADE RAM'
-      'Where CLI.I_COD_RAM = RAM.COD_RAMO_ATIVIDADE (+)'
-      'ORDER BY CLI.C_CEP_CLI')
+        'select CAD.D_DAT_EMI, CAD.C_COD_NAT, CAD.I_NRO_NOT, CAD.N_TOT_NO' +
+        'T, CAD.C_TIP_NOT,'
+      
+        ' CAD.N_VLR_ICM, CAD.N_TOT_IPI, CAD.C_NOT_IMP, CAD.C_NOT_CAN, CAD' +
+        '.C_FIN_GER, '
+      ' CAD.N_TOT_PRO, '
+      ' CLI.C_NOM_CLI ,'
+      'NAT.C_NOM_NAT'
+      ' from CADNOTAFISCAIS CAD, CADCLIENTES CLI, CADNATUREZA NAT '
+      ' WHERE CAD.I_COD_CLI = CLI.I_COD_CLI '
+      'AND CAD.C_COD_NAT = NAT.C_COD_NAT'
+      'AND CAD.D_DAT_EMI > TO_DATE('#39'01/09/2009'#39','#39'DD/MM/YYYY'#39')'
+      'ORDER BY CAD.C_COD_NAT')
     Left = 80
     Top = 8
   end

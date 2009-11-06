@@ -365,6 +365,7 @@ Type TRBDConsumoAmostra = class
     NomProduto,
     NomCor,
     UMAnterior,
+    DesLegenda,
     DesUM,
     DesObservacao : String;
     UnidadeParentes : TStringList;

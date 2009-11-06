@@ -19,9 +19,9 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
   TextHeight = 13
   object PanelColor3: TPanelColor
     Left = 0
-    Top = 94
+    Top = 177
     Width = 821
-    Height = 326
+    Height = 243
     Align = alClient
     Color = clSilver
     Font.Charset = DEFAULT_CHARSET
@@ -38,8 +38,8 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       Left = 1
       Top = 1
       Width = 819
-      Height = 324
-      ActivePage = PFracionada
+      Height = 241
+      ActivePage = PSubMontagem
       Align = alClient
       TabOrder = 0
       OnChange = PageControl1Change
@@ -49,7 +49,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           Left = 0
           Top = 0
           Width = 811
-          Height = 293
+          Height = 210
           Align = alClient
           Color = clInfoBk
           DataSource = DataOrdemProducao
@@ -272,7 +272,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           Left = 0
           Top = 0
           Width = 560
-          Height = 293
+          Height = 210
           Align = alClient
           Images = ImageList1
           Indent = 19
@@ -290,7 +290,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           Left = 560
           Top = 0
           Width = 251
-          Height = 293
+          Height = 210
           Align = alRight
           Color = clSilver
           Font.Charset = DEFAULT_CHARSET
@@ -298,6 +298,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           Font.Height = -13
           Font.Name = 'MS Sans Serif'
           Font.Style = []
+          ParentBackground = False
           ParentFont = False
           TabOrder = 1
           Visible = False
@@ -489,7 +490,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           Left = 0
           Top = 0
           Width = 811
-          Height = 265
+          Height = 182
           Align = alClient
           Color = clInfoBk
           DefaultRowHeight = 22
@@ -520,7 +521,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
         end
         object PanelColor4: TPanelColor
           Left = 0
-          Top = 265
+          Top = 182
           Width = 811
           Height = 28
           Align = alBottom
@@ -561,7 +562,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     Left = 0
     Top = 41
     Width = 821
-    Height = 53
+    Height = 136
     Align = alTop
     Color = clSilver
     Font.Charset = DEFAULT_CHARSET
@@ -642,7 +643,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       Caption = 'Produto :'
     end
     object SpeedButton2: TSpeedButton
-      Left = 202
+      Left = 228
       Top = 80
       Width = 26
       Height = 25
@@ -662,7 +663,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       NumGlyphs = 2
     end
     object Label9: TLabel
-      Left = 235
+      Left = 261
       Top = 84
       Width = 42
       Height = 16
@@ -977,7 +978,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       Font.Height = -13
       Font.Name = 'MS Sans Serif'
       Font.Style = []
-      ItemHeight = 16
+      ItemHeight = 0
       ParentFont = False
       TabOrder = 5
       OnChange = EPedidoExit
@@ -1012,7 +1013,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     object EProduto: TEditLocaliza
       Left = 112
       Top = 80
-      Width = 89
+      Width = 116
       Height = 24
       Color = clInfoBk
       Font.Charset = DEFAULT_CHARSET
@@ -1538,7 +1539,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       OnClick = BFichaConsumoClick
     end
     object BitBtn2: TBitBtn
-      Left = 332
+      Left = 341
       Top = 34
       Width = 135
       Height = 30
@@ -2160,9 +2161,9 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     object N8: TMenuItem
       Caption = '-'
     end
-    object Legenda1: TMenuItem
+    object MLegenda: TMenuItem
       Caption = 'Legenda'
-      OnClick = Legenda1Click
+      OnClick = MLegendaClick
     end
   end
   object PopupMenu3: TPopupMenu
@@ -2187,6 +2188,13 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     object SomenteConsumoaReservar1: TMenuItem
       Caption = 'Somente Consumo a Reservar'
       OnClick = BFichaConsumoClick
+    end
+    object N12: TMenuItem
+      Caption = '-'
+    end
+    object ListaProdutosaExcluir1: TMenuItem
+      Caption = 'Lista Produtos a Excluir'
+      OnClick = ListaProdutosaExcluir1Click
     end
   end
 end

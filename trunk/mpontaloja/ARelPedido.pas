@@ -171,6 +171,7 @@ type
     EProjeto: TRBEditLocaliza;
     PCheckBox1: TPanelColor;
     CheckBox1: TCheckBox;
+    BitBtn1: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
     procedure BFecharClick(Sender: TObject);
@@ -350,7 +351,8 @@ end;
 procedure TFRelPedido.MostraFiltrosRelatorio(VpaNomRelatorio : String);
 begin
   SetarVisibleFalsePanels;
-  if (VPANOMRELATORIO = 'NOTAS FISCAIS EMITIDAS') then
+  if (VPANOMRELATORIO = 'NOTAS FISCAIS EMITIDAS') OR
+     (VPANOMRELATORIO = 'NOTAS FISCAIS EMITIDAS POR NATUREZA OPERACAO') then
     AlterarVisibleDet([PVendedor,PFilial,PCliente,PClienteMaster, PPeriodo,PCotacaoCancelada],true)
   else
     if (VPANOMRELATORIO = 'PEDIDOS POR DIA') then
@@ -358,7 +360,7 @@ begin
     else
       if (VPANOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO') or
          (VPANOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO E ESTADO') then
-        AlterarVisibleDet([PVendedor,PFilial,PCliente,PPeriodo,PTipoCotacao],true)
+        AlterarVisibleDet([PVendedor,PFilial,PCliente,PPeriodo,PTipoCotacao,PClienteMaster],true)
       else
         if (VPANOMRELATORIO = 'CLIENTES SEM PEDIDO') then
         begin
@@ -488,7 +490,7 @@ begin
       dtRave.ImprimePedidosPorDia(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,RFlagSituacao.Itemindex,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,RFlagSituacao.Items.Strings[RFlagSituacao.Itemindex])
     else
       if (VPRNOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO') then
-        FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,false)
+        FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,EClienteMaster.AInteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,LClienteMaster.Caption, false,TBitBtn(Sender).Tag = 20 )
       else
         if (VPRNOMRELATORIO = 'CLIENTES SEM PEDIDO') then
           dtRave.ImprimeClientesSemPedido(EVendedor.AInteiro,EPreposto.AInteiro, ESituacaoCliente.AInteiro,ETipoCotacao.AInteiro,CDataFinal.Date,LVendedor.Caption,LPreposto.Caption,LSituacaoCliente.Caption,LTipoCotacao.Caption,VprCaminhoRelatorio)
@@ -537,7 +539,7 @@ begin
                           end
                           else
                             if (VPRNOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO E ESTADO') then
-                              FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,true)
+                              FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro, EClienteMaster.AInteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,LClienteMaster.Caption, true,TBitBtn(Sender).Tag = 20)
                             else
                               if (VPRNOMRELATORIO = 'PRODUTIVIDADE PRODUCAO') then
                                 FunRave.ImprimeExtratoProdutividade(VprCaminhoRelatorio,CDataFinal.Date)
@@ -591,7 +593,10 @@ begin
                                                               dtRave.ImprimeTotalProspectPorRamoAtividade(VprCaminhoRelatorio)
                                                             else
                                                               if (VPRNOMRELATORIO = 'PROSPECTS POR CEP') then
-                                                                dtRave.ImprimeProspectPorCeP(CheckBox1.Checked,VprCaminhoRelatorio);
+                                                                dtRave.ImprimeProspectPorCeP(CheckBox1.Checked,VprCaminhoRelatorio)
+                                                              else
+                                                                if (VPRNOMRELATORIO = 'NOTAS FISCAIS EMITIDAS POR NATUREZA OPERACAO') then
+                                                                  dtRave.ImprimeNotasFiscaisEmitidasPorNaturezaOperacao(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, EVendedor.Ainteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,ESituacaoCotacao.itemindex);
   dtRave.free;
 end;
 

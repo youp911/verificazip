@@ -177,6 +177,7 @@ begin
   Grade.Cells[15,0] := 'Pcs em MT';
   Grade.Cells[16,0] := 'Indice MT';
   Grade.Cells[17,0] := 'Observações';
+  Grade.Cells[18,0] := 'Legenda';
 
   GServicos.Cells[1,0] := 'Código';
   GServicos.Cells[2,0] := 'Serviço';
@@ -250,6 +251,7 @@ begin
     Grade.Cells[13,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodMaquina);
   Grade.Cells[14,Grade.ALinha]:= VprDConsumoAmostra.Maquina.NomMaquina;
   Grade.Cells[17,Grade.ALinha]:= VprDConsumoAmostra.DesObservacao;
+  Grade.Cells[18,Grade.ALinha]:= VprDConsumoAmostra.DesLegenda;
   CarQtdPecaMetroGrade;
 end;
 
@@ -350,6 +352,7 @@ begin
   else
     VprDConsumoAmostra.CodMaquina := 0;
   VprDConsumoAmostra.DesObservacao:= Grade.Cells[17,Grade.ALinha];
+  VprDConsumoAmostra.DesLegenda:= Grade.Cells[18,Grade.ALinha];
 end;
 
 {******************************************************************************}
@@ -399,6 +402,7 @@ procedure TFAmostraConsumo.GradeNovaLinha(Sender: TObject);
 begin
   VprDConsumoAmostra:= VprDAmostra.addConsumo;
   VprDConsumoAmostra.CodCorAmostra := ECorKit.Ainteiro;
+  VprDConsumoAmostra.DesLegenda := FunAmostra.RLegendaDisponivel(VprDAmostra);
 end;
 
 {******************************************************************************}

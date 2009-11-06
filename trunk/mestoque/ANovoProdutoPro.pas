@@ -1324,6 +1324,7 @@ end;
 {******************************************************************************}
 function TFNovoProdutoPro.AlterarProduto(VpaCodEmpresa, VpaCodFilial, VpaSeqProduto: Integer): TRBDProduto;
 begin
+  EUnidadesVenda.Enabled := false;
   CarProduto(VpaCodEmpresa,VpaCodFilial,VpaSeqProduto);
   ShowModal;
   Result:= VprDProduto;

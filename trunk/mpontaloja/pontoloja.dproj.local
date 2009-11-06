@@ -14,5 +14,6 @@
     <Transaction>2009/07/28 11:22:36.203.dfm,C:\Eficacia\siscorp\mpontaloja\formpadraopermissao.dfm=C:\Eficacia\siscorp\mestoque\AFiguraGRF.dfm</Transaction>
     <Transaction>2009/08/14 13:44:33.859.pas,C:\Eficacia\siscorp\mpontaloja\formpadraopermissao.pas=C:\Eficacia\siscorp\mpontaloja\AGraficoComprativoAno.pas</Transaction>
     <Transaction>2009/08/14 13:44:33.859.dfm,C:\Eficacia\siscorp\mpontaloja\formpadraopermissao.dfm=C:\Eficacia\siscorp\mpontaloja\AGraficoComprativoAno.dfm</Transaction>
+    <Transaction>2009/11/04 07:23:43.984.pas,C:\Arquivos de programas\CodeGear\RAD Studio\6.0\source\Indy\Indy10\Protocols\IdMessageClient.pas=</Transaction>
   </Transactions>
 </BorlandProject>
