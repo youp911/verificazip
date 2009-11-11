@@ -136,7 +136,7 @@ var
 implementation
 
 uses APrincipal, ANovoProspect, Funsql,fundata, ANovaProposta,
-  ANovaAgendaProspect, APropostas, AProdutosProspect, AContatosProspect,
+  ANovaAgendaProspect, AProdutosProspect, AContatosProspect,
   ANovoTelemarketingProspect;
 
 {$R *.DFM}

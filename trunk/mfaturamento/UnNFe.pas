@@ -507,7 +507,7 @@ begin
     VpfEmailHtml.Body.add('    <a > <img src="cid:'+IntToStr(VpaDNota.CodFilial)+'.jpg" width='+IntToStr(varia.CRMTamanhoLogo)+' height = '+IntToStr(Varia.CRMAlturaLogo)+' boder=0>');
     VpfEmailHtml.Body.Add('  </td>');
     VpfEmailHtml.Body.add('  <td width=20% align="center" > <font face="Verdana" size="5"><b>NF-e');
-    VpfEmailHtml.Body.Add('  <td width=40% align="right" > <font face="Verdana" size="5"><right> <img src="cid:efi.jpg"');
+    VpfEmailHtml.Body.Add('  <td width=40% align="right" > <font face="Verdana" size="5"><right> <a title="Sistema de Gestão Desenvolvido por Eficacia Sistemas e Consultoria" href="http://www.eficaciaconsultoria.com.br"> <img src="cid:efi.jpg" border="0"');
     VpfEmailHtml.Body.add('  </td>');
     VpfEmailHtml.Body.Add('  </td>');
     VpfEmailHtml.Body.add('  </tr>');
@@ -1044,7 +1044,6 @@ begin
   NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml');
   NFe.Configuracoes.Certificados.NumeroSerie := varia.CertificadoNFE;
   NFe.Configuracoes.Geral.Salvar := false;
-//    NFe.Configuracoes.Geral.FormaEmissao
   NFe.Configuracoes.WebServices.UF := Varia.UFSefazNFE;
   if config.NFEHomologacao then
     Nfe.Configuracoes.WebServices.Ambiente := taHomologacao

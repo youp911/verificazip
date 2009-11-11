@@ -64,6 +64,7 @@ type
       ComPercentual : Boolean;  // utilizado para criar as parcelas
       TextoParcelas : TStringList;
       TextoVencimentos : TStringList;
+
     function RLogContasReceberDisponivel(VpaCodFilial,VpaLanReceber,VpaNumParcela : integer):Integer;
     function RDescontoCliente(VpaCodCliente : Integer) : Double;
     function RValAcrescimoFormaPagamento(VpaCodFormaPagamento : Integer) : double;
@@ -214,6 +215,7 @@ type
     function RNomPlanoContas(VpaCodEmpresa : Integer;VpaCodPlanoContas : String):string;
     function RNomMoeda(VpaCodMoeda : Integer) : String;
     function RDiasCompensacaoConta(VpaNumConta : String):Integer;
+    function RPlanoContasDisponivel(VpaCodPlanoContas : String;VpaNumPlanoContas : Integer) : String;
     procedure AlteraValorDescontoCotacao(VpaCodFilial,VpaLanOrcamento : Integer;VpaValDesconto : Double);
     procedure ExtornaValorDescontoCotacao(VpaCodFilial,VpaLanReceber : Integer;VpaValDesconto : Double);
     procedure CarDRecibo(VpaCodFilial, VpaLanReceber, VpaNumParcela : Integer;VpaDRecibo: TDadosRecibo);
@@ -229,6 +231,7 @@ type
     function GeraComissaoNegativa(VpaDNotaFor : TRBDNotaFiscalFor):string;
     function CondicaoPagamentoDuplicada(VpaCondicoesPagamento : TList):Boolean;
     function ExcluiCondicaoPagamento(VpaCodCondicaoPagamento : Integer):String;
+//    procedure CarPlanoContas(
   end;
 
 Var
@@ -582,6 +585,20 @@ begin
     if TRBDParcelaBaixaCR(VpaDBaixa.Parcelas.Items[VpfLaco]).IndGeraParcial then
       result := TRBDParcelaBaixaCR(VpaDBaixa.Parcelas.Items[VpfLaco]);
   end;
+end;
+
+{******************************************************************************}
+function TFuncoesContasAReceber.RPlanoContasDisponivel(VpaCodPlanoContas: String;VpaNumPlanoContas : Integer): String;
+begin
+  AdicionaSQLAbreTabela(Aux,'Select MAX(C_CLA_PLA)ULTIMO '+
+                            ' from CAD_PLANO_CONTA '+
+                            ' Where C_CLA_PLA  LIKE '''+VpaCodPlanoContas+'%'''+
+                            ' and LENGTH(C_CLA_PLA) = '+IntToStr(VpaNumPlanoContas));
+  if aux.FieldByName('ULTIMO').AsString = '' then
+    result := ''
+  else
+    result := AdicionaCharE('0',IntToStr(aux.FieldByName('ULTIMO').AsInteger +1),VpaNumPlanoContas);
+  Aux.close;
 end;
 
 {******************************************************************************}

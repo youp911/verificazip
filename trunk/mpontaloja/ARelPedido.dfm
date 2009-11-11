@@ -54,12 +54,11 @@ object FRelPedido: TFRelPedido
       Top = 1
       Width = 575
       Height = 632
-      VertScrollBar.Position = 324
       Align = alClient
       TabOrder = 0
       object PFilial: TPanelColor
         Left = 0
-        Top = -296
+        Top = 28
         Width = 554
         Height = 28
         Align = alTop
@@ -152,7 +151,7 @@ object FRelPedido: TFRelPedido
       end
       object PCliente: TPanelColor
         Left = 0
-        Top = -156
+        Top = 168
         Width = 554
         Height = 28
         Align = alTop
@@ -248,7 +247,7 @@ object FRelPedido: TFRelPedido
       end
       object PCidade: TPanelColor
         Left = 0
-        Top = -16
+        Top = 308
         Width = 554
         Height = 28
         Align = alTop
@@ -344,7 +343,7 @@ object FRelPedido: TFRelPedido
       end
       object PEstado: TPanelColor
         Left = 0
-        Top = 12
+        Top = 336
         Width = 554
         Height = 28
         Align = alTop
@@ -439,7 +438,7 @@ object FRelPedido: TFRelPedido
       end
       object PCondPgto: TPanelColor
         Left = 0
-        Top = 96
+        Top = 420
         Width = 554
         Height = 28
         Align = alTop
@@ -535,7 +534,7 @@ object FRelPedido: TFRelPedido
       end
       object PPeriodo: TPanelColor
         Left = 0
-        Top = 488
+        Top = 812
         Width = 554
         Height = 28
         Align = alTop
@@ -601,7 +600,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoCotacao: TPanelColor
         Left = 0
-        Top = 180
+        Top = 504
         Width = 554
         Height = 28
         Align = alTop
@@ -697,7 +696,7 @@ object FRelPedido: TFRelPedido
       end
       object PVendedor: TPanelColor
         Left = 0
-        Top = -44
+        Top = 280
         Width = 554
         Height = 28
         Align = alTop
@@ -795,7 +794,7 @@ object FRelPedido: TFRelPedido
       end
       object PSituacao: TPanelColor
         Left = 0
-        Top = 460
+        Top = 784
         Width = 554
         Height = 28
         Align = alTop
@@ -834,7 +833,7 @@ object FRelPedido: TFRelPedido
       end
       object PDataFinal: TPanelColor
         Left = 0
-        Top = 516
+        Top = 840
         Width = 554
         Height = 28
         Align = alTop
@@ -877,7 +876,7 @@ object FRelPedido: TFRelPedido
       end
       object PSitCliente: TPanelColor
         Left = 0
-        Top = 124
+        Top = 448
         Width = 554
         Height = 28
         Align = alTop
@@ -973,7 +972,7 @@ object FRelPedido: TFRelPedido
       end
       object PEmpresa: TPanelColor
         Left = 0
-        Top = -324
+        Top = 0
         Width = 554
         Height = 28
         Align = alTop
@@ -1066,7 +1065,7 @@ object FRelPedido: TFRelPedido
       end
       object PTabelaPreco: TPanelColor
         Left = 0
-        Top = -268
+        Top = 56
         Width = 554
         Height = 28
         Align = alTop
@@ -1163,7 +1162,7 @@ object FRelPedido: TFRelPedido
       end
       object PProduto: TPanelColor
         Left = 0
-        Top = -212
+        Top = 112
         Width = 554
         Height = 28
         Align = alTop
@@ -1254,7 +1253,7 @@ object FRelPedido: TFRelPedido
       end
       object PBanco: TPanelColor
         Left = 0
-        Top = -128
+        Top = 196
         Width = 554
         Height = 28
         Align = alTop
@@ -1348,7 +1347,7 @@ object FRelPedido: TFRelPedido
       end
       object PUsuario: TPanelColor
         Left = 0
-        Top = 40
+        Top = 364
         Width = 554
         Height = 28
         Align = alTop
@@ -1444,7 +1443,7 @@ object FRelPedido: TFRelPedido
       end
       object PFormaPagamento: TPanelColor
         Left = 0
-        Top = 68
+        Top = 392
         Width = 554
         Height = 28
         Align = alTop
@@ -1540,7 +1539,7 @@ object FRelPedido: TFRelPedido
       end
       object PClassificacaoProduto: TPanelColor
         Left = 0
-        Top = -240
+        Top = 84
         Width = 554
         Height = 28
         Align = alTop
@@ -1614,7 +1613,7 @@ object FRelPedido: TFRelPedido
       end
       object PQtdVias: TPanelColor
         Left = 0
-        Top = 600
+        Top = 924
         Width = 554
         Height = 28
         Align = alTop
@@ -1657,7 +1656,7 @@ object FRelPedido: TFRelPedido
       end
       object PEstagio: TPanelColor
         Left = 0
-        Top = 348
+        Top = 672
         Width = 554
         Height = 28
         Align = alTop
@@ -1754,7 +1753,7 @@ object FRelPedido: TFRelPedido
       end
       object PTransportadora: TPanelColor
         Left = 0
-        Top = 152
+        Top = 476
         Width = 554
         Height = 28
         Align = alTop
@@ -1850,7 +1849,7 @@ object FRelPedido: TFRelPedido
       end
       object PFundoPerdido: TPanelColor
         Left = 0
-        Top = 572
+        Top = 896
         Width = 554
         Height = 28
         Align = alTop
@@ -1878,7 +1877,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoContrato: TPanelColor
         Left = 0
-        Top = -100
+        Top = 224
         Width = 554
         Height = 28
         Align = alTop
@@ -1973,7 +1972,7 @@ object FRelPedido: TFRelPedido
       end
       object PPreposto: TPanelColor
         Left = 0
-        Top = -72
+        Top = 252
         Width = 554
         Height = 28
         Align = alTop
@@ -2071,7 +2070,7 @@ object FRelPedido: TFRelPedido
       end
       object PTecnico: TPanelColor
         Left = 0
-        Top = 320
+        Top = 644
         Width = 554
         Height = 28
         Align = alTop
@@ -2167,7 +2166,7 @@ object FRelPedido: TFRelPedido
       end
       object POperacaoEstoque: TPanelColor
         Left = 0
-        Top = 292
+        Top = 616
         Width = 554
         Height = 28
         Align = alTop
@@ -2263,7 +2262,7 @@ object FRelPedido: TFRelPedido
       end
       object PCor: TPanelColor
         Left = 0
-        Top = 264
+        Top = 588
         Width = 554
         Height = 28
         Align = alTop
@@ -2359,7 +2358,7 @@ object FRelPedido: TFRelPedido
       end
       object PCotacaoCancelada: TPanelColor
         Left = 0
-        Top = 432
+        Top = 756
         Width = 554
         Height = 28
         Align = alTop
@@ -2407,7 +2406,7 @@ object FRelPedido: TFRelPedido
       end
       object PClienteMaster: TPanelColor
         Left = 0
-        Top = -184
+        Top = 140
         Width = 554
         Height = 28
         Align = alTop
@@ -2503,7 +2502,7 @@ object FRelPedido: TFRelPedido
       end
       object PCentroCusto: TPanelColor
         Left = 0
-        Top = 236
+        Top = 560
         Width = 554
         Height = 28
         Align = alTop
@@ -2608,7 +2607,7 @@ object FRelPedido: TFRelPedido
       end
       object PNumerico1: TPanelColor
         Left = 0
-        Top = 376
+        Top = 700
         Width = 554
         Height = 28
         Align = alTop
@@ -2652,7 +2651,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoPeriodo: TPanelColor
         Left = 0
-        Top = 404
+        Top = 728
         Width = 554
         Height = 28
         Align = alTop
@@ -2701,7 +2700,7 @@ object FRelPedido: TFRelPedido
       end
       object PProjeto: TPanelColor
         Left = 0
-        Top = 208
+        Top = 532
         Width = 554
         Height = 28
         Align = alTop
@@ -2806,7 +2805,7 @@ object FRelPedido: TFRelPedido
       end
       object PCheckBox1: TPanelColor
         Left = 0
-        Top = 544
+        Top = 868
         Width = 554
         Height = 28
         Align = alTop
@@ -2924,13 +2923,56 @@ object FRelPedido: TFRelPedido
       OnClick = BImprimirClick
     end
     object BitBtn1: TBitBtn
+      Tag = 20
       Left = 110
       Top = 5
       Width = 100
       Height = 30
       Caption = '&PDF'
       DoubleBuffered = True
-      NumGlyphs = 2
+      Glyph.Data = {
+        36050000424D3605000000000000360400002800000010000000100000000100
+        08000000000000010000000000000000000000010000000100008C8CE7004242
+        E700ADADE700D6D6DE009C9CE7006B6BE700CECEDE00E7E7DE00B5B5E7004A4A
+        E7002929E700BDB5E7004239E7003131E7003939EF007373E7006363E7005252
+        EF004A42EF005A5AE700BDBDE7007B7BE7008484E7005A5AEF005A52E7001010
+        10000000FF0000000000DEDEDE00FFFFFF000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        00000000000000000000000000000000000000000000000000001D1D1D191919
+        191919191919191919191D1D1D1B111C1C1C1C1C1C1C1C1C1C191D1D1D1B0509
+        061C1C1C1C1C1C1C07191D1D1D1B1C13011C1C1C1C1C1C0314191D1D1D1B1C1C
+        160100150802001012191D1D1D1B1C1C031702080D0E01180B191D1D1D1B1C1C
+        1C040600051C1C1C1C191D1D1D1B1C1C1C1C0A0F1C1C1C071C191D1D1D1B1C1C
+        1C1C0C041C1C1C1C1C191D1D1D1B1C1C1C1C09021C1C1C1C1C191B1B1B1B1B1B
+        1B1B1B1B1B1C1C1C1C191B1A1A1A1A1A1A1A1A1A1B1C1C1C1C191B1A1A1A1A1A
+        1A1A1A1A1B1C1B1B1B191B1B1B1B1B1B1B1B1B1B1B1C191A1A191D1D1D1B1C1C
+        1C1C1C1C1C1C191A191D1D1D1D1B1B1B1B1B1B1B1B1B19191D1D}
       ParentDoubleBuffered = False
       TabOrder = 2
       OnClick = BImprimirClick
@@ -2944,5 +2986,12 @@ object FRelPedido: TFRelPedido
   object Aux: TQuery
     DatabaseName = 'BaseDados'
     Left = 176
+  end
+  object SaveDialog: TSaveDialog
+    DefaultExt = '*.pdf'
+    Filter = 'PDF|*.PDF'
+    Title = 'Salva Relatorio em PDF'
+    Left = 264
+    Top = 8
   end
 end

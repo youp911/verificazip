@@ -190,6 +190,12 @@ begin
     begin
       VpfSigProduto := Copy(VpaCodProduto,1,6);
       VpfSigProduto := DeletaChars(VpfSigProduto,' ');
+      if not SomenteNumeros(VpfSigProduto) then
+      begin
+        aviso('ERRO NA IMPORTAÇÃO DO PRODUTO "'+VpaCodProduto+'"');
+        VpfSigProduto := '90';
+      end;
+
       if VpfSigProduto = '' then
         result := '90'
       else

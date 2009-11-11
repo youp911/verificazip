@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1517;
+  CT_VersaoBanco = 1518;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -883,6 +883,14 @@ begin
         VpfErro := '1517';
         ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRACONSUMO ADD DESLEGENDA CHAR(4)NULL');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1517');
+      end;
+      if VpaNumAtualizacao < 1518 Then
+      begin
+        VpfErro := '1518';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADCONTASAPAGAR add CONSTRAINT CADCONTASPAGAR_PLAC '+
+                              ' FOREIGN KEY (I_COD_EMP, C_CLA_PLA) '+
+                              '  REFERENCES CAD_PLANO_CONTA(I_COD_EMP,C_CLA_PLA) ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1518');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

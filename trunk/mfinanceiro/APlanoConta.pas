@@ -74,6 +74,7 @@ type
 type
   TDados = class
     Codigo    : string;
+    TipDebitoCredito,
     Descricao : string;
 end;
 
@@ -219,6 +220,7 @@ begin
     dado :=  Tdados.create;
     dado.Codigo := Codigo;
     dado.Descricao := CadPlano.FieldByName('C_NOM_PLA').AsString;
+    dado.TipDebitoCredito := CadPlano.FieldByName('C_TIP_PLA').AsString;
     no := Arvore.Items.AddChildObject(VetorNo[nivel], codigo+ ' - '+
                                       CadPlano.FieldByName('C_NOM_PLA').AsString, dado);
     VetorNo[nivel+1]:= no;
@@ -246,7 +248,7 @@ begin
   end;
     FNovoPlanoConta := TFNovoPlanoConta.CriarSDI(application,'', Fprincipal.VerificaPermisao('FNovaClassificacao'));
     codigo :=  TDados(TTreeNode(arvore.Selected).Data).Codigo;
-    if (FNovoPlanoConta.Inseri(desc, codigo, VetorMascara[arvore.Selected.Level+1], creditoDebito)) then
+    if (FNovoPlanoConta.Inseri(desc, codigo, VetorMascara[arvore.Selected.Level+1], TDados(TTreeNode(arvore.Selected).Data).TipDebitoCredito)) then
     begin
       dado := Tdados.create;
       dado.Codigo := codigo;

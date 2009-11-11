@@ -12,35 +12,67 @@ object dtRave: TdtRave
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
       
-        'select CAD.D_DAT_EMI, CAD.C_COD_NAT, CAD.I_NRO_NOT, CAD.N_TOT_NO' +
-        'T, CAD.C_TIP_NOT,'
+        'Select CLI.I_COD_CLI, C_NOM_CLI, C_NOM_FAN, CLI.C_END_CLI, CLI.I' +
+        '_NUM_END, CLI.C_BAI_CLI, CLI.C_CID_CLI, '
+      '  CLI.C_EST_CLI, CLI.C_FO1_CLI,'
+      ' PAG.I_COD_PAG, PAG.C_NOM_PAG,'
+      ' FRM.I_COD_FRM, FRM.C_NOM_FRM,'
+      ' PRF.I_COD_PRF, PRF.C_NOM_PRF,'
+      ' USU.I_COD_USU, USU.C_NOM_USU,'
+      ' VEN.I_COD_VEN, VEN.C_NOM_VEN,'
       
-        ' CAD.N_VLR_ICM, CAD.N_TOT_IPI, CAD.C_NOT_IMP, CAD.C_NOT_CAN, CAD' +
-        '.C_FIN_GER, '
-      ' CAD.N_TOT_PRO, '
-      ' CLI.C_NOM_CLI ,'
-      'NAT.C_NOM_NAT'
-      ' from CADNOTAFISCAIS CAD, CADCLIENTES CLI, CADNATUREZA NAT '
-      ' WHERE CAD.I_COD_CLI = CLI.I_COD_CLI '
-      'AND CAD.C_COD_NAT = NAT.C_COD_NAT'
-      'AND CAD.D_DAT_EMI > TO_DATE('#39'01/09/2009'#39','#39'DD/MM/YYYY'#39')'
-      'ORDER BY CAD.C_COD_NAT')
+        ' PRP.CODFILIAL, PRP.SEQPROPOSTA, PRP.DATPROPOSTA, PRP.DATVALIDAD' +
+        'E, PRP.PERDESCONTO,'
+      
+        'PRP.VALDESCONTO, PRP.NOMCONTATO, PRP.DESEMAIL, PRP.DESOBSERVACAO' +
+        ','
+      'PRP.VALTOTAL, '
+      'TIP.CODTIPOPROPOSTA, TIP.NOMTIPOPROPOSTA'
+      
+        'FROM CADCLIENTES CLI, CADCONDICOESPAGTO PAG, CADFORMASPAGAMENTO ' +
+        'FRM, CADPROFISSOES PRF, CADUSUARIOS USU,'
+      '      CADVENDEDORES VEN, PROPOSTA PRP, TIPOPROPOSTA TIP'
+      'WHERE PRP.CODCONDICAOPAGAMENTO = PAG.I_COD_PAG (+)'
+      'AND PRP.CODFORMAPAGAMENTO = FRM.I_COD_FRM (+)'
+      'AND PRP.CODPROFISSAO = PRF.I_COD_PRF (+)'
+      'AND PRP.CODVENDEDOR = VEN.I_COD_VEN'
+      'AND PRP.CODUSUARIO = USU.I_COD_USU'
+      'AND PRP.CODCLIENTE = CLI.I_COD_CLI'
+      'AND PRP.CODTIPOPROPOSTA = TIP.CODTIPOPROPOSTA (+)'
+      'AND PRP.CODFILIAL = 11'
+      'AND PRP.SEQPROPOSTA = 940')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
       
-        'select CAD.D_DAT_EMI, CAD.C_COD_NAT, CAD.I_NRO_NOT, CAD.N_TOT_NO' +
-        'T, CAD.C_TIP_NOT,'
+        'Select CLI.I_COD_CLI, C_NOM_CLI, C_NOM_FAN, CLI.C_END_CLI, CLI.I' +
+        '_NUM_END, CLI.C_BAI_CLI, CLI.C_CID_CLI, '
+      '  CLI.C_EST_CLI, CLI.C_FO1_CLI,'
+      ' PAG.I_COD_PAG, PAG.C_NOM_PAG,'
+      ' FRM.I_COD_FRM, FRM.C_NOM_FRM,'
+      ' PRF.I_COD_PRF, PRF.C_NOM_PRF,'
+      ' USU.I_COD_USU, USU.C_NOM_USU,'
+      ' VEN.I_COD_VEN, VEN.C_NOM_VEN,'
       
-        ' CAD.N_VLR_ICM, CAD.N_TOT_IPI, CAD.C_NOT_IMP, CAD.C_NOT_CAN, CAD' +
-        '.C_FIN_GER, '
-      ' CAD.N_TOT_PRO, '
-      ' CLI.C_NOM_CLI ,'
-      'NAT.C_NOM_NAT'
-      ' from CADNOTAFISCAIS CAD, CADCLIENTES CLI, CADNATUREZA NAT '
-      ' WHERE CAD.I_COD_CLI = CLI.I_COD_CLI '
-      'AND CAD.C_COD_NAT = NAT.C_COD_NAT'
-      'AND CAD.D_DAT_EMI > TO_DATE('#39'01/09/2009'#39','#39'DD/MM/YYYY'#39')'
-      'ORDER BY CAD.C_COD_NAT')
+        ' PRP.CODFILIAL, PRP.SEQPROPOSTA, PRP.DATPROPOSTA, PRP.DATVALIDAD' +
+        'E, PRP.PERDESCONTO,'
+      
+        'PRP.VALDESCONTO, PRP.NOMCONTATO, PRP.DESEMAIL, PRP.DESOBSERVACAO' +
+        ','
+      'PRP.VALTOTAL, '
+      'TIP.CODTIPOPROPOSTA, TIP.NOMTIPOPROPOSTA'
+      
+        'FROM CADCLIENTES CLI, CADCONDICOESPAGTO PAG, CADFORMASPAGAMENTO ' +
+        'FRM, CADPROFISSOES PRF, CADUSUARIOS USU,'
+      '      CADVENDEDORES VEN, PROPOSTA PRP, TIPOPROPOSTA TIP'
+      'WHERE PRP.CODCONDICAOPAGAMENTO = PAG.I_COD_PAG (+)'
+      'AND PRP.CODFORMAPAGAMENTO = FRM.I_COD_FRM (+)'
+      'AND PRP.CODPROFISSAO = PRF.I_COD_PRF (+)'
+      'AND PRP.CODVENDEDOR = VEN.I_COD_VEN'
+      'AND PRP.CODUSUARIO = USU.I_COD_USU'
+      'AND PRP.CODCLIENTE = CLI.I_COD_CLI'
+      'AND PRP.CODTIPOPROPOSTA = TIP.CODTIPOPROPOSTA (+)'
+      'AND PRP.CODFILIAL = 11'
+      'AND PRP.SEQPROPOSTA = 940')
     Left = 80
     Top = 8
   end
@@ -52,6 +84,7 @@ object dtRave: TdtRave
   end
   object Rave: TRvProject
     Engine = RvSystem1
+    OnBeforeOpen = RaveBeforeOpen
     Left = 16
     Top = 8
   end
@@ -69,6 +102,7 @@ object dtRave: TdtRave
     SystemPrinter.Title = 'Siscorp'
     SystemPrinter.Units = unMM
     SystemPrinter.UnitsFactor = 25.400000000000000000
+    OnBeforePrint = RvSystem1BeforePrint
     Left = 16
     Top = 64
   end
@@ -215,34 +249,30 @@ object dtRave: TdtRave
     ASqlQuery.MaxBlobSize = -1
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
-      'select MAX(COL.PERPRODUTIVIDADE) PERCENTUAL, CEL.NOMCELULA '
+      'Select PRO.C_COD_PRO, PRO.C_NOM_PRO,'
+      ' COR.NOM_COR,'
+      'ITE.QTDPRODUTO, ITE.DESUM'
+      ' '
+      'from CADPRODUTOS PRO, COR, SOLICITACAOCOMPRAITEM ITE '
+      'Where ITE.SEQPRODUTO = PRO.I_SEQ_PRO'
+      'AND ITE.CODCOR = COR.COD_COR (+)'
       ''
-      'from CELULATRABALHO CEL, COLETAFRACAOOP COL, FRACAOOPESTAGIO FOE'
-      'Where FOE.CODFILIAL = COL.CODFILIAL'
-      'AND FOE.SEQORDEM = COL.SEQORDEM '
-      'AND FOE.SEQFRACAO = COL.SEQFRACAO'
-      'AND FOE.SEQESTAGIO = COL.SEQESTAGIO'
-      'AND COL.CODCELULA = CEL.CODCELULA'
-      'AND FOE.SEQPRODUTO = 1103632'
-      'AND COL.SEQESTAGIO = 5'
-      'AND COL.DATINICIO >= TO_DATE('#39'01/05/2009'#39','#39'DD/MM/YYYY'#39')'
-      'GROUP BY CEL.NOMCELULA'
-      'ORDER BY 1 DESC')
+      'AND ITE.CODFILIAL = 11'
+      ' AND ITE.SEQSOLICITACAO = 876'
+      'ORDER BY ITE.SEQITEM')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
-      'select MAX(COL.PERPRODUTIVIDADE) PERCENTUAL, CEL.NOMCELULA '
+      'Select PRO.C_COD_PRO, PRO.C_NOM_PRO,'
+      ' COR.NOM_COR,'
+      'ITE.QTDPRODUTO, ITE.DESUM'
+      ' '
+      'from CADPRODUTOS PRO, COR, SOLICITACAOCOMPRAITEM ITE '
+      'Where ITE.SEQPRODUTO = PRO.I_SEQ_PRO'
+      'AND ITE.CODCOR = COR.COD_COR (+)'
       ''
-      'from CELULATRABALHO CEL, COLETAFRACAOOP COL, FRACAOOPESTAGIO FOE'
-      'Where FOE.CODFILIAL = COL.CODFILIAL'
-      'AND FOE.SEQORDEM = COL.SEQORDEM '
-      'AND FOE.SEQFRACAO = COL.SEQFRACAO'
-      'AND FOE.SEQESTAGIO = COL.SEQESTAGIO'
-      'AND COL.CODCELULA = CEL.CODCELULA'
-      'AND FOE.SEQPRODUTO = 1103632'
-      'AND COL.SEQESTAGIO = 5'
-      'AND COL.DATINICIO >= TO_DATE('#39'01/05/2009'#39','#39'DD/MM/YYYY'#39')'
-      'GROUP BY CEL.NOMCELULA'
-      'ORDER BY 1 DESC')
+      'AND ITE.CODFILIAL = 11'
+      ' AND ITE.SEQSOLICITACAO = 876'
+      'ORDER BY ITE.SEQITEM')
     Left = 136
     Top = 8
   end
@@ -345,5 +375,13 @@ object dtRave: TdtRave
     DataSet = Item3
     Left = 256
     Top = 64
+  end
+  object PDF: TRvRenderPDF
+    DisplayName = 'Adobe Acrobat (PDF)'
+    FileExtension = '*.pdf'
+    DocInfo.Creator = 'Rave Reports (http://www.nevrona.com/rave)'
+    DocInfo.Producer = 'Nevrona Designs'
+    Left = 16
+    Top = 128
   end
 end

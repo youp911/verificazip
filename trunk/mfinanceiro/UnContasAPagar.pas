@@ -122,6 +122,7 @@ type
     function ValorProjetosMaiorQueContasaPagar(VpaDContasaPagar : TRBDContasaPagar;VpaValContasAPagar : Double):string;
     function RPercentualProjetoFaltante(VpaDContasAPagar : TRBDContasaPagar) : Double;
     function ProjetoDuplicado(VpaDContasAPagar : TRBDContasaPagar) : boolean;
+    procedure ExcluiPlanoContas(VpaPlanoOrigem, VpaPlanoDestino : String);
   end;
 
 var
@@ -1684,6 +1685,18 @@ begin
    end
    else
      result := true;
+end;
+
+{******************************************************************************}
+procedure TFuncoesContasAPagar.ExcluiPlanoContas(VpaPlanoOrigem, VpaPlanoDestino: String);
+begin
+  ExecutaComandoSql(Aux,'UPDATE CADCONTASAPAGAR '+
+                       ' SET C_CLA_PLA = '''+VpaPlanoDestino+''''+
+                       ' Where C_CLA_PLA = '''+VpaPlanoOrigem+''''+
+                       ' and I_COD_EMP = '+IntToStr(Varia.CodigoEmpresa));
+  ExecutaComandoSql(Aux,'DELETE FROM CAD_PLANO_CONTA '+
+                       ' Where C_CLA_PLA = '''+VpaPlanoOrigem+''''+
+                       ' and I_COD_EMP = '+IntToStr(Varia.CodigoEmpresa));
 end;
 
 {******************** atualiza a forma de pagamento ************************** }

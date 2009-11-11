@@ -11,7 +11,6 @@ type
   TFFluxoCaixa = class(TFormularioPermissao)
     PainelGradiente1: TPainelGradiente;
     PanelColor1: TPanelColor;
-    PanelColor2: TPanelColor;
     PFormatos: TCorPainelGra;
     BitBtn3: TBitBtn;
     PanelColor5: TPanelColor;
@@ -54,13 +53,10 @@ type
     PanelColor3: TPanelColor;
     BImprime: TBitBtn;
     BDetalhes: TBitBtn;
-    BGraficosPagar: TBitBtn;
-    BGraficosReceber: TBitBtn;
     BNivel: TBitBtn;
     BSalvar: TBitBtn;
     BExpandir: TBitBtn;
     BitBtn9: TBitBtn;
-    BSituacao: TBitBtn;
     BSuprimir: TBitBtn;
     BitBtn5: TBitBtn;
     PanelColor4: TPanelColor;
@@ -92,6 +88,7 @@ type
     procedure BitBtn4Click(Sender: TObject);
     procedure BitBtn9Click(Sender: TObject);
     procedure GradeMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure SCorFonteCPContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
   private
     { Private declarations }
     VprDFluxo : TRBDFluxoCaixaCorpo;
@@ -194,7 +191,6 @@ begin
   EMes.Value := VpaMes;
   EAno.Value := VpaAno;
   InicializaGrade;
-//  FunFluxoCaixa.CarTitulosDiarioGrade(grade,VprDFluxo);
   FunFluxoCaixa.CarFluxoCaixa(Grade,VprDFluxo);
   ShowModal;
 end;
@@ -229,6 +225,11 @@ begin
   end;
 end;
 
+procedure TFFluxoCaixa.SCorFonteCPContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+begin
+
+end;
+
 {******************************************************************************}
 procedure TFFluxoCaixa.BitBtn5Click(Sender: TObject);
 begin
@@ -239,7 +240,6 @@ end;
 procedure TFFluxoCaixa.BitBtn4Click(Sender: TObject);
 begin
   InicializaGrade;
-//  FunFluxoCaixa.CarTitulosDiarioGrade(grade,VprDFluxo);
   PFormatos.Visible := False;
 end;
 

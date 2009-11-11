@@ -484,9 +484,6 @@
 			<DCCReference Include="..\mpontaloja\AMedico.pas">
 				<Form>FMedico</Form>
 			</DCCReference>
-			<DCCReference Include="APropostas.pas">
-				<Form>FPropostas</Form>
-			</DCCReference>
 			<DCCReference Include="AColecao.pas">
 				<Form>FColecao</Form>
 			</DCCReference>

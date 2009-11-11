@@ -175,7 +175,7 @@ uses
   APrincipal, UnProdutos, FunSQL, FunData, ConstMsg, ANovaSolicitacaoCompra, FunObjeto,
   ANovoPedidoCompra, AAlteraEstagioOrcamento, UnCrystal, UnDados,
   ALocalizaProdutos, ASolicitacaoCompraProdutosPendentes, APedidoCompra,
-  APropostasCliente;
+  APropostasCliente, dmRave;
 
 {$R *.DFM}
 
@@ -532,7 +532,11 @@ end;
 procedure TFSolicitacaoCompra.BImprimirClick(Sender: TObject);
 begin
   if SOLICITACAOCOMPRACORPOCODFILIAL.AsInteger <> 0 then
-    FunCrystal.ImprimeRelatorio(Varia.PathRelatorios + '\Orcamento Compra\XX_Orcamento de Compra.rpt',[SOLICITACAOCOMPRACORPOSEQSOLICITACAO.AsString,SOLICITACAOCOMPRACORPOCODFILIAL.AsString]);
+  begin
+    dtRave := TdtRave.create(self);
+    dtRave.ImprimeSolicitacaoCompra(SOLICITACAOCOMPRACORPOCODFILIAL.AsInteger ,SOLICITACAOCOMPRACORPOSEQSOLICITACAO.AsInteger,true);
+    dtRave.free;
+  end;
 end;
 
 {******************************************************************************}

@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, Mask, Db, DBTables, Tabela, DBCtrls, ExtCtrls,
   Componentes1, BotaoCadastro, PainelGradiente, DBKeyViolation, formularios, constantes, constMsg,
-  FMTBcd, SqlExpr, DBClient;
+  FMTBcd, SqlExpr, DBClient, UnContasAReceber;
 
 Const
   CT_PLANOINVALIDO='PLANO DE CONTAS INVÁLIDO!!!'#13'Plano de contas preenchido inválido ou não preenchido...';
@@ -67,7 +67,7 @@ var
 
 implementation
 
-uses APrincipal, FunSql;
+uses APrincipal, FunSql, FunString;
 
 {$R *.DFM}
 
@@ -77,6 +77,7 @@ uses APrincipal, FunSql;
 function TFNovoPlanoConta.Inseri( var Descricao, codigo : string; TamanhoPicture : Integer; TipoDebCre : String  ) : Boolean;
 var
   laco : integer;
+  VpfPlanoContas : String;
 begin
   self.codigo := codigo;
   CodCla.EditMask  := '';
@@ -89,8 +90,13 @@ begin
 
  CadPlanoConta.Insert;
  Empresa.Field.AsInteger := varia.CodigoEmpresa;
- CodCla.ReadOnly := FALSE;
 
+ CodCla.ReadOnly := FALSE;
+ VpfPlanoContas := FunContasAReceber.RPlanoContasDisponivel(codigo,TamanhoPicture+Length(codigo));
+ if VpfPlanoContas <> '' then
+   CodCla.EditText := VpfPlanoContas
+ else
+   CodCla.EditText := codigo+ AdicionaCharE('0','1',TamanhoPicture);
  if TipoDebCre <> '' then
  begin
    DBEditChar1.Field.AsString := TipoDebCre;

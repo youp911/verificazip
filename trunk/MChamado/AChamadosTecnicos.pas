@@ -679,7 +679,6 @@ begin
     dtRave.ImprimeChamado(ChamadoTecnicoCODFILIAL.AsInteger,ChamadoTecnicoNUMCHAMADO.AsInteger,true);
     dtRave.free;
   end;
-
 end;
 
 {******************************************************************************}
@@ -804,9 +803,11 @@ end;
 {******************************************************************************}
 procedure TFChamadoTecnico.BImplantacaoClick(Sender: TObject);
 begin
-  if ChamadoTecnicoNUMCHAMADO.AsInteger <> 0 then
+  if ChamadoTecnicoCODFILIAL.AsInteger <> 0 then
   begin
-    FunCrystal.ImprimeRelatorio(Varia.PathRelatorios + '\Chamados\XX_TermoImplantacao.rpt',[ChamadoTecnicoCODFILIAL.AsString,ChamadoTecnicoNUMCHAMADO.AsString]);
+    dtRave := TdtRave.create(self);
+    dtRave.ImprimeTermoImplantacao(ChamadoTecnicoCODFILIAL.AsInteger,ChamadoTecnicoNUMCHAMADO.AsInteger,true);
+    dtRave.free;
   end;
 end;
 

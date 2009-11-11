@@ -204,7 +204,6 @@ uses
   ANovoProspect in '..\mcrm\ANovoProspect.pas' {FNovoProspect},
   AProspects in '..\mcrm\AProspects.pas' {FProspects},
   ANovaAgendaProspect in '..\mcrm\ANovaAgendaProspect.pas' {FNovaAgendaProspect},
-  APropostas in '..\mcrm\APropostas.pas' {FPropostas},
   ANovoTelemarketingProspect in '..\mcrm\ANovoTelemarketingProspect.pas' {FNovoTelemarketingProspect},
   AProdutosProspect in '..\mcrm\AProdutosProspect.pas' {FProdutosProspect},
   AContatosProspect in '..\mcrm\AContatosProspect.pas' {FContatosProspect},

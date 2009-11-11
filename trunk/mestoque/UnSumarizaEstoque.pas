@@ -377,7 +377,8 @@ begin
                                  ' And MOV.I_EMP_FIL =  QTD.I_EMP_FIL '+
                                  ' and MOV.I_EMP_FIL = ' + IntToStr(VpaCodFilial)+
                                  ' and MOV.I_LAN_ORC = ' +IntToStr(VpaLanOrcamento));
-  AdicionaSQLAbreTabela(Cadastro,'Select * from MOVESTOQUEPRODUTOS');
+  AdicionaSQLAbreTabela(Cadastro,'Select * from MOVESTOQUEPRODUTOS'+
+                                 ' Where I_EMP_FIL = 0 AND I_LAN_EST = 0 AND I_SEQ_PRO = 0');
   While not Produtos.eof do
   begin
     Cadastro.insert;

@@ -1955,6 +1955,7 @@ begin
       ECotacao.AInteiro := CadOrcamentoI_Lan_Orc.AsInteger;
       AtualizaConsulta(true) ;
       RPDev.DeviceIndex := RPDev.Printers.IndexOf(varia.ImpressoraRelatorio);
+      RpDev.DevMode.dmPaperSize := DMPAPER_A4;
 
       Rave.ProjectFile := varia.PathRelatorios+'\Cotacao\XX_OrdemProducao.rav';
       for Vpflaco := 1 to StrToInt(VpfQtdVias) do
@@ -2194,7 +2195,7 @@ begin
     VpfDCliente.CodCliente := CadOrcamentoI_COD_CLI.AsInteger;
     FunClientes.CarDCliente(VpfDCliente,false,false,false);
     dtRave := TdtRave.create(self);
-    dtRave.ImprimeRecibo(varia.CodigoEmpFil,VpfDCliente,IntToStr(VprDOrcamento.LanOrcamento),FormatFloat('#,###,##0.00',VprDOrcamento.ValTotal),Extenso(VprDOrcamento.ValTotal,'real','reais'),varia.CidadeFilial+' '+ IntTostr(dia(date))+', de ' + TextoMes(date,false)+ ' de '+Inttostr(ano(date)));
+    dtRave.ImprimeRecibo(varia.CodigoEmpFil,VpfDCliente,IntToStr(VprDOrcamento.LanOrcamento),FormatFloat('#,###,##0.00',VprDOrcamento.ValTotal),Extenso(VprDOrcamento.ValTotal,'reais','real'),varia.CidadeFilial+' '+ IntTostr(dia(date))+', de ' + TextoMes(date,false)+ ' de '+Inttostr(ano(date)));
     dtRave.free;
     VpfDCliente.free;
   end;

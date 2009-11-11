@@ -5,15 +5,14 @@ Interface
 Uses Classes, vcf1,Graphics, unDadosCR, SysUtils, CGrades, SqlExpr,Tabela;
 
 Const
-  LinInicial = 1;
+  LinInicial = 0;
   LinFinal = 20;
-  LinPrimeiraContaCaixa = 2;
+  LinPrimeiraContaCaixa = 1;
   ColInicial = 0;
   ColTituloLinha = 1;
   ColAplicacao = 2;
   ColSaldoAnterior = 3;
   ColSaldoAtual = 4;
-  ColFinal = 19;
 
 //classe localiza
 Type TRBLocalizaFluxoCaixa = class
@@ -53,15 +52,14 @@ Type TRBFuncoesFluxoCaixa = class(TRBLocalizaFluxoCaixa)
     procedure CarSaldoAnterior(VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarChequesSaldoAnterior(VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarContasaReceber(VpaDFluxo : TRBDFluxoCaixaCorpo);
-    procedure CarMesContasaReceberGrade(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo;VpaMes,VpaAno : Integer);
-    procedure CarValorAplicacaoGrade(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
+    procedure CarMesContasaReceberGrade(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo;VpaMes,VpaAno : Integer);
+    procedure CarValorAplicacaoGrade(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarContaCaixaGrade(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure RContaCaixaDia(VpanumConta :string; VpaFluxoDia : TRBDFluxoCaixaDia;VpaDFluxoMes : TRBDFluxoCaixaMes; VpaDFluxo : TRBDFluxoCaixaCorpo);
     function RContaFluxoCaixa(VpaNumConta : string; VpaDFluxo : TRBDFluxoCaixaCorpo):TRBDFluxoCaixaConta;
   public
     constructor cria(VpaBaseDados : TSQLConnection);
     destructor destroy;override;
-    procedure CarTitulosDiarioGrade(VpaGrade : TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
     procedure CarregaCores(VpaCorFonteCaixa, VpaCorFundoCaixa, VpaCorFonteNegativo, VpaCorFonteTituloCR, VpaCorFonteCR, VpaCorFundoTituloCR, VpaCorFundoCR, VpaCorFonteCP,VpaCorFundoCP, VpaCorFonteTituloCP, VpaCorFundoTituloCP: TColor; VpaNomFonte : string; VpaTamFonte,VpaAltLinha : Integer);
     procedure LimpaFluxo(VpaGrade : TF1Book);
     procedure InicializaFluxoDiario(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
@@ -141,7 +139,8 @@ begin
                                   ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '+
                                    SQLTextoDataEntreAAAAMMDD('MOV.D_DAT_PRO',VpaDatInicio,VpaDatFim,true)+
                                   ' AND MOV.D_DAT_PAG IS NULL '+
-                                  ' AND MOV.C_FUN_PER =  ''N''');
+                                  ' AND MOV.C_FUN_PER =  ''N'''+
+                                  ' AND CAD.C_IND_DEV = ''N''');
 end;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
@@ -173,14 +172,15 @@ begin
     VpaGrade.Cells[ColInicial,LinInicial] := 'Fluxo Diário : '+IntToStr(VpaDFluxo.Mes)+'/'+IntToStr(VpaDFluxo.Ano)
   else
     VpaGrade.Cells[ColInicial,LinInicial] := 'Fluxo Mensal : '+ IntToStr(VpaDFluxo.Ano);
+  VpaGrade.MesclarCelulas(ColInicial,ColInicial+1,LinInicial,LinInicial);
   VpaGrade.FormataCelula(ColInicial,ColInicial,LinInicial,LinInicial,TamanhoFonte+2,NomeFonte,clblue,true,false,clwhite,taCenter,vaCenter,
-                bcSemBorda);
+                bcSemBorda,clBlack);
   VpaGrade.cells[ColSaldoAnterior,LinInicial] := 'Saldo Anterior';
   VpaGrade.Cells[ColAplicacao,LinInicial] := 'Aplicação';
   VpaGrade.Cells[ColSaldoAtual,LinInicial] := 'Saldo Atual';
 
   VpaGrade.FormataCelula(ColAplicacao,ColSaldoAtual,LinInicial,LinInicial,TamanhoFonte,NomeFonte,CorFonteCaixa,true,false,CorFundoCaixa,
-                         taLeftJustify,vacenter,bcComBorda);
+                         taLeftJustify,vacenter,bcComBorda,clBlack);
   VpaGrade.RowHeights[LinInicial] := AlturaLinha+5;
   VpaGrade.ColWidths[ColInicial] := 10;
   VpaGrade.ColWidths[ColTituloLinha] := 200;
@@ -319,7 +319,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesFluxoCaixa.CarMesContasaReceberGrade(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo;VpaMes,VpaAno : Integer);
+procedure TRBFuncoesFluxoCaixa.CarMesContasaReceberGrade(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo;VpaMes,VpaAno : Integer);
 var
   VpfLacoContas, VpfLacoMes, VpfLacoDia : Integer;
   VpfDConta : TRBDFluxoCaixaConta;
@@ -338,18 +338,20 @@ begin
         for VpfLacoDia := 0 to VpfDMes.Dias.Count - 1 do
         begin
           VpfDDia := TRBDFluxoCaixaDia(VpfDMes.Dias.Items[VpfLacoDia]);
-          VpaGrade.TextRC[VpfDConta.LinContasReceberPrevisto,ColAplicacao+1+VpfDDia.Dia] := FormatFloat('#,###,###,##0.00',VpfDDia.ValCRPrevisto);
-          VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas-1,ColAplicacao+1+VpfDDia.Dia] := FormatFloat('#,###,###,##0.00',VpfDDia.ValTotalReceita);
-          VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas,ColAplicacao+1+VpfDDia.Dia] := FormatFloat('#,###,###,##0.00',VpfDDia.ValTotalReceitaAcumulada);
+          VpaGrade.cells[ColAplicacao+1+VpfDDia.Dia,VpfDConta.LinContasReceberPrevisto] := FormatFloat('#,###,###,##0.00',VpfDDia.ValCRPrevisto);
+          VpaGrade.cells[ColAplicacao+1+VpfDDia.Dia,VpfDConta.LinReceitasAcumuladas-1] := FormatFloat('#,###,###,##0.00',VpfDDia.ValTotalReceita);
+          VpaGrade.cells[ColAplicacao+1+VpfDDia.Dia,VpfDConta.LinReceitasAcumuladas] := FormatFloat('#,###,###,##0.00',VpfDDia.ValTotalReceitaAcumulada);
         end;
-        VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas,VpaDFluxo.QtdColunas] := FormatFloat('#,###,###,##0.00',VpfDMes.ValTotalReceitaAcumulada);
+        VpaGrade.cells[VpaDFluxo.QtdColunas,VpfDConta.LinContasReceberPrevisto] := FormatFloat('#,###,###,##0.00',VpfDMes.ValCRPrevisto);
+        VpaGrade.cells[VpaDFluxo.QtdColunas,VpfDConta.LinReceitasAcumuladas-1] := FormatFloat('#,###,###,##0.00',VpfDMes.ValTotalReceita);
+        VpaGrade.cells[VpaDFluxo.QtdColunas,VpfDConta.LinReceitasAcumuladas] := FormatFloat('#,###,###,##0.00',VpfDMes.ValTotalReceitaAcumulada);
       end;
     end;
   end;
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesFluxoCaixa.CarValorAplicacaoGrade(VpaGrade :TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
+procedure TRBFuncoesFluxoCaixa.CarValorAplicacaoGrade(VpaGrade :TRBStringGridColor;VpaDFluxo : TRBDFluxoCaixaCorpo);
 var
   VpfLaco : Integer;
   VpfDConta : TRBDFluxoCaixaConta;
@@ -358,34 +360,34 @@ begin
   begin
     VpfDConta := TRBDFluxoCaixaConta(VpaDFluxo.ContasCaixa.Items[VpfLaco]);
     if VpfDConta.ValAplicado <> 0 then
-      VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas,ColAplicacao] := FormatFloat('#,###,###,##0.00',VpfDConta.ValAplicado)
+      VpaGrade.Cells[ColAplicacao,VpfDConta.LinReceitasAcumuladas] := FormatFloat('#,###,###,##0.00',VpfDConta.ValAplicado)
     else
-      VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas,ColAplicacao] := FormatFloat('#,###,###,##0.00',0);
+      VpaGrade.cells[ColAplicacao,VpfDConta.LinReceitasAcumuladas] := FormatFloat('#,###,###,##0.00',0);
 
     if VpfDConta.ValSaldoAnterior <> 0 then
-      VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas-1,ColSaldoAnterior] := FormatFloat('#,###,###,##0.00',VpfDConta.ValSaldoAnterior)
+      VpaGrade.cells[ColSaldoAnterior,VpfDConta.LinReceitasAcumuladas-1] := FormatFloat('#,###,###,##0.00',VpfDConta.ValSaldoAnterior)
     else
-      VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas-1,ColSaldoAnterior] := FormatFloat('#,###,###,##0.00',0);
+      VpaGrade.cells[ColSaldoAnterior,VpfDConta.LinReceitasAcumuladas-1] := FormatFloat('#,###,###,##0.00',0);
 
     if VpfDConta.ValSaldoAtual <> 0 then
-      VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas-1,ColSaldoAtual] := FormatFloat('#,###,###,##0.00',VpfDConta.ValSaldoAtual)
+      VpaGrade.cells[ColSaldoAtual,VpfDConta.LinReceitasAcumuladas-1] := FormatFloat('#,###,###,##0.00',VpfDConta.ValSaldoAtual)
     else
-      VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas-1,ColSaldoAtual] := FormatFloat('#,###,###,##0.00',0);
+      VpaGrade.cells[ColSaldoAtual,VpfDConta.LinReceitasAcumuladas-1] := FormatFloat('#,###,###,##0.00',0);
 
-    VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas,ColSaldoAnterior] := FormatFloat('#,###,###,##0.00',VpfDConta.ValSaldoAnterior+VpfDConta.ValAplicado);
-    VpaGrade.TextRC[VpfDConta.LinReceitasAcumuladas,ColSaldoAtual] := FormatFloat('#,###,###,##0.00',VpfDConta.ValSaldoAnterior+VpfDConta.ValAplicado+VpfDConta.ValSaldoAtual);
+    VpaGrade.cells[ColSaldoAnterior,VpfDConta.LinReceitasAcumuladas] := FormatFloat('#,###,###,##0.00',VpfDConta.ValSaldoAnterior+VpfDConta.ValAplicado);
+    VpaGrade.cells[ColSaldoAtual,VpfDConta.LinReceitasAcumuladas] := FormatFloat('#,###,###,##0.00',VpfDConta.ValSaldoAnterior+VpfDConta.ValAplicado+VpfDConta.ValSaldoAtual);
   end;
 
   if VpaDFluxo.ValAplicacao <> 0 then
-    VpaGrade.TextRC[VpaDFluxo.LinTotalAcumulado,ColAplicacao] := FormatFloat('#,###,###,##0.00',VpaDFluxo.ValAplicacao)
+    VpaGrade.cells[ColAplicacao,VpaDFluxo.LinTotalAcumulado] := FormatFloat('#,###,###,##0.00',VpaDFluxo.ValAplicacao)
   else
-    VpaGrade.TextRC[VpaDFluxo.LinTotalAcumulado,ColAplicacao] := FormatFloat('#,###,###,##0.00',0);
+    VpaGrade.cells[ColAplicacao,VpaDFluxo.LinTotalAcumulado] := FormatFloat('#,###,###,##0.00',0);
 
-  VpaGrade.TextRC[VpaDFluxo.LinTotalAcumulado-1,ColSaldoAnterior] := FormatFloat('#,###,###,##0.00',VpaDFluxo.ValSaldoAnterior);
-  VpaGrade.TextRC[VpaDFluxo.LinTotalAcumulado,ColSaldoAnterior] := FormatFloat('#,###,###,##0.00',VpaDFluxo.ValAplicacao+VpaDFluxo.ValSaldoAnterior);
-  VpaGrade.TextRC[VpaDFluxo.LinTotalAcumulado-1,ColSaldoAtual] := FormatFloat('#,###,###,##0.00',VpaDFluxo.valSaldoAtual);
-  VpaGrade.TextRC[VpaDFluxo.LinTotalAcumulado,ColSaldoAtual] := FormatFloat('#,###,###,##0.00',VpaDFluxo.ValAplicacao+VpaDFluxo.ValSaldoAnterior+VpaDFluxo.valSaldoAtual);
-  VpaGrade.TextRC[VpaDFluxo.LinTotalAcumulado,VpaDFluxo.QtdColunas] := FormatFloat('#,###,###,##0.00',VpaDFluxo.ValTotalAcumulado);
+  VpaGrade.cells[ColSaldoAnterior,VpaDFluxo.LinTotalAcumulado-1] := FormatFloat('#,###,###,##0.00',VpaDFluxo.ValSaldoAnterior);
+  VpaGrade.cells[ColSaldoAnterior,VpaDFluxo.LinTotalAcumulado] := FormatFloat('#,###,###,##0.00',VpaDFluxo.ValAplicacao+VpaDFluxo.ValSaldoAnterior);
+  VpaGrade.cells[ColSaldoAtual,VpaDFluxo.LinTotalAcumulado-1] := FormatFloat('#,###,###,##0.00',VpaDFluxo.valSaldoAtual);
+  VpaGrade.cells[ColSaldoAtual,VpaDFluxo.LinTotalAcumulado] := FormatFloat('#,###,###,##0.00',VpaDFluxo.ValAplicacao+VpaDFluxo.ValSaldoAnterior+VpaDFluxo.valSaldoAtual);
+  VpaGrade.cells[VpaDFluxo.QtdColunas,VpaDFluxo.LinTotalAcumulado] := FormatFloat('#,###,###,##0.00',VpaDFluxo.ValTotalAcumulado);
 end;
 
 {******************************************************************************}
@@ -395,184 +397,196 @@ Var
   VpfLaco : integer;
   VpfDConta : TRBDFluxoCaixaConta;
 begin
-//  VpaGrade.ColWidth[ColInicial] := 500;
-// VpaGrade.ColWidth[ColInicial+1] := 6000;
   for VpfLaco := 0 to VpaDFluxo.ContasCaixa.Count -1 do
   begin
+    VpaGrade.RowCount := VpaGrade.RowCount + 23;
     VpfDConta := TRBDFluxoCaixaConta(VpaDFluxo.ContasCaixa.Items[VpfLaco]);
     vpfLinha := LinPrimeiraContaCaixa +1 +(VpfLaco*23);
     VpaGrade.cells[ColInicial+1,vpfLinha] := VpfDConta.NumContaCaixa+ '-'+VpfDConta.NomContaCaixa;
     VpaGrade.RowHeights[vpfLinha] := AlturaLinha+1;
     VpaGrade.FormataCelula(ColInicial,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+3,NomeFonte,clwhite,true,
-                false,clblue,taLeftJustify,vaCenter,bcComBorda);
+                false,clblue,taLeftJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.MesclarCelulas(ColInicial+1,ColInicial+5,vpfLinha,vpfLinha);
 
+   VpaGrade.FormataCelula(ColInicial,VpaDFluxo.QtdColunas,VpfLinha - 1,VpfLinha - 1,TamanhoFonte+3,NomeFonte,clwhite,true,
+                false,clWhite,taLeftJustify,vaCenter,bcComBorda,clBlack);
     //formata a cor da primeira coluna em azul
     VpaGrade.FormataCelula(ColInicial,ColInicial,VpfLinha,VpfLinha+20,TamanhoFonte+3,NomeFonte,clwhite,true,
-                false,clblue,taLeftJustify,vaCenter,bcSemBorda);
+                false,clblue,taLeftJustify,vaCenter,bcSemBorda,clBlack);
+    VpaGrade.ColWidths[colInicial] := 10;
 
-{    //Titulo Contas a receber;
+    //Titulo Contas a receber;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+2,CorFundoTituloCR,CorFonteTituloCR,true,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Contas a Receber';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha+100,false);
+    VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+2,NomeFonte,CorFonteTituloCR, true,
+                 false,CorFundoTituloCR,taLeftJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Contas a Receber';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha+2;
 
     //Contas a receber Previsto;
     inc(vpflinha);
     VpfDConta.LinContasReceberPrevisto := VpfLinha;
-    FormataCelula(VpaGrade,ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCR,CorFonteCR,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Contas a Receber Previsto';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
-    FormataCelula(VpaGrade,ColAplicacao,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoCR,CorFonteCR,false,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCR,false,
+                false,  CorFundoTituloCR,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.Cells[ColInicial+1,vpfLinha] := 'Contas a Receber Previsto';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
+    VpaGrade.FormataCelula(ColAplicacao,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte, CorFonteCR,false,
+                false,CorFundoCR,taRightJustify,vaCenter,bcComBorda,clBlack);
 
     //Contas a receber Duvidoso;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCR,CorFonteCR,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Contas a Receber Duvidoso';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
-    FormataCelula(VpaGrade,ColAplicacao,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoCR,CorFonteCR,false,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCR,false,
+                false, CorFundoTituloCR,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Contas a Receber Duvidoso';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
+    VpaGrade.FormataCelula(ColAplicacao,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCR,false,
+                false, CorFundoCR,taRightJustify,vaCenter,bcComBorda,clBlack);
 
     //Cobrança Prevista;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCR,CorFonteCR,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Cobrança Prevista';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
-    FormataCelula(VpaGrade,ColAplicacao,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoCR,CorFonteCR,false,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCR,false,
+                false,CorFundoTituloCR,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Cobrança Prevista';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
+    VpaGrade.FormataCelula(ColAplicacao,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCR,false,
+                false,CorFundoCR,taRightJustify,vaCenter,bcComBorda,clBlack);
 
 
     //Contas a Desconto Duplicatas;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCR,CorFonteCR,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := '(-) Desconto Duplicatas';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
-    FormataCelula(VpaGrade,ColAplicacao,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoCR,CorFonteCR,false,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCR, false,
+                false,CorFundoTituloCR,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.Cells[ColInicial+1,vpfLinha] := '(-) Desconto Duplicatas';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
+    VpaGrade.FormataCelula(ColAplicacao,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCR,false,
+                false, CorFundoCR,taRightJustify,vaCenter,bcComBorda,clBlack);
 
     //Contas a Cheques a compensar;
     inc(vpflinha);
     VpfDConta.LinChequesaCompensarCR := VpfLinha;
-    FormataCelula(VpaGrade,ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCR,CorFonteCR,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := '(+) Cheques a Compensar';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
-    FormataCelula(VpaGrade,ColAplicacao,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoCR,CorFonteCR,false,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCR,false,
+                 false,CorFundoTituloCR,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := '(+) Cheques a Compensar';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
+    VpaGrade.FormataCelula(ColAplicacao,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCR,false,
+                false,CorFundoCR,taRightJustify,vaCenter,bcComBorda,clBlack);
     inc(Vpflinha);
+    VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+3,NomeFonte,clwhite,true,
+                false,clWhite,taLeftJustify,vaCenter,bcComBorda,clBlack);
     //Total Receitas;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCR,CorFonteCR,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Total Receitas';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
+    VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCR,false,
+                false, CorFundoTituloCR,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Total Receitas';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
 
     //Receitas Acumuladas;
     inc(vpflinha);
     VpfDConta.LinReceitasAcumuladas := VpfLinha;
-    FormataCelula(VpaGrade,ColInicial+1,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCR,CorFonteCR,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Receitas Acumuladas';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
+    VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas-1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte, CorFonteCR,false,
+                false,CorFundoTituloCR,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Receitas Acumuladas';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
 
     //coloca a coluna do total em cinza
-    FormataCelula(VpaGrade,VpaDFluxo.QtdColunas,VpaDFluxo.QtdColunas,VpfDConta.LinContasReceberPrevisto,VpfDConta.LinChequesaCompensarCR,TamanhoFonte,CorFundoCaixa,CorFonteCaixa,false,
-                false,NomeFonte);
-    FormataCelula(VpaGrade,VpaDFluxo.QtdColunas,VpaDFluxo.QtdColunas,VpfDConta.LinReceitasAcumuladas-1,VpfLinha,TamanhoFonte,CorFundoCaixa,CorFonteCaixa,false,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(VpaDFluxo.QtdColunas,VpaDFluxo.QtdColunas,VpfDConta.LinContasReceberPrevisto,VpfDConta.LinChequesaCompensarCR,TamanhoFonte,NomeFonte, CorFonteCaixa,false,
+                false,CorFundoCaixa,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.FormataCelula(VpaDFluxo.QtdColunas,VpaDFluxo.QtdColunas,VpfDConta.LinReceitasAcumuladas-1,VpfLinha,TamanhoFonte,NomeFonte, CorFonteCaixa,false,
+                false,CorFundoCaixa,taRightJustify,vaCenter,bcComBorda,clBlack);
 
     inc(Vpflinha);
+    VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+3,NomeFonte,clwhite,true,
+                false,clWhite,taLeftJustify,vaCenter,bcComBorda,clBlack);
     //Titulo Contas a Pagar
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+2,CorFundoTituloCP,CorFonteTituloCP,true,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Contas a Pagar';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha+100,false);
+    VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+2,NomeFonte,CorFonteTituloCP,true,
+                false,CorFundoTituloCP, taLeftJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Contas a Pagar';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
     //Contas a pagar;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCP,CorFonteTituloCP,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Contas a pagar';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
-    FormataCelula(VpaGrade,ColAplicacao,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,CorFundoCP,CorFonteCP,false,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte, CorFonteCP,false,
+                false,CorFundoTituloCP,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Contas a pagar';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
+    VpaGrade.FormataCelula(ColAplicacao,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCP,false,
+                false,CorFundoCP,taRightJustify,vaCenter,bcComBorda,clBlack);
     //Contas a pagar;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCP,CorFonteTituloCP,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Despesas Fixa';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
-    FormataCelula(VpaGrade,ColAplicacao,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,CorFundoCP,CorFonteCP,false,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCP,false,
+                false, CorFundoTituloCP,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Despesas Fixa';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
+    VpaGrade.FormataCelula(ColAplicacao,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCP,false,
+                false,CorFundoCP,taRightJustify,vaCenter,bcComBorda,clBlack);
 
     //Contas a pagar;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCP,CorFonteTituloCP,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Comissões';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
-    FormataCelula(VpaGrade,ColAplicacao,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,CorFundoCP,CorFonteCP,false,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte ,CorFonteCP,false,
+                false,CorFundoTituloCP,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Comissões';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
+    VpaGrade.FormataCelula(ColAplicacao,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCP,false,
+                false,CorFundoCP,taRightJustify,vaCenter,bcComBorda,clBlack);
 
     //Contas a pagar;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCP,CorFonteTituloCP,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Cheques a compensar';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
-    FormataCelula(VpaGrade,ColAplicacao,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,CorFundoCP,CorFonteCP,false,
-                false,NomeFonte);
+    VpaGrade.FormataCelula(ColInicial+1,ColInicial+1,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCP,false,
+                false, CorFundoTituloCP,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.Cells[ColInicial+1,vpfLinha] := 'Cheques a compensar';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
+    VpaGrade.FormataCelula(ColAplicacao,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte, CorFonteCP,false,
+                false,CorFundoCP,taRightJustify,vaCenter,bcComBorda,clBlack);
 
     inc(vpflinha);
+    VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+3,NomeFonte,clwhite,true,
+                false,clWhite,taLeftJustify,vaCenter,bcComBorda,clBlack);
     //Contas a pagar;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCP,CorFonteTituloCP,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Total Despesas';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
+    VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCP,false,
+                false,CorFundoTituloCP,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Total Despesas';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
 
     //Contas a pagar;
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,CorFundoTituloCP,CorFonteTituloCP,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Despesas Acumuladas';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
+    VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,CorFonteCP,false,
+                false,CorFundoTituloCP,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.Cells[ColInicial+1,vpfLinha] := 'Despesas Acumuladas';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
 
     inc(vpflinha);
+    VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte+3,NomeFonte,clwhite,true,
+                false,clWhite,taLeftJustify,vaCenter,bcComBorda,clBlack);
     //Totais
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,clblue,clwhite,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Total Conta ' + VpfDConta.NumContaCaixa+ ' :';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);
+    VpaGrade.FormataCelula(ColInicial,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte,clwhite,false,
+                false, clblue,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.Cells[ColInicial+1,vpfLinha] := 'Total Conta ' + VpfDConta.NumContaCaixa+ ' :';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
 
     inc(vpflinha);
-    FormataCelula(VpaGrade,ColInicial,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,clblue,clwhite,false,
-                false,NomeFonte);
-    VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Total Acumulado Conta ' +VpfDConta.NumContaCaixa+ ' :';
-    VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha,false);}
+    VpaGrade.FormataCelula(ColInicial,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte, clwhite,false,
+                false,clblue,taRightJustify,vaCenter,bcComBorda,clBlack);
+    VpaGrade.cells[ColInicial+1,vpfLinha] := 'Total Acumulado Conta ' +VpfDConta.NumContaCaixa+ ' :';
+    VpaGrade.RowHeights[vpfLinha] := AlturaLinha;
   end;
-{
+
   inc(vpflinha);
   //Total dia
   inc(vpflinha);
-  FormataCelula(VpaGrade,ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,clGray,clBlack,true,
-              false,NomeFonte);
-  VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Total : ';
-  VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha+100,false);
+  VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte, clBlack,true,
+              false,clGray,taRightJustify,vaCenter,bcComBorda,clBlack);
+  VpaGrade.cells[ColInicial+1,vpfLinha] := 'Total : ';
+  VpaGrade.RowHeights[vpfLinha] := AlturaLinha+2;
 
   //Total Acumulado
   inc(vpflinha);
   VpaDFluxo.LinTotalAcumulado := VpfLinha;
-  FormataCelula(VpaGrade,ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,clGray,clBlack,true,
-              false,NomeFonte);
-  VpaGrade.TextRC[vpfLinha,ColInicial+1] := 'Total Acumulado : ';
-  VpaGrade.SetRowHeight(vpfLinha,VpfLinha,AlturaLinha+100,false);}
+  VpaGrade.FormataCelula(ColInicial+1,VpaDFluxo.QtdColunas,VpfLinha,VpfLinha,TamanhoFonte,NomeFonte, clBlack,true,
+              false,clGray,taRightJustify,vaCenter,bcComBorda,clBlack);
+  VpaGrade.Cells[ColInicial+1,vpfLinha] := 'Total Acumulado : ';
+  VpaGrade.RowHeights[vpfLinha] := AlturaLinha+2;
+  VpaGrade.RowCount := vpfLinha+1;
 end;
 
 {******************************************************************************}
@@ -596,12 +610,6 @@ begin
   end;
 end;
 
-{******************************************************************************}
-procedure TRBFuncoesFluxoCaixa.CarTitulosDiarioGrade(VpaGrade : TF1Book;VpaDFluxo : TRBDFluxoCaixaCorpo);
-begin
-
-
-end;
 
 {******************************************************************************}
 procedure TRBFuncoesFluxoCaixa.CarregaCores(VpaCorFonteCaixa, VpaCorFundoCaixa, VpaCorFonteNegativo, VpaCorFonteTituloCR, VpaCorFonteCR, VpaCorFundoTituloCR, VpaCorFundoCR, VpaCorFonteCP, VpaCorFundoCP,VpaCorFonteTituloCP, VpaCorFundoTituloCP: TColor; VpaNomFonte : string; VpaTamFonte,VpaAltLinha : Integer);
@@ -627,7 +635,6 @@ end;
 {******************************************************************************}
 procedure TRBFuncoesFluxoCaixa.LimpaFluxo(VpaGrade : TF1Book);
 begin
-  LimpaGrade(VpaGrade,ColInicial,ColFinal,LinInicial,LinFinal);
 end;
 
 {******************************************************************************}
@@ -642,17 +649,18 @@ begin
     VpaDFluxo.QtdColunas := Dia(UltimoDiaMes(MontaData(1,VpaDFluxo.Mes,VpaDFluxo.Ano)))
   else
     VpaDFluxo.QtdColunas := 12;
+  VpaGrade.ColCount := VpaDFluxo.QtdColunas + ColSaldoAtual+2;
 
+  VpaGrade.ColWidths[ColInicial] := 10;
   for VpfLaco := 1 to VpaDFluxo.QtdColunas do
   begin
     VpaGrade.cells[ColSaldoAtual+VpfLaco,LinInicial] := IntToStr(VpfLaco);
     VpaGrade.FormataCelula(ColSaldoAtual+VpfLaco,ColSaldoAtual+VpfLaco,LinInicial,LinInicial,TamanhoFonte,NomeFonte,CorFonteCaixa,true,
-                false,CorFundoCaixa,taRightJustify,vacenter,bcComBorda);
-    VpaGrade.ColWidths[ColInicial] := 100;
+                false,CorFundoCaixa,taRightJustify,vacenter,bcComBorda,clBlack);
   end;
   VpaGrade.cells[ColSaldoAtual+VpaDFluxo.QtdColunas+1,LinInicial] := 'Total';
   VpaGrade.FormataCelula(ColSaldoAtual+VpaDFluxo.QtdColunas+1,ColSaldoAtual+VpaDFluxo.QtdColunas+1,LinInicial,LinInicial,TamanhoFonte,NomeFonte,CorFonteCaixa,true,
-                false,CorFundoCaixa,taRightJustify,vaCenter,bcComBorda);
+                false,CorFundoCaixa,taRightJustify,vaCenter,bcComBorda,clBlack);
   VpaGrade.ColWidths[VpaDFluxo.QtdColunas+ColSaldoAtual+1] := 120;
 
   VpaDFluxo.QtdColunas := VpaDFluxo.QtdColunas+ColSaldoAtual+1;
@@ -663,11 +671,11 @@ procedure TRBFuncoesFluxoCaixa.CarFluxoCaixa(VpaGrade :TRBStringGridColor;VpaDFl
 begin
   CarContasFluxo(VpaDFluxo);
   CarContaCaixaGrade(VpaGrade,VpaDFluxo);
-{  CarSaldoAnterior(VpaDFluxo);
+  CarSaldoAnterior(VpaDFluxo);
   CarChequesSaldoAnterior(VpaDFluxo);
   CarContasaReceber(VpaDFluxo);
   CarValorAplicacaoGrade(VpaGrade,VpaDFluxo);
-  CarMesContasaReceberGrade(VpaGrade,VpaDFluxo,VpaDFluxo.Mes,VpaDFluxo.Ano);}
+  CarMesContasaReceberGrade(VpaGrade,VpaDFluxo,VpaDFluxo.Mes,VpaDFluxo.Ano);
 end;
 
 end.

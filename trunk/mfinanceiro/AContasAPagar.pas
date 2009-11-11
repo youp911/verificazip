@@ -941,7 +941,7 @@ begin
   rvParcelas.close;
   rvParcelas.ProjectFile := varia.PathRelatorios+'\Financeiro\XX_ContasAPagar.rav';
   rvParcelas.SetParam('FILIAL',LFilial.Caption);
-  rvParcelas.SetParam('PERIODO',FormatDateTime('DD/MM/YY',DataParcela1.DateTime)+' - '+FormatDateTime('DD/MM/YY',DataParcela2.DateTime));
+  rvParcelas.SetParam('PERIODO','Período de '+FormatDateTime('DD/MM/YY',DataParcela1.DateTime)+' até '+FormatDateTime('DD/MM/YY',DataParcela2.DateTime));
   rvParcelas.execute;
 end;
 

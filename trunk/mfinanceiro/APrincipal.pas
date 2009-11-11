@@ -102,7 +102,6 @@ type
     Recibo1: TMenuItem;
     MFConsultaValoresFornecedor: TMenuItem;
     MRelatorios: TMenuItem;
-    ImprimirPlanodeContas1: TMenuItem;
     Envelope1: TMenuItem;
     tempo: TPainelTempo;
     BMFMovComissoes: TSpeedButton;
@@ -154,14 +153,15 @@ type
     BaseDados: TSQLConnection;
     N23: TMenuItem;
     Projeto1: TMenuItem;
+    ReorganizaPlanoContas1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
     procedure MenuClick(Sender: TObject);
     procedure Contexto1Click(Sender: TObject);
-    procedure RelatoriosClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure ReorganizaPlanoContas1Click(Sender: TObject);
   private
     TipoSistema : string;
     UnPri : TFuncoesPrincipal;
@@ -202,14 +202,14 @@ uses
   AMostraBoleto, AMostraCarne, AMostraNotaPromissoria, AImprimeCheque,
   AImprimeDuplicata, AImprimeBoleto, AImprimeCarne, AVisualizaFluxo,
   AMostraDuplicata, AMostraRecibo,
-  AConsultaValoresFornecedor, AImprimePlanoContas, AMostraEnvelope,
+  AConsultaValoresFornecedor, AMostraEnvelope,
   AConsultaReceitaDespesa, ABackup,
   ARelClientesemAberto, AImpCliente, ARemessas, UnCrystal,
   ARetornos, AHistoricoLigacao, ANovaCobranca, ACobrancas,
   ABaixaCotacaoPaga, AMotivoInadimplencia, AIndicadorInadimplencia,
   AEmailContasAReceber, APrazoMedio, ACentroCusto, AClientesBloqueados,
   AGraficoAnaliseFaturamento, AConsultacheques, UnVersoes, AChequesOO,
-  AFluxoCaixa, ADER, unCaixa, AProjetos;
+  AFluxoCaixa, ADER, unCaixa, AProjetos, AReorganizaPlanoContas;
 
 {$R *.DFM}
 
@@ -634,6 +634,11 @@ begin
              FBaixaCotacaoPaga.BaixaOrcamento;
              FBaixaCotacaoPaga.free;
            end;
+    7300 : begin
+             FReorganizaPlanoContas := TFReorganizaPlanoContas.CriarSDI(self,'',true);
+             FReorganizaPlanoContas.ShowModal;
+             FReorganizaPlanoContas.free;
+           end;
            // ------- Cadastro de Vendedores ------- //
     8100 : FImprimeDuplicata := TFImprimeDuplicata.CriarMDI(Application,Varia.CT_AreaX,Varia.CT_AreaY,VerificaPermisao('FImprimeDuplicata'));
     8200 : FImprimeCheque := TFImprimeCheque.CriarMDI(Application,Varia.CT_AreaX,Varia.CT_AreaY,VerificaPermisao('FImprimeCheque'));
@@ -724,15 +729,9 @@ begin
  Application.HelpCommand(HELP_FINDER, 0);
 end;
 
-procedure TFPrincipal.RelatoriosClick(Sender: TObject);
+procedure TFPrincipal.ReorganizaPlanoContas1Click(Sender: TObject);
 begin
-  if Sender is TComponent  then
-  case ((Sender as TComponent).Tag) of
-    01 : begin
-           FImprimePlanoContas := TFImprimePlanoContas.Create(application);
-           FImprimePlanoContas.ExecutaRelatorio;
-         end;
-  end;
+
 end;
 
 {******************* configura os modulos do sistema ************************* }

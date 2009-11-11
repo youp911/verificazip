@@ -161,7 +161,7 @@ implementation
 uses
   FunString, FunSQL, FunData, FunObjeto, UnProdutos, ConstMsg, FunNumeros,
   APrincipal, ALocalizaProdutos, UnCrystal, ACompradores, ANovoProdutoPro,
-  ACores;
+  ACores, dmRave;
 
 {$R *.DFM}
 
@@ -1081,7 +1081,11 @@ end;
 procedure TFNovaSolicitacaoCompras.BImprimirClick(Sender: TObject);
 begin
   if VprDOrcamentoCorpo.CodFilial <> 0 then
-    FunCrystal.ImprimeRelatorioDiretoImpressora(Varia.ImpressoraRelatorio,Varia.PathRelatorios + '\Orcamento Compra\XX_Orcamento de Compra.rpt',[IntToStr(VprDOrcamentoCorpo.SeqSolicitacao),IntToStr(VprDOrcamentoCorpo.CodFilial)]);
+  begin
+    dtRave := TdtRave.create(self);
+    dtRave.ImprimePedidoCompra(VprDOrcamentoCorpo.CodFilial,VprDOrcamentoCorpo.SeqSolicitacao,false);
+    dtRave.free;
+  end;
 end;
 
 {******************************************************************************}

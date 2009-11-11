@@ -5,7 +5,7 @@ unit UnRave;
 interface
 Uses SQLExpr, RpRave, UnDados, SysUtils, RpDefine, RpBase, RpSystem,RPDevice,
      Classes, forms, Graphics, unprodutos, UnClassificacao, UnAmostra, RpRenderPDF,
-     unDadosProduto;
+     unDadosProduto, windows;
 
 
 Type
@@ -38,9 +38,12 @@ Type
       SeqProduto : Integer;
       CodProduto,
       NomProduto,
-      DesUM : String;
+      DesUM,
+      DesCifraoMoeda : String;
       QtdEstoque,
-      ValEstoque : Double;
+      QtdTrocada,
+      ValEstoque,
+      ValTroca : Double;
       Cores : TList;
       constructor cria;
       destructor destroy;override;
@@ -53,7 +56,9 @@ Type
     CodReduzido,
     NomClassificacao : String;
     QTdProduto,
+    QtdTrocado,
     ValTotal,
+    VAlTrocado,
     QtdMesAnterior,
     QtdVenda,
     ValAnterior,
@@ -121,7 +126,10 @@ type
       VprUfAtual : String;
       VprMes,
       VprAno,
-      VprCodProjeto : Integer;
+      VprCodProjeto,
+      VprFilial,
+      VprClienteMaster,
+      VprCliente : Integer;
       VprDatInicio,
       VprDatFim : TDateTime;
       VprAgruparPorEstado,
@@ -129,12 +137,14 @@ type
       FunClassificacao : TFuncoesClassificacao;
       VprNiveis : TList;
       procedure DefineTabelaProdutosPorClassificacao(VpaObjeto : TObject);
+      procedure DefineTabelaProdutosVendidoseTrocados(VpaObjeto : TObject);
       procedure DefineTabelaEstoqueProdutos(VpaObjeto : TObject);
       procedure DefineTabelaQtdMinimas(VpaObjeto : TObject);
       procedure DefineTabelaAnaliseFaturamentoMensal(VpaObjeto : TObject);
       procedure DefineTabelaFechamentoEstoque(VpaObjeto : TObject);
       procedure DefineTabelaCPporPlanoContas(VpaObjeto : TObject);
       procedure DefineTabelaCPporPlanoContasSintetico(VpaObjeto : TObject);
+      procedure DefineTabelaCPporPlanoContasSinteticoporMes(VpaObjeto : TObject);
       procedure DefineTabelaEntradaMetro(VpaObjeto : TObject);
       procedure DefineTabelaExtratoProdutividade(VpaObjeto : TObject);
       procedure DefineTabelaCustoProjeto(VpaObjeto : TObject);
@@ -142,11 +152,15 @@ type
       procedure DefineTabelaTotalAmostraporVendedor(VpaObjeto : TObject);
       procedure ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
       procedure SalvaTabelaProdutosPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
+      procedure SalvaTabelaPrecoPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
+      procedure SalvaTabelaTrocasProdutos(VpaDProduto :TRBDProdutoRave);
       procedure ImprimeRelEstoqueProdutos(VpaObjeto : TObject);
       procedure ImprimeTotaisNiveis(VpaNiveis : TList;VpaIndice : integer);
       procedure ImprimeTotaisNiveisPlanoContas(VpaNiveis : TList;VpaIndice : integer);
       procedure ImprimeTotalCelulaTrabalho(VpaValTotal : Double;VpaDiaAtua : Integer);
       procedure ImprimeCabecalhoEstoque;
+      procedure ImprimeCabecalhoTabelaPreco;
+      procedure ImprimeCabecalhoProdutosVendidoseTrocados;
       procedure ImprimeCabecalhoQtdMinima;
       procedure ImprimeCabecalhoAnaliseFaturamento;
       procedure ImprimeCabecalhoFechamentoEstoque;
@@ -155,6 +169,8 @@ type
       procedure ImprimeCabecalhoPlanoContasCustoProjeto;
       procedure ImprimeCabecalhoExtratoProdutividade;
       procedure ImprimeCabecalhoTotalAmostrasVendedor;
+      procedure ImprimeCabecalhoPorPlanoContasSintetico;
+      procedure ImprimeCabecalhoPorPlanoContasSinteticoporMes;
       procedure ImprimeTituloUF(VpaCodUf : String);
       procedure ImprimeTituloClassificacao(VpaNiveis : TList;VpaTudo : boolean);
       procedure ImprimetituloPlanoContas(VpaNiveis : TList;VpaTudo : boolean);
@@ -165,18 +181,23 @@ type
       function CarDNivelPlanoContas(VpaCodCompleto, VpaCodReduzido : String):TRBDPlanoContasRave;
       function CarregaNiveisPlanoContas(VpaNiveis : TList;VpaCodPlanoContas : string;VpaImprimirTotal : Boolean):TRBDPlanoContasRave;
       procedure ImprimeRelCustoProjetoContasAPagar;
+      procedure ImprimeRelTabelaPreco(VpaObjeto : TObject);
 
       procedure InicializaVendaCliente(VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente);
       function RMesVenda(VpaDVenda : TRBDVendaCliente;VpaMes, VpaAno : Integer) : TRBDVendaClienteMes;
       procedure AtualizaTotalVenda(VpaDVenda : TRBDVendaCliente);
       function CarValoresFaturadosCliente(VpaCodCliente : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente):boolean;
+      function CarValoresPlanoContasMes(VpaPlanoContas : String; VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente):boolean;
       procedure CarValoresContasAPagar(VpaPlanoContas : String; VpaDatInicio,VpaDatFim : TDateTime;Var VpaValPago : Double;Var VpaValtotal : Double);
+      procedure CarValorTrocasProdutos(VpaDProduto : TRBDProdutoRave; VpaDatInicio,VpaDatFim : TDateTime;VpaSeqProduto :Integer);
 
+      procedure ConfiguraRelatorioPDF;
       procedure ImprimeRelEstoqueMinimo(VpaObjeto : TObject);
       procedure ImprimeRelAnaliseFaturamentoAnual(VpaObjeto : TObject);
       procedure ImprimeRelFechamentoEstoque(VpaObjeto : TObject);
       procedure ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
       procedure ImprimeRelCPporPlanoContasSintetico(VpaObjeto : TObject);
+      procedure ImprimeRelCPPorPlanoContasSinteticoporMes(VpaObjeto : TObject);
       procedure ImprimeRelEntradaMetros(VpaObjeto : TObject);
       procedure ImprimeRelExtratoProdutividade(VpaObjeto : TObject);
       procedure ImprimeRelCustoProjeto(VpaObjeto : TObject);
@@ -185,6 +206,7 @@ type
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
     public
+      VplArquivoPDF : String;
       constructor cria(VpaBaseDados : TSQLConnection);
       destructor destroy;override;
       procedure EnviaParametrosFilial(VpaProjeto : TrvProject;VpaDFilial : TRBDFilial);
@@ -202,7 +224,9 @@ type
       procedure ImprimeEstoqueProdutosReservados(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
       procedure ImprimeTotaAmostrasPorVendedor(VpaCodVendedor : Integer;VpaCaminho, VpaNomVendedor : String;VpaDatInicio, VpaDatFim : TDateTime);
       procedure ImprimeContasAPagarPorPlanoContasSintetico(VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho : String);
-      procedure ImprimeFichaAmosta(VpaDAmostra : TRBDAmostra;VpaPDF : Boolean);
+      procedure ImprimeFichaAmosta(VpaDAmostra : TRBDAmostra);
+      procedure ImprimeProdutosVendidoseTrocacos(VpaCodFilial, VpaTipCotacao,VpaCodCliente,VpaCodVendedor,VpaCodClienteMaster : Integer;VpaCaminho,VpaNomFilial,VpaNomVendedor,VpaNomTipCotacao,VpaNomCliente,VpaNomClienteMaster:string ;VpaDatInicio,VpaDatFim : TDateTime);
+      procedure ImprimeContasAPagarPorPlanoContasSinteticoMes(VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho : String);
   end;
 implementation
 
@@ -438,6 +462,45 @@ begin
 end;
 
 (******************************************************************************)
+procedure TRBFunRave.DefineTabelaProdutosVendidoseTrocados(VpaObjeto: TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1.0,pjleft,2.5,0.5,BoxlineNONE,0); //Codigo classificacao
+     SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //NomeClassificacao;
+     SaveTabs(1);
+     clearTabs;
+     SetTab(1.2,pjLeft,8,0.1,Boxlinenone,0); //espaco vazio
+     SetTab(NA,pjCenter,4.6,0.3,BOXLINEBOTTOM,0); //vendas
+     SetTab(NA,pjCenter,0.2,0.3,BOXLINENONE,0); //
+     SetTab(NA,pjCenter,4.6,0.3,BOXLINEBOTTOM,0); //Trocas
+     SaveTabs(2);
+     clearTabs;
+     SetTab(1.2,pjLeft,2,0.1,Boxlinenone,0); //Codigo Produto
+     if (config.EstoquePorCor) and config.EstoquePorTamanho then
+       SetTab(NA,pjLeft,4.8,0.5,Boxlinenone,0) //nomeproduto
+     else
+       if (config.EstoquePorCor) then
+         SetTab(NA,pjLeft,5.7,0.5,Boxlinenone,0) //nomeproduto
+       else
+         if (config.EstoquePorTamanho) then
+           SetTab(NA,pjLeft,7.3,0.5,Boxlinenone,0) //nomeproduto
+         else
+           SetTab(NA,pjLeft,5.8,0.5,Boxlinenone,0); //nomeproduto
+     if (config.EstoquePorCor) then
+       SetTab(NA,pjLeft,1.5,0.2,Boxlinenone,0); //Cor
+     if (config.EstoquePorTamanho) then
+       SetTab(NA,pjLeft,1,0.2,Boxlinenone,0); //Tamanho
+     SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Qtd vendida
+     SetTab(NA,pjRight,2.5,0,Boxlinenone,0); //Valor total vendido
+     SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Qtd trocado
+     SetTab(NA,pjRight,2.5,0,Boxlinenone,0); //Valor total trocado
+     SetTab(NA,pjRight,2,0,Boxlinenone,0); //percentual
+     SaveTabs(3);
+   end;
+end;
+
+(******************************************************************************)
 procedure TRBFunRave.DefineTabelaEstoqueProdutos(VpaObjeto : TObject);
 begin
    with RVSystem.BaseReport do begin
@@ -512,14 +575,27 @@ begin
      SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //NomeClassificacao;
      SaveTabs(1);
      clearTabs;
-     SetTab(1.5,pjLeft,3.1,0.1,Boxlinenone,0); //Codigo Produto
-     if config.EstoquePorTamanho then
-       SetTab(NA,pjLeft,9.3,0.5,Boxlinenone,0) //nomeproduto
+     SetTab(1.2,pjLeft,3.6,0.1,Boxlinenone,0); //Codigo Produto
+     if (config.EstoquePorCor) and config.EstoquePorTamanho then
+       SetTab(NA,pjLeft,8.8,0.5,Boxlinenone,0) //nomeproduto
      else
+       if (config.EstoquePorCor) then
+         SetTab(NA,pjLeft,9.2,0.5,Boxlinenone,0) //nomeproduto
+       else
+         if (config.EstoquePorTamanho) then
+           SetTab(NA,pjLeft,11.3,0.5,Boxlinenone,0) //nomeproduto
+         else
            SetTab(NA,pjLeft,12.3,0.5,Boxlinenone,0); //nomeproduto
+     if config.EstoquePorCor then
+     begin
+       if (config.EstoquePorCor) and (config.EstoquePorTamanho) then
+         SetTab(NA,pjLeft,2.6,0.2,Boxlinenone,0) //Cor
+       else
+         SetTab(NA,pjLeft,3.1,0.2,Boxlinenone,0); //Cor
+     end;
      if (config.EstoquePorTamanho) then
-       SetTab(NA,pjLeft,3.5,0.2,Boxlinenone,0); //Tamanho
-     SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Valor total
+       SetTab(NA,pjLeft,1,0.2,Boxlinenone,0); //Tamanho
+     SetTab(NA,pjRight,2.6,0,Boxlinenone,0); //Valor total
      SetTab(NA,pjLeft,0.8,0,Boxlinenone,0); //um
      SaveTabs(2);
    end;
@@ -597,16 +673,41 @@ procedure TRBFunRave.DefineTabelaCPporPlanoContasSintetico(VpaObjeto: TObject);
 begin
    with RVSystem.BaseReport do begin
      clearTabs;
-     SetTab(1.0,pjleft,2.5,0.5,BoxlineNONE,0); //Codigo planoContas
-     SetTab(NA,pjleft,8,0.5,BoxlineNONE,0); //NomPlanoContas
+     SetTab(0.8,pjleft,2.5,0.5,BoxlineNONE,0); //Codigo planoContas
+     SetTab(NA,pjleft,7.5,0.5,BoxlineNONE,0); //NomPlanoContas
      SetTab(NA,pjRight,2,0.5,Boxlinenone,0); //Valor a pagar
      SetTab(NA,pjRight,2,0.5,Boxlinenone,0); //Valor pago
      SetTab(NA,pjRight,2,0.5,Boxlinenone,0); //Valor total
      SetTab(NA,pjRight,2,0.5,Boxlinenone,0); //Valor previsto
-     SetTab(NA,pjRight,2,0.5,Boxlinenone,0); //% diferenca
+     SetTab(NA,pjRight,1.2,0.5,Boxlinenone,0); //% diferenca
      SaveTabs(1);
    end;
 
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaCPporPlanoContasSinteticoporMes(VpaObjeto: TObject);
+begin
+  with RVSystem.BaseReport do begin
+    clearTabs;
+    SetTab(0.8,pjleft,2,0.5,BoxlineNONE,0); //Codigo planoContas
+    SetTab(NA,pjleft,4.5,0.5,BoxlineNONE,0); //NomPlanoContas
+    SetTab(NA,pjLeft,0.65,0.1,Boxlinenone,0); //Ano
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Janeiro
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Fevereiro
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Marco
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Abril
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Maio
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Junho
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Julho
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Agosto
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Setembro
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Outubro
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Novembro
+    SetTab(NA,pjRight,1.6,0.1,Boxlinenone,0); //Dezembro
+    SetTab(NA,pjRight,1.65,0.1,Boxlinenone,0); //Total
+    SaveTabs(1);
+  end;
 end;
 
 {******************************************************************************}
@@ -721,6 +822,8 @@ begin
         begin
           VpfDClassificacao.QtdProduto := VpfDClassificacao.QtdProduto +VpfDProduto.QtdEstoque;
           VpfDClassificacao.ValTotal := VpfDClassificacao.ValTotal + VpfDProduto.ValEstoque;
+          VpfDClassificacao.QtdTrocado := VpfDClassificacao.QtdTrocado +VpfDProduto.QtdTrocada;
+          VpfDClassificacao.VAlTrocado := VpfDClassificacao.VAlTrocado + VpfDProduto.ValTroca;
         end;
 
         if VprAgruparPorEstado and (VprUFAtual <> Tabela.FieldByName('C_EST_CLI').AsString)  then
@@ -769,6 +872,8 @@ begin
     begin
       VpfDClassificacao.QtdProduto := VpfDClassificacao.QtdProduto +VpfDProduto.QtdEstoque;
       VpfDClassificacao.ValTotal := VpfDClassificacao.ValTotal + VpfDProduto.ValEstoque;
+      VpfDClassificacao.QtdTrocado := VpfDClassificacao.QtdTrocado +VpfDProduto.QtdTrocada;
+      VpfDClassificacao.VAlTrocado := VpfDClassificacao.VAlTrocado + VpfDProduto.ValTroca;
     end;
 
     if VprNiveis.Count > 0  then
@@ -791,13 +896,12 @@ begin
     PrintTab(FormatFloat(varia.MascaraValor,VpfValGeral));
     PrintTab('  ');
     bold := false;
-
   end;
   Tabela.Close;
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.SalvaTabelaProdutosPorCoreTamanho(VpaDProduto: TRBDProdutoRave);
+procedure TRBFunRave.SalvaTabelaPrecoPorCoreTamanho(VpaDProduto: TRBDProdutoRave);
 var
   VpfLacoCor, vpfLacoTamanho : Integer;
   VpfDCor : TRBDCorProdutoRave;
@@ -839,8 +943,7 @@ begin
           PrintTab('');
       end;
     end;
-    PrintTab(FormatFloat(varia.MascaraQtd,VpaDProduto.QtdEstoque));
-    PrintTab(FormatFloat(varia.MascaraValor,VpaDProduto.ValEstoque));
+    PrintTab(FormatFloat(VpaDProduto.DesCifraoMoeda+ ' '+ varia.MascaraValor,VpaDProduto.ValEstoque));
     PrintTab('  '+VpaDProduto.DesUM);
     newline;
     If LinesLeft<=1 Then
@@ -900,6 +1003,131 @@ begin
   end;
 end;
 
+{******************************************************************************}
+procedure TRBFunRave.SalvaTabelaProdutosPorCoreTamanho(VpaDProduto: TRBDProdutoRave);
+var
+  VpfLacoCor, vpfLacoTamanho : Integer;
+  VpfDCor : TRBDCorProdutoRave;
+  VpfDTamanho : TRBDTamanhoProdutoRave;
+begin
+  with RVSystem.BaseReport do
+  begin
+    PrintTab(VpaDProduto.CodProduto);
+    PrintTab(VpaDProduto.NomProduto);
+    VpfDCor := TRBDCorProdutoRave(VpaDProduto.Cores.Items[0]);
+    VpfDTamanho := TRBDTamanhoProdutoRave(VpfDCor.Tamanhos.Items[0]);
+    if config.EstoquePorCor or config.EstoquePorTamanho  then
+    begin
+      if (VpaDProduto.Cores.Count = 1) then
+      begin
+        if config.EstoquePorCor then
+        begin
+          if (VpfDCor.CodCor <> 0) then
+            PrintTab(VpfDCor.NomCor)
+          else
+            PrintTab('');
+        end;
+        if config.EstoquePorTamanho then
+        begin
+          if (VpfDCor.Tamanhos.Count = 1) then
+          begin
+            if (VpfDTamanho.CodTamanho <> 0) then
+              PrintTab(VpfDTamanho.NomTamanho)
+            else
+              PrintTab('');
+          end;
+        end;
+      end
+      else
+      begin
+        if config.EstoquePorCor then
+          PrintTab('');
+        if config.EstoquePorTamanho then
+          PrintTab('');
+      end;
+    end;
+    PrintTab(FormatFloat(varia.MascaraQtd,VpaDProduto.QtdEstoque));
+    PrintTab(FormatFloat(varia.MascaraValor,VpaDProduto.ValEstoque));
+    if (RvSystem.Tag = 16) then //relatorio de produtos vendidos e trocados
+    begin                       //adiciona nas proximas colunas os valores das trocas;
+      SalvaTabelaTrocasProdutos(VpaDProduto);
+      exit;
+    end;
+    PrintTab('  '+VpaDProduto.DesUM);
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    if config.EstoquePorCor or config.EstoquePorTamanho  then
+    begin
+      if (VpaDProduto.Cores.Count > 1) or (VpfDCor.Tamanhos.count > 1) then
+      begin
+        for VpfLacoCor := 0 to VpaDProduto.Cores.Count - 1 do
+        begin
+          VpfDCor := TRBDCorProdutoRave(VpaDProduto.Cores.Items[VpfLacoCor]);
+          PrintTab('');//codigo produto
+          PrintTab('');//nome produto
+          PrintTab(IntToStr(VpfDCor.CodCor)+'-'+ VpfDCor.NomCor);
+          if (VpfDCor.Tamanhos.Count = 1) and
+              config.EstoquePorTamanho then
+          begin
+            VpfDTamanho := TRBDTamanhoProdutoRave(VpfDCor.Tamanhos.Items[0]);
+            PrintTab(VpfDTamanho.NomTamanho);
+            PrintTab(FormatFloat(varia.MascaraQtd,VpfDTamanho.QtdEstoque));
+            PrintTab(FormatFloat(varia.MascaraValor,VpfDTamanho.ValEstoque));
+            PrintTab('  ');
+            newline;
+            If LinesLeft<=1 Then
+              NewPage;
+          end
+          else
+          begin
+            if config.EstoquePorTamanho then
+              PrintTab('');//tamanho
+            PrintTab(FormatFloat(varia.MascaraQtd,VpfDCor.QtdEstoque));
+            PrintTab(FormatFloat(varia.MascaraValor,VpfDCor.ValEstoque));
+            PrintTab('  ');
+            newline;
+            If LinesLeft<=1 Then
+              NewPage;
+            if config.EstoquePorTamanho then
+            begin
+              for vpfLacoTamanho := 0 to VpfDCor.Tamanhos.Count - 1 do
+              begin
+                VpfDtamanho := TRBDTamanhoProdutoRave(VpfDCor.Tamanhos.Items[VpfLacoTamanho]);
+                PrintTab('');//codigo produto
+                PrintTab('');//nome produto
+                PrintTab('');//cor
+                PrintTab(VpfDTamanho.NomTamanho);
+                PrintTab(FormatFloat(varia.MascaraQtd,VpfDTamanho.QtdEstoque));
+                PrintTab(FormatFloat(varia.MascaraValor,VpfDTamanho.ValEstoque));
+                newline;
+                If LinesLeft<=1 Then
+                  NewPage;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+
+{******************************************************************************}
+procedure TRBFunRave.SalvaTabelaTrocasProdutos(VpaDProduto: TRBDProdutoRave);
+begin
+  CarValorTrocasProdutos(VpaDProduto,VprDatInicio,VprDatFim,VpaDProduto.SeqProduto);
+  with RVSystem.BaseReport do
+  begin
+    PrintTab(FormatFloat(varia.MascaraQtd,VpaDProduto.QtdTrocada));
+    PrintTab(FormatFloat(varia.MascaraValor,VpaDProduto.ValTroca));
+    if (VpaDProduto.QtdEstoque <> 0) and (VpaDProduto.QtdTrocada <> 0) then
+      PrintTab(FormatFloat('#,##0.00 %',(VpaDProduto.QtdTrocada *100)/VpaDProduto.QtdEstoque ));
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+  end;
+end;
 
 {******************************************************************************}
 procedure TRBFunRave.ImprimeRelEstoqueProdutos(VpaObjeto : TObject);
@@ -1037,7 +1265,7 @@ begin
       VpfDClassificacao.ValAnterior := VpfDClassificacao.ValAnterior + VpfValAnterior;
       VpfDClassificacao.QtdVenda := VpfDClassificacao.QtdVenda + VpfQtdVenda;
       VpfDClassificacao.ValVenda := VpfDClassificacao.ValVenda + VpfValVenda;
-      VpfDClassificacao.ValCustoVenda := VpfDClassificacao.ValCustoVenda + VpfValVenda;
+      VpfDClassificacao.ValCustoVenda := VpfDClassificacao.ValCustoVenda + VpfValCustoVenda;
       PrintTab('');
       if VpfLaco > 0 then
         PrintTab('Total Classificação : '+VpfDClassificacao.CodClassificacao+'-'+VpfDClassificacao.NomClassificacao)
@@ -1075,6 +1303,13 @@ begin
         if RvSystem.Tag = 4 then
           PrintTab('');
         PrintTab(FormatFloat(varia.MascaraValor,VpfDClassificacao.ValTotal));
+        if RvSystem.tag = 16 then//produtos trocados
+        begin
+          PrintTab(FormatFloat(varia.MascaraQtd,VpfDClassificacao.QtdTrocado));
+          PrintTab(FormatFloat(varia.MascaraQtd,VpfDClassificacao.VAlTrocado));
+          if (VpfDClassificacao.QTdProduto <> 0) and (VpfDClassificacao.QtdTrocado <> 0) then
+            PrintTab(FormatFloat('#,##0.00 %',(VpfDClassificacao.QtdTrocado *100)/VpfDClassificacao.QTdProduto ));
+        end;
         PrintTab('  ');
       end;
       VpfQtdProduto := VpfDClassificacao.QtdProduto;
@@ -1118,56 +1353,8 @@ begin
   for Vpflaco  := VpaNiveis.count -1 downto VpaIndice  do
   begin
     VpfDPlanoContas := TRBDPlanoContasRave(VpaNiveis.items[VpfLaco]);
-    with RVSystem.BaseReport do
-    begin
-      if VpfLaco = 0 then
-      begin
-        SetBrush(ShadeToColor(clBlack,20),bsSolid,nil);
-        FillRect(CreateRect(MarginLeft-0.1,YPos+LineHeight-1+0.3,PageWidth-0.3,YPos+0.1));
-{        Canvas.Pen.Width := 7;
-        Canvas.Pen.Color := clBlack;
-        MoveTo(MarginLeft,YPos+0.1);
-        LineTo(PageWidth-MarginRight,YPos+0.1);}
-      end;
-      VpfDPlanoContas.ValPago := VpfDPlanoContas.ValPago + VpfValPago;
-      VpfDPlanoContas.ValDuplicata := VpfDPlanoContas.ValDuplicata + VpfValDuplicata;
-      VpfDPlanoContas.ValPrevisto := VpfDPlanoContas.ValPrevisto + VpfValPrevisto;
-      bold := true;
-      Italic := true;
-      if VpfLaco > 0 then
-        PrintTab('Total Plano Contas : '+VpfDPlanoContas.CodPlanoCotas+'-'+VpfDPlanoContas.NomPlanoContas)
-      else
-        PrintTab('');
-      PrintTab('');
-      PrintTab('');
-      PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValDuplicata));
-      PrintTab('');
-      PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValPago));
-//      PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDPlanoContas.ValPrevisto));
-      VpfValPago := VpfDPlanoContas.ValPago;
-      VpfValDuplicata := VpfDPlanoContas.ValDuplicata;
-      VpfValPrevisto := VpfDPlanoContas.ValPrevisto;
-      newline;
-      If LinesLeft<=1 Then
-        NewPage;
-      Bold := false;
-      Italic := false;
-    end;
     VpfDPlanoContas.free;
     VpaNiveis.delete(VpfLaco);
-  end;
-  if VpaIndice > 0  then
-  begin
-    VpfDPlanoContas := TRBDPlanoContasRave(VpaNiveis.items[VpaIndice-1]);
-    VpfDPlanoContas.ValPago := VpfDPlanoContas.ValPago + VpfValPago;
-    VpfDPlanoContas.ValDuplicata := VpfDPlanoContas.ValDuplicata + VpfValDuplicata;
-    VpfDPlanoContas.ValPrevisto := VpfDPlanoContas.ValPrevisto + VpfValPrevisto;
-  end;
-  with RVSystem.BaseReport do
-  begin
-      newline;
-      if LinesLeft<=1 Then
-        NewPage;
   end;
 end;
 
@@ -1224,6 +1411,25 @@ begin
       PrintTab('Qtd Faltante');
       PrintTab('Val Unit');
       PrintTab('Val Total');
+      Bold := false;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoTabelaPreco;
+begin
+    with RVSystem.BaseReport do
+    begin
+      RestoreTabs(2);
+      bold := true;
+      PrintTab('Código');
+      PrintTab('Nome');
+      if config.EstoquePorCor then
+        PrintTab('Cor');
+      if config.EstoquePorTamanho then
+        PrintTab('Tamanho');
+      PrintTab('Valor');
+      PrintTab('  UM');
       Bold := false;
   end;
 end;
@@ -1323,6 +1529,86 @@ begin
     PrintTab('Valor');
     PrintTab('Percentual');
     Bold := false;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoPorPlanoContasSintetico;
+begin
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(1);
+    bold := true;
+    PrintTab('Código');
+    PrintTab('Plano Contas');
+    PrintTab('Val Aberto ');
+    PrintTab('Valor Pago');
+    PrintTab('Valor Total');
+    PrintTab('Val Previsto');
+    PrintTab('%');
+    Bold := false;
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+  end;
+end;
+
+procedure TRBFunRave.ImprimeCabecalhoPorPlanoContasSinteticoporMes;
+begin
+  with RVSystem.BaseReport do
+  begin
+    SetFont('Arial',8);
+    RestoreTabs(1);
+    bold := true;
+    PrintTab('Código');
+    PrintTab('Plano Contas');
+    PrintTab('Ano');
+    PrintTab('Janeiro');
+    PrintTab('Fevereiro');
+    PrintTab('Março');
+    PrintTab('Abril');
+    PrintTab('Maio');
+    PrintTab('Junho');
+    PrintTab('Julho');
+    PrintTab('Agosto');
+    PrintTab('Setembro');
+    PrintTab('Outubro');
+    PrintTab('Novembro');
+    PrintTab('Dezembro');
+    PrintTab('Total');
+    Bold := false;
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoProdutosVendidoseTrocados;
+begin
+    with RVSystem.BaseReport do
+    begin
+      RestoreTabs(2);
+      bold := true;
+      PrintTab('');
+      PrintTab('Vendidos');
+      PrintTab('');
+      PrintTab('Trocados');
+      newline;
+      RestoreTabs(3);
+      bold := true;
+      PrintTab('Código');
+      PrintTab('Nome');
+      if config.EstoquePorCor then
+        PrintTab('Cor');
+      if config.EstoquePorTamanho then
+        PrintTab('Tamanho');
+      PrintTab('Qtd');
+      PrintTab('Valor');
+      PrintTab('Qtd');
+      PrintTab('Valor');
+      PrintTab('  Percentual');
+      Bold := false;
   end;
 end;
 
@@ -1431,6 +1717,8 @@ begin
        1,2,12 : ImprimeCabecalhoEstoque;
        4 : ImprimeCabecalhoQtdMinima;
        6 : ImprimeCabecalhoFechamentoEstoque;
+       16 : ImprimeCabecalhoProdutosVendidoseTrocados;
+       11 : ImprimeCabecalhoTabelaPreco;
       end;
       newline;
       If LinesLeft<=1 Then
@@ -1637,8 +1925,7 @@ begin
     else
       if VpfCodPlanoContasAtual <> TRBDPlanoContasRave(VpaNiveis.Items[VpfNivel-1]).CodReduzido then
       begin
-        if VpaImprimirTotal then
-          ImprimeTotaisNiveisPlanoContas(VpaNiveis,VpfNivel-1);
+        ImprimeTotaisNiveisPlanoContas(VpaNiveis,VpfNivel-1);
         VpfDPlanoContas := CarDNivelPlanoContas(VpfCodPlanoCompleto,VpfCodPlanoContasAtual);
         VpaNiveis.add(VpfDPlanoContas);
       end;
@@ -1766,6 +2053,68 @@ begin
     Tabela.next;
   end;
   AtualizaTotalVenda(VpaDVenda);
+end;
+
+{******************************************************************************}
+function TRBFunRave.CarValoresPlanoContasMes(VpaPlanoContas: String; VpaDatInicio, VpaDatFim: TDateTime; VpaDVenda: TRBDVendaCliente): boolean;
+var
+  VpfDVendaMes : TRBDVendaClienteMes;
+begin
+  InicializaVendaCliente(VpaDatInicio,VpaDatFim,VpaDVenda);
+  AdicionaSQLAbreTabela(Tabela,'SELECT   SUM(NVL(N_VLR_PAG,N_VLR_DUP)) TOTAL ,EXTRACT(Year FROM CAD.D_DAT_EMI) ANO, EXTRACT(MONTH FROM CAD.D_DAT_EMI) MES '+
+                               ' FROM CADCONTASAPAGAR CAD, MOVCONTASAPAGAR MOV '+
+                               ' Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '+
+                               ' AND CAD.I_LAN_APG = MOV.I_LAN_APG '+
+                               ' AND CAD.I_COD_EMP =  '+IntToStr(varia.CodigoEmpresa)+
+                               ' AND CAD.C_CLA_PLA like '''+VpaPlanoContas+'%'''+
+                               SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDatInicio,VpaDatFim,true)+
+                               ' group by EXTRACT(Year FROM CAD.D_DAT_EMI), EXTRACT(MONTH FROM CAD.D_DAT_EMI) '+
+                               ' ORDER BY 2,3');
+  result := not Tabela.Eof;
+  while not Tabela.Eof do
+  begin
+    VpfDVendaMes := RMesVenda(VpaDVenda,Tabela.FieldByName('MES').AsInteger,Tabela.FieldByName('ANO').AsInteger);
+    VpfDVendaMes.ValVenda := Tabela.FieldByName('TOTAL').AsFloat;
+    Tabela.next;
+  end;
+  AtualizaTotalVenda(VpaDVenda);
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.CarValorTrocasProdutos(VpaDProduto: TRBDProdutoRave; VpaDatInicio, VpaDatFim: TDateTime; VpaSeqProduto: Integer);
+begin
+  Aux.Close;
+  Aux.sql.clear;
+  AdicionaSqlTabela(Aux,'Select sum(MOV.N_QTD_PRO) QTDPRODUTO, SUM(MOV.N_TOT_PRO) TOTAL '+
+                            ' from CADNOTAFISCAISFOR CAD, MOVNOTASFISCAISFOR MOV, CADCLIENTES CLI '+
+                            ' Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '+
+                            ' AND CAD.I_SEQ_NOT = MOV.I_SEQ_NOT '+
+                            ' AND MOV.I_SEQ_PRO = '+IntToStr(VpaDProduto.SeqProduto)+
+                            ' and CAD.I_COD_CLI = CLI.I_COD_CLI '+
+                            SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDatInicio,VpaDatFim,true));
+  if VprClienteMaster <> 0  then
+    AdicionaSqlTabela(Aux,' and CLI.I_CLI_MAS = '+InttoStr(VprClienteMaster));
+  if VprCliente <> 0  then
+    AdicionaSqlTabela(Aux,' and CLI.I_COD_CLI = '+InttoStr(VprCliente));
+  if VprFilial <> 0  then
+    AdicionaSqlTabela(Aux,' and CAD.I_EMP_FIL = '+InttoStr(VprFilial));
+  Aux.open;
+  VpaDProduto.QtdTrocada := Aux.FieldByName('QTDPRODUTO').AsFloat;
+  VpaDProduto.ValTroca := Aux.FieldByName('TOTAL').AsFloat;
+  Aux.close;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ConfiguraRelatorioPDF;
+begin
+  RpDev.DevMode.dmPaperSize := DMPAPER_A4;
+  if VplArquivoPDF <> '' then
+  begin
+    rvSystem.DefaultDest := rdFile;
+    rvSystem.DoNativeOutput := false;
+    rvSystem.RenderObject := rvPDF;
+    rvSystem.OutputFileName := VplArquivoPDF;
+  end;
 end;
 
 {******************************************************************************}
@@ -2038,6 +2387,57 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeRelTabelaPreco(VpaObjeto: TObject);
+var
+  VpfProdutoAtual, VpaTamanhoAtual,VpaCorAtual : Integer;
+  VpfClassificacaoAtual,  VpfUM : string;
+  VpfDClassificacao : TRBDClassificacaoRave;
+  VpfDProduto : TRBDProdutoRave;
+  vpfDCor : TRBDCorProdutoRave;
+  VpfDTamanho : TRBDTamanhoProdutoRave;
+begin
+  VpfProdutoAtual := 0;
+  VpfClassificacaoAtual := '';
+  VpfDClassificacao := nil;
+  with RVSystem.BaseReport do begin
+    while not Tabela.Eof  do
+    begin
+      if VpfProdutoAtual <> Tabela.FieldByName('I_SEQ_PRO').AsInteger then
+      begin
+        if VpfProdutoAtual <> 0  then
+          SalvaTabelaPrecoPorCoreTamanho(VpfDProduto);
+
+        if VpfClassificacaoAtual <> Tabela.FieldByName('C_COD_CLA').AsString then
+        begin
+          VpfDClassificacao := CarregaNiveis(VprNiveis,Tabela.FieldByName('C_COD_CLA').AsString);
+          ImprimeTituloClassificacao(VprNiveis,VpfClassificacaoAtual = '');
+          VpfClassificacaoAtual := Tabela.FieldByName('C_COD_CLA').AsString;
+        end;
+        VpfDProduto := TRBDProdutoRave.cria;
+        VpfDProduto.SeqProduto := Tabela.FieldByname('I_SEQ_PRO').AsInteger;
+        VpfDProduto.CodProduto := Tabela.FieldByname('C_COD_PRO').AsString;
+        VpfDProduto.NomProduto := Tabela.FieldByname('C_NOM_PRO').AsString;
+        VpfDProduto.DesCifraoMoeda := Tabela.FieldByname('C_CIF_MOE').AsString;
+        VpfDProduto.DesUM := Tabela.FieldByname('C_COD_UNI').AsString;
+        VpfProdutoAtual := Tabela.FieldByname('I_SEQ_PRO').AsInteger;
+        VpfDProduto.ValEstoque := Tabela.FieldByName('VLRVENDA').AsFloat;
+      end;
+      vpfDCor := RCorProduto(VpfDProduto,Tabela.FieldByName('COD_COR').AsInteger);
+      VpfDTamanho := RTamanhoProduto(vpfDCor,Tabela.FieldByName('CODTAMANHO').AsInteger);
+
+
+      VpfDCor.ValEstoque := Tabela.FieldByName('VLRVENDA').AsFloat;
+      VpfDTamanho.ValEstoque := Tabela.FieldByName('VLRVENDA').AsFloat;
+      Tabela.next;
+    end;
+
+    if VpfProdutoAtual <> 0  then
+      SalvaTabelaPrecoPorCoreTamanho(VpfDProduto);
+  end;
+  Tabela.Close;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeRelTotalAmostrasVendedor(VpaObjeto: TObject);
 Var
   VpfQtdSolicitada, VpfQtdEntregue, VpfQtdAprovada, VpfQtdCliente : Integer;
@@ -2177,14 +2577,11 @@ end;
 {******************************************************************************}
 procedure TRBFunRave.ImprimeRelCPporPlanoContasSintetico(VpaObjeto: TObject);
 var
-  VpfValPago, VpfValDuplicata, VpfValEmAberto, VpfTotalPago,VpfTotalDuplicata, TotalGeral : Double;
+  VpfValPago, VpfValDuplicata, VpfValEmAberto : Double;
   VpfDClassificacao : TRBDPlanoContasRave;
   VpfQtdNiveisAnterior : Integer;
 begin
-  VpfValPago := 0;
   VpfValDuplicata := 0;
-  VpfTotalPago := 0;
-  VpfTotalDuplicata := 0;
   with RVSystem.BaseReport do begin
     while not Tabela.Eof  do
     begin
@@ -2204,10 +2601,6 @@ begin
       NewLine;
       If LinesLeft<=1 Then
         NewPage;
-{      VpfValPago := VpfValPago + Tabela.FieldByName('N_VLR_PAG').AsFloat;
-      VpfValDuplicata := VpfValDuplicata + Tabela.FieldByName('N_VLR_DUP').AsFloat;
-      VpfTotalPago := VpfTotalPago + Tabela.FieldByName('N_VLR_PAG').AsFloat;
-      VpfTotalDuplicata := VpfTotalDuplicata + Tabela.FieldByName('N_VLR_DUP').AsFloat;}
       Tabela.next;
     end;
 
@@ -2216,19 +2609,63 @@ begin
     newline;
     If LinesLeft<=1 Then
       NewPage;
-    PrintTab('');
-    bold := true;
-    PrintTab('Total Geral');
-    bold := true;
-    PrintTab('');
-    PrintTab(FormatFloat(varia.MascaraQtd,VpfTotalDuplicata));
-    PrintTab('');
-    PrintTab(FormatFloat(varia.MascaraValor,VpfTotalPago));
-    PrintTab('  ');
     bold := false;
   end;
   Tabela.Close;
   FreeTObjectsList(VprNiveis);
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRelCPPorPlanoContasSinteticoporMes(VpaObjeto : TObject);
+var
+  VpfDVenda : TRBDVendaCliente;
+  VpfDVendaAno : TRBDVendaClienteAno;
+  VpfDVendaMes : TRBDVendaClienteMes;
+  VpfLacoAno,VpfLacoMes : Integer;
+  VpfDClassificacao : TRBDPlanoContasRave;
+  VpfQtdNiveisAnterior : Integer;
+  VpfCodPlanoConta, VpfNomPlanoContas : string;
+begin
+  VpfDVenda := TRBDVendaCliente.cria;
+  with RVSystem.BaseReport do begin
+    while not  Clientes.Eof  do
+    begin
+      VpfDClassificacao := CarregaNiveisPlanoContas(VprNiveis,Clientes.FieldByName('C_CLA_PLA').AsString,false);
+      if ContaLetra(VpfDClassificacao.CodPlanoCotas,'.') < VpfQtdNiveisAnterior then
+        NewLine;
+      VpfQtdNiveisAnterior := ContaLetra(VpfDClassificacao.CodPlanoCotas,'.');
+      VpfCodPlanoConta :=AdicionaCharD(' ','',ContaLetra(VpfDClassificacao.CodPlanoCotas,'.'))+ VpfDClassificacao.CodPlanoCotas;
+      VpfNomPlanoContas := AdicionaCharD(' ','',ContaLetra(VpfDClassificacao.CodPlanoCotas,'.')*2)+VpfDClassificacao.NomPlanoContas;
+      CarValoresPlanoContasMes(Clientes.FieldByName('C_CLA_PLA').AsString,VprDatInicio,VprDatFim,VpfDVenda);
+      for VpfLacoAno := 0 to VpfDVenda.Anos.Count - 1 do
+      begin
+        NewLine;
+        If LinesLeft<=1 Then
+          NewPage;
+        VpfDVendaAno := TRBDVendaClienteAno(VpfDVenda.Anos.Items[VpfLacoAno]);
+        PrintTab(VpfCodPlanoConta);
+        PrintTab(VpfNomPlanoContas);
+        VpfCodPlanoConta := '';
+        VpfNomPlanoContas := '';
+        PrintTab(IntToStr(VpfDVendaAno.Ano));
+        for VpfLacoMes := 0 to VpfDVendaAno.Meses.Count - 1 do
+        begin
+          VpfDVendaMes := TRBDVendaClienteMes(VpfDVendaAno.Meses.Items[VpfLacoMes]);
+          if VpfDVendaMes.ValVenda <> 0 then
+          begin
+            PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDVendaMes.ValVenda))
+          end
+          else
+            PrintTab('');
+        end;
+        PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDVendaAno.ValVenda));
+      end;
+      Clientes.next;
+    end;
+
+  end;
+  Clientes.Close;
+  VpfDVenda.free;
 end;
 
 {******************************************************************************}
@@ -2469,11 +2906,13 @@ begin
      Home;
      AdjustLine;
      case RvSystem.Tag of
-       1,2,4,6 : ImprimeTituloClassificacao(VprNiveis,true);
+       1,2,4,6,11 : ImprimeTituloClassificacao(VprNiveis,true);
        3 : ImprimeCabecalhoAnaliseFaturamento;
        8 : ImprimeCabecalhoEntradaMetros;
        9 : ImprimeCabecalhoExtratoProdutividade;
       13 : ImprimeCabecalhoTotalAmostrasVendedor;
+      14 : ImprimeCabecalhoPorPlanoContasSintetico;
+      17 : ImprimeCabecalhoPorPlanoContasSinteticoporMes;
      end;
    end;
 end;
@@ -2586,6 +3025,7 @@ begin
   if VpaCodVendedor <> 0  then
     VprCabecalhoDireito.add('Vendedor : ' +VpaNomVendedor);
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -2637,6 +3077,7 @@ begin
   if VpaCodClassificacao <> ''  then
     VprCabecalhoDireito.add('Classificacao : ' +VpaNomClassificacao);
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -2676,6 +3117,7 @@ begin
   if VpaCodCliente <> 0  then
     VprCabecalhoDireito.add('Cliente : ' +VpaNomCliente);
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -2736,6 +3178,7 @@ begin
     VprCabecalhoDireito.add('Classificacao : ' +VpaNomClassificacao);
   if VpaNomFornecedor <> ''  then
     VprCabecalhoDireito.add('Fornecedor : ' +VpaNomFornecedor+ '   ');
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -2786,6 +3229,7 @@ begin
   if VpaCodClassificacao <> ''  then
     VprCabecalhoDireito.add('Classificacao : ' +VpaNomClassificacao);
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -2810,6 +3254,7 @@ begin
                            ' AND PRO.I_SEQ_PRO = MOV.I_SEQ_PRO '+
                            ' AND SUE.I_SEQ_PRO = PRO.I_SEQ_PRO '+
                            ' AND SUE.C_REL_PRO = ''S'''+
+//                           ' and cla.c_cod_cla like ''02308%'''+
                            ' AND SUE.I_MES_FEC = '+IntToStr(Mes(VpaData))+
                            ' AND SUE.I_ANO_FEC = '+IntToStr(Ano(VpaData))+
                            ' AND SUE.I_EMP_FIL = '+IntToStr(VpaCodFilial)+
@@ -2829,6 +3274,7 @@ begin
 
   VprCabecalhoDireito.Clear;
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -2876,6 +3322,7 @@ begin
 
   VprCabecalhoDireito.Clear;
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -2907,6 +3354,7 @@ begin
 
   VprCabecalhoDireito.Clear;
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -2939,6 +3387,7 @@ begin
 
   VprCabecalhoDireito.Clear;
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -2974,6 +3423,7 @@ begin
 
   VprCabecalhoDireito.Clear;
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -2982,22 +3432,47 @@ procedure TRBFunRave.ImprimeTabelaPreco(VpaCodCliente, VpaCodTabelaPreco: Intege
 begin
   RvSystem.Tag := 11;
   LimpaSQlTabela(Tabela);
-  AdicionaSqltabela(Tabela,'');
+  AdicionaSqltabela(Tabela,'SELECT  CLA.C_COD_CLA, CLA.C_NOM_CLA, ' +
+                           ' PRO.I_SEQ_PRO, PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_COD_UNI, '+
+                           ' PRE.C_CIF_MOE, PRE.N_VLR_VEN VLRVENDA, '+
+                           ' TAM.CODTAMANHO, TAM.NOMTAMANHO, '+
+                           ' COR.COD_COR, COR.NOM_COR '+
+                           ' from MOVTABELAPRECO PRE, CADPRODUTOS PRO, CADCLASSIFICACAO CLA, TAMANHO TAM, COR '+
+                           ' Where PRE.I_SEQ_PRO = PRO.I_SEQ_PRO '+
+                           ' AND PRO.I_COD_EMP = CLA.I_COD_EMP '+
+                           ' AND PRO.C_COD_CLA = CLA.C_COD_CLA '+
+                           ' AND PRO.C_TIP_CLA = CLA.C_TIP_CLA '+
+                           ' AND PRO.I_COD_EMP = PRE.I_COD_EMP '+
+                           ' AND PRO.C_ATI_PRO = ''S'''+
+                           ' AND PRO.IMPPRE = ''S'''+
+                           ' AND '+SQLTextoRightJoin('PRE.I_COD_TAM','TAM.CODTAMANHO')+
+                           ' AND '+SQLTextoRightJoin('PRE.I_COD_COR','COR.COD_COR')+
+                           ' AND PRE.I_COD_EMP =  '+IntTostr(Varia.CodigoEmpresa)+
+                           ' AND PRE.I_COD_CLI =  '+IntToStr(VpaCodCliente)+
+                           ' AND PRE.I_COD_TAB = '+IntToStr(VpaCodTabelaPreco));
+  if VpaCodClassificacao <> '' then
+    AdicionaSqltabela(Tabela,'AND PRO.C_COD_CLA LIKE '''+VpaCodClassificacao+'%''');
+
+  AdicionaSqltabela(Tabela,' ORDER BY PRO.C_COD_CLA, PRO.C_COD_PRO, COR.COD_COR, TAM.CODTAMANHO');
   Tabela.open;
   RvSystem.SystemPrinter.Orientation := poPortrait;
 
   rvSystem.onBeforePrint := DefineTabelaTabelaPreco;
   rvSystem.onNewPage := ImprimeCabecalho;
   rvSystem.onPrintFooter := Imprimerodape;
-  rvSystem.onPrint := ImprimeRelCustoProjeto;
+  rvSystem.onPrint := ImprimeRelTabelaPreco;
 
   VprCaminhoRelatorio := VpaCaminho;
   VprNomeRelatorio := 'Tabela de Preço';
   VprCabecalhoEsquerdo.Clear;
-//  VprCabecalhoEsquerdo.add('Projeto : ' +IntToStr(VpaCodProjeto)+'-'+VpaNomProjeto);
+  VprCabecalhoEsquerdo.add('Tabela : ' +IntToStr(VpaCodTabelaPreco)+'-'+VpaNomTabelaPreco);
 
   VprCabecalhoDireito.Clear;
-
+  if VpaCodClassificacao <> '' then
+    VprCabecalhoDireito.Add(VpaNomClassificacao);
+  if (VpaCodCliente <> 0) then
+    VprCabecalhoDireito.Add(VpaNomCliente);
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -3048,6 +3523,7 @@ begin
   if VpaCodClassificacao <> ''  then
     VprCabecalhoDireito.add('Classificacao : ' +VpaNomClassificacao);
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -3076,11 +3552,13 @@ begin
   VprCaminhoRelatorio := VpaCaminho;
   VprNomeRelatorio := 'Amostras por Vendedor';
   VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Periodo de ' + FormatDateTime('DD/MM/YYYY',VpaDatInicio)+' até '+ FormatDateTime('DD/MM/YYYY',VpaDatFim));
   if  VpaCodVendedor <> 0 then
     VprCabecalhoEsquerdo.add('Vendedor : ' +VpaNomVendedor);
 
   VprCabecalhoDireito.Clear;
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
@@ -3112,12 +3590,14 @@ begin
   VprCabecalhoEsquerdo.add('Empresa : ' +Varia.NomeEmpresa);
 
   VprCabecalhoDireito.Clear;
+  VprCabecalhoDireito.add('Período de ' +FormatDateTime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDateTime('DD/MM/YYYY',VpaDatFim)+'  ');
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.ImprimeFichaAmosta(VpaDAmostra: TRBDAmostra; VpaPDF: Boolean);
+procedure TRBFunRave.ImprimeFichaAmosta(VpaDAmostra: TRBDAmostra);
 begin
   RvSystem.Tag := 15;
   FreeTObjectsList(VprNiveis);
@@ -3133,10 +3613,113 @@ begin
 
   VprCabecalhoDireito.Clear;
 
+  ConfiguraRelatorioPDF;
   RvSystem.execute;
 
 end;
 
+{******************************************************************************}
+procedure TRBFunRave.ImprimeProdutosVendidoseTrocacos(VpaCodFilial, VpaTipCotacao, VpaCodCliente, VpaCodVendedor, VpaCodClienteMaster: Integer;
+  VpaCaminho, VpaNomFilial, VpaNomVendedor, VpaNomTipCotacao, VpaNomCliente, VpaNomClienteMaster : string; VpaDatInicio, VpaDatFim: TDateTime);
+begin
+  RvSystem.Tag := 16;
+  VprDatInicio := VpaDatInicio;
+  VprDatFim := VpaDatFim;
+  VprClienteMaster := VpaCodClienteMaster;
+  VprCliente :=  VpaCodCliente;
+  VprFilial := VpaCodFilial;
+  FreeTObjectsList(VprNiveis);
+  LimpaSQlTabela(Tabela);
+  AdicionaSqltabela(Tabela,'SELECT  CLA.C_COD_CLA, CLA.C_NOM_CLA, ' +
+                           ' PRO.C_COD_PRO, PRO.C_NOM_PRO,  PRO.C_COD_UNI UMPADRAO, ' +
+                           ' MOV.N_QTD_PRO, MOV.N_VLR_TOT, MOV.I_COD_TAM, MOV.I_COD_COR, MOV.C_COD_UNI, MOV.I_SEQ_PRO, ' +
+                           ' TAM.NOMTAMANHO, ' +
+                           ' CLI.C_EST_CLI, '+
+                           ' COR.NOM_COR ' +
+                           ' FROM MOVORCAMENTOS MOV, CADORCAMENTOS CAD, CADPRODUTOS PRO, CADCLASSIFICACAO CLA, TAMANHO TAM, COR, CADCLIENTES CLI ' +
+                           ' WHERE MOV.I_EMP_FIL = CAD.I_EMP_FIL ' +
+                           ' AND MOV.I_LAN_ORC = CAD.I_LAN_ORC ' +
+                           ' AND CAD.C_IND_CAN = ''N'''+
+                           ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '+
+                           ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO ' +
+                           ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+) ' +
+                           ' AND MOV.I_COD_COR = COR.COD_COR(+) ' +
+                           ' AND PRO.I_COD_EMP = CLA.I_COD_EMP ' +
+                           ' AND PRO.C_COD_CLA = CLA.C_COD_CLA ' +
+                           ' AND PRO.C_TIP_CLA = CLA.C_TIP_CLA ' +
+                            SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,true));
+  if VpaCodfilial <> 0 then
+    AdicionaSqlTabela(Tabela,' and CAD.I_EMP_FIL = '+InttoStr(VpaCodFilial))
+  else
+    AdicionaSqlTabela(Tabela,' and PRO.I_COD_EMP = '+InttoStr(Varia.CodigoEmpresa));
+  if VpaCodCliente <> 0 then
+    AdicionaSqlTabela(Tabela,' and CAD.I_COD_CLI = '+InttoStr(VpaCodCliente));
+  if VpaTipCotacao <> 0  then
+    AdicionaSqlTabela(Tabela,' and CAD.I_TIP_ORC = '+InttoStr(VpaTipCotacao));
+  if VpaCodClienteMaster <> 0  then
+    AdicionaSqlTabela(Tabela,' and CLI.I_CLI_MAS = '+InttoStr(VpaCodClienteMaster));
 
+  AdicionaSqlTabela(Tabela,' ORDER BY CLA.C_COD_CLA, PRO.C_COD_PRO, COR.NOM_COR, TAM.NOMTAMANHO ');
+  Tabela.open;
+
+  rvSystem.onBeforePrint := DefineTabelaProdutosVendidoseTrocados;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeProdutoporClassificacao;
+
+  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Produtos Vendidos e Trocados';
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Filial : ' +VpaNomFilial);
+  if VpaCodCliente <> 0 then
+    VprCabecalhoEsquerdo.add('Cliente : ' +VpaNomCliente);
+  if DeletaChars(VpaNomTipCotacao,' ') <> '' then
+    VprCabecalhoEsquerdo.add('Tipo Cotação : ' +VpaNomTipCotacao);
+  if VpaCodClienteMaster <> 0 then
+    VprCabecalhoEsquerdo.add('Cliente Master : ' +VpaNomClienteMaster);
+
+  VprCabecalhoDireito.Clear;
+  VprCabecalhoDireito.add('Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até ' +FormatDatetime('DD/MM/YYYY',VpaDatFim)+'     ');
+  if VpaCodVendedor <> 0  then
+    VprCabecalhoDireito.add('Vendedor : ' +VpaNomVendedor);
+
+  ConfiguraRelatorioPDF;
+  RvSystem.execute;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeContasAPagarPorPlanoContasSinteticoMes(VpaDatInicio, VpaDatFim: TDateTime; VpaCaminho: String);
+var
+  VpfCampoData : String;
+begin
+  VpfCampoData := 'CAD.D_DAT_EMI';
+  VprDatInicio := VpaDatInicio;
+  VprDatFim := VpaDatFim;
+  RvSystem.Tag := 17;
+  FreeTObjectsList(VprNiveis);
+  LimpaSQlTabela(Clientes);
+  AdicionaSqltabela(Clientes,'SELECT * FROM CAD_PLANO_CONTA '+
+                           ' WHERE C_TIP_PLA = ''D'''+
+                           ' and I_COD_EMP = '+IntToStr(VARIA.CodigoEmpresa)+
+                           ' ORDER BY C_CLA_PLA');
+  Clientes.open;
+
+  RvSystem.SystemPrinter.Orientation := poLandScape;
+  rvSystem.onBeforePrint := DefineTabelaCPporPlanoContasSinteticoporMes;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelCPporPlanoContasSinteticoporMes;
+
+  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Contas a Pagar Sintetico por Mes e Plano de Contas';
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Empresa : ' +Varia.NomeEmpresa);
+
+  VprCabecalhoDireito.Clear;
+  VprCabecalhoDireito.add('Período de ' +FormatDateTime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDateTime('DD/MM/YYYY',VpaDatFim)+'  ');
+
+  ConfiguraRelatorioPDF;
+  RvSystem.execute;
+end;
 
 end.

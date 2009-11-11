@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Componentes1, ExtCtrls, PainelGradiente, Grids, DBGrids, Tabela, Series,TeeProcs,TeEngine,
   DBKeyViolation, Db, DBTables, StdCtrls, Buttons, ComCtrls, Localizacao,
-  DBCtrls, Graficos;
+  DBCtrls, Graficos, DBClient;
 
 type
   TFPesquisaSatisfacaoChamado = class(TFormularioPermissao)
@@ -15,7 +15,7 @@ type
     PanelColor2: TPanelColor;
     BGraficos: TBitBtn;
     BFechar: TBitBtn;
-    PesquisaCorpo: TQuery;
+    PesquisaCorpo: TSQL;
     DataPesquisaCorpo: TDataSource;
     Label1: TLabel;
     Label2: TLabel;
@@ -26,22 +26,22 @@ type
     SpeedButton3: TSpeedButton;
     LNomTecnico: TLabel;
     ETecnico: TEditLocaliza;
-    PesquisaCorpoCODFILIAL: TIntegerField;
-    PesquisaCorpoSEQPESQUISA: TIntegerField;
-    PesquisaCorpoDATPESQUISA: TDateTimeField;
-    PesquisaCorpoNUMCHAMADO: TIntegerField;
-    PesquisaCorpoNOMTECNICO: TStringField;
-    PesquisaCorpoC_NOM_USU: TStringField;
-    PesquisaCorpoNOMPESQUISA: TStringField;
-    PesquisaItem: TQuery;
+    PesquisaCorpoCODFILIAL: TFMTBCDField;
+    PesquisaCorpoSEQPESQUISA: TFMTBCDField;
+    PesquisaCorpoDATPESQUISA: TSQLTimeStampField;
+    PesquisaCorpoNUMCHAMADO: TFMTBCDField;
+    PesquisaCorpoNOMTECNICO: TWideStringField;
+    PesquisaCorpoC_NOM_USU: TWideStringField;
+    PesquisaCorpoNOMPESQUISA: TWideStringField;
+    PesquisaItem: TSQL;
     DataPesquisaItem: TDataSource;
-    PesquisaItemDESSIMNAO: TStringField;
-    PesquisaItemDESTEXTO: TMemoField;
-    PesquisaItemNUMNOTA: TIntegerField;
-    PesquisaItemNUMBOMRUIM: TIntegerField;
-    PesquisaItemDESTITULO: TStringField;
-    PesquisaItemDESPERGUNTA: TMemoField;
-    PesquisaItemTIPRESPOSTA: TIntegerField;
+    PesquisaItemDESSIMNAO: TWideStringField;
+    PesquisaItemDESTEXTO: TWideStringField;
+    PesquisaItemNUMNOTA: TFMTBCDField;
+    PesquisaItemNUMBOMRUIM: TFMTBCDField;
+    PesquisaItemDESTITULO: TWideStringField;
+    PesquisaItemDESPERGUNTA: TWideStringField;
+    PesquisaItemTIPRESPOSTA: TFMTBCDField;
     PanelColor3: TPanelColor;
     GridIndice1: TGridIndice;
     PanelColor4: TPanelColor;
@@ -50,19 +50,19 @@ type
     PanelColor6: TPanelColor;
     DBMemoColor2: TDBMemoColor;
     GridIndice2: TGridIndice;
-    PesquisaItemResposta: TStringField;
+    PesquisaItemResposta: TWideStringField;
     Splitter1: TSplitter;
     Label3: TLabel;
     SpeedButton1: TSpeedButton;
     LNomPesquisa: TLabel;
     ECodPesquisa: TEditLocaliza;
-    Perguntas: TQuery;
+    Perguntas: TSQL;
     Grafico: TRBGraDinamico;
-    Resposta: TQuery;
+    Resposta: TSQL;
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
     BitBtn3: TBitBtn;
-    PesquisaCorpoC_NOM_CLI: TStringField;
+    PesquisaCorpoC_NOM_CLI: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -126,6 +126,7 @@ end;
 {******************************************************************************}
 procedure TFPesquisaSatisfacaoChamado.AtualizaConsulta;
 begin
+  PesquisaCorpo.Close;
   PesquisaCorpo.Sql.Clear;
   PesquisaCorpo.sql.add('SELECT SAC.CODFILIAL, SAC.SEQPESQUISA, SAC.DATPESQUISA, SAC.NUMCHAMADO, '+
                         ' TEC.NOMTECNICO, ' +

@@ -208,7 +208,6 @@ uses
   UnProposta in '..\mcrm\UnProposta.pas',
   ANovoProspect in '..\mcrm\ANovoProspect.pas' {FNovoProspect},
   ANovaAgendaProspect in '..\mcrm\ANovaAgendaProspect.pas' {FNovaAgendaProspect},
-  APropostas in '..\mcrm\APropostas.pas' {FPropostas},
   AProdutosProspect in '..\mcrm\AProdutosProspect.pas' {FProdutosProspect},
   AAlteraEstagioProposta in '..\mcrm\AAlteraEstagioProposta.pas' {FAlteraEstagioProposta},
   UnAmostra in '..\mcrm\UnAmostra.pas',

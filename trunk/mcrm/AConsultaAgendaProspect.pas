@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   APrincipal, ExtCtrls, PainelGradiente, Localizacao, StdCtrls,
   Componentes1, ComCtrls, Buttons, Grids, DBGrids, Tabela, DBKeyViolation,
-  Db, DBTables, FunData, UnDados, unProspect, ConstMsg, Menus;
+  Db, DBTables, FunData, UnDados, unProspect, ConstMsg, Menus, DBClient;
 
 type
   TFConsultaAgendaProspect = class(TFormularioPermissao)
@@ -31,23 +31,23 @@ type
     BConsultar: TBitBtn;
     BFechar: TBitBtn;
     GridIndice1: TGridIndice;
-    VisitaProspect: TQuery;
+    VisitaProspect: TSQL;
     DataVisitaProspect: TDataSource;
-    VisitaProspectSEQVISITA: TIntegerField;
-    VisitaProspectDATCADASTRO: TDateTimeField;
-    VisitaProspectDATVISITA: TDateTimeField;
-    VisitaProspectDATFIMVISITA: TDateTimeField;
-    VisitaProspectCODPROSPECT: TIntegerField;
-    VisitaProspectNOMPROSPECT: TStringField;
-    VisitaProspectCODVENDEDOR: TIntegerField;
-    VisitaProspectC_NOM_VEN: TStringField;
-    VisitaProspectINDREALIZADO: TStringField;
-    VisitaProspectCODTIPOAGENDAMENTO: TIntegerField;
-    VisitaProspectNOMTIPOAGENDAMENTO: TStringField;
-    VisitaProspectCODUSUARIO: TIntegerField;
-    VisitaProspectC_NOM_USU: TStringField;
+    VisitaProspectSEQVISITA: TFMTBCDField;
+    VisitaProspectDATCADASTRO: TSQLTimeStampField;
+    VisitaProspectDATVISITA: TSQLTimeStampField;
+    VisitaProspectDATFIMVISITA: TSQLTimeStampField;
+    VisitaProspectCODPROSPECT: TFMTBCDField;
+    VisitaProspectNOMPROSPECT: TWideStringField;
+    VisitaProspectCODVENDEDOR: TFMTBCDField;
+    VisitaProspectC_NOM_VEN: TWideStringField;
+    VisitaProspectINDREALIZADO: TWideStringField;
+    VisitaProspectCODTIPOAGENDAMENTO: TFMTBCDField;
+    VisitaProspectNOMTIPOAGENDAMENTO: TWideStringField;
+    VisitaProspectCODUSUARIO: TFMTBCDField;
+    VisitaProspectC_NOM_USU: TWideStringField;
     BExcluir: TBitBtn;
-    VisitaProspectHORAVISITA: TDateTimeField;
+    VisitaProspectHORAVISITA: TSQLTimeStampField;
     PopupMenu1: TPopupMenu;
     EfetuarTelemarketing1: TMenuItem;
     procedure FormCreate(Sender: TObject);
@@ -112,6 +112,7 @@ end;
 {******************************************************************************}
 procedure TFConsultaAgendaProspect.AtualizaConsulta;
 begin
+  VisitaProspect.Close;
   VisitaProspect.SQL.Clear;
   VisitaProspect.SQL.Add('SELECT'+
                          ' VPR.SEQVISITA,'+

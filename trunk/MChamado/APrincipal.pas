@@ -9,7 +9,7 @@ uses
   ToolWin, ExtDlgs, Inifiles, constMsg, FunObjeto, Db, DBCtrls, Grids,
   DBGrids, Componentes1, PainelGradiente, Tabela, Localizacao, UnImpressaoRelatorio, UnECF,
   Mask, UnPrincipal, jpeg, LabelCorMove, numericos, unSistema, UnProdutos, UnContasAReceber, UnCotacao,
-  WideStrings, SqlExpr, DBXOracle;
+  WideStrings, SqlExpr, DBXOracle, UnProspect;
 
 const
   CampoPermissaoModulo = 'c_mod_cha';
@@ -279,6 +279,7 @@ begin
   FunClientes.free;
   FunECF.free;
   FunContasaReceber.free;
+  FunProspect.free;
   Action := CaFree;
 end;
 
@@ -292,6 +293,7 @@ begin
   FunClientes := TRBFuncoesClientes.cria(BaseDados);
   FunEcf := TRBFuncoesECF.cria(BarraStatus,BaseDados);
   FunContasAReceber := TFuncoesContasAREceber.cria(BaseDAdos);
+  FunProspect := TRBFuncoesProspect.cria(BaseDados);
  // configuracoes do usuario
  UnPri.ConfigUsu(varia.CodigoUsuario, CorFoco, CorForm, CorPainelGra, Self );
  // configura modulos

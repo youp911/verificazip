@@ -179,7 +179,6 @@ uses
   UnProspect in 'UnProspect.pas',
   UnProposta in 'UnProposta.pas',
   AMedico in '..\mpontaloja\AMedico.pas' {FMedico},
-  APropostas in 'APropostas.pas' {FPropostas},
   AColecao in 'AColecao.pas' {FColecao},
   AEstagioProducao in '..\mestoque\AEstagioProducao.pas' {FEstagioProducao},
   ADesenvolvedor in 'ADesenvolvedor.pas' {FDesenvolvedor},

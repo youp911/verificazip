@@ -172,6 +172,7 @@ type
     PCheckBox1: TPanelColor;
     CheckBox1: TCheckBox;
     BitBtn1: TBitBtn;
+    SaveDialog: TSaveDialog;
     procedure FormCreate(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
     procedure BFecharClick(Sender: TObject);
@@ -221,12 +222,14 @@ uses APrincipal, ConstMsg, FunData, FunSql, Constantes, FunObjeto,
 {******************************************************************************}
 procedure TFRelPedido.FormCreate(Sender: TObject);
 begin
+  SaveDialog.InitialDir := Varia.DiretorioSistema;
   ScrollBox1.BorderStyle := bsNone;
   CDataIni.DateTime := PrimeiroDiaMes(Now);
   CDataFim.DateTime := UltimoDiaMes(Now);
   CDataFinal.DateTime := Now;
   EFilial.AInteiro := varia.CodigoEmpFil;
   EFilial.Atualiza;
+  ECodTabelaPreco.AInteiro := varia.TabelaPreco;
   ESituacaoCotacao.ItemIndex := 0;
   VprPressionadoR := false;
   FunClassificacao := TFuncoesClassificacao.criar(self,FPrincipal.BaseDados);
@@ -466,14 +469,30 @@ begin
                                                       if (VPANOMRELATORIO = 'TOTAL AMOSTRAS POR VENDEDOR') then
                                                         AlterarVisibleDet([PVendedor,PPeriodo],true)
                                                       else
-                                                        if (VPANOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO') then
+                                                        if (VPANOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO') or
+                                                           (VPANOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO POR MES') then
                                                           AlterarVisibleDet([PPeriodo],true)
                                                       else
                                                         if (VPANOMRELATORIO = 'PROSPECTS POR CEP') then
                                                         begin
                                                           AlterarVisibleDet([PCheckBox1],true);
                                                           CheckBox1.Caption := 'Somente prospects não visitados';
-                                                        end;
+                                                        end
+  else
+    if (VPANOMRELATORIO = 'EM ABERTO POR VENDEDOR') then
+    begin
+      AlterarVisibleDet([PFilial,PVendedor,PDataFinal,PFundoPerdido],true);
+      LDataFinal.Caption := 'Vencimento até :';
+    end
+    else
+      if (VPANOMRELATORIO = 'PRODUTOS VENDIDOS E TROCADOS') then
+        AlterarVisibleDet([PFilial,PVendedor,PCliente,PClienteMaster,PTipoCotacao,PPeriodo],true)
+      else
+        if (VPANOMRELATORIO = 'TABELA PRECO PRODUTOS') then
+          AlterarVisibleDet([PTabelaPreco,PCliente,PClassificacaoProduto],true)
+        else
+          if (VPANOMRELATORIO = 'VENDAS POR VENDEDOR') then
+            AlterarVisibleDet([PFilial,PPeriodo,PCliente,PVendedor,PTipoCotacao],true)
 end;
 
 
@@ -481,8 +500,22 @@ end;
 procedure TFRelPedido.BImprimirClick(Sender: TObject);
 Var
   VpfNomCampo : String;
+  VpfPdf : Boolean;
 begin
+  VpfPdf := (TBitBtn(sender).Tag = 20);
+  if VpfPdf then
+    if not SaveDialog.Execute then
+      exit;
+
   dtRave := TdtRave.create(self);
+  dtRave.VplArquivoPDF := '';
+  FunRave.VplArquivoPDF := '';
+  if VpfPdf then
+  begin
+    dtRave.VplArquivoPDF := SaveDialog.FileName;
+    FunRave.VplArquivoPDF := SaveDialog.FileName;
+  end;
+
   if (VPRNOMRELATORIO = 'NOTAS FISCAIS EMITIDAS') then
     dtRave.ImprimeNotasFiscaisEmitidas(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, EVendedor.Ainteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,ESituacaoCotacao.itemindex)
   else
@@ -586,7 +619,7 @@ begin
                                                         if (VPRNOMRELATORIO = 'TOTAL AMOSTRAS POR VENDEDOR') then
                                                           FunRave.ImprimeTotaAmostrasPorVendedor(EVendedor.AInteiro,VprCaminhoRelatorio,LVendedor.caption,CDataIni.Date,CDataFim.Date)
                                                         else
-                                                          if (VPRNOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO') then
+                                                          if (VPRNOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO')then
                                                             FunRave.ImprimeContasAPagarPorPlanoContasSintetico(CDataIni.Date,CDataFim.Date,VprCaminhoRelatorio)
                                                           else
                                                             if (VPRNOMRELATORIO = 'TOTAL PROSPECTS POR RAMO ATIVIDADE') then
@@ -596,7 +629,23 @@ begin
                                                                 dtRave.ImprimeProspectPorCeP(CheckBox1.Checked,VprCaminhoRelatorio)
                                                               else
                                                                 if (VPRNOMRELATORIO = 'NOTAS FISCAIS EMITIDAS POR NATUREZA OPERACAO') then
-                                                                  dtRave.ImprimeNotasFiscaisEmitidasPorNaturezaOperacao(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, EVendedor.Ainteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,ESituacaoCotacao.itemindex);
+                                                                  dtRave.ImprimeNotasFiscaisEmitidasPorNaturezaOperacao(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, EVendedor.Ainteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,ESituacaoCotacao.itemindex)
+                                                                else
+                                                                  if (VPRNOMRELATORIO = 'EM ABERTO POR VENDEDOR') then
+                                                                    dtRave.ImprimeContasAReceberEmAbertoPorVendedor(CDataFinal.Date,EVendedor.AInteiro,EFilial.AInteiro,VprCaminhoRelatorio,LFilial.Caption,lVendedor.caption,CFundoPerdido.Checked,BMostrarConta.Visible)
+                                                                  else
+                                                                    if (VPRNOMRELATORIO = 'PRODUTOS VENDIDOS E TROCADOS') then
+                                                                      FunRave.ImprimeProdutosVendidoseTrocacos(EFilial.AInteiro,ETipoCotacao.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,EClienteMaster.AInteiro,
+                                                                                                               VprCaminhoRelatorio,LFilial.Caption,LVendedor.Caption,LTipoCotacao.Caption,LCliente.Caption,LClienteMaster.Caption,CDataIni.DateTime,CDataFim.DateTime)
+  else
+    if (VPRNOMRELATORIO = 'TABELA PRECO PRODUTOS') then
+      FunRave.ImprimeTabelaPreco(ECliente.AInteiro,ECodTabelaPreco.AInteiro,VprCaminhoRelatorio,LCliente.Caption,LNomTabelaPreco.Caption,ECodClassifcacao.Text,LNomClassificacao.Caption)
+    else
+      if (VPRNOMRELATORIO = 'VENDAS POR VENDEDOR') then
+        dtRave.ImprimeVendasporVendedor(CDataIni.Date,CDataFim.Date,EFilial.AInteiro,ECliente.AInteiro, EVendedor.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.Caption,lVendedor.caption,LTipoCotacao.Caption)
+      else
+        if (VPRNOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO POR MES')then
+          FunRave.ImprimeContasAPagarPorPlanoContasSinteticoMES(CDataIni.Date,CDataFim.Date,VprCaminhoRelatorio);
   dtRave.free;
 end;
 

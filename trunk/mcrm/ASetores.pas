@@ -76,6 +76,7 @@ end;
 {******************************************************************************}
 procedure TFSetores.AtualizaConsulta;
 begin
+  Setor.close;
   Setor.sql.clear;
   Setor.sql.add('Select CODSETOR, NOMSETOR FROM SETOR ');
   Setor.sql.add(VprOrdem);

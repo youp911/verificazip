@@ -768,13 +768,24 @@ end;
 
 {******************************************************************************}
 function TFuncoesProduto.RCodProdutoDisponivelpelaClassificacao(VpaCodClassificacao : String):String;
+var
+  VpfUltimoCodigo : String;
 begin
   AdicionaSQLAbreTabela(AUX,'Select MAX(C_COD_PRO) ULTIMO from CADPRODUTOS '+
                             ' Where C_COD_CLA = '''+VpaCodClassificacao+'''');
   if AUX.FieldByname('ULTIMO').AsString = '' then
     Result := VpaCodClassificacao + AdicionaCharE('0','1',length(Varia.MascaraPro))
   else
-    result := AdicionaCharE('0',IntToStr(AUX.FieldByname('ULTIMO').AsInteger+1),length(Varia.MascaraPro));
+  begin
+    VpfUltimoCodigo := DeletaEspaco(AUX.FieldByname('ULTIMO').AsString);
+    if (varia.CNPJFilial = CNPJ_PERFOR) then
+    begin
+      if ExisteLetraString('R',VpfUltimoCodigo) then
+        VpfUltimoCodigo := CopiaAteChar(VpfUltimoCodigo,'R');
+    end;
+
+    result := AdicionaCharE('0',IntToStr(StrtoInt(VpfUltimoCodigo)+1),length(Varia.MascaraPro));
+  end;
   Aux.close;
 end;
 

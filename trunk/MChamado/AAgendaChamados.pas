@@ -596,15 +596,14 @@ begin
   LEMBRETECORPO.SQL.Clear;
   LEMBRETECORPO.SQL.Add('SELECT'+
                         ' LBC.SEQLEMBRETE,'+
-                        ' DATEFORMAT(LBC.DATAGENDA,''DD/MM/YYYY'')||'' - ''||DESTITULO DESTITULO,'+
+                        ' TO_DATE(''DD/MM/YYYY'',LBC.DATAGENDA)||'' - ''||DESTITULO DESTITULO,'+
                         ' LBI.INDLIDO'+
                         ' FROM'+
                         ' LEMBRETECORPO LBC, LEMBRETEITEM LBI'+
-                        ' WHERE'+
-                        ' LBC.SEQLEMBRETE *= LBI.SEQLEMBRETE'+
+                        ' WHERE'+ SQLTextoRightJoin(' LBC.SEQLEMBRETE','LBI.SEQLEMBRETE')+
                         ' AND LBI.CODUSUARIO = '+IntToStr(Varia.CodigoUsuario));
   AdicionaFiltrosLembrete(LEMBRETECORPO.SQL);
-  LEMBRETECORPO.Open;
+//  LEMBRETECORPO.Open;
   try
     LEMBRETECORPO.GotoBookmark(VpfBookmark);
     LEMBRETECORPO.FreeBookmark(VpfBookmark);

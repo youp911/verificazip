@@ -1776,6 +1776,7 @@ begin
   VpaDOrdem.DProduto.CodEmpFil := VpaDOrdem.CodEmpresafilial;
   VpaDOrdem.DProduto.SeqProduto := VpaDOrdem.SeqProduto;
   FunProdutos.CarDProduto(VpaDOrdem.DProduto);
+  FunProdutos.CarDEstagio(VpaDOrdem.DProduto);
   VpaDOrdem.NomProduto := VpaDOrdem.DProduto.NomProduto;
 
   VpaDOrdem.NomCor := FunProdutos.RNomeCor(InttoStr(VpaDOrdem.CodCor));

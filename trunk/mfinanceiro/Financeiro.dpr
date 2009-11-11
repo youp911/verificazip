@@ -74,7 +74,6 @@ uses
   UnClassesImprimir in '..\MaGerais\UnClassesImprimir.pas',
   AConsultaValoresFornecedor in 'AConsultaValoresFornecedor.pas' {FConsultaValoresFornecedor},
   AImprimeValoresFornecedor in 'AImprimeValoresFornecedor.pas' {FImprimeValoresFornecedor},
-  AImprimePlanoContas in 'AImprimePlanoContas.pas' {FImprimePlanoContas},
   UnNotaFiscal in '..\MFaturamento\UnNotaFiscal.pas',
   UnProdutos in '..\MEstoque\UnProdutos.pas',
   UnSumarizaEstoque in '..\MEstoque\UnSumarizaEstoque.pas',
@@ -232,7 +231,6 @@ uses
   AMotivoVenda in '..\mcrm\AMotivoVenda.pas' {FMotivoVenda},
   ANovaProposta in '..\mcrm\ANovaProposta.pas' {FNovaProposta},
   ANovaAgendaProspect in '..\mcrm\ANovaAgendaProspect.pas' {FNovaAgendaProspect},
-  APropostas in '..\mcrm\APropostas.pas' {FPropostas},
   ANovoTelemarketingProspect in '..\mcrm\ANovoTelemarketingProspect.pas' {FNovoTelemarketingProspect},
   AProdutosProspect in '..\mcrm\AProdutosProspect.pas' {FProdutosProspect},
   AAlteraEstagioProposta in '..\mcrm\AAlteraEstagioProposta.pas' {FAlteraEstagioProposta},
@@ -294,7 +292,8 @@ uses
   UnCondicaoPagamento in 'UnCondicaoPagamento.pas',
   ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
   ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
-  AProjetos in 'AProjetos.pas' {FProjetos};
+  AProjetos in 'AProjetos.pas' {FProjetos},
+  AReorganizaPlanoContas in 'AReorganizaPlanoContas.pas' {FReorganizaPlanoContas};
 
 {$R *.RES}
 begin

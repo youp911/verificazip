@@ -10,21 +10,6 @@ uses
 type
   TFImprimeCR = class(TForm)
     Aux: TQuery;
-    QuickRep1: TQuickRepNovo;
-    DetailBand1: TQRBand;
-    PageHeaderBand1: TQRBand;
-    QRDBText7: TQRDBText;
-    QRDBText8: TQRDBText;
-    QRLabel9: TQRLabel;
-    QRLabel11: TQRLabel;
-    data1: TQRLabel;
-    data2: TQRLabel;
-    QRLabel12: TQRLabel;
-    QRShape2: TQRShape;
-    Sit: TQRBand;
-    QRShape3: TQRShape;
-    QRSysData2: TQRSysData;
-    EmpFil: TQRLabel;
     AuxI_LAN_REC: TIntegerField;
     AuxL_OBS_REC: TMemoField;
     AuxI_COD_CLI: TIntegerField;
@@ -35,16 +20,6 @@ type
     AuxD_DAT_PAG: TDateField;
     AuxN_VLR_PAG: TFloatField;
     AuxC_NOM_CLI: TStringField;
-    QRBand1: TQRBand;
-    TextTotalaPagar1: TQRLabel;
-    TextTotalDuplicatas1: TQRLabel;
-    TextTotalDuplicatas: TQRLabel;
-    TextTotalaPagar: TQRLabel;
-    QRLabel10: TQRLabel;
-    QRLabel13: TQRLabel;
-    QRLabel15: TQRLabel;
-    QRLabel16: TQRLabel;
-    QRLabel17: TQRLabel;
     QEmAberto: TQuickRepNovo;
     QRBand2: TQRBand;
     QRDBText10: TQRDBText;
@@ -89,51 +64,16 @@ type
     ECodCliente: TQRLabel;
     QRSysData3: TQRSysData;
     LCliente: TQRLabel;
-    QRGroup1: TQRGroup;
-    QRDBText1: TQRDBText;
-    QRLabel3: TQRLabel;
-    QRBand6: TQRBand;
-    QRDBText4: TQRDBText;
     AuxD_DAT_EMI: TDateField;
-    QRLabel4: TQRLabel;
-    QRLabel5: TQRLabel;
-    LPrazo: TQRLabel;
-    Par: TQRLabel;
-    Cli: TQRLabel;
-    QRSysData1: TQRSysData;
-    QRLabel7: TQRLabel;
-    LMediaPrazos: TQRLabel;
-    LTotalMes: TQRLabel;
-    LTotalAReceber: TQRLabel;
-    LTotalRecebido: TQRLabel;
     AuxC_DUP_DES: TStringField;
-    QRLabel14: TQRLabel;
-    QRDBText5: TQRDBText;
-    QRLabel21: TQRLabel;
-    LTotDupDescontadas: TQRLabel;
-    LNroNota: TQRLabel;
     AuxC_IND_CON: TStringField;
-    QRDBText3: TQRDBText;
-    LTotAReceberDia: TQRLabel;
-    LTotRecebidoDia: TQRLabel;
-    QRLabel6: TQRLabel;
-    LNroDuplicata: TQRLabel;
     AuxC_NRO_DOC: TStringField;
-    L001Cliente: TQRLabel;
-    QRLabel24: TQRLabel;
-    QRDBText2: TQRDBText;
     AuxC_FUN_PER: TStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure QRBand2BeforePrint(Sender: TQRCustomBand;
       var PrintBand: Boolean);
     procedure QRBand5BeforePrint(Sender: TQRCustomBand;
-      var PrintBand: Boolean);
-    procedure DetailBand1BeforePrint(Sender: TQRCustomBand;
-      var PrintBand: Boolean);
-    procedure QRBand1BeforePrint(Sender: TQRCustomBand;
-      var PrintBand: Boolean);
-    procedure QRBand6BeforePrint(Sender: TQRCustomBand;
       var PrintBand: Boolean);
   private
     { Private declarations }
@@ -154,8 +94,6 @@ type
     procedure ConfiguraTela(VpaDatFim : TDateTime;VpaCodFilial : String;VpaCodCliente : String);
     procedure LimpaCamposCliente;
   public
-   procedure carregaImpressao(ComandoSQL : String; DataInicio : TDateTime; DataFim : TDateTime;
-                              NomeEmpresa, NomeFilial, Plano, Cliente, Parcelas: String;TotalaPagar,TotalDuplicatas : Double);
    procedure ImprimeClienteEmAberto(VpaDatFim : TDateTime;VpaCodFilial : String;VpaCodCliente : String;VpaIndParcial, VpaVisualizar : Boolean);
   end;
 
@@ -193,45 +131,6 @@ end;
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
 
 
-{******************** imprime o contas a receber ******************************}
-procedure TFImprimeCR.carregaImpressao(ComandoSQL : String; DataInicio : TDateTime; DataFim : TDateTime;
-                                       NomeEmpresa, NomeFilial, Plano, Cliente, Parcelas: String;TotalaPagar,TotalDuplicatas : Double);
-begin
-  VprTotaReceberDia := 0;
-  VprTotRecebidoDia := 0;
-    FImprimeCR.Aux.sql.clear;
-    FImprimeCR.Aux.sql.Text := ComandoSQL;
-
-    FImprimeCR.Aux.open;
-    data1.Caption := dateToStr(DataInicio);
-    data2.Caption := dateToStr(DataFim);
-
-    EmpFil.Caption := 'Empresa : ';
-    if NomeEmpresa <> '' then
-       EmpFil.Caption := EmpFil.Caption + NomeEmpresa
-    else
-       EmpFil.Caption := EmpFil.Caption + 'Todas';
-
-    EmpFil.Caption := EmpFil.Caption + '  -  Filial : ';
-    if NomeFilial <> '' then
-       EmpFil.Caption := EmpFil.Caption + NomeFilial
-    else
-       EmpFil.Caption := EmpFil.Caption + 'Todas';
-
-    Par.Caption := 'Parcelas : ' + Parcelas;
-
-    Cli.Caption := 'Clientes : ';
-    if Cliente <> '' then
-       Cli.Caption := Cli.Caption + Cliente
-    else
-       Cli.Caption := Cli.Caption + 'Todas';
-
-    TextTotalaPagar.caption :=  FormatFloat('R$ ###,###,###,##0.00',totalaPagar);
-    TextTotalDuplicatas.Caption := FormatFloat('R$ ###,###,###,##0.00',TotalDuplicatas);
-    VprMesAtual := Mes(AuxD_DAT_VEN.AsDateTime);
-    FImprimeCR.QuickRep1.Preview;
-  FImprimeCR.Close;
-end;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                             Ações do relatorio do saldos em aberto
@@ -358,86 +257,6 @@ begin
   VprClienteAnterior := 0;
 end;
 
-{******************************************************************************}
-procedure TFImprimeCR.DetailBand1BeforePrint(Sender: TQRCustomBand;
-  var PrintBand: Boolean);
-begin
-  L001Cliente.Caption := AuxI_COD_CLI.AsString+'-'+AuxC_NOM_CLI.Asstring;
-  if AuxC_IND_CON.AsString = 'S' then
-  begin
-    LNroNota.Caption := 'CONSOLIDADA';
-    LPrazo.Caption := '';
-  end
-  else
-  begin
-    LNroNOta.Caption := AuxI_NRO_NOT.AsString +'/'+ AuxI_NRO_PAR.AsString ;
-    if AuxI_NRO_NOT.AsString <> AuxC_NRO_DOC.AsString then
-      LNroDuplicata.Caption :=  AuxC_NRO_DOC.AsString
-    else
-      LNroDuplicata.Caption := '';
-    LPrazo.Caption := IntToStr(DiasPorPeriodo(AuxD_DAT_VEN.AsDateTime,AuxD_DAT_EMI.AsDateTime));
-    VprTotRecebidoMes := VprTotRecebidoMes + aux.FieldByName('N_VLR_PAG').AsFloat;
-    if Aux.FieldByName('N_VLR_PAG').AsFloat = 0 then
-      VprTotAReceberMes := VprTotAReceberMes + Aux.FieldByName('N_VLR_PAR').AsFloat;
-    if Aux.FieldByName('C_DUP_DES').AsString = 'S' Then
-      VprTotDescontado := VprTotDescontado + Aux.FieldByName('N_VLR_PAR').AsFloat;
-    VprTotPrazos := VprTotPrazos + Strtoint(LPrazo.Caption);
-    VprTotaReceberDia := VprTotaReceberDia + Aux.FieldByName('N_VLR_PAR').AsFloat;
-    VprTotRecebidoDia := VprTotRecebidoDia + aux.FieldByName('N_VLR_PAG').AsFloat;
-    inc(VprQtdPrazos);
-    if AuxC_FUN_PER.AsString = 'S' then
-      DetailBand1.Color := clred
-    else
-      DetailBand1.Color := clwhite;
-  end;
-end;
-
-{******************************************************************************}
-procedure TFImprimeCR.QRBand1BeforePrint(Sender: TQRCustomBand;
-  var PrintBand: Boolean);
-begin
-  LMediaPrazos.Caption := FormatFloat('0',VprTotPrazos/VprQtdPrazos)+ ' dias';
-  LTotDupDescontadas.Caption := FormatFloat('R$ ###,###,###,##0.00',VprTotDescontado) ;
-  VprTotDescontado := 0;
-  VprTotPrazos := 0;
-  VprQtdPrazos := 0;
-  VprTotAReceberMes := 0;
-  VprTotRecebidoMes := 0;
-end;
-
-procedure TFImprimeCR.QRBand6BeforePrint(Sender: TQRCustomBand;
-  var PrintBand: Boolean);
-begin
-  Aux.next;
-  LTotAReceberDia.Caption := FormatFloat(' ###,###,###,###,##0.00',VprTotaReceberDia);
-  LTotRecebidoDia.Caption := FormatFloat(' ###,###,###,###,##0.00',VprTotRecebidoDia);
-  VprTotaReceberDia := 0;
-  VprTotRecebidoDia := 0;
-  if Mes(AuxD_DAT_VEN.AsDateTime) <> VprMesAtual then
-  begin
-    QRBand6.Height := 36;
-    LTotalMes.Caption := 'Total do mês de '+ TextoMes(MontaData(1,VprMesAtual,Ano(date)),false);
-    LTotalAReceber.Caption := 'A Receber : ' +FormatFloat('R$ ###,###,###,##0.00',VprTotAReceberMes) ;
-    LTotalRecebido.Caption := 'Recebido : ' +FormatFloat('R$ ###,###,###,##0.00',VprTotRecebidoMes) ;
-    VprTotAReceberMes := 0;
-    VprTotRecebidoMes := 0;
-    VprMesAtual := Mes(AuxD_DAT_VEN.AsDateTime);
-  end
-  else
-  begin
-    LTotalMes.Caption := '';
-    LTotalAReceber.Caption := '';
-    LTotalRecebido.Caption := '';
-    QRBand6.Height := 17;
-  end;
-  if not Aux.eof then
-    Aux.Prior
-  else
-  begin
-    Aux.Prior;
-    Aux.Next;
-  end;
-end;
 
 Initialization
  RegisterClasses([TFImprimeCR]);

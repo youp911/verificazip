@@ -180,7 +180,7 @@ uses Constantes, UnRegistro, funsql,FunSistema, UnClientes, UnCrystal,
   AEstagioAgendamento, ANovoChamadoTecnico, ARegiaoVenda,
   AMostraPlanenamentoOP, AChamadosTecnicos,
   AMeioDivulgacao,
-  AProspects, AMotivoVenda, ANovaProposta, APropostas, AColecao,
+  AProspects, AMotivoVenda, ANovaProposta, AColecao,
   ADesenvolvedor, AAlteraEstagioProposta, AAmostras, AConcorrentes,
   AConsultaAgendaProspect, ANovoTelemarketingProspect,
   ATarefaEMarketingProspect, ATarefaTelemarketingProspect,
@@ -608,11 +608,6 @@ begin
              FNovaProposta := TFNovaProposta.CriarSDI(self,'',FPrincipal.VerificaPermisao('FNovaProposta'));
              FNovaProposta.NovaProposta;
              FNovaProposta.free;
-           end;
-    6200 : begin
-             FPropostas := tFPropostas.CriarSDI(self,'',FPrincipal.VerificaPermisao('FPropostas'));
-             FPropostas.ShowModal;
-             FPropostas.free;
            end;
     6300 : begin
              FPropostasCliente:= TFPropostasCliente.CriarSDI(Application,'',True);
