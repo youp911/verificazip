@@ -508,6 +508,8 @@ begin
   result := '';
   VpaDProduto.CodEmpresa := varia.CodigoEmpresa;
   VpaDProduto.CodEmpFil := varia.CodigoEmpFil;
+  VpaDProduto.CodClassificacao := '';
+  VpaDProduto.CodProduto := '';
   VpaLinha := DeleteAteChar(VpaLinha,';');
   VpaLinha := DeletaEspacoE(VpaLinha);
   VpaDProduto.CodProduto := UpperCase(CopiaAteChar(VpaLinha,';'));
@@ -520,8 +522,8 @@ begin
       if FunProdutos.ExisteNomeProduto(VpaDProduto.SeqProduto,RetiraAcentuacao(UpperCase(LimpaAspasdoNome(CopiaAteChar(DeleteAteChar(VpaLinha,';'),';'))))) then
         FunProdutos.CarDProduto(VpaDProduto);
   end;
-
-  VpaDProduto.CodProduto := UpperCase(CopiaAteChar(VpaLinha,';'));
+  if VpaDProduto.CodProduto = '' then
+    VpaDProduto.CodProduto := UpperCase(CopiaAteChar(VpaLinha,';'));
   VpaLinha := DeleteAteChar(VpaLinha,';');
   VpaDProduto.NomProduto := SubstituiStr(RetiraAcentuacao(UpperCase(LimpaAspasdoNome(CopiaAteChar(VpaLinha,';')))),#$9D,'DIAM ');
   if VpaDProduto.NomProduto = '' then
@@ -530,7 +532,8 @@ begin
 
   VpaDProduto.CodMoeda := Varia.MoedaBase;
   VpaDProduto.CodUnidade :=  'PC';
-  VpaDProduto.CodClassificacao :=RCodClassificacaoProduto(VpaDProduto);
+  if VpaDProduto.CodClassificacao = '' then
+    VpaDProduto.CodClassificacao :=RCodClassificacaoProduto(VpaDProduto);
   VpaDProduto.IndProdutoAtivo := true;
   Result := FunProdutos.GravaDProduto(VpaDProduto);
   if result = '' then

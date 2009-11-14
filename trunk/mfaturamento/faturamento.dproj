@@ -565,9 +565,6 @@
 			<DCCReference Include="..\mcrm\ANovaAgendaProspect.pas">
 				<Form>FNovaAgendaProspect</Form>
 			</DCCReference>
-			<DCCReference Include="..\mcrm\APropostas.pas">
-				<Form>FPropostas</Form>
-			</DCCReference>
 			<DCCReference Include="..\mcrm\AProdutosProspect.pas">
 				<Form>FProdutosProspect</Form>
 			</DCCReference>
@@ -749,6 +746,10 @@
 			<DCCReference Include="..\mfinanceiro\AProjetos.pas">
 				<Form>FProjetos</Form>
 			</DCCReference>
+			<DCCReference Include="ASpedFiscal.pas">
+				<Form>FSpedFiscal</Form>
+			</DCCReference>
+			<DCCReference Include="UnSpedFiscal.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

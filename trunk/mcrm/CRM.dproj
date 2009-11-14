@@ -794,6 +794,9 @@
 			<DCCReference Include="ADepartamentoAmostra.pas">
 				<Form>FDepartamentoAmostra</Form>
 			</DCCReference>
+			<DCCReference Include="ATipoMateriaPrima.pas">
+				<Form>FTipoMateriaPrima</Form>
+			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

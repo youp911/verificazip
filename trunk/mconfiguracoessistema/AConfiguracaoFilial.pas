@@ -151,12 +151,21 @@ type
     CadFiliaisI_DOC_NOT: TFMTBCDField;
     DBCheckBox10: TDBCheckBox;
     CadFiliaisC_NOT_CON: TWideStringField;
+    PSpedFiscal: TTabSheet;
+    PanelColor3: TPanelColor;
+    Label22: TLabel;
+    EPerfilSped: TDBComboBoxColor;
+    Label30: TLabel;
+    EIndicadorAtividadeSped: TComboBoxColor;
+    CadFiliaisC_PER_SPE: TWideStringField;
+    CadFiliaisI_ATI_SPE: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FecharClick(Sender: TObject);
     procedure CodigoTabelaSelect(Sender: TObject);
     procedure ETabelaServicoSelect(Sender: TObject);
     procedure EContaPadraoSelect(Sender: TObject);
+    procedure EIndicadorAtividadeSpedClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -181,6 +190,8 @@ begin
   AdicionaSQLAbreTabela(CadFiliais,'Select * from CADFILIAIS '+
                                     ' Where I_EMP_FIL = '+ IntToStr(varia.CodigoEmpFil));
   PageControl.ActivePageIndex := 0;
+  EIndicadorAtividadeSped.ItemIndex := Varia.TipoAtividadeSped;
+
   InicializaVerdadeiroeFalsoCheckBox(PanelColor1,'T','F');
   AtualizaLocalizas([ETabelaServico,CodigoTabela,EContaPadrao,EContaBoletoPadrao]);
 end;
@@ -231,6 +242,7 @@ begin
                                     ' and i_cod_tab like ''@%''');
 end;
 
+{******************************************************************************}
 procedure TFConfiguracaoFilial.EContaPadraoSelect(Sender: TObject);
 begin
 
@@ -244,7 +256,18 @@ begin
                                        ' and CO.I_EMP_FIL = '+IntTostr(varia.CodigoempFil)+
                                        ' and Co.C_NRO_CON = ''@'''+
                                        ' AND CO.C_IND_ATI = ''T''';
+end;
 
+{******************************************************************************}
+procedure TFConfiguracaoFilial.EIndicadorAtividadeSpedClick(Sender: TObject);
+begin
+  IF CadFiliais.State in [dsedit,dsinsert] then
+  begin
+    Varia.TipoAtividadeSped := EIndicadorAtividadeSped.ItemIndex;
+    CadFiliaisI_ATI_SPE.AsInteger := Varia.TipoAtividadeSped;
+  end
+  else
+    EIndicadorAtividadeSped.ItemIndex := Varia.TipoAtividadeSped;
 end;
 
 Initialization

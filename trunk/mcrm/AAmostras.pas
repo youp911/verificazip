@@ -253,7 +253,10 @@ end;
 procedure TFAmostras.BImprimirClick(Sender: TObject);
 begin
   dtRave := TdtRave.create(self);
-  dtRave.ImprimeFichaDesenvolvimento(AmostraCodAmostra.AsInteger);
+  if AmostraTIPAMOSTRA.AsString = 'D' then
+    dtRave.ImprimeFichaTecnicaAmostra(AmostraCodAmostra.AsInteger,true)
+  else
+    dtRave.ImprimeFichaDesenvolvimento(AmostraCodAmostra.AsInteger);
   dtRave.free;
 end;
 

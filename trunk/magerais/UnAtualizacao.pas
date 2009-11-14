@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1518;
+  CT_VersaoBanco = 1521;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -891,6 +891,35 @@ begin
                               ' FOREIGN KEY (I_COD_EMP, C_CLA_PLA) '+
                               '  REFERENCES CAD_PLANO_CONTA(I_COD_EMP,C_CLA_PLA) ');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1518');
+      end;
+      if VpaNumAtualizacao < 1519 Then
+      begin
+        VpfErro := '1519';
+        ExecutaComandoSql(Aux,'CREATE TABLE TIPOMATERIAPRIMA ('+
+                              ' CODTIPOMATERIAPRIMA NUMBER(10) NULL, '+
+                              ' NOMTIPOMATERIAPRIMA VARCHAR2(50) NULL, '+
+                              ' PRIMARY KEY(CODTIPOMATERIAPRIMA))' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1519');
+      end;
+      if VpaNumAtualizacao < 1520 Then
+      begin
+        VpfErro := '1520';
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRACONSUMO '+
+                              ' ADD(CODTIPOMATERIAPRIMA NUMBER(10) NULL,'+
+                              ' NUMSEQUENCIA NUMBER(10) NULL,' +
+                              ' SEQENTRETELA NUMBER(10) NULL,' +
+                              ' QTDENTRETELA NUMBER(10) NULL,' +
+                              ' SEQTERMOCOLANTE NUMBER(10)NULL,' +
+                              ' QTDTERMOCOLANTE NUMBER(10)NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1520');
+      end;
+      if VpaNumAtualizacao < 1521 Then
+      begin
+        VpfErro := '1521';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADFILIAIS ADD( '+
+                              ' C_PER_SPE CHAR(1) NULL, '+
+                              ' I_ATI_SPE NUMBER(2) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1521');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

@@ -291,7 +291,8 @@ uses
   ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
   UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
   AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
-  ADepartamentoAmostra in 'ADepartamentoAmostra.pas' {FDepartamentoAmostra};
+  ADepartamentoAmostra in 'ADepartamentoAmostra.pas' {FDepartamentoAmostra},
+  ATipoMateriaPrima in 'ATipoMateriaPrima.pas' {FTipoMateriaPrima};
 
 {$R *.RES}
 

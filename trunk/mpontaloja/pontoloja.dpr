@@ -237,7 +237,6 @@ uses
   UnProposta in '..\mcrm\UnProposta.pas',
   AMotivoVenda in '..\mcrm\AMotivoVenda.pas' {FMotivoVenda},
   ANovaAgendaProspect in '..\mcrm\ANovaAgendaProspect.pas' {FNovaAgendaProspect},
-  APropostas in '..\mcrm\APropostas.pas' {FPropostas},
   AAlteraEstagioProposta in '..\mcrm\AAlteraEstagioProposta.pas' {FAlteraEstagioProposta},
   AProdutosProspect in '..\mcrm\AProdutosProspect.pas' {FProdutosProspect},
   AContatosProspect in '..\mcrm\AContatosProspect.pas' {FContatosProspect},

@@ -404,15 +404,17 @@ begin
   Amostra.SQL.Add('Select CON.SEQCONSUMO, CON.SEQPRODUTO, CON.DESUM, CON.NOMPRODUTO, CON.CODCOR,' +
                   ' CON.DESOBSERVACAO, CON.DESLEGENDA, CON.VALUNITARIO, CON.QTDPRODUTO, CON.VALTOTAL,'+
                   ' CON.CODFACA, CON.ALTMOLDE, CON.LARMOLDE, CON.CODMAQUINA,  '+
-                  ' CON.DESOBSERVACAO, '+
+                  ' CON.DESOBSERVACAO, CON.NUMSEQUENCIA, '+
                   ' PRO.C_COD_PRO, PRO.I_ALT_PRO, '+
-                  ' COR.NOM_COR '  +
-                  ' FROM AMOSTRACONSUMO CON, CADPRODUTOS PRO, COR '+
+                  ' COR.NOM_COR, '  +
+                  ' TIP.CODTIPOMATERIAPRIMA, TIP.NOMTIPOMATERIAPRIMA '+
+                  ' FROM AMOSTRACONSUMO CON, CADPRODUTOS PRO, COR, TIPOMATERIAPRIMA TIP  '+
                   ' Where CON.CODAMOSTRA = '+IntToStr(VpaDAmostra.CodAmostra));
   Amostra.SQL.Add(' AND CON.CODCORAMOSTRA = '+IntToStr(VpaCorAmostra));
   Amostra.SQL.Add(' AND CON.SEQPRODUTO = PRO.I_SEQ_PRO '+
                   ' AND '+SQLTextoRightJoin('CON.CODCOR','COR.COD_COR')+
-                  ' ORDER BY SEQCONSUMO');
+                  ' AND '+SQLTextoRightJoin('CON.CODTIPOMATERIAPRIMA','TIP.CODTIPOMATERIAPRIMA')+
+                  ' ORDER BY NUMSEQUENCIA, SEQCONSUMO');
   Amostra.Open;
   while not Amostra.Eof do
   begin
@@ -438,6 +440,9 @@ begin
     VpfDConsumo.CodMaquina := Amostra.FieldByname('CODMAQUINA').AsInteger;
     VpfDConsumo.DesObservacao := Amostra.FieldByname('DESOBSERVACAO').AsString;
     VpfDConsumo.DesLegenda := Amostra.FieldByname('DESLEGENDA').AsString;
+    VpfDConsumo.CodTipoMateriaPrima := Amostra.FieldByName('CODTIPOMATERIAPRIMA').AsInteger;
+    VpfDConsumo.NomTipoMateriaPrima := Amostra.FieldByName('NOMTIPOMATERIAPRIMA').AsString;
+    VpfDConsumo.NumSequencia := Amostra.FieldByName('NUMSEQUENCIA').AsInteger;
     if VpfDConsumo.CodFaca <> 0 then
       FunProdutos.ExisteFaca(VpfDConsumo.CodFaca,VpfDConsumo.Faca);
     if VpfDConsumo.CodMaquina <> 0 then
@@ -490,6 +495,10 @@ begin
       Cadastro.FieldByName('QTDPECAEMMETRO').AsFloat := VpfDConsumo.QtdPecasemMetro;
     if VpfDConsumo.ValIndiceConsumo <> 0 then
       Cadastro.FieldByName('VALINDICEMETRO').AsFloat := VpfDConsumo.ValIndiceConsumo;
+    if VpfDConsumo.CodTipoMateriaPrima <> 0 then
+      Cadastro.FieldByName('CODTIPOMATERIAPRIMA').AsInteger := VpfDConsumo.CodTipoMateriaPrima;
+    if VpfDConsumo.NumSequencia <> 0 then
+      Cadastro.FieldByName('NUMSEQUENCIA').AsInteger := VpfDConsumo.NumSequencia;
     Cadastro.Post;
     result := Cadastro.AMensagemErroGravacao;
     if Cadastro.AErronaGravacao then

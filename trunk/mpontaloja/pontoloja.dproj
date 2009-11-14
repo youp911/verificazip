@@ -652,9 +652,6 @@
 			<DCCReference Include="..\mcrm\ANovaAgendaProspect.pas">
 				<Form>FNovaAgendaProspect</Form>
 			</DCCReference>
-			<DCCReference Include="..\mcrm\APropostas.pas">
-				<Form>FPropostas</Form>
-			</DCCReference>
 			<DCCReference Include="..\mcrm\AAlteraEstagioProposta.pas">
 				<Form>FAlteraEstagioProposta</Form>
 			</DCCReference>

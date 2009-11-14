@@ -1,7 +1,6 @@
 program faturamento;
 
 uses
-//  FastMM4,
   Forms,
   SysUtils,
   APrincipal in 'APrincipal.pas' {FPrincipal},
@@ -275,7 +274,9 @@ uses
   ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
   ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
   UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
-  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos};
+  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
+  ASpedFiscal in 'ASpedFiscal.pas' {FSpedFiscal},
+  UnSpedFiscal in 'UnSpedFiscal.pas';
 
 {$R *.RES}
 

@@ -41,7 +41,6 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     function RSeqColetaFracaoOPDisponivel(VpaFilial,VpaSeqOrdem,VpaSeqFracao,VpaSeqEstagio : Integer):Integer;
     function RSeqColetaRomaneioOPDisponivel(VpaFilial,VpaSeqOrdem,VpaSeqFracao : Integer):Integer;
     function RSeqRomaneioProdutoDisponivel(VpaFilial,VpaSeqRomaneio : Integer):Integer;
-    function RSeqFracaoDisponivel(VpaCodFilial,VpaSeqOrdem : Integer):Integer;
     function RSeqFracaoFaccionistaDisponivel(VpaCodFaccionista : Integer) : Integer;
     function RSeqRetornoFracaoFaccionistaDisponivel(VpaCodFaccionista, VpaSeqItem : Integer):Integer;
     function RSeqDevolucaoFracaoFaccionistaDisponivel(VpaCodFaccionista, VpaSeqItem : Integer) : Integer;
@@ -66,7 +65,7 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     function GravaDOPItemCadarco(VpaDOrdem : TRBDOrdemProducaoEtiqueta):string;
     function GravaDOpItemMaquina(VpaDOrdem : TRBDOrdemProducaoEtiqueta):String;
     function GravaDColetaOPItem(VpaDColetaOP : TRBDColetaOP): String;
-    function GravaDFracoesOP(VpaDOrdemProducao : TRBDOrdemProducao;VpaApagarOPAntes : Boolean):string;
+    function GravaDFracoesOP(VpaDOrdemProducao : TRBDOrdemProducao):string;
     function GravaDFracaoOPCompose(VpaDOrdemProducao : TRBDOrdemProducao):string;
     function GravaDFracaoOPEstagio(VpaDOrdemProducao : TRBDOrdemProducao):string;overload;
     function GravaDFracaoOPEstagio(VpaDFracao : TRBDFracaoOrdemProducao;VpaCodFilial,VpaSeqOrdem,VpaSeqProduto : Integer;VpaExcluirAntes : Boolean):string;overload;
@@ -129,13 +128,10 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     procedure GeraConsumoFracao(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracao : TRBDFracaoOrdemProducao;VpaDProduto : TRBDProduto);
     procedure OrdenaOrdemSerra(VpaDOrdemProducao : TRBDordemProducao);
     procedure ExcluiProdutoOrdemSerra(VpaDOrdemProducao : TRBDordemProducao;VpaDFracao : TRBDFracaoOrdemProducao;VpaDConsumoFracao : TRBDConsumoOrdemProducao);
-    procedure CarFracoesFilha(VpaLista : TList;VpaCodFilial,VpaSeqOrdem,VpaSeqFracao : Integer);
-    function ReImportaFracao(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracao : TRBDFracaoOrdemProducao):string;
     function ReImportaFracaoVerificaEstagioFracao(VpaDFracao : TRBDFracaoOrdemProducao;VpaDProduto : TRBDProduto):string;
     function ReImportaFracaoConsumoOP(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracao : TRBDFracaoOrdemProducao;VpaDProduto : TRBDProduto):string;
-    function ReImportaFracaoFilha(VpaDOrdemProducaoNova: TRBDOrdemProducao; VpaIndiceLista : Integer; VpaDFracaoNova : TRBDFracaoOrdemProducao; VpaFracoesAtuais : TList): string;
+    function ReImportaFracoesFilhas(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracao : TRBDFracaoOrdemProducao;VpaDProduto : TRBDProduto):string;
     function AdicionaLogReimportacaoFracao(VpaDFracao : TRBDFracaoOrdemProducao):string;
-    procedure AlteraSeqFracaoPai(VpaListaFracoes : TList;VpaSeqFracaoPaiAtual, VpaSeqFracaoPaiNovo : Integer);
 //    procedure AlteraQtdReservadaFracaoOPConsumo(VpaDOP : TRBDordemProducao;VpaDFracao : TRBDFracaoOP;VpaDConsumo : TRBDConsumoFracaoOP
   public
     VplQtdFracoes : Integer;
@@ -206,7 +202,7 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     function AdicionaEstoqueColetaOP(VpaDOrdemProducao :TRBDOrdemProducaoEtiqueta;VpaDColetaOP : TRBDColetaOP):String;
     procedure AdicionaEstagiosOP(VpaDProduto : TRBDProduto;VpaDFracao :TRBDFracaoOrdemProducao;VpaProducaoExterna : Boolean);
     function AdicionaQtdAFaturarFracao(VpaDColetaRomaneio : TRBDColetaRomaneioOp;VpaDOrdemProducao : TRBDOrdemProducao;VpaExtornar : Boolean):string;
-    procedure AdicionaProdutosSubMontagem(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracaoPrincipal : TRBDFracaoOrdemProducao;VpaBarraStatus : TStatusBar);
+    procedure AdicionaProdutosSubMontagem(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracaoPrincipal : TRBDFracaoOrdemProducao;VpaBarraStatus : TStatusBar;VpaCarregarTodosFilhos : Boolean);
     function AdicionaFracaoPlanoCorte(VpaDPlanoCorte : TRBDPlanoCorteCorpo;VpaSeProduto : Integer;VpaCodProduto,VpaNomProduto : string):TRBDPlanoCorteFracao;
     procedure RecalculaHorasEstagio(VpaDOrdemProducao : TRBDordemProducao; VpaDFracao : TRBDFracaoOrdemProducao);
     function BaixaEstoqueRomaneio(VpaCodFilial,VpaSeqRomaneio : Integer;VpaEstornar : boolean) : String;
@@ -244,7 +240,7 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     function ExisteBastidor(VpaCodBastidor : Integer; VpaDOrdemCorteItem : TRBDOrdemCorteItem) : Boolean;
     procedure ProcessaProdutividadeCelula(VpaCodCelula : Integer;VpaData : TDateTime);
     procedure RegeraFracaoOPEstagio(VpaSeqProduto : Integer);
-    function ReImportaProjeto(VpaCodFilial,VpaSeqOrdem, VpaSeqFracao : Integer) : string;
+    function ReImportaFracao(VpaCodFilial,VpaSeqOrdem, VpaSeqFracao : Integer) : string;
     procedure ImprimeEtiquetaFracao(VpaDOrdemProducao : TRBDordemProducao);
     procedure ImprimeEtiquetaOrdemSerra(VpaDOrdemProducao : TRBDordemProducao);
     procedure ImprimeEtiquetasFracaoPremer(VpaEtiquetas : TList);
@@ -891,44 +887,29 @@ begin
 end;
 
 {******************************************************************************}
-function TRBFuncoesOrdemProducao.GravaDFracoesOP(VpaDOrdemProducao : TRBDOrdemProducao;VpaApagarOPAntes : Boolean):string;
+function TRBFuncoesOrdemProducao.GravaDFracoesOP(VpaDOrdemProducao : TRBDOrdemProducao):string;
 Var
   VpfLaco : Integer;
   VpfDFracao : TRBDFracaoOrdemProducao;
 begin
   result := '';
-  if VpaApagarOPAntes then
-  begin
-    ExecutaComandoSql(OrdAux,'Delete from FRACAOOPESTAGIO '+
-                             ' Where CODFILIAL = ' +IntToStr(VpaDOrdemProducao.CodEmpresafilial)+
-                             ' AND SEQORDEM = '+IntToStr(VpaDOrdemProducao.SeqOrdem));
-    ExecutaComandoSql(OrdAux,'Delete from FRACAOOPCOMPOSE '+
-                             ' Where CODFILIAL = ' +IntToStr(VpaDOrdemProducao.CodEmpresafilial)+
-                             ' AND SEQORDEM = '+IntToStr(VpaDOrdemProducao.SeqOrdem));
-    ExecutaComandoSql(OrdAux,'Delete from FRACAOOP '+
-                             ' Where CODFILIAL = ' +IntToStr(VpaDOrdemProducao.CodEmpresafilial)+
-                             ' AND SEQORDEM = '+IntToStr(VpaDOrdemProducao.SeqOrdem));
-    AdicionaSQLAbreTabela(OrdCadastro,'Select * from FRACAOOP'+
-                                      ' Where CODFILIAL = 0 AND SEQORDEM = 0 AND SEQFRACAO = 0');
-  end;
+  ExecutaComandoSql(OrdAux,'Delete from FRACAOOPESTAGIO '+
+                           ' Where CODFILIAL = ' +IntToStr(VpaDOrdemProducao.CodEmpresafilial)+
+                           ' AND SEQORDEM = '+IntToStr(VpaDOrdemProducao.SeqOrdem));
+  ExecutaComandoSql(OrdAux,'Delete from FRACAOOPCOMPOSE '+
+                           ' Where CODFILIAL = ' +IntToStr(VpaDOrdemProducao.CodEmpresafilial)+
+                           ' AND SEQORDEM = '+IntToStr(VpaDOrdemProducao.SeqOrdem));
+  ExecutaComandoSql(OrdAux,'Delete from FRACAOOP '+
+                           ' Where CODFILIAL = ' +IntToStr(VpaDOrdemProducao.CodEmpresafilial)+
+                           ' AND SEQORDEM = '+IntToStr(VpaDOrdemProducao.SeqOrdem));
+  AdicionaSQLAbreTabela(OrdCadastro,'Select * from FRACAOOP'+
+                                    ' Where CODFILIAL = 0 AND SEQORDEM = 0 AND SEQFRACAO = 0');
   for Vpflaco := 0 to VpaDOrdemProducao.Fracoes.Count -1 do
   begin
     VpfDFracao := TRBDFracaoOrdemProducao(VpaDOrdemProducao.Fracoes.Items[VpfLaco]);
     if VpfDFracao.SeqFracao = 0 then
       VpfDFracao.SeqFracao := VpfLaco+1;
-    if VpaApagarOPAntes then
-      OrdCadastro.Insert
-    else
-    begin
-      AdicionaSQLAbreTabela(OrdCadastro,'Select * from FRACAOOP'+
-                                      ' Where CODFILIAL = '+ IntToStr(VpaDOrdemProducao.CodEmpresafilial)+
-                                      ' AND SEQORDEM = '+ IntToStr(VpaDOrdemProducao.SeqOrdem)+
-                                      ' AND SEQFRACAO = '+IntToStr(VpfDFracao.SeqFracao));
-      if OrdCadastro.Eof then
-        OrdCadastro.Insert
-      else
-        OrdCadastro.Edit;
-    end;
+    OrdCadastro.Insert;
     OrdCadastro.FieldByName('CODFILIAL').AsInteger := VpaDOrdemProducao.CodEmpresafilial;
     OrdCadastro.FieldByName('SEQORDEM').AsInteger := VpaDOrdemProducao.SeqOrdem;
     OrdCadastro.FieldByName('SEQFRACAO').AsInteger := VpfDFracao.SeqFracao;
@@ -948,6 +929,7 @@ begin
       OrdCadastro.FieldByName('CODTAMANHO').AsInteger := VpfDFracao.CodTamanho;
     if VpfDFracao.UM <> '' then
       OrdCadastro.FieldByName('DESUM').AsString := VpfDFracao.UM;
+    OrdCadastro.FieldByName('DATENTREGA').AsDateTime := VpfDFracao.DatEntrega;
     if  VpfDFracao.DatImpressaoFicha > montaData(1,1,1900) then
       OrdCadastro.FieldByName('DATIMPRESSAOFICHA').AsDateTime := VpfDFracao.DatImpressaoFicha
     else
@@ -1810,7 +1792,6 @@ begin
   OrdTabela.sql.add('Select FRA.SEQFRACAO, FRA.SEQFRACAOPAI, FRA.SEQPRODUTO, FRA.CODBARRAS, '+
                     ' FRA.QTDCELULA, FRA.DESHORAS, FRA.QTDPRODUTO, FRA.CODESTAGIO, FRA.DATENTREGA, '+
                     ' FRA.DATIMPRESSAOFICHA, FRA.DATFINALIZACAO, FRA.INDPLANOCORTE, FRA.INDCONSUMOBAIXADO, FRA.DESUM,  '+
-                    ' FRA.DESOBSERVACAO, FRA.CODCOR, FRA.CODTAMANHO, '+
                     ' PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_COD_UNI UMORIGINAL, '+
                     ' EST.NOMEST '+
                     ' from FRACAOOP FRA, CADPRODUTOS PRO, ESTAGIOPRODUCAO EST'+
@@ -1839,15 +1820,11 @@ begin
     VpfDFracao.CodBarras := OrdTabela.FieldByName('CODBARRAS').AsFloat;
     VpfDFracao.QtdCelula := OrdTabela.FieldByName('QTDCELULA').AsInteger;
     VpfDFracao.HorProducao := OrdTabela.FieldByName('DESHORAS').AsString;
-    VpfDFracao.DesObservacao := OrdTabela.FieldByName('DESOBSERVACAO').AsString;
     VpfDFracao.QtdProduto :=  OrdTabela.FieldByName('QTDPRODUTO').AsFloat;
     VpfDFracao.CodEstagio :=  OrdTabela.FieldByName('CODESTAGIO').AsInteger;
-    VpfDFracao.CodCor :=  OrdTabela.FieldByName('CODCOR').AsInteger;
-    VpfDFracao.CodTamanho :=  OrdTabela.FieldByName('CODTAMANHO').AsInteger;
     VpfDFracao.NomEstagio := OrdTabela.FieldByName('NOMEST').AsString;
     VpfDFracao.DatEntrega := OrdTabela.FieldByName('DATENTREGA').AsDateTime;
     VpfDFracao.DatFinalizacao := OrdTabela.FieldByName('DATFINALIZACAO').AsDateTime;
-    VpfDFracao.DatImpressaoFicha := OrdTabela.FieldByName('DATIMPRESSAOFICHA').AsDateTime;
     VpfDFracao.UM := OrdTabela.FieldByName('DESUM').AsString;
     VpfDFracao.UMOriginal := OrdTabela.FieldByName('UMORIGINAL').AsString;
     VpfDFracao.DatImpressaoFicha := OrdTabela.FieldByName('DATIMPRESSAOFICHA').AsDateTime;
@@ -1905,30 +1882,6 @@ begin
   end;
   OrdOrdemProducao.close;
   CarDOrdemSerraFracao(VpaDOrdemProducao);
-end;
-
-{******************************************************************************}
-procedure TRBFuncoesOrdemProducao.CarFracoesFilha(VpaLista: TList; VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer);
-Var
-  VpfDFracao : TRBDFracaoOrdemProducao;
-  VpfTabela : TSQLQuery;
-begin
-  VpfTabela := TSQLQUERY.Create(nil);
-  VpfTabela.SQLConnection := ordCadastro.ASqlConnection;
-
-  AdicionaSQLAbreTabela(VpfTabela,'Select CODFILIAL, SEQORDEM, SEQFRACAO '+
-                                  ' From FRACAOOP '+
-                                  ' Where CODFILIAL = '+IntToStr(VpaCodFilial)+
-                                  ' AND SEQORDEM = '+IntToStr(VpaSeqOrdem)+
-                                  ' AND SEQFRACAOPAI = '+IntToStr(VpaSeqFracao));
-  while not VpfTabela.Eof do
-  begin
-    VpfDFracao := CarDFracaoOP(nil,VpfTabela.FieldByName('CODFILIAL').AsInteger,VpfTabela.FieldByName('SEQORDEM').AsInteger,VpfTabela.FieldByName('SEQFRACAO').AsInteger);
-    VpaLista.add(VpfDFracao);
-    CarFracoesFilha(VpaLista,VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
-    VpfTabela.next;
-  end;
-  VpfTabela.close;
 end;
 
 {******************************************************************************}
@@ -2986,16 +2939,6 @@ begin
 end;
 
 {******************************************************************************}
-function TRBFuncoesOrdemProducao.RSeqFracaoDisponivel(VpaCodFilial, VpaSeqOrdem: Integer): Integer;
-begin
-  AdicionaSQLAbreTabela(OrdAux,'Select MAX(SEQFRACAO) ULTIMO from FRACAOOP '+
-                               ' Where CODFILIAL = '+IntToStr(VpaCodFilial)+
-                               ' and SEQORDEM = '+IntToStr(VpaSeqOrdem));
-  result := OrdAux.FieldByName('ULTIMO').AsInteger + 1;
-  OrdAux.close;
-end;
-
-{******************************************************************************}
 function TRBFuncoesOrdemProducao.RSeqFracaoFaccionistaDisponivel(VpaCodFaccionista : Integer) : Integer;
 begin
   AdicionaSQLAbreTabela(OrdAux,'Select MAX(SEQITEM) ULTIMO from FRACAOOPFACCIONISTA '+
@@ -3074,7 +3017,7 @@ begin
   end;
   if result = '' then
   begin
-    result := GravaDFracoesOP(VpaDOrdem,true);
+    result := GravaDFracoesOP(VpaDOrdem);
     if result = '' then
     begin
       result := GravaDFracaoOPEstagio(VpaDOrdem);
@@ -3628,18 +3571,6 @@ begin
                              ' and SEQORD = '+ IntToStr(VpaDOrdem.SeqOrdem));
   except
     on e : exception do result := 'ERRO NA ALTERAÇÃO DA MÁQUINA!!!'#13+e.message;
-  end;
-end;
-
-{******************************************************************************}
-procedure TRBFuncoesOrdemProducao.AlteraSeqFracaoPai(VpaListaFracoes: TList; VpaSeqFracaoPaiAtual, VpaSeqFracaoPaiNovo: Integer);
-var
-  VpfLaco : Integer;
-begin
-  for VpfLaco := 0 to VpaListaFracoes.Count - 1 do
-  begin
-    if (TRBDFracaoOrdemProducao(VpaListaFracoes.Items[VpfLaco]).SeqFracaoPai = VpaSeqFracaoPaiAtual) then
-      TRBDFracaoOrdemProducao(VpaListaFracoes.Items[VpfLaco]).SeqFracaoPai := VpaSeqFracaoPaiNovo;
   end;
 end;
 
@@ -4668,7 +4599,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesOrdemProducao.AdicionaProdutosSubMontagem(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracaoPrincipal : TRBDFracaoOrdemProducao;VpaBarraStatus : TStatusBar);
+procedure TRBFuncoesOrdemProducao.AdicionaProdutosSubMontagem(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracaoPrincipal : TRBDFracaoOrdemProducao;VpaBarraStatus : TStatusBar;VpaCarregarTodosFilhos : Boolean);
 var
   VpfDFracao : TRBDFracaoOrdemProducao;
   VpfDProduto : TRBDProduto;
@@ -4681,10 +4612,13 @@ begin
     VpaBarraStatus.Panels[0].Text := 'Fração '+IntToStr(VplQtdFracoes) +' - Adicionando submontagem do produto "'+VpaDFracaoPrincipal.CodProduto+'-'+VpaDFracaoPrincipal.NomProduto+'"';
     VpaBarraStatus.Refresh;
   end;
-  VpfDProduto := TRBDProduto.Cria;
-  FunProdutos.CarDProduto(VpfDProduto,Varia.CodigoEmpresa,VpaDOrdemProducao.CodEmpresafilial,VpaDFracaoPrincipal.SeqProduto);
-  AdicionaEstagiosOP(VpfDProduto,VpaDFracaoPrincipal,false);
-  VpfDProduto.Free;
+  if VpaCarregarTodosFilhos then //se nao é para carregar todos os filhos o estagio da fracao principal ja esta preenchido;
+  begin
+    VpfDProduto := TRBDProduto.Cria;
+    FunProdutos.CarDProduto(VpfDProduto,Varia.CodigoEmpresa,VpaDOrdemProducao.CodEmpresafilial,VpaDFracaoPrincipal.SeqProduto);
+    AdicionaEstagiosOP(VpfDProduto,VpaDFracaoPrincipal,false);
+    VpfDProduto.Free;
+  end;
   VpfTabela := TSQLQuery.create(nil);
   VpfTabela.SQLConnection := OrdCadastro.ASQLConnection;
   AdicionaSQLAbreTabela(VpfTabela,'Select MOV.I_SEQ_PRO, MOV.I_COD_COR, MOV.C_COD_UNI, ' +
@@ -4721,7 +4655,8 @@ begin
         VpfDFracao.IndEstagioGerado := true;
         VpfDFracao.IndEstagiosCarregados := true;
         VpfDProduto := TRBDProduto.Cria;
-        AdicionaProdutosSubMontagem(VpaDOrdemProducao,VpfDFracao,VpaBarraStatus);
+        if VpaCarregarTodosFilhos then
+          AdicionaProdutosSubMontagem(VpaDOrdemProducao,VpfDFracao,VpaBarraStatus,true);
       end;
     end;
     VpfTabela.Next;
@@ -5142,92 +5077,54 @@ begin
 end;
 
 {******************************************************************************}
-function TRBFuncoesOrdemProducao.ReImportaProjeto(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer): string;
+function TRBFuncoesOrdemProducao.ReImportaFracao(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer): string;
 var
-  VpfDNovaOrdemProducao : TRBDOrdemProducao;
-  VpfDFracao, VpfDFracaoNova, VpfDFracaoFilhaAtual : TRBDFracaoOrdemProducao;
+  VpfDOrdemProducao : TRBDOrdemProducao;
+  VpfDFracao : TRBDFracaoOrdemProducao;
   VpfDProduto : TRBDProduto;
-  VpfFracoesAtuais : TLIst;
-  VpfLaco : Integer;
 begin
   result := '';
-  VpfFracoesAtuais := TList.Create;
   if varia.EstagioOPReimportada = 0  then
     result := 'FALTA PREENCHER O ESTAGIO DE REIMPORTAÇÃO DO PROJETO!!!'#13'É necessário informar o estagio de reimportação do projeto nas configurações do produto.';
   if result = '' then
   begin
-    VpfDNovaOrdemProducao := TRBDOrdemProducao.cria;
-    VpfDNovaOrdemProducao.CodEmpresafilial := VpaCodFilial;
-    VpfDNovaOrdemProducao.SeqOrdem := VpaSeqOrdem;
-
+    VpfDOrdemProducao := TRBDOrdemProducao.cria;
+    VpfDOrdemProducao.CodEmpresafilial := VpaCodFilial;
+    VpfDOrdemProducao.SeqOrdem := VpaSeqOrdem;
     VpfDProduto := TRBDProduto.Cria;
     VpfDFracao := CarDFracaoOP(nil,VpaCodFilial,VpaSeqOrdem,VpaSeqFracao);
-    VpfDNovaOrdemProducao.DatEntregaPrevista := VpfDFracao.DatEntrega;
-    CarDOrdemSerra(VpfDNovaOrdemProducao,0,0);
-    result := ReImportaFracao(VpfDNovaOrdemProducao,VpfDFracao);
+    CarDOrdemSerra(VpfDOrdemProducao,0,0);
+    FunProdutos.CarDProduto(VpfDProduto,varia.CodigoEmpresa,VpaCodFilial,VpfDFracao.SeqProduto);
+    CarDFracaoOPEstagio(VpfDFracao,VpaCodFilial,VpaSeqOrdem);
+    FunProdutos.CarDEstagio(VpfDProduto);
 
-    //carrega os dados da op nova
-    VpfDNovaOrdemProducao.Fracoes.add(VpfDFracao);
-    AdicionaProdutosSubMontagem(VpfDNovaOrdemProducao,VpfDFracao,nil);
-    VpfDNovaOrdemProducao.Fracoes.Delete(0);
-    //carrega as fracoes atuais;
-    CarFracoesFilha(VpfFracoesAtuais,VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
+    result := ReImportaFracaoVerificaEstagioFracao(VpfDFracao,VpfDProduto);
+    if result = '' then
+    begin
+      result := ReImportaFracaoConsumoOP(VpfDOrdemProducao,VpfDFracao,VpfDProduto);
+      if result = '' then
+      begin
+        result := ReImportaFracoesFilhas(VpfDOrdemProducao,VpfDFracao,VpfDProduto);
+      end;
 
-    for VpfLaco := 0 to VpfDNovaOrdemProducao.Fracoes.Count - 1 do
-    begin
-      VpfDFracaoNova := TRBDFracaoOrdemProducao(VpfDNovaOrdemProducao.Fracoes.Items[VpfLaco]);
-      result := ReImportaFracaoFilha(VpfDNovaOrdemProducao,VpfLaco,VpfDFracaoNova,VpfFracoesAtuais);
-      if result <> '' then
-        break;
     end;
-    //exclui as fracoes que sobraram
-    for VpfLaco := 0 to VpfFracoesAtuais.Count - 1 do
-    begin
-      VpfDFracaoFilhaAtual := TRBDFracaoOrdemProducao(VpfFracoesAtuais.Items[VpfLaco]);
-      ExcluiFracaoOP(VpfDFracaoFilhaAtual.CodFilial,VpfDFracaoFilhaAtual.SeqOrdemProducao,VpfDFracaoFilhaAtual.SeqFracao);
-    end;
+
+
 
     if result = '' then
     begin
-      result := GravaDOrdemSerra(VpfDNovaOrdemProducao);
+      AdicionaLogReimportacaoFracao(VpfDFracao);
+      result := GravaDFracaoOPEstagio(VpfDFracao,VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqProduto,true);
       if result = '' then
       begin
-        Result := GravaDFracoesOP(VpfDNovaOrdemProducao,false);
+        result := GravaDConsumoFracoes(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao);
+        if result = '' then
+          result := GravaDOrdemSerra(VpfDOrdemProducao);
       end;
     end;
-
     VpfDProduto.Free;
     VpfDFracao.Free;
   end;
-  VpfFracoesAtuais.free;
-end;
-
-{******************************************************************************}
-function TRBFuncoesOrdemProducao.ReImportaFracao(VpaDOrdemProducao: TRBDOrdemProducao; VpaDFracao: TRBDFracaoOrdemProducao): string;
-var
-  VpfDProduto : TRBDProduto;
-begin
-    VpfDProduto := TRBDProduto.Cria;
-    FunProdutos.CarDProduto(VpfDProduto,varia.CodigoEmpresa,VpaDOrdemProducao.CodEmpresafilial,VpaDFracao.SeqProduto);
-    CarDFracaoOPEstagio(VpaDFracao,VpaDOrdemProducao.CodEmpresafilial,VpaDOrdemProducao.SeqOrdem);
-    FunProdutos.CarDEstagio(VpfDProduto);
-
-    result := ReImportaFracaoVerificaEstagioFracao(VpaDFracao,VpfDProduto);
-    if result = '' then
-    begin
-      result := ReImportaFracaoConsumoOP(VpaDOrdemProducao,VpaDFracao,VpfDProduto);
-    end;
-
-    if result = '' then
-    begin
-      AdicionaLogReimportacaoFracao(VpaDFracao);
-      result := GravaDFracaoOPEstagio(VpaDFracao,VpaDFracao.CodFilial,VpaDFracao.SeqOrdemProducao,VpaDFracao.SeqProduto,true);
-      if result = '' then
-      begin
-        result := GravaDConsumoFracoes(VpaDFracao.CodFilial,VpaDFracao.SeqOrdemProducao,VpaDFracao);
-      end;
-    end;
-  VpfDProduto.free;
 end;
 
 {******************************************************************************}
@@ -5337,42 +5234,50 @@ begin
 end;
 
 {******************************************************************************}
-function TRBFuncoesOrdemProducao.ReImportaFracaoFilha(VpaDOrdemProducaoNova: TRBDOrdemProducao; VpaIndiceLista : Integer; VpaDFracaoNova : TRBDFracaoOrdemProducao; VpaFracoesAtuais : TList):string;
+function TRBFuncoesOrdemProducao.ReImportaFracoesFilhas(VpaDOrdemProducao: TRBDOrdemProducao; VpaDFracao: TRBDFracaoOrdemProducao;
+  VpaDProduto: TRBDProduto): string;
 Var
-  VpfLaco, VpfNovoSeqFracao : Integer;
-  VpfDFracaoAtual : TRBDFracaoOrdemProducao;
-  VpfExisteFracao : Boolean;
-  VpfDProduto : TRBDProduto;
+  VpfDFracao : TRBDFracaoOrdemProducao;
+  VpfTabela : TSQLQuery;
+  VpfDOPProduto : TRBDOrdemProducao;
+  VpfLaco : Integer;
+  VpfExcluir : Boolean;
 begin
-  VpfExisteFracao := false;
-  for VpfLaco := VpaFracoesAtuais.Count - 1 downto 0 do
+  VpfTabela := TSQLQUERY.Create(nil);
+  VpfTabela.SQLConnection := ordCadastro.ASqlConnection;
+
+  AdicionaProdutosSubMontagem(VpaDOrdemProducao,VpaDFracao,nil,false);
+
+
+  AdicionaSQLAbreTabela(VpfTabela,'Select CODFILIAL, SEQORDEM, SEQFRACAO '+
+                                  ' From FRACAOOP '+
+                                  ' Where CODFILIAL = '+IntToStr(VpaDFracao.CodFilial)+
+                                  ' AND SEQORDEM = '+IntToStr(VpaDFracao.SeqOrdemProducao)+
+                                  ' AND SEQFRACAOPAI = '+IntToStr(VpaDFracao.SeqFracao));
+  while not VpfTabela.Eof do
   begin
-    VpfDFracaoAtual := TRBDFracaoOrdemProducao(VpaFracoesAtuais.Items[VpfLaco]);
-    if (VpfDFracaoAtual.SeqProduto = VpaDFracaoNova.SeqProduto) and
-       (VpfDFracaoAtual.CodCor = VpaDFracaoNova.CodCor)  then
+    VpfExcluir := true;
+    for VpfLaco := VpfDOPProduto.Fracoes.Count - 1 downto  0 do
     begin
-      VpfExisteFracao := true;
-      AlteraSeqFracaoPai(VpaDOrdemProducaoNova.Fracoes,VpaDFracaoNova.SeqFracao,VpfDFracaoAtual.SeqFracao);
-      VpfDFracaoAtual.SeqFracaoPai := VpaDFracaoNova.SeqFracaoPai;
-      VpaDOrdemProducaoNova.Fracoes.Items[VpaIndiceLista] := VpfDFracaoAtual;
-      result := ReImportaFracao(VpaDOrdemProducaoNova,VpfDFracaoAtual);
-      VpaFracoesAtuais.Delete(VpfLaco);
-      break;
+      VpfDFracao := TRBDFracaoOrdemProducao(VpfDOPProduto.Fracoes.Items[VpfLaco]);
+      if (VpfDFracao.SeqProduto = VpfTabela.FieldByName('SEQPRODUTO').AsInteger) AND
+         (VpfDFracao.CodCor = VpfTabela.FieldByName('CODCOR').AsInteger) then
+      begin
+        VpfExcluir := false;
+        ReImportaFracao(VpfTabela.FieldByName('CODFILIAL').AsInteger,VpfTabela.FieldByName('SEQORDEM').AsInteger,VpfTabela.FieldByName('SEQFRACAO').AsInteger);
+        VpfDOPProduto.Fracoes.Delete(VpfLaco);
+        Break;
+      end;
     end;
+    if VpfExcluir then
+    begin
+      result := ExcluiFracaoOP(VpfTabela.FieldByName('CODFILIAL').AsInteger,VpfTabela.FieldByName('SEQORDEM').AsInteger,VpfTabela.FieldByName('SEQFRACAO').AsInteger);
+    end;
+
+
+    VpfTabela.next;
   end;
-  if not VpfExisteFracao then
-  begin
-    VpfNovoSeqFracao := RSeqFracaoDisponivel(VpaDOrdemProducaoNova.CodEmpresafilial,VpaDOrdemProducaoNova.SeqOrdem);
-    AlteraSeqFracaoPai(VpaDOrdemProducaoNova.Fracoes,VpaDFracaoNova.SeqFracao,VpfNovoSeqFracao);
-    VpaDFracaoNova.SeqFracao := VpfNovoSeqFracao;
-    VpfDProduto := TRBDProduto.cria;
-    VpfDProduto.CodEmpresa := varia.CodigoEmpresa;
-    VpfDProduto.SeqProduto := VpaDFracaoNova.SeqProduto;
-    FunProdutos.CarConsumoProduto(VpfDProduto,VpaDFracaoNova.CodCor);
-    FunProdutos.ApagaSubMontagensdaListaConsumo(VpfDProduto);
-    //gera o consumo da fracao;
-    GeraConsumoFracao(VpaDOrdemProducaoNova,VpaDFracaoNova,VpfDProduto);
-  end;
+  VpfTabela.close;
 end;
 
 {******************************************************************************}
@@ -5477,7 +5382,7 @@ end;
 function TRBFuncoesOrdemProducao.ExcluiFracaoOP(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao : Integer):String;
 begin
   result := '';
-  Sistema.GravaLogExclusao('FRACAOOP','Select * From FRACAOOP '+
+  Sistema.GravaLogExclusao('ORDEMPRODUCAOCORPO','Select * From FRACAOOP '+
                            ' Where CODFILIAL = '+IntToStr(VpaCodFilial)+
                            ' AND SEQORDEM = ' +IntToStr(VpaSeqOrdem)+
                            ' AND SEQFRACAO = '+IntToStr(VpaSeqFracao));
@@ -5492,14 +5397,6 @@ begin
    ExecutaComandoSql(OrdAux,'DELETE FROM FRACAOOPCOMPOSE '+
                            ' Where CODFILIAL = '+IntToStr(VpaCodFilial)+
                            ' AND SEQORDEM = ' +IntToStr(VpaSeqOrdem)+
-                           ' AND SEQFRACAO = '+IntToStr(VpaSeqFracao));
-   ExecutaComandoSql(OrdAux,'DELETE FROM FRACAOOPCONSUMO '+
-                           ' Where CODFILIAL = '+IntToStr(VpaCodFilial)+
-                           ' AND SEQORDEM = ' +IntToStr(VpaSeqOrdem)+
-                           ' AND SEQFRACAO = '+IntToStr(VpaSeqFracao));
-   ExecutaComandoSql(OrdAux,'DELETE FROM PLANOCORTEFRACAO '+
-                           ' Where CODFILIAL = '+IntToStr(VpaCodFilial)+
-                           ' AND SEQORDEMPRODUCAO = ' +IntToStr(VpaSeqOrdem)+
                            ' AND SEQFRACAO = '+IntToStr(VpaSeqFracao));
    ExecutaComandoSql(OrdAux,'DELETE FROM FRACAOOP '+
                            ' Where CODFILIAL = '+IntToStr(VpaCodFilial)+

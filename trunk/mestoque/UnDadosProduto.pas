@@ -360,10 +360,13 @@ Type TRBDConsumoAmostra = class
     CodCor,
     CodFaca,
     CodMaquina,
+    CodTipoMateriaPrima,
+    NumSequencia,
     AltProduto : Integer;
     CodProduto,
     NomProduto,
     NomCor,
+    NomTipoMateriaPrima,
     UMAnterior,
     DesLegenda,
     DesUM,

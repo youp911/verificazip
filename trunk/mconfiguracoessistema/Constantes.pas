@@ -335,6 +335,8 @@ type
       TextoReducaoICMSCliente : String;  // fim das variaveis do fiscais
       ValMinimoFaturamentoAutomatico : Double;
       CodIBGEMunicipio : Integer;
+      PerfilSped : String;
+      TipoAtividadeSped : integer;
 
       //nfe
       CertificadoNFE,
@@ -1182,6 +1184,9 @@ begin
         CertificadoNFE := VpfTabela.FieldByName('C_CER_NFE').AsString;
         UFSefazNFE := VpfTabela.FieldByName('C_UFD_NFE').AsString;
         CodIBGEMunicipio := VpfTabela.FieldByName('I_COD_FIS').AsInteger;
+        PerfilSped :=VpfTabela.FieldByName('C_PER_SPE').AsString;
+        TipoAtividadeSped := VpfTabela.FieldByName('I_ATI_SPE').AsInteger;
+
     end;
     with Config do   // boolean
     begin

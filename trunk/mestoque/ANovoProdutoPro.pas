@@ -589,6 +589,7 @@ procedure TFNovoProdutoPro.FormCreate(Sender: TObject);
 begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
+  EditorImagem.DirServidor := varia.DriveFoto;
   VprAcao:= False;
   VprCodClassificacao := '';
   EDatAmostra.EditMask := FPrincipal.CorFoco.AMascaraData;
@@ -1520,6 +1521,7 @@ end;
 {******************************************************************************}
 procedure TFNovoProdutoPro.PosDadosGerais;
 begin
+  VprCodClassificacaoAnterior := VprDProduto.CodClassificacao;
   ECodClassificacao.Text:= VprDProduto.CodClassificacao;
   ECodProduto.Text:= VprDProduto.CodProduto;
   EDescricao.Text:= VprDProduto.NomProduto;

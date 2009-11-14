@@ -105,6 +105,7 @@ type
     procedure ImprimeVendasporVendedor(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao: String);
     procedure ImprimeSolicitacaoCompra(VpaCodFilial, VpaSeqSolicitacao : Integer; VpaVisualizar : Boolean);
     procedure ImprimeProposta(VpaCodFilial, VpaSeqProposta : Integer; VpaVisualizar : Boolean);
+    procedure ImprimeFichaTecnicaAmostra(VpaCodAmostra : Integer;VpaVisulizar : Boolean);
   end;
 
 
@@ -1733,7 +1734,7 @@ begin
   Rave.clearParams;
   LimpaSqlTabela(Principal);
   AdicionaSqlAbreTabeLa(Principal,'select AMO.CODAMOSTRA, AMO.NOMAMOSTRA, AMO.DATAMOSTRA, AMO.DATENTREGACLIENTE, AMO.INDCOPIA, '+
-                              ' AMO.TIPAMOSTRA, AMO.DESOBSERVACAO, AMO.QTDAMOSTRA, '+
+                              ' AMO.TIPAMOSTRA, AMO.DESOBSERVACAO, AMO.QTDAMOSTRA, AMO.DESIMAGEM, '+
                               ' CLI.I_COD_CLI, CLI.C_NOM_CLI, '+
                               ' VEN.I_COD_VEN, VEN.C_NOM_VEN, '+
                               ' COL.NOMCOLECAO, '+
@@ -1744,7 +1745,6 @@ begin
                               ' AND AMO.CODVENDEDOR = VEN.I_COD_VEN '+
                               ' AND AMO.CODCLIENTE = CLI.I_COD_CLI '+
                               ' AND AMO.CODAMOSTRA = '+IntToStr(VpaCodAmostra));
-
 
   Principal.open;
 
@@ -2355,5 +2355,44 @@ begin
   AdicionaSqlAbreTabela(Item,'');
   Rave.Execute;
 end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeFichaTecnicaAmostra(VpaCodAmostra: Integer; VpaVisulizar: Boolean);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Ficha Tecnica Amostra';
+  Rave.projectfile := varia.PathRelatorios+'\Amostra\xx_FichaTecnica.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlAbreTabeLa(Principal,'select AMO.CODAMOSTRA, AMO.NOMAMOSTRA, AMO.DATAMOSTRA, AMO.DATENTREGACLIENTE, AMO.INDCOPIA, '+
+                              ' AMO.TIPAMOSTRA, AMO.DESOBSERVACAO, AMO.QTDAMOSTRA,'''+varia.DriveFoto+'''|| AMO.DESIMAGEM DESIMAGEM, '+
+                              ' CLI.I_COD_CLI, CLI.C_NOM_CLI, '+
+                              ' VEN.I_COD_VEN, VEN.C_NOM_VEN, '+
+                              ' COL.NOMCOLECAO, '+
+                              ' DES.NOMDESENVOLVEDOR '+
+                              ' from AMOSTRA AMO, CADCLIENTES CLI, CADVENDEDORES VEN, COLECAO COL, DESENVOLVEDOR DES '+
+                              ' Where AMO.CODCOLECAO = COL.CODCOLECAO '+
+                              ' AND AMO.CODDESENVOLVEDOR = DES.CODDESENVOLVEDOR '+
+                              ' AND AMO.CODVENDEDOR = VEN.I_COD_VEN '+
+                              ' AND AMO.CODCLIENTE = CLI.I_COD_CLI '+
+                              ' AND AMO.CODAMOSTRA = '+IntToStr(VpaCodAmostra));
+
+  AdicionaSqlAbreTabeLa(Item,'select  CON.SEQCONSUMO, CON.QTDPRODUTO, CON.VALUNITARIO, CON.VALTOTAL, CON.DESOBSERVACAO, '+
+                             ' CON.DESUM, CON.CODFACA, CON.ALTMOLDE, CON.LARMOLDE, CON.CODMAQUINA, CON.QTDPECAEMMETRO, '+
+                             ' CON.VALINDICEMETRO, CON.DESLEGENDA, '+
+                             ' PRO.C_NOM_PRO,I_ALT_PRO, '+
+                             ' COR.COD_COR, COR.NOM_COR, '+
+                             ' FAC.NOMFACA,' +
+                             ' CON.CODTIPOMATERIAPRIMA, TIP.NOMTIPOMATERIAPRIMA '+
+                             ' from AMOSTRACONSUMO CON, CADPRODUTOS PRO, COR, FACA FAC, TIPOMATERIAPRIMA TIP '+
+                             ' Where CON.CODAMOSTRA = '+IntToStr(VpaCodAmostra)+
+                             ' AND CON.SEQPRODUTO = PRO.I_SEQ_PRO '+
+                             ' AND ' +SQLTextoRightJoin('CON.CODCOR','COR.COD_COR')+
+                             ' AND ' +SQLTextoRightJoin('CON.CODFACA','FAC.CODFACA')+
+                             ' AND ' +SQLTextoRightJoin('CON.CODTIPOMATERIAPRIMA','TIP.CODTIPOMATERIAPRIMA')+
+                             ' ORDER BY CON.CODTIPOMATERIAPRIMA, CON.NUMSEQUENCIA, CON.DESLEGENDA');
+  Rave.Execute;
+end;
+
 
 end.

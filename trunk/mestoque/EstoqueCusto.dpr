@@ -338,7 +338,8 @@ uses
   UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
   AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
   AMotivoParada in 'AMotivoParada.pas' {FMotivoParada},
-  AAmostrasPendentes in 'AAmostrasPendentes.pas' {FAmostrasPendentes};
+  AAmostrasPendentes in 'AAmostrasPendentes.pas' {FAmostrasPendentes},
+  ATipoMateriaPrima in '..\mcrm\ATipoMateriaPrima.pas' {FTipoMateriaPrima};
 
 {$R *.RES}
 

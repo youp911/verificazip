@@ -122,6 +122,8 @@ type
     StatusServiosSefaz1: TMenuItem;
     N18: TMenuItem;
     HigienizarBancoDados1: TMenuItem;
+    N19: TMenuItem;
+    SpedFiscal1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -173,7 +175,7 @@ uses Constantes, UnRegistro, funsql,
   UnProdutos,  ATipoFundo, UnContasaReceber,
   ANovaNotaFiscalNota, UnNotaFiscal, AGeraArquivosFiscais,
   AImportaMunicipios, AAliquotaFiscal, AVisualizaLogs,
-  AVisualizaEstatisticaConsulta, UnVersoes, AHigienizarCadastros;
+  AVisualizaEstatisticaConsulta, UnVersoes, AHigienizarCadastros, ASpedFiscal;
 
 {$R *.DFM}
 
@@ -598,6 +600,11 @@ begin
                FHigienizarCadastros := TFHigienizarCadastros.CriarSDI(application,'', FPrincipal.VerificaPermisao('FHigienizarCadastros'));
                FHigienizarCadastros.ShowModal;
                FHigienizarCadastros.free;
+             end;
+     13600 : begin
+               FSpedFiscal := TFSpedFiscal.CriarSDI(self,'',true);
+               FSpedFiscal.ShowModal;
+               FSpedFiscal.free;
              end;
     end;
 end;

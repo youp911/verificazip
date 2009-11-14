@@ -3,6 +3,46 @@ unit UnDados;
 interface
 Uses Classes, UnDadosCR, SysUtils;
 
+Type
+  TRBDFilial = class
+    public
+      CodFilial : Integer;
+      NomFilial,
+      NomFantasia,
+      DesSite,
+      DesEmail,
+      DesEmailComercial,
+      DesEndereco,
+      DesBairro,
+      DesCidade,
+      DesUF,
+      DesCep,
+      DesFone,
+      DesFax,
+      DesCNPJ,
+      DesInscricaoEstadual,
+      DesCabecalhoEmailProposta,
+      DesMeioEmailProposta,
+      DesRodapeEmailProposta : String;
+      constructor cria;
+      destructor destroy;override;
+end;
+
+
+Type
+  TRBCod_Fin = (cfRemessaOriginal,cfRemessaSubtituto);
+  TRBDSpedFiscal = class
+    public
+      CodFilial : integer;
+     DatInicio,
+     DatFinal : TDateTime;
+     CodFinalidade : TRBCod_Fin;
+     DFilial : TRBDFilial;
+     Arquivo : TStringList;
+     constructor cria;
+     destructor destroy;override;
+  end;
+
 
 Type
   TRBDDigitacaoProspectItem = class
@@ -614,30 +654,6 @@ Type
       destructor destroy; override;
 end;
 
-Type
-  TRBDFilial = class
-    public
-      CodFilial : Integer;
-      NomFilial,
-      NomFantasia,
-      DesSite,
-      DesEmail,
-      DesEmailComercial,
-      DesEndereco,
-      DesBairro,
-      DesCidade,
-      DesUF,
-      DesCep,
-      DesFone,
-      DesFax,
-      DesCNPJ,
-      DesInscricaoEstadual,
-      DesCabecalhoEmailProposta,
-      DesMeioEmailProposta,
-      DesRodapeEmailProposta : String;
-      constructor cria;
-      destructor destroy;override;
-end;
 
 type
   TRBDProspect = class
@@ -3217,5 +3233,28 @@ destructor TRBDNaturezaOperacao.destroy;
 begin
   inherited destroy;
 end;
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Classe da classe
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDSpedFiscal.cria;
+begin
+  inherited create;
+  Arquivo := TStringList.Create;
+  DFilial := TRBDFilial.cria;
+end;
+
+{******************************************************************************}
+destructor TRBDSpedFiscal.destroy;
+begin
+  DFilial.free;
+  Arquivo.free;
+  inherited;
+end;
+
+{ TRBDSpedFiscal }
+
 
 end.

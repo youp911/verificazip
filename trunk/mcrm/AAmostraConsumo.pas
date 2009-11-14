@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Grids, CGrades, Componentes1, ExtCtrls, PainelGradiente, Localizacao,
   StdCtrls, Buttons, UnDadosProduto, UnProdutos, Constantes, UnAmostra,
-  ComCtrls, UnServicos, Mask, numericos;
+  ComCtrls, UnServicos, Mask, numericos, UnDadosLocaliza;
 
 type
   TFAmostraConsumo = class(TFormularioPermissao)
@@ -35,6 +35,7 @@ type
     GServicoFixo: TRBStringGridColor;
     EValVenda: Tnumerico;
     Label3: TLabel;
+    ETipoMateriaPrima: TRBEditLocaliza;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
@@ -86,6 +87,8 @@ type
     procedure GServicoFixoSelectCell(Sender: TObject; ACol, ARow: Integer;
       var CanSelect: Boolean);
     procedure GradeDepoisExclusao(Sender: TObject);
+    procedure ETipoMateriaPrimaCadastrar(Sender: TObject);
+    procedure ETipoMateriaPrimaRetorno(VpaColunas: TRBColunasLocaliza);
   private
     VprServicoAnterior,
     VprServicoFixoAnterior,
@@ -128,7 +131,7 @@ var
 implementation
 uses
   APrincipal, ConstMSG, ALocalizaProdutos, funString, ACores, FunObjeto,
-  ALocalizaServico;
+  ALocalizaServico, ATipoMateriaPrima;
 
 {$R *.DFM}
 
@@ -160,7 +163,7 @@ end;
 {******************************************************************************}
 procedure TFAmostraConsumo.CarTitulosGrade;
 begin
-  Grade.Cells[1,0] := 'Código';
+{  Grade.Cells[1,0] := 'Código';
   Grade.Cells[2,0] := 'Produto';
   Grade.Cells[3,0] := 'Código';
   Grade.Cells[4,0] := 'Cor';
@@ -177,7 +180,35 @@ begin
   Grade.Cells[15,0] := 'Pcs em MT';
   Grade.Cells[16,0] := 'Indice MT';
   Grade.Cells[17,0] := 'Observações';
-  Grade.Cells[18,0] := 'Legenda';
+  Grade.Cells[18,0] := 'Legenda';}
+
+  Grade.Cells[1,0] := 'Código';
+  Grade.Cells[2,0] := 'Produto';
+  Grade.Cells[3,0] := 'Código';
+  Grade.Cells[4,0] := 'Cor';
+  Grade.Cells[5,0] := 'UM';
+  Grade.Cells[6,0] := 'Quantidade';
+  Grade.Cells[7,0] := 'Valor Unitario';
+  Grade.Cells[8,0] := 'Valor Total';
+  Grade.Cells[9,0] := 'Legenda';
+  Grade.Cells[10,0] := 'Sequen.';
+  Grade.Cells[11,0] := 'Código';
+  Grade.Cells[12,0] := 'Tipo Material';
+  Grade.Cells[13,0] := 'Código';
+  Grade.Cells[14,0] := 'Faca';
+  Grade.Cells[15,0] := 'Lar Molde';
+  Grade.Cells[16,0] := 'Alt Molde';
+  Grade.Cells[17,0] := 'Código';
+  Grade.Cells[18,0] := 'Máquina';
+  Grade.Cells[19,0] := 'Código';
+  Grade.Cells[20,0] := 'Entretela';
+  Grade.Cells[21,0] := 'Qtd';
+  Grade.Cells[22,0] := 'Código';
+  Grade.Cells[23,0] := 'Termocolante';
+  Grade.Cells[24,0] := 'Qtd';
+  Grade.Cells[25,0] := 'Pcs em MT';
+  Grade.Cells[26,0] := 'Indice MT';
+  Grade.Cells[27,0] := 'Observações';
 
   GServicos.Cells[1,0] := 'Código';
   GServicos.Cells[2,0] := 'Serviço';
@@ -198,13 +229,13 @@ end;
 procedure TFAmostraConsumo.CarQtdPecaMetroGrade;
 begin
   if VprDConsumoAmostra.QtdPecasemMetro <> 0 then
-    Grade.Cells[15,Grade.ALinha]:= FormatFloat('###,###,##0.00',VprDConsumoAmostra.QtdPecasemMetro)
+    Grade.Cells[25,Grade.ALinha]:= FormatFloat('###,###,##0.00',VprDConsumoAmostra.QtdPecasemMetro)
   else
-    Grade.Cells[15,Grade.ALinha]:= '';
+    Grade.Cells[25,Grade.ALinha]:= '';
   if VprDConsumoAmostra.ValIndiceConsumo <> 0 then
-    Grade.Cells[16,Grade.ALinha]:= FormatFloat('###,###,##0.00',VprDConsumoAmostra.ValIndiceConsumo)
+    Grade.Cells[26,Grade.ALinha]:= FormatFloat('###,###,##0.00',VprDConsumoAmostra.ValIndiceConsumo)
   else
-    Grade.Cells[16,Grade.ALinha]:= '';
+    Grade.Cells[26,Grade.ALinha]:= '';
 end;
 
 {******************************************************************************}
@@ -232,26 +263,35 @@ begin
     Grade.Cells[8,Grade.ALinha]:= ''
   else
     Grade.Cells[8,Grade.ALinha]:= FormatFloat(varia.MascaraValor, VprDConsumoAmostra.ValTotal);
-  if VprDConsumoAmostra.CodFaca = 0 then
-    Grade.Cells[9,Grade.ALinha]:= ''
+  Grade.Cells[9,Grade.ALinha]:= VprDConsumoAmostra.DesLegenda;
+  if VprDConsumoAmostra.NumSequencia = 0 then
+    Grade.Cells[10,Grade.ALinha]:= ''
   else
-    Grade.Cells[9,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodFaca);
-  Grade.Cells[10,Grade.ALinha]:= VprDConsumoAmostra.Faca.NomFaca;
-  if VprDConsumoAmostra.LarMolde = 0 then
+    Grade.Cells[10,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.NumSequencia);
+  if VprDConsumoAmostra.CodTipoMateriaPrima = 0 then
     Grade.Cells[11,Grade.ALinha]:= ''
   else
-    Grade.Cells[11,Grade.ALinha]:= FormatFloat('#,##0.00',VprDConsumoAmostra.LarMolde);
-  if VprDConsumoAmostra.AltMolde = 0 then
-    Grade.Cells[12,Grade.ALinha]:= ''
-  else
-    Grade.Cells[12,Grade.ALinha]:= FormatFloat('#,##0.00',VprDConsumoAmostra.AltMolde);
-  if VprDConsumoAmostra.CodMaquina = 0 then
+    Grade.Cells[11,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodTipoMateriaPrima);
+  Grade.Cells[12,Grade.ALinha]:= VprDConsumoAmostra.NomTipoMateriaPrima;
+  if VprDConsumoAmostra.CodFaca = 0 then
     Grade.Cells[13,Grade.ALinha]:= ''
   else
-    Grade.Cells[13,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodMaquina);
-  Grade.Cells[14,Grade.ALinha]:= VprDConsumoAmostra.Maquina.NomMaquina;
-  Grade.Cells[17,Grade.ALinha]:= VprDConsumoAmostra.DesObservacao;
-  Grade.Cells[18,Grade.ALinha]:= VprDConsumoAmostra.DesLegenda;
+    Grade.Cells[13,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodFaca);
+  Grade.Cells[14,Grade.ALinha]:= VprDConsumoAmostra.Faca.NomFaca;
+  if VprDConsumoAmostra.LarMolde = 0 then
+    Grade.Cells[15,Grade.ALinha]:= ''
+  else
+    Grade.Cells[15,Grade.ALinha]:= FormatFloat('#,##0.00',VprDConsumoAmostra.LarMolde);
+  if VprDConsumoAmostra.AltMolde = 0 then
+    Grade.Cells[16,Grade.ALinha]:= ''
+  else
+    Grade.Cells[16,Grade.ALinha]:= FormatFloat('#,##0.00',VprDConsumoAmostra.AltMolde);
+  if VprDConsumoAmostra.CodMaquina = 0 then
+    Grade.Cells[17,Grade.ALinha]:= ''
+  else
+    Grade.Cells[17,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodMaquina);
+  Grade.Cells[18,Grade.ALinha]:= VprDConsumoAmostra.Maquina.NomMaquina;
+  Grade.Cells[27,Grade.ALinha]:= VprDConsumoAmostra.DesObservacao;
   CarQtdPecaMetroGrade;
 end;
 
@@ -288,19 +328,26 @@ begin
           Grade.Col:= 6;
         end
         else
-          if not ExisteFaca then
+          if not ETipoMateriaPrima.AExisteCodigo(Grade.Cells[11,Grade.ALinha]) then
           begin
             VpaValidos := false;
-            aviso('FACA NÃO CADASTRADA!!!!'#13'A faca digitada não existe cadastrada.');
-            Grade.Col := 9;
+            aviso('TIPO MATERIAL NÃO CADASTRADO!!!!'#13'O tipo de material digitado não existe cadastrado.');
+            Grade.Col := 11;
           end
           else
-            if not ExisteMaquina then
+            if not ExisteFaca then
             begin
               VpaValidos := false;
-              aviso('MAQUINA NÃO CADASTRADA!!!!'#13'A maquina digitada não existe cadastrada.');
+              aviso('FACA NÃO CADASTRADA!!!!'#13'A faca digitada não existe cadastrada.');
               Grade.Col := 13;
-            end;
+            end
+            else
+              if not ExisteMaquina then
+              begin
+                VpaValidos := false;
+                aviso('MAQUINA NÃO CADASTRADA!!!!'#13'A maquina digitada não existe cadastrada.');
+                Grade.Col := 17;
+              end;
 
   if VpaValidos then
   begin
@@ -318,7 +365,7 @@ begin
       begin
         aviso('ALTURA DO PRODUTO NÃO PREENCHIDA!!!'#13'Para se calcular o consumo do produto é necessário que a altura do produto esteja preenhcida');
         VpaValidos:= False;
-        Grade.Col:= 11;
+        Grade.Col:= 15;
       end;
   end;
 end;
@@ -334,25 +381,30 @@ begin
 
   VprDConsumoAmostra.DesUM:= Grade.Cells[5,Grade.ALinha];
   CalculaValorTotalItem;
+  VprDConsumoAmostra.DesLegenda:= Grade.Cells[9,Grade.ALinha];
 
-  if Grade.Cells[9,Grade.ALinha] <> '' then
-    VprDConsumoAmostra.CodFaca:= StrToInt(Grade.Cells[9,Grade.ALinha])
+  if Grade.Cells[10,Grade.ALinha] <> '' then
+    VprDConsumoAmostra.NumSequencia:= StrToInt(Grade.Cells[10,Grade.ALinha])
+  else
+    VprDConsumoAmostra.NumSequencia := 0;
+
+  if Grade.Cells[13,Grade.ALinha] <> '' then
+    VprDConsumoAmostra.CodFaca:= StrToInt(Grade.Cells[13,Grade.ALinha])
   else
     VprDConsumoAmostra.CodFaca := 0;
-  if Grade.Cells[11,Grade.ALinha] <> '' then
-    VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[11,Grade.ALinha])
+  if Grade.Cells[15,Grade.ALinha] <> '' then
+    VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[15,Grade.ALinha])
   else
     VprDConsumoAmostra.LarMolde := 0;
-  if Grade.Cells[12,Grade.ALinha] <> '' then
-    VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[12,Grade.ALinha])
+  if Grade.Cells[16,Grade.ALinha] <> '' then
+    VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[16,Grade.ALinha])
   else
     VprDConsumoAmostra.AltMolde := 0;
-  if Grade.Cells[13,Grade.ALinha] <> '' then
-    VprDConsumoAmostra.CodMaquina:= StrToInt(Grade.Cells[13,Grade.ALinha])
+  if Grade.Cells[17,Grade.ALinha] <> '' then
+    VprDConsumoAmostra.CodMaquina:= StrToInt(Grade.Cells[17,Grade.ALinha])
   else
     VprDConsumoAmostra.CodMaquina := 0;
-  VprDConsumoAmostra.DesObservacao:= Grade.Cells[17,Grade.ALinha];
-  VprDConsumoAmostra.DesLegenda:= Grade.Cells[18,Grade.ALinha];
+  VprDConsumoAmostra.DesObservacao:= Grade.Cells[27,Grade.ALinha];
 end;
 
 {******************************************************************************}
@@ -382,7 +434,7 @@ procedure TFAmostraConsumo.GradeGetEditMask(Sender: TObject; ACol,
   ARow: Integer; var Value: String);
 begin
   case ACol of
-    3,9,13: Value:= '0000;0; ';
+    3,10,11,13,17: Value:= '0000;0; ';
   end;
 end;
 
@@ -435,14 +487,21 @@ begin
                CalculaConsumos;
                CalculaValorTotalItem;
              end;
-        9: if not ExisteFaca then
+        11: if not ETipoMateriaPrima.AExisteCodigo(Grade.Cells[11,Grade.ALinha]) then
+              if not ETipoMateriaPrima.AAbreLocalizacao then
+              begin
+               aviso('CÓDIGO DO TIPO DO MATERIALA INVÁLIDO!!!'#13'O código do tipo do material digitado não existe cadatrado.');
+               Grade.col := 11;
+               abort;
+              end;
+        13: if not ExisteFaca then
              if not EFaca.AAbreLocalizacao then
              begin
                Aviso('CÓDIGO DA FACA INVÁLIDA!!!'#13'É necessário informar o código da faca.');
                abort;
              end;
-       11,12 : CalculaConsumos;
-       13: if not ExisteMaquina then
+       15,16 : CalculaConsumos;
+       17: if not ExisteMaquina then
              if not EMaquina.AAbreLocalizacao then
              begin
                Aviso('CÓDIGO DA MAQUINA INVÁLIDA!!!'#13'É necessário informar o código da maquina.');
@@ -471,13 +530,13 @@ end;
 function TFAmostraConsumo.ExisteFaca : Boolean;
 begin
   Result:= True;
-  if Grade.Cells[9,Grade.ALinha] <> '' then
+  if Grade.Cells[13,Grade.ALinha] <> '' then
   begin
-    result := FunProdutos.ExisteFaca(StrToInt(Grade.Cells[9,Grade.ALinha]),VprDConsumoAmostra.Faca);
+    result := FunProdutos.ExisteFaca(StrToInt(Grade.Cells[13,Grade.ALinha]),VprDConsumoAmostra.Faca);
     if result then
     begin
       VprDConsumoAmostra.CodFaca := VprDConsumoAmostra.Faca.CodFaca;
-      Grade.Cells[10,Grade.ALinha] := VprDConsumoAmostra.Faca.NomFaca;
+      Grade.Cells[14,Grade.ALinha] := VprDConsumoAmostra.Faca.NomFaca;
       CalculaConsumos;
     end;
   end;
@@ -487,19 +546,19 @@ end;
 function TFAmostraConsumo.ExisteMaquina : Boolean;
 begin
   result := true;
-  if Grade.cells[13,Grade.ALinha] <> '' then
+  if Grade.cells[17,Grade.ALinha] <> '' then
   begin
-    result := FunProdutos.ExisteMaquina(StrToInt(Grade.Cells[13,Grade.ALinha]),VprDConsumoAmostra.Maquina);
+    result := FunProdutos.ExisteMaquina(StrToInt(Grade.Cells[17,Grade.ALinha]),VprDConsumoAmostra.Maquina);
     if result then
     begin
       VprDConsumoAmostra.CodMaquina := VprDConsumoAmostra.Maquina.CodMaquina;
-      Grade.Cells[14,Grade.ALinha] := VprDConsumoAmostra.Maquina.NomMaquina;
-      if Grade.Cells[11,Grade.ALinha] <> '' then
-        VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[11,Grade.ALinha])
+      Grade.Cells[18,Grade.ALinha] := VprDConsumoAmostra.Maquina.NomMaquina;
+      if Grade.Cells[15,Grade.ALinha] <> '' then
+        VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[14,Grade.ALinha])
       else
         VprDConsumoAmostra.LarMolde := 0;
-      if Grade.Cells[12,Grade.ALinha] <> '' then
-        VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[12,Grade.ALinha])
+      if Grade.Cells[16,Grade.ALinha] <> '' then
+        VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[15,Grade.ALinha])
       else
         VprDConsumoAmostra.AltMolde := 0;
       CalculaConsumos;
@@ -690,8 +749,9 @@ begin
     114: case Grade.Col of
            1: LocalizaProduto;
            3: ECor.AAbreLocalizacao;
-           9: EFaca.AAbreLocalizacao;
-          13: EMaquina.AAbreLocalizacao; 
+          11: ETipoMateriaPrima.AAbreLocalizacao;
+          13: EFaca.AAbreLocalizacao;
+          17: EMaquina.AAbreLocalizacao;
          end;
   end;
 end;
@@ -700,7 +760,7 @@ end;
 procedure TFAmostraConsumo.GradeKeyPress(Sender: TObject; var Key: Char);
 begin
   case Grade.Col of
-    6,7,11,12: if Key = '.' then
+    6,7,15,16: if Key = '.' then
          Key:= ',';
   end;
 end;
@@ -850,8 +910,8 @@ begin
   if Retorno1 <> '' then
   begin
     FunProdutos.ExisteFaca(StrToInt(Retorno1),VprDConsumoAmostra.Faca);
-    Grade.Cells[9,Grade.ALinha] := IntTostr(VprDConsumoAmostra.Faca.CodFaca);
-    Grade.Cells[10,Grade.ALinha] := VprDConsumoAmostra.Faca.NomFaca;
+    Grade.Cells[13,Grade.ALinha] := IntTostr(VprDConsumoAmostra.Faca.CodFaca);
+    Grade.Cells[14,Grade.ALinha] := VprDConsumoAmostra.Faca.NomFaca;
   end
   else
     VprDConsumoAmostra.CodFaca := 0;
@@ -863,11 +923,37 @@ begin
   if Retorno1 <> '' then
   begin
     FunProdutos.ExisteMaquina(StrToInt(Retorno1),VprDConsumoAmostra.Maquina);
-    Grade.Cells[13,Grade.ALinha] := IntToStr(VprDConsumoAmostra.Maquina.CodMaquina);
-    Grade.Cells[14,Grade.ALinha] := VprDConsumoAmostra.Maquina.NomMaquina;
+    Grade.Cells[17,Grade.ALinha] := IntToStr(VprDConsumoAmostra.Maquina.CodMaquina);
+    Grade.Cells[18,Grade.ALinha] := VprDConsumoAmostra.Maquina.NomMaquina;
   end
   else
     VprDConsumoAmostra.CodMaquina := 0;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.ETipoMateriaPrimaCadastrar(Sender: TObject);
+begin
+  FTipoMateriaPrima := TFTipoMateriaPrima.CriarSDI(self,'',true);
+  FTipoMateriaPrima.BotaoCadastrar1.Click;
+  FTipoMateriaPrima.ShowModal;
+  FTipoMateriaPrima.free;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.ETipoMateriaPrimaRetorno(VpaColunas: TRBColunasLocaliza);
+begin
+  if VpaColunas.items[0].AValorRetorno <> '' then
+  begin
+    VprDConsumoAmostra.CodTipoMateriaPrima := StrToINt(VpaColunas.items[0].AValorRetorno);
+    VprDConsumoAmostra.NomTipoMateriaPrima := VpaColunas.items[1].AValorRetorno;
+    Grade.Cells[11,Grade.ALinha] := VpaColunas.items[0].AValorRetorno;
+    Grade.Cells[12,Grade.ALinha] := VpaColunas.items[1].AValorRetorno;
+  end
+  else
+  begin
+    VprDConsumoAmostra.CodTipoMateriaPrima := 0;
+    VprDConsumoAmostra.NomTipoMateriaPrima := '';
+  end;
 end;
 
 {******************************************************************************}

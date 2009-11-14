@@ -332,7 +332,7 @@ begin
       VpfDFracao.IndEstagioGerado := true;
       VpfDFracao.IndEstagiosCarregados := true;
       FunOrdemProducao.VplQtdFracoes := 0;
-      FunOrdemProducao.AdicionaProdutosSubMontagem(VprDOPGeral,VpfDFracao,StatusBar1,true);
+      FunOrdemProducao.AdicionaProdutosSubMontagem(VprDOPGeral,VpfDFracao,StatusBar1);
     end;
   end;
 

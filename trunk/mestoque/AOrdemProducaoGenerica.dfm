@@ -19,9 +19,9 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
   TextHeight = 13
   object PanelColor3: TPanelColor
     Left = 0
-    Top = 177
+    Top = 95
     Width = 821
-    Height = 243
+    Height = 325
     Align = alClient
     Color = clSilver
     Font.Charset = DEFAULT_CHARSET
@@ -38,7 +38,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       Left = 1
       Top = 1
       Width = 819
-      Height = 241
+      Height = 323
       ActivePage = PSubMontagem
       Align = alClient
       TabOrder = 0
@@ -49,7 +49,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           Left = 0
           Top = 0
           Width = 811
-          Height = 210
+          Height = 292
           Align = alClient
           Color = clInfoBk
           DataSource = DataOrdemProducao
@@ -272,7 +272,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           Left = 0
           Top = 0
           Width = 560
-          Height = 210
+          Height = 292
           Align = alClient
           Images = ImageList1
           Indent = 19
@@ -290,7 +290,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           Left = 560
           Top = 0
           Width = 251
-          Height = 210
+          Height = 292
           Align = alRight
           Color = clSilver
           Font.Charset = DEFAULT_CHARSET
@@ -490,7 +490,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           Left = 0
           Top = 0
           Width = 811
-          Height = 182
+          Height = 264
           Align = alClient
           Color = clInfoBk
           DefaultRowHeight = 22
@@ -521,7 +521,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
         end
         object PanelColor4: TPanelColor
           Left = 0
-          Top = 182
+          Top = 264
           Width = 811
           Height = 28
           Align = alBottom
@@ -562,7 +562,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     Left = 0
     Top = 41
     Width = 821
-    Height = 136
+    Height = 54
     Align = alTop
     Color = clSilver
     Font.Charset = DEFAULT_CHARSET
@@ -978,7 +978,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       Font.Height = -13
       Font.Name = 'MS Sans Serif'
       Font.Style = []
-      ItemHeight = 0
+      ItemHeight = 16
       ParentFont = False
       TabOrder = 5
       OnChange = EPedidoExit

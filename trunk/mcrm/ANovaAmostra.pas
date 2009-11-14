@@ -165,6 +165,7 @@ procedure TFNovaAmostra.FormCreate(Sender: TObject);
 begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
+  EditorImagem1.DirServidor := varia.DriveFoto;
   Amostra.open;
   VprAcao := false;
   FunAmostra := TRBFuncoesAmostra.cria(FPrincipal.BaseDados);
