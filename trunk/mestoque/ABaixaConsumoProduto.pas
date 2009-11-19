@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Componentes1, ExtCtrls, PainelGradiente, StdCtrls, Buttons, Grids,
   CGrades, UnDadosProduto, Localizacao, UnOrdemProducao, UnDados, UnArgox,Constantes,
-  DBKeyViolation;
+  DBKeyViolation, Menus;
 
 type
   TFBaixaConsumoProduto = class(TFormularioPermissao)
@@ -60,6 +60,8 @@ type
     Label13: TLabel;
     EUsuario: TEditLocaliza;
     ValidaGravacao1: TValidaGravacao;
+    MenuGrade: TPopupMenu;
+    ConsultaSolicitaoCompra1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
@@ -106,10 +108,13 @@ type
     procedure EOrdemProducaoRetorno(Retorno1, Retorno2: String);
     procedure BEtiquetaClick(Sender: TObject);
     procedure EUsuarioChange(Sender: TObject);
+    procedure ConsultaSolicitaoCompra1Click(Sender: TObject);
+    procedure GradeMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   private
     VprSeqOrdem,
     VprSeqFracao,
-    VprCodFilial: Integer;
+    VprCodFilial,
+    VprLinhaClick : Integer;
     VprProdutoAnterior,
     VprProdutoAnteriorOC: String;
     VprOperacao : TRBDOperacaoCadastro;
@@ -143,7 +148,7 @@ var
 implementation
 uses
   APrincipal, FunString, ConstMsg, UnProdutos, FunObjeto, ALocalizaProdutos,
-  ANovaSolicitacaoCompra;
+  ANovaSolicitacaoCompra, ASolicitacaoCompras;
 
 {$R *.DFM}
 
@@ -605,6 +610,13 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFBaixaConsumoProduto.GradeMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+Var
+  VpfColuna: Integer;
+begin
+  Grade.MouseToCell(x,y,VpfColuna,VprLinhaClick);
+end;
+
 procedure TFBaixaConsumoProduto.GradeMudouLinha(Sender: TObject;
   VpaLinhaAtual, VpaLinhaAnterior: Integer);
 begin
@@ -749,6 +761,21 @@ end;
 procedure TFBaixaConsumoProduto.CMarcarTodosClick(Sender: TObject);
 begin
   MarcaTodos;
+end;
+
+{******************************************************************************}
+procedure TFBaixaConsumoProduto.ConsultaSolicitaoCompra1Click(Sender: TObject);
+Var
+  VpfDBaixaConsumo : TRBDConsumoFracaoOP;
+begin
+  if VprLinhaClick > 0 then
+    VpfDBaixaConsumo := TRBDConsumoFracaoOP(VprBaixas.Items[VprLinhaClick-1])
+  else
+    VpfDBaixaConsumo := VprDBaixaConsumo;
+
+  FSolicitacaoCompra := TFSolicitacaoCompra.CriarSDI(self,'',true);
+  FSolicitacaoCompra.ConsultaProdutoOP(VpfDBaixaConsumo.CodFilial,VpfDBaixaConsumo.SeqOrdem,VpfDBaixaConsumo.SeqProduto,VpfDBaixaConsumo.CodProduto,VpfDBaixaConsumo.NomProduto);
+  FSolicitacaoCompra.free;
 end;
 
 {******************************************************************************}

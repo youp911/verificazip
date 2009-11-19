@@ -598,7 +598,10 @@ begin
       if VprPressionadoR then
       begin
         if (key = 77) then
+        begin
           BMostrarConta.Visible := true;
+          AtualizaConsulta(false);
+        end;
         VprPressionadoR := false;
       end;
   end;

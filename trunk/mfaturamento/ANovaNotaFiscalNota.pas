@@ -770,6 +770,8 @@ begin
   begin
     EBaseICMS.AValor :=  ValBaseICMS;
     EValICMS.AValor := ValICMS;
+    EValSubsICM.AValor := ValICMSSubtituicao;
+    EBaseSubICMS.AValor := ValBaseICMSSubstituicao;
     EValTotalProdutos.AValor := ValTotalProdutos;
     EValFrete.AValor := ValFrete;
     EValSeguro.AValor := ValSeguro;
@@ -898,6 +900,8 @@ begin
   begin
     ValBaseICMS := EBaseICMS.AValor;
     ValICMS := EValICMS.AValor;
+    ValICMSSubtituicao := EValSubsICM.AValor;
+    ValBaseICMSSubstituicao := EBaseSubICMS.AValor;
     ValFrete := EValFrete.AValor;
     ValSeguro := EValSeguro.AValor;
     ValOutrasDepesesas := EValOutrasDespesas.aValor;

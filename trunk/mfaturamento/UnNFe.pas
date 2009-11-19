@@ -554,7 +554,9 @@ begin
     VpfEmailHtml.Body.Add('</table>');
     VpfEmailHtml.Body.add('<hr>');
     VpfEmailHtml.Body.Add('<center>');
-    VpfEmailHtml.Body.add('<address>Sistema de gestão desenvolvido por <a href="http://www.eficaciaconsultoria.com.br">Eficácia Sistemas e Consultoria Ltda.</a>  </address>');
+    if (Varia.CNPJFilial <> CNPJ_Reeltex) and
+       (varia.CNPJFilial <> CNPJ_Cadartex) then
+      VpfEmailHtml.Body.add('<address>Sistema de gestão desenvolvido por <a href="http://www.eficaciaconsultoria.com.br">Eficácia Sistemas e Consultoria Ltda.</a>  </address>');
     VpfEmailHtml.Body.Add('</center>');
     VpfEmailHtml.Body.add('</body>');
     VpfEmailHtml.Body.Add('');

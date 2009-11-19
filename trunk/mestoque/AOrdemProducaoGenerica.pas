@@ -83,7 +83,7 @@ type
     ProdutosPendentes1: TMenuItem;
     BitBtn2: TBitBtn;
     N4: TMenuItem;
-    GerarConsumo1: TMenuItem;
+    MGerarConsumo: TMenuItem;
     Aux: TSQL;
     N5: TMenuItem;
     ConsultarOramentoCompra1: TMenuItem;
@@ -160,6 +160,7 @@ type
     ReimportarFrao1: TMenuItem;
     N12: TMenuItem;
     ListaProdutosaExcluir1: TMenuItem;
+    PainelTempo1: TPainelTempo;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -179,7 +180,7 @@ type
     procedure GeraOrdemCorte1Click(Sender: TObject);
     procedure ProdutosPendentes1Click(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
-    procedure GerarConsumo1Click(Sender: TObject);
+    procedure MGerarConsumoClick(Sender: TObject);
     procedure ConsultarOramentoCompra1Click(Sender: TObject);
     procedure ConsultarSolicitaoCompras1Click(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
@@ -341,7 +342,7 @@ begin
   PSubMontagem.TabVisible := (varia.TipoOrdemProducao = toSubMontagem);
   MReimportarProjeto.Visible := (varia.TipoOrdemProducao = toSubMontagem);
   if (varia.TipoOrdemProducao = toSubMontagem) then
-    AlterarVisibleDet([BAlterar,BImprimir],false);
+    AlterarVisibleDet([BAlterar,BImprimir,MGerarConsumo],false);
 
 end;
 
@@ -385,6 +386,7 @@ begin
   AdicionaFiltros(OrdemProducao.sql);
   OrdemProducao.sql.add(VprOrdem);
   GridIndice1.ALinhaSQLOrderBy := OrdemProducao.Sql.count - 1;
+  OrdemProducao.SQL.SaveToFile('c:\consulta.sql');
   OrdemProducao.open;
 end;
 
@@ -414,18 +416,18 @@ procedure TFOrdemProducaoGenerica.AdicionaFiltros(VpaSelect : TStrings);
 begin
   if EFilial.AInteiro <> 0 then
     VpaSelect.Add(' and FRA.CODFILIAL = '+EFilial.Text);
-  if ENumeroOp.AsInteger <> 0 then
-    VpaSelect.add(' and FRA.SEQORDEM = '+ENumeroOp.text)
+  if CFichaConsumo.Checked then
+    VpaSelect.Add(' and FRA.DATIMPRESSAOFICHA is null')
   else
   begin
-    if CFichaConsumo.Checked then
-      VpaSelect.Add(' and FRA.DATIMPRESSAOFICHA is null')
+    if EFracao.AsInteger <> 0 then
+      VpaSelect.Add(' and FRA.SEQFRACAO = '+ EFracao.Text);
+    if ENumeroOp.AsInteger <> 0 then
+      VpaSelect.add(' and FRA.SEQORDEM = '+ENumeroOp.text);
+    if ENumeroOp.AsInteger <> 0 then
+      VpaSelect.add(' and FRA.SEQORDEM = '+ENumeroOp.text)
     else
     begin
-      if EFracao.AsInteger <> 0 then
-        VpaSelect.Add(' and FRA.SEQFRACAO = '+ EFracao.Text);
-      if ENumeroOp.AsInteger <> 0 then
-        VpaSelect.add(' and FRA.SEQORDEM = '+ENumeroOp.text);
       if CPeriodo.Checked then
       begin
         case EPeriodoPor.ItemIndex of
@@ -438,47 +440,47 @@ begin
                             SQLTextoDataEntreAAAAMMDD('FER.DATFIM',EDatInicio.DateTime,EDatFim.Datetime,true)+')');
         end;
       end;
-      if EEstagio.AInteiro <> 0 then
-        VpaSelect.Add('and FRA.CODESTAGIO = '+EEstagio.text);
-      if EPedido.AsInteger <> 0 then
-        VpaSelect.Add('and ORD.NUMPED = '+EPedido.Text);
-      if VprSeqProduto <> 0 then
-      begin
-        if (Varia.TipoOrdemProducao = toSubMontagem) then
-          VpaSelect.add(' and FRA.SEQPRODUTO = '+IntToStr(VprSeqProduto))
-        else
-          VpaSelect.add(' and PRO.I_SEQ_PRO = '+IntToStr(VprSeqProduto));
-      end;
-      if VprNumPedido <> 0 then
-        VpaSelect.add(' AND ORD.EMPFIL = '+IntToStr(VprFilialPedido)+
-                      ' and ORD.LANORC = '+ IntToStr(VprNumPedido));
-      if ECliente.AInteiro <> 0 then
-        VpaSelect.Add(' AND ORD.CODCLI = '+ECliente.Text);
-      if CFracaoFinalizada.Checked then
-        VpaSelect.Add(' AND FRA.DATFINALIZACAO IS NULL');
-      if EEstagioNaoProcesado.AInteiro <> 0 then
-        VpaSelect.Add('and EXISTS(SELECT * FROM FRACAOOPESTAGIO FRE '+
-                     ' WHERE FRA.CODFILIAL = FRE.CODFILIAL '+
-                     ' AND FRA.SEQORDEM = FRE.SEQORDEM '+
-                     ' AND FRA.SEQFRACAO = FRE.SEQFRACAO '+
-                     ' AND FRE.CODESTAGIO = '+EEstagioNaoProcesado.Text+
-                     ' AND FRE.INDFINALIZADO = ''N'')');
-      if ETipoEstagio.AInteiro <> 0 then
-        VpaSelect.Add('and EXISTS(SELECT * FROM FRACAOOPESTAGIO FRE, ESTAGIOPRODUCAO EST, TIPOESTAGIOPRODUCAO TEP '+
-                     ' WHERE FRA.CODFILIAL = FRE.CODFILIAL '+
-                     ' AND FRA.SEQORDEM = FRE.SEQORDEM '+
-                     ' AND FRA.SEQFRACAO = FRE.SEQFRACAO '+
-                     ' AND FRE.CODESTAGIO = EST.CODEST '+
-                     ' AND EST.CODTIP = TEP.CODTIP '+
-                     ' AND TEP.CODTIP = '+ETipoEstagio.Text+
-                     ' AND FRE.INDFINALIZADO = ''N'')');
-      if VprSeqMateriaPrima <> 0 then
-        VpaSelect.add('and EXISTS(SELECT * FROM FRACAOOPCONSUMO FRC '+
-                      ' WHERE FRA.CODFILIAL = FRC.CODFILIAL '+
-                      ' AND FRA.SEQORDEM = FRC.SEQORDEM '+
-                      ' AND FRA.SEQFRACAO = FRC.SEQFRACAO '+
-                      ' AND FRC.SEQPRODUTO ='+IntToStr(VprSeqMateriaPrima)+')');
     end;
+    if EEstagio.AInteiro <> 0 then
+      VpaSelect.Add('and FRA.CODESTAGIO = '+EEstagio.text);
+    if EPedido.AsInteger <> 0 then
+      VpaSelect.Add('and ORD.NUMPED = '+EPedido.Text);
+    if VprSeqProduto <> 0 then
+    begin
+      if (Varia.TipoOrdemProducao = toSubMontagem) then
+        VpaSelect.add(' and FRA.SEQPRODUTO = '+IntToStr(VprSeqProduto))
+      else
+        VpaSelect.add(' and PRO.I_SEQ_PRO = '+IntToStr(VprSeqProduto));
+    end;
+    if VprNumPedido <> 0 then
+      VpaSelect.add(' AND ORD.EMPFIL = '+IntToStr(VprFilialPedido)+
+                    ' and ORD.LANORC = '+ IntToStr(VprNumPedido));
+    if ECliente.AInteiro <> 0 then
+      VpaSelect.Add(' AND ORD.CODCLI = '+ECliente.Text);
+    if CFracaoFinalizada.Checked then
+      VpaSelect.Add(' AND FRA.DATFINALIZACAO IS NULL');
+    if EEstagioNaoProcesado.AInteiro <> 0 then
+      VpaSelect.Add('and EXISTS(SELECT * FROM FRACAOOPESTAGIO FRE '+
+                   ' WHERE FRA.CODFILIAL = FRE.CODFILIAL '+
+                   ' AND FRA.SEQORDEM = FRE.SEQORDEM '+
+                   ' AND FRA.SEQFRACAO = FRE.SEQFRACAO '+
+                   ' AND FRE.CODESTAGIO = '+EEstagioNaoProcesado.Text+
+                   ' AND FRE.INDFINALIZADO = ''N'')');
+    if ETipoEstagio.AInteiro <> 0 then
+      VpaSelect.Add('and EXISTS(SELECT * FROM FRACAOOPESTAGIO FRE, ESTAGIOPRODUCAO EST, TIPOESTAGIOPRODUCAO TEP '+
+                   ' WHERE FRA.CODFILIAL = FRE.CODFILIAL '+
+                   ' AND FRA.SEQORDEM = FRE.SEQORDEM '+
+                   ' AND FRA.SEQFRACAO = FRE.SEQFRACAO '+
+                   ' AND FRE.CODESTAGIO = EST.CODEST '+
+                   ' AND EST.CODTIP = TEP.CODTIP '+
+                   ' AND TEP.CODTIP = '+ETipoEstagio.Text+
+                   ' AND FRE.INDFINALIZADO = ''N'')');
+    if VprSeqMateriaPrima <> 0 then
+      VpaSelect.add('and EXISTS(SELECT * FROM FRACAOOPCONSUMO FRC '+
+                    ' WHERE FRA.CODFILIAL = FRC.CODFILIAL '+
+                    ' AND FRA.SEQORDEM = FRC.SEQORDEM '+
+                    ' AND FRA.SEQFRACAO = FRC.SEQFRACAO '+
+                    ' AND FRC.SEQPRODUTO ='+IntToStr(VprSeqMateriaPrima)+')');
   end;
 end;
 
@@ -695,27 +697,30 @@ procedure TFOrdemProducaoGenerica.BExcluiFracaoClick(Sender: TObject);
 var
   VpfDFracao : TRBDFracaoOrdemProducao;
 begin
-  if PageControl1.ActivePage = PFracionada then
+  if confirmacao('EXLUIR FRACAO DE PRODUÇÃO!!!'#13'Tem certeza que deseja excluir a fração da ordem de produção?') then
   begin
-    if OrdemProducaoSEQORD.AsInteger <> 0 then
+    if PageControl1.ActivePage = PFracionada then
     begin
-      if confirmacao('EXLUIR FRACAO DE PRODUÇÃO!!!'#13'Tem certeza que deseja excluir a fração da ordem de produção?') then
-      begin
-        FunOrdemProducao.ExcluiFracaoOP(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger);
-        AtualizaConsulta(false);
-      end;
-    end;
-  end
-  else
-  begin
-    if (tobject(Arvore.Selected.Data) is TRBDFracaoOrdemProducao) then
+      if OrdemProducaoSEQORD.AsInteger <> 0 then
+        if FunOrdemProducao.ExisteFracaoFilha(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger)  then
+          aviso('ERRO NA EXCLUSÃO DA FRAÇÃO!!!'#13'Não foi possível excluir a fração pois existem frações filhas, é necessário antes excluir as frações filhas.')
+        else
+        begin
+          FunOrdemProducao.ExcluiFracaoOP(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger);
+          AtualizaConsulta(false);
+        end;
+    end
+    else
     begin
-      VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.data);
-      if confirmacao('EXLUIR FRACAO DE PRODUÇÃO!!!'#13'Tem certeza que deseja excluir a fração da ordem de produção?') then
-      begin
-        FunOrdemProducao.ExcluiFracaoOP(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
-        Arvore.Selected.Delete;
-      end;
+      if Arvore.Selected.HasChildren  then
+        aviso('ERRO NA EXCLUSÃO DA FRAÇÃO!!!'#13'Não foi possível excluir a fração pois existem frações filhas, é necessário antes excluir as frações filhas.')
+      else
+        if (tobject(Arvore.Selected.Data) is TRBDFracaoOrdemProducao) then
+        begin
+          VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.data);
+          FunOrdemProducao.ExcluiFracaoOP(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
+          Arvore.Selected.Delete;
+        end;
     end;
   end;
 end;
@@ -758,11 +763,15 @@ Var
 begin
   if Confirmacao('Tem certeza que deseja reimportar o projeto? ') then
   begin
+    PainelTempo1.execute('Reimportando as submontagens. Aguarde...');
     VpfResultado := '';
     if PageControl1.ActivePage = PFracionada then
     begin
       if OrdemProducaoSEQORD.AsInteger <> 0 then
+      begin
         VpfResultado := FunOrdemProducao.ReImportaProjeto(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger);
+        AtualizaConsulta(true);
+      end;
     end
     else
     begin
@@ -770,10 +779,14 @@ begin
       begin
         VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.data);
         VpfResultado := FunOrdemProducao.ReImportaProjeto(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao);
+        Arvore.Selected.DeleteChildren;
+        VpfDFracao.IndEstagiosCarregados := false;
+        FunOrdemProducao.AdicionaNoFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,Arvore.Selected ,Arvore);
       end;
     end;
     if VpfResultado <> '' then
       aviso(VpfResultado);
+    PainelTempo1.fecha;
   end;
 end;
 
@@ -804,7 +817,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFOrdemProducaoGenerica.GerarConsumo1Click(Sender: TObject);
+procedure TFOrdemProducaoGenerica.MGerarConsumoClick(Sender: TObject);
 Var
   VpfResultado : String;
 begin
@@ -846,10 +859,16 @@ end;
 procedure TFOrdemProducaoGenerica.PageControl1Change(Sender: TObject);
 begin
   if PageControl1.ActivePage = PFracionada then
-    AtualizaConsulta(false)
+  begin
+    AtualizaConsulta(false);
+    BExcluir.Height := BExcluiFracao.Height;
+  end
   else
     if PageControl1.ActivePage = PSubMontagem then
+    begin
       AtualizaConsultaSubMontagem;
+      BExcluir.Height := -1;
+    end;
 end;
 
 procedure TFOrdemProducaoGenerica.BitBtn3Click(Sender: TObject);

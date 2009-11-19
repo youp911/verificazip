@@ -51,6 +51,7 @@ type
     PopupMenu2: TPopupMenu;
     ImprimirConsumoOP1: TMenuItem;
     BMaquinas: TBitBtn;
+    PainelTempo1: TPainelTempo;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -508,13 +509,17 @@ begin
   if VpfResultado = '' then
   begin
     AtualizaDataOP;
+    PainelTempo1.execute('Gravando os dados das frações. Aguarde ');
     Vpfresultado := FunOrdemProducao.GravaDOrdemProducaoBasicao(VprDOrdemProducao);
     if Vpfresultado = '' then
     begin
+      PainelTempo1.execute('Gerando os consumos das frações. Aguarde ');
       FunOrdemProducao.GeraConsumoOP(VprDOrdemProducao);
+      PainelTempo1.execute('Gravando os dados dos consumos das frações. Aguarde ');
       VpfResultado := FunOrdemProducao.GravaConsumoOP(VprDOrdemProducao);
       if VpfResultado = '' then
       begin
+        PainelTempo1.execute('Gravando os dados da ordem de corte das frações. Aguarde ');
         VpfResultado := FunOrdemProducao.GravaDOrdemCorte(VprDOrdemProducao.OrdemCorte);
       end;
     end;
@@ -527,6 +532,7 @@ begin
   end
   else
     aviso(VpfResultado);
+  PainelTempo1.fecha;
 end;
 
 {******************************************************************************}

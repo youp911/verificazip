@@ -159,6 +159,20 @@ type
     EIndicadorAtividadeSped: TComboBoxColor;
     CadFiliaisC_PER_SPE: TWideStringField;
     CadFiliaisI_ATI_SPE: TFMTBCDField;
+    CadFiliaisI_CON_SPE: TFMTBCDField;
+    CadFiliaisC_CPC_SPE: TWideStringField;
+    CadFiliaisC_CRC_SPE: TWideStringField;
+    Label31: TLabel;
+    EContabilidade: TDBEditLocaliza;
+    SpeedButton7: TSpeedButton;
+    Label32: TLabel;
+    CadFiliaisC_NCO_SPE: TWideStringField;
+    DBEditColor7: TDBEditColor;
+    Label33: TLabel;
+    DBEditCPF1: TDBEditCPF;
+    Label34: TLabel;
+    DBEditColor12: TDBEditColor;
+    Label35: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FecharClick(Sender: TObject);
@@ -193,7 +207,7 @@ begin
   EIndicadorAtividadeSped.ItemIndex := Varia.TipoAtividadeSped;
 
   InicializaVerdadeiroeFalsoCheckBox(PanelColor1,'T','F');
-  AtualizaLocalizas([ETabelaServico,CodigoTabela,EContaPadrao,EContaBoletoPadrao]);
+  AtualizaLocalizas([ETabelaServico,CodigoTabela,EContaPadrao,EContaBoletoPadrao,EContabilidade]);
 end;
 
 { ******************* Quando o formulario e fechado ************************** }

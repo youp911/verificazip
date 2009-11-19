@@ -1302,6 +1302,7 @@ var
   VpfPosicao : TBookmark;
 begin
   VpfPosicao := CadOrcamento.GetBookmark;
+  MovOrcamentos.Close;
    CadOrcamento.close;
    CadOrcamento.sql.clear;
    CadOrcamento.SQl.add(' Select Orc.I_Lan_Orc, Orc.D_Dat_Orc, Cli.C_Nom_Cli,'+
@@ -1464,7 +1465,7 @@ begin
   begin
     MovOrcamentos.sql.clear;
     MovOrcamentos.sql.add('Select Mov.I_Emp_Fil, Mov.I_Lan_Orc,Mov.N_Qtd_Pro, Mov.N_Vlr_Pro, Mov.N_Vlr_Tot, Mov.C_Cod_Uni,  '+
-                          ' C_Imp_Fot, C_Fla_Res, Mov.N_Qtd_Bai, MOV.N_QTD_CON, MOV.C_DES_COR, Pro.C_Nom_Pro, Pro.I_Seq_Pro, MOV.I_SEQ_MOV, MOV.C_NOM_PRO PRODUTOCOTACAO,' +
+                          ' C_Imp_Fot, C_Fla_Res, Mov.N_Qtd_Bai, MOV.N_QTD_CON, MOV.I_COD_COR ||''-''||MOV.C_DES_COR C_DES_COR, Pro.C_Nom_Pro, Pro.I_Seq_Pro, MOV.I_SEQ_MOV, MOV.C_NOM_PRO PRODUTOCOTACAO,' +
                           ' MOV.C_COD_PRO');
 
     MovOrcamentos.sql.add(' from MovOrcamentos Mov, CadProdutos Pro, MovQdadeProduto QTD' +

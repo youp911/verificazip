@@ -45,11 +45,28 @@ type
     Label6: TLabel;
     BFornecedor: TSpeedButton;
     LFornecedor: TLabel;
-    EFornecedor: TEditLocaliza;
     Label8: TLabel;
     BEstagio: TSpeedButton;
     Label9: TLabel;
     EEstagio: TEditLocaliza;
+    EFornecedor: TRBEditLocaliza;
+    Localiza: TConsultaPadrao;
+    Label20: TLabel;
+    SpeedButton2: TSpeedButton;
+    Label21: TLabel;
+    EProduto: TEditColor;
+    GPedidoItem: TGridIndice;
+    Splitter1: TSplitter;
+    ITENS: TSQL;
+    DataITENS: TDataSource;
+    ITENSDESUM: TWideStringField;
+    ITENSQTDPRODUTO: TFMTBCDField;
+    ITENSPERIPI: TFMTBCDField;
+    ITENSC_COD_PRO: TWideStringField;
+    ITENSC_NOM_PRO: TWideStringField;
+    ITENSCOD_COR: TFMTBCDField;
+    ITENSNOM_COR: TWideStringField;
+    PanelColor3: TPanelColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BCadastrarClick(Sender: TObject);
@@ -62,12 +79,20 @@ type
       Shift: TShiftState);
     procedure GridIndice1Ordem(Ordem: String);
     procedure BExcluirClick(Sender: TObject);
+    procedure EProdutoExit(Sender: TObject);
+    procedure EProdutoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure OrcamentoCompraAfterScroll(DataSet: TDataSet);
   private
     { Private declarations }
     VprOrdem : string;
+    VprSeqProduto: Integer;
     procedure InicializaTela;
     procedure AtualizaConsulta;
     procedure AdicionaFiltros(VpaSelect : TStrings);
+    function ExisteProduto: Boolean;
+    function LocalizaProduto: Boolean;
+    procedure PosItensORCAMENTO;
   public
     { Public declarations }
   end;
@@ -77,7 +102,8 @@ var
 
 implementation
 
-uses APrincipal, ANovoOrcamentoCompra, Fundata, FunSql, Constantes;
+uses APrincipal, ANovoOrcamentoCompra, Fundata, FunSql, Constantes, ALocalizaProdutos,
+     unProdutos ;
 
 {$R *.DFM}
 
@@ -116,9 +142,63 @@ begin
   EFornecedor.Clear;
 end;
 
+function TFOrcamentoCompras.LocalizaProduto: Boolean;
+var
+  VpfCodProduto,
+  VpfNomProduto,
+  VpfDesUM,
+  VpfClaFiscal: String;
+begin
+  FlocalizaProduto := TFlocalizaProduto.criarSDI(Application,'',FPrincipal.VerificaPermisao('FlocalizaProduto'));
+  Result:= FlocalizaProduto.LocalizaProduto(VprSeqProduto,VpfCodProduto,VpfNomProduto,VpfDesUM,VpfClaFiscal);
+  FlocalizaProduto.free;
+  if Result then
+  begin
+    EProduto.Text:= VpfCodProduto;
+    Label21.Caption:= VpfNomProduto;
+  end
+  else
+  begin
+    EProduto.Text:= '';
+    Label21.Caption:= '';
+  end;
+end;
+
+procedure TFOrcamentoCompras.OrcamentoCompraAfterScroll(DataSet: TDataSet);
+begin
+  PosItensORCAMENTO;
+end;
+
+{******************************************************************************}
+procedure TFOrcamentoCompras.PosItensORCAMENTO;
+begin
+  ITENS.Close;
+  Itens.sql.clear;
+  Itens.sql.add('select OCI.DESUM, OCI.QTDPRODUTO, OCI.PERIPI, '+
+                              ' PRO.C_COD_PRO, PRO.C_NOM_PRO,'+
+                              ' COR.COD_COR, COR.NOM_COR '+
+                              ' from ORCAMENTOCOMPRAITEM OCI, CADPRODUTOS PRO, COR '+
+                              ' Where OCI.SEQPRODUTO = PRO.I_SEQ_PRO '+
+                              ' and OCI.CODFILIAL = '+IntToStr(OrcamentoCompraCODFILIAL.AsInteger)+
+                              ' AND OCI.SEQORCAMENTO = '+IntToStr(OrcamentoCompraSEQORCAMENTO.AsInteger)+
+                              ' AND'+SQLTextoRightJoin('OCI.CODCOR','COR.COD_COR'));
+  if VprSeqProduto <> 0 then
+    ITENS.SQL.ADD('and OCI.SEQPRODUTO = '+IntToStr(VprSeqProduto));
+  Itens.sql.add('ORDER BY OCI.SEQITEM ');
+  Itens.open;
+end;
+
+{******************************************************************************}
+procedure TFOrcamentoCompras.SpeedButton2Click(Sender: TObject);
+begin
+  LocalizaProduto;
+  AtualizaConsulta;
+end;
+
 {******************************************************************************}
 procedure TFOrcamentoCompras.AtualizaConsulta;
 begin
+  ITENS.Close;
   OrcamentoCompra.Close;
   OrcamentoCompra.sql.clear;
   OrcamentoCompra.sql.add('select ORC.CODFILIAL, ORC.SEQORCAMENTO, ORC.DATEMISSAO, ORC.DATFIM, '+
@@ -147,11 +227,19 @@ begin
         1: VpaSelect.Add(SQLTextoDataEntreAAAAMMDD('ORC.DATPREVISAOFIM',DataInicial.DateTime,DataFinal.DateTime,True));
       end;
     if EFornecedor.AInteiro <> 0 then
-      VpaSelect.Add(' AND ORC.CODCLIENTE = '+EFornecedor.Text);
+      VpaSelect.Add(' AND EXISTS (SELECT * FROM ORCAMENTOCOMPRAFORNECEDORCORPO OCF '+
+                    ' WHERE OCF.CODFILIAL = ORC.CODFILIAL '+
+                    ' AND OCF.SEQORCAMENTO = ORC.SEQORCAMENTO '+
+                    ' AND OCF.CODCLIENTE = '+EFornecedor.Text+' )');
     if EEstagio.Text <> '' then
       VpaSelect.Add(' AND ORC.CODESTAGIO = '+EEstagio.Text);
     if EComprador.Text <> '' then
       VpaSelect.Add(' AND ORC.CODCOMPRADOR = '+EComprador.Text);
+    if VprSeqProduto <> 0 then
+      VpaSelect.Add('and exists (Select * FROM ORCAMENTOCOMPRAITEM ITE ' +
+                    ' Where ORC.CODFILIAL = ITE.CODFILIAL ' +
+                    ' AND ORC.SEQORCAMENTO = ITE.SEQORCAMENTO' +
+                    ' AND ITE.SEQPRODUTO = '+IntToStr(VprSeqProduto)+')');
   end;
 end;
 
@@ -230,6 +318,42 @@ procedure TFOrcamentoCompras.EOrcamentoCompraKeyDown(Sender: TObject;
 begin
   if key = 13 then
     AtualizaConsulta;
+end;
+
+{******************************************************************************}
+procedure TFOrcamentoCompras.EProdutoExit(Sender: TObject);
+begin
+  ExisteProduto;
+  AtualizaConsulta;
+end;
+
+{******************************************************************************}
+procedure TFOrcamentoCompras.EProdutoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    13: begin
+          if ExisteProduto then
+            AtualizaConsulta
+          else
+            if LocalizaProduto then
+              AtualizaConsulta;
+        end;
+    114: if LocalizaProduto then
+           AtualizaConsulta;
+  end;
+end;
+
+{******************************************************************************}
+function TFOrcamentoCompras.ExisteProduto: Boolean;
+var
+  VpfUM,
+  VpfNomProduto: String;
+begin
+  Result:= FunProdutos.ExisteProduto(EProduto.Text,VprSeqProduto,VpfNomProduto,VpfUM);
+  if Result then
+    Label21.Caption:= VpfNomProduto
+  else
+    Label21.Caption:= '';
 end;
 
 {******************************************************************************}

@@ -156,6 +156,12 @@ procedure TRBFunSolicitacaoCompra.ApagaOrcamento(VpaDOrcamentoCompraCorpo: TRBDS
 begin
   ApagaProdutos(VpaDOrcamentoCompraCorpo);
   ApagaFracaoOP(VpaDOrcamentoCompraCorpo);
+  ExecutaComandoSql(Tabela,'DELETE FROM PEDIDOSOLICITACAOCOMPRA '+
+                           ' WHERE CODFILIAL = '+IntToStr(VpaDOrcamentoCompraCorpo.CodFilial)+
+                           ' AND SEQSOLICITACAO = '+IntToStr(VpaDOrcamentoCompraCorpo.SeqSolicitacao));
+  ExecutaComandoSql(Tabela,'DELETE FROM ESTAGIOSOLICITACAOCOMPRA '+
+                           ' WHERE CODFILIAL = '+IntToStr(VpaDOrcamentoCompraCorpo.CodFilial)+
+                           ' AND SEQSOLICITACAO = '+IntToStr(VpaDOrcamentoCompraCorpo.SeqSolicitacao));
   ExecutaComandoSql(Tabela,'DELETE FROM SOLICITACAOCOMPRACORPO'+
                            ' WHERE CODFILIAL = '+IntToStr(VpaDOrcamentoCompraCorpo.CodFilial)+
                            ' AND SEQSOLICITACAO = '+IntToStr(VpaDOrcamentoCompraCorpo.SeqSolicitacao));
@@ -545,8 +551,9 @@ begin
           VpfDProdutoPendente.NomProduto:= VpfDOrcamentoCompraProduto.NomProduto;
           VpfDProdutoPendente.DesTecnica := VpfDOrcamentoCompraProduto.DesTecnica;
           VpfDProdutoPendente.NomCor:= VpfDOrcamentoCompraProduto.NomCor;
-          if VpfDOrcamentoCompraProduto.UMOriginal = varia.UnidadeBarra then
-            VpfDOrcamentoCompraProduto.UMOriginal := 'mt';
+          if config.ConverterMTeCMparaMM then
+            if VpfDOrcamentoCompraProduto.UMOriginal = varia.UnidadeBarra then
+              VpfDOrcamentoCompraProduto.UMOriginal := 'MM';
           VpfDProdutoPendente.DesUM:= VpfDOrcamentoCompraProduto.UMOriginal;
           VpfDProdutoPendente.QtdUtilizada := 0;
           VpfDProdutoPendente.QtdAprovada := 0 ;
@@ -569,7 +576,6 @@ begin
                                                                         VpfDOrcamentoCompraProduto.UMOriginal,
                                                                         VpfDOrcamentoCompraProduto.QtdComprado,
                                                                          IntToStr(VpfDOrcamentoCompraProduto.SeqProduto)),varia.DecimaisQtd);
-
         VpfDProdutoPendente.OrcamentosCompra.Add(VpfDOrcamentoCompraCorpo);
       end;
     end;

@@ -1174,7 +1174,6 @@ end;
 {******************************************************************************}
 procedure TFNovaCotacao.CalculaValorTotalProduto;
 begin
-  VprDProCotacao.ValTotal := VprDProCotacao.ValUnitario * VprDProCotacao.QtdProduto;
   if Config.DescontoNosProdutodaCotacao then
     VprDProCotacao.ValTotal := VprDProCotacao.ValTotal - ((VprDProCotacao.ValTotal *VprDProCotacao.PerDesconto)/100);
   GProdutos.Cells[8,GProdutos.ALinha] := FormatFloat(Varia.MascaraQtd,VprDProCotacao.QtdProduto);
@@ -2032,7 +2031,18 @@ begin
 
   VprDProCotacao.UM := GProdutos.Cells[7,GProdutos.ALinha];
   VprDProCotacao.QtdProduto := StrToFloat(DeletaChars(GProdutos.Cells[8,GProdutos.ALinha],'.'));
-  VprDProCotacao.ValUnitario := StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'));
+  if (DeletaChars(DeletaChars(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'),','),'0') = '') and
+     (DeletaChars(DeletaChars(DeletaChars(GProdutos.Cells[10,GProdutos.ALinha],'.'),','),'0') <> '') then
+  begin
+    VprDProCotacao.ValTotal := StrToFloat(DeletaChars(GProdutos.Cells[10,GProdutos.ALinha],'.'));
+    VprDProCotacao.ValUnitario := VprDProCotacao.ValTotal / VprDProCotacao.QtdProduto;
+  end
+  else
+  begin
+    VprDProCotacao.ValUnitario := StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'));
+    VprDProCotacao.ValTotal := VprDProCotacao.ValUnitario * VprDProCotacao.QtdProduto;
+  end;
+
   VprDProCotacao.PerDesconto := StrToFloat(DeletaChars(GProdutos.Cells[11,GProdutos.ALinha],'.'));
   VprDProCotacao.DesRefCliente := GProdutos.Cells[12,GProdutos.Alinha];
   VprDProCotacao.DesOrdemCompra := GProdutos.Cells[13,GProdutos.ALinha];
@@ -2450,7 +2460,8 @@ begin
             GProdutos.Col := 8;
           end
           else
-            if (GProdutos.Cells[9,GProdutos.ALinha] = '') then
+            if ((GProdutos.Cells[9,GProdutos.ALinha] = '')and
+               (GProdutos.Cells[10,GProdutos.ALinha] = '')) then
             begin
               VpaValidos := false;
               aviso(CT_VALORUNITARIOINVALIDO);

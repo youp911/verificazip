@@ -532,6 +532,11 @@ begin
           FNovaColetaFracaoOP.NovaColeta;
           FNovaColetaFracaoOP.free;
         end;
+      123 :
+        begin
+          BaseDados.close;
+          BaseDados.open;
+        end;
     end;
 end;
 

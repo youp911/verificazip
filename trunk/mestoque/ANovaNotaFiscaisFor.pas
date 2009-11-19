@@ -184,6 +184,8 @@ type
     procedure ECodFornecedorSelect(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
     procedure ETamanhoRetorno(VpaColunas: TRBColunasLocaliza);
+    procedure GradeGetEditText(Sender: TObject; ACol, ARow: Integer; var Value: string);
+    procedure GradeContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
   private
     FunNotaFor : TFuncoesNFFor;
     FunContasPagar : TFuncoesContasAPagar;
@@ -1139,6 +1141,11 @@ begin
   Grade.Cells[19,VpaLinha] := IntToStr(VprDItemNota.QtdEtiquetas);
 end;
 
+procedure TFNovaNotaFiscaisFor.GradeContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+begin
+
+end;
+
 {******************************************************************************}
 procedure TFNovaNotaFiscaisFor.GradeDepoisExclusao(Sender: TObject);
 begin
@@ -1157,6 +1164,10 @@ begin
   case ACol of
     3,19 :  Value := '00000;0; ';
   end;
+end;
+
+procedure TFNovaNotaFiscaisFor.GradeGetEditText(Sender: TObject; ACol, ARow: Integer; var Value: string);
+begin
 end;
 
 {******************************************************************************}
@@ -1216,6 +1227,11 @@ procedure TFNovaNotaFiscaisFor.GradeSelectCell(Sender: TObject; ACol,
   ARow: Integer; var CanSelect: Boolean);
 begin
   if Grade.AEstadoGrade in [egInsercao,EgEdicao] then
+  begin
+    case Varia.TipFonte of
+     ecUpperCase : Grade.Cells[grade.AColuna,Grade.ALinha] := UpperCase(Grade.Cells[grade.AColuna,Grade.ALinha]);
+     ecLowerCase : Grade.Cells[grade.AColuna,Grade.ALinha] := lowerCase(Grade.Cells[grade.AColuna,Grade.ALinha]);
+    end;
     if Grade.AColuna <> ACol then
     begin
       case Grade.AColuna of
@@ -1286,6 +1302,7 @@ begin
              end;
       end;
     end;
+  end;
 end;
 
 procedure TFNovaNotaFiscaisFor.ECorRetorno(Retorno1, Retorno2: String);

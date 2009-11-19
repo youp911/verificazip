@@ -339,7 +339,8 @@ uses
   AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
   AMotivoParada in 'AMotivoParada.pas' {FMotivoParada},
   AAmostrasPendentes in 'AAmostrasPendentes.pas' {FAmostrasPendentes},
-  ATipoMateriaPrima in '..\mcrm\ATipoMateriaPrima.pas' {FTipoMateriaPrima};
+  ATipoMateriaPrima in '..\mcrm\ATipoMateriaPrima.pas' {FTipoMateriaPrima},
+  AGeraFracaoOPProdutos in 'AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos};
 
 {$R *.RES}
 

@@ -394,9 +394,11 @@ Type TRBDAmostra = class
     CodProspect,
     CodVendedor,
     CodAmostraIndefinida,
-    QtdAmostra: Integer;
+    QtdAmostra,
+    CodEmpresa : Integer;
 
     CodClassificacao,
+    DesTipoClassificacao,
     NomAmostra,
     DesImagem,
     DesImagemCliente,
@@ -736,6 +738,8 @@ type TRBDNotaFiscal = class
     ValICMSPadrao,
     ValBaseICMS,
     ValICMS,
+    ValBaseICMSSubstituicao,
+    ValICMSSubtituicao,
     ValTotalProdutos,
     ValTotalServicos,
     ValFrete,
@@ -868,6 +872,16 @@ Type
 end;
 
 Type
+  TRBDProdutoCorInstalacaoTear = class
+    public
+      CodCor : Integer;
+      Repeticoes : TList;
+      constructor cria;
+      destructor destroy;
+      function AddRepeticoes : TRBDRepeticaoInstalacaoTear;
+end;
+
+Type
   TRBDProduto = Class
     public
     // Gerais
@@ -878,7 +892,8 @@ Type
       CodUsuario,
       CodTipoCodBarra,
       QtdUnidadesPorCaixa,
-      NumOrigemProduto: Integer;
+      NumOrigemProduto,
+      NumDestinoProduto : Integer;
       PerIPI,
       QtdDiasEntregaFornecedor,
       PerReducaoICMS,
@@ -999,6 +1014,7 @@ Type
       PraProduto,
       DesTipTear,
       CodReduzidoCartucho: String;
+      DInstalacaoCorTear : TRBDProdutoCorInstalacaoTear;
 
     // Listas
       Combinacoes,
@@ -1055,6 +1071,26 @@ Type
       constructor cria;
       destructor destroy;override;
 end;
+
+Type
+  TRBDOrdemProducaoProduto = class
+    public
+      DProduto : TRBDProduto;
+      CodCor,
+      CodTamanho : Integer;
+      NomCor,
+      NomTamanho,
+      DesUM : String;
+      QtdaProduzir,
+      QtdOp,
+      QtdEstoque,
+      QtdReservado,
+      QtdMinimo,
+      QtdemProcesso,
+      QtdemProcessoSerie : Double;
+      constructor cria;
+      destructor destroy;override;
+  end;
 
 Type
   TRBDOrdemCorte = class
@@ -1350,10 +1386,12 @@ Type
       IndEstagiosCarregados,
       IndEstagioGerado,
       IndPlanoCorte,
-      IndConsumoBaixado : Boolean;
+      IndConsumoBaixado,
+      IndFracaoNova,
+      IndPossuiEmEstoque : Boolean;
       Estagios,
       Compose,
-      Consumo, 
+      Consumo,
       ConsumoOrdemCorte : TList;
       constructor cria;
       destructor destroy;override;
@@ -1409,12 +1447,14 @@ Type
       Estagios : TList;
       Fracoes : TList;
       Consumo : TList;
+      ProdutosSubmontagemAgrupados : TList;
       OrdensSerra : TList;
       constructor cria;
       destructor destroy;override;
       function AddFracao : TRBDFracaoOrdemProducao;
       function AddConsumo : TRBDConsumoOrdemProducao;
       function AddOrdemSerra : TRBDOrdemSerra;
+      function AddProdutoAgrupadoSubmontagem : TRBDOrdemProducaoProduto;
 end;
 
 
@@ -2935,6 +2975,8 @@ begin
   IndEstagiosCarregados := false;
   IndEstagioGerado := false;
   IndPlanoCorte := false;
+  IndFracaoNova := false;
+  IndPossuiEmEstoque := false;
   QtdCelula := 1;
   SeqFracao := 0;
 end;
@@ -3013,6 +3055,7 @@ begin
   Fracoes := TList.Create;
   Consumo := TList.create;
   OrdensSerra := TList.Create;
+  ProdutosSubmontagemAgrupados := TList.create;
   DProduto := TRBDProduto.cria;
   OrdemCorte := TRBDOrdemCorte.cria;
   QtdFracoes := 1;
@@ -3029,6 +3072,8 @@ begin
   Consumo.free;
   FreeTObjectsList(OrdensSerra);
   OrdensSerra.free;
+  FreeTObjectsList(ProdutosSubmontagemAgrupados);
+  ProdutosSubmontagemAgrupados.Free;
   DProduto.free;
   OrdemCorte.free;
   inherited;
@@ -3055,6 +3100,13 @@ begin
   result := TRBDOrdemSerra.cria;
   OrdensSerra.add(Result);
   Result.SeqOrdemSerra := OrdensSerra.Count;
+end;
+
+{******************************************************************************}
+function TRBDOrdemProducao.AddProdutoAgrupadoSubmontagem: TRBDOrdemProducaoProduto;
+begin
+  result := TRBDOrdemProducaoProduto.cria;
+  ProdutosSubmontagemAgrupados.Add(result);
 end;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
@@ -3253,6 +3305,7 @@ begin
   Acessorios := TList.create;
   FigurasComposicao := TList.Create;
   TabelaPreco := TList.Create;
+  DInstalacaoCorTear := TRBDProdutoCorInstalacaoTear.cria;
 end;
 
 {******************************************************************************}
@@ -3272,6 +3325,7 @@ begin
   Acessorios.free;
   TabelaPreco.free;
   FigurasComposicao.Free;
+  DInstalacaoCorTear.Free;
   inherited destroy;
 end;
 
@@ -3713,5 +3767,50 @@ end;
 
 { TRBDRepeticaoInstalacaoTear }
 
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Dados da Instalacao do tear
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+function TRBDProdutoCorInstalacaoTear.AddRepeticoes: TRBDRepeticaoInstalacaoTear;
+begin
+  Result := TRBDRepeticaoInstalacaoTear.cria;
+  Repeticoes.Add(result);
+end;
+
+{******************************************************************************}
+constructor TRBDProdutoCorInstalacaoTear.cria;
+begin
+  inherited create;
+  Repeticoes := TList.create;
+end;
+
+{******************************************************************************}
+destructor TRBDProdutoCorInstalacaoTear.destroy;
+begin
+  FreeTObjectsList(Repeticoes);
+  Repeticoes.free;
+  inherited destroy;
+end;
+{ TRBDProdutoCorInstalacaoTear }
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Dados da Instalacao do tear
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDOrdemProducaoProduto.cria;
+begin
+  inherited create;
+  DProduto := TRBDProduto.Cria;
+end;
+
+{******************************************************************************}
+destructor TRBDOrdemProducaoProduto.destroy;
+begin
+  DProduto.Free;
+  inherited;
+end;
+{ TRBDOrdemProducaoProduto }
 
 end.

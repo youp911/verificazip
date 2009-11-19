@@ -2993,6 +2993,8 @@ begin
     AdicionaSqlTabela(Tabela,' and PRO.I_COD_EMP = '+InttoStr(Varia.CodigoEmpresa));
   if VpaCodCliente <> 0 then
     AdicionaSqlTabela(Tabela,' and CAD.I_COD_CLI = '+InttoStr(VpaCodCliente));
+  if VpaCodVendedor   <> 0 then
+    AdicionaSqlTabela(Tabela,' and CAD.I_COD_VEN = '+InttoStr(VpaCodVendedor));
   if VpaCodTipoCotacao <> 0  then
     AdicionaSqlTabela(Tabela,' and CAD.I_TIP_ORC = '+InttoStr(VpaCodTipoCotacao));
   if VpaCodClienteMaster <> 0  then

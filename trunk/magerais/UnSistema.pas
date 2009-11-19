@@ -484,7 +484,8 @@ begin
   AdicionaSQLAbreTabela(SisAux,'Select I_EMP_FIL, C_NOM_FIL, C_NOM_FAN, C_WWW_FIL, C_END_ELE, '+
                                ' C_BAI_FIL, C_CID_FIL, C_EST_FIL, I_CEP_FIL, C_FON_FIL, C_END_FIL,I_NUM_FIL, '+
                                ' C_CRM_CES, C_CRM_CCL, C_EMA_COM, C_CGC_FIL, C_INS_FIL, C_CAB_EMA, C_MEI_EMA,  '+
-                               ' L_ROD_EMA '+
+                               ' L_ROD_EMA, I_COD_FIS, C_INS_MUN, C_PER_SPE, I_ATI_SPE, C_CPC_SPE, '+
+                               ' C_CRC_SPE, C_NCO_SPE, I_CON_SPE '+
                                ' from CADFILIAIS '+
                                ' Where I_EMP_FIL = '+IntToStr(VpaCodFilial));
   with VpaDFilial do
@@ -495,6 +496,8 @@ begin
     DesSite := SisAux.FieldByname('C_WWW_FIL').AsString;
     DesEmail := SisAux.FieldByname('C_END_ELE').AsString;
     DesEndereco := SisAux.FieldByname('C_END_FIL').AsString+', '+SisAux.FieldByname('I_NUM_FIL').AsString;
+    DesEnderecoSemNumero := SisAux.FieldByname('C_END_FIL').AsString;
+    NumEndereco :=SisAux.FieldByname('I_NUM_FIL').AsInteger;
     DesBairro := SisAux.FieldByname('C_BAI_FIL').AsString;
     DesCidade := SisAux.FieldByname('C_CID_FIL').AsString;
     DesUF := SisAux.FieldByname('C_EST_FIL').AsString;
@@ -503,11 +506,19 @@ begin
     DesEmailComercial := SisAux.FieldByname('C_EMA_COM').AsString;
     DesCNPJ := SisAux.FieldByname('C_CGC_FIL').AsString;
     DesInscricaoEstadual := SisAux.FieldByname('C_INS_FIL').AsString;
+    DesInscricaoMunicipal := SisAux.FieldByname('C_INS_MUN').AsString;
     DesCabecalhoEmailProposta := SisAux.FieldByname('C_CAB_EMA').AsString;
     DesMeioEmailProposta := SisAux.FieldByname('C_MEI_EMA').AsString;
     DesRodapeEmailProposta := SisAux.FieldByname('L_ROD_EMA').AsString;
     Varia.CRMCorEscuraEmail := SisAux.FieldByName('C_CRM_CES').AsString;
     varia.CRMCorClaraEmail := SisAux.FieldByName('C_CRM_CCL').AsString;
+    CodIBGEMunicipio := SisAux.FieldByname('I_COD_FIS').AsInteger;
+    DesPerfilSpedFiscal := SisAux.FieldByName('C_PER_SPE').AsString;
+    CodAtividadeSpedFiscal := SisAux.FieldByName('I_ATI_SPE').AsInteger;
+    DesCPFContador := SisAux.FieldByName('C_CPC_SPE').AsString;
+    DesCRCContador := SisAux.FieldByName('C_CRC_SPE').AsString;
+    NomContador := SisAux.FieldByName('C_NCO_SPE').AsString;
+    CodContabilidade := SisAux.FieldByName('I_CON_SPE').AsInteger;
   end;
   sisAux.Close;
 

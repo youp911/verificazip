@@ -488,6 +488,8 @@ begin
   VpaDNota.CodTipoFrete := CadNotaFiscal.FieldByName('I_TIP_FRE').AsInteger;
   VpaDNota.ValBaseICMS := CadNotaFiscal.FieldByName('N_BAS_CAL').AsFloat;
   VpaDNota.ValICMS := CadNotaFiscal.FieldByName('N_VLR_ICM').AsFloat ;
+  VpaDNota.ValBaseICMSSubstituicao := CadNotaFiscal.FieldByName('N_BAS_SUB').AsFloat;
+  VpaDNota.ValICMSSubtituicao := CadNotaFiscal.FieldByName('N_VLR_SUB').AsFloat;
   VpaDNota.NumPedidos := CadNotaFiscal.FieldByName('C_NUM_PED').AsString;
   VpaDNota.ValTotalProdutos := CadNotaFiscal.FieldByName('N_TOT_PRO').AsFloat;
   VpaDNota.ValFrete := CadNotaFiscal.FieldByName('N_VLR_FRE').AsFloat;
@@ -2661,6 +2663,8 @@ begin
   Cadastro.FieldByName('N_OUT_DES').AsFloat := VpaDNota.ValOutrasDepesesas;
   Cadastro.FieldByName('N_TOT_IPI').AsFloat := VpaDNota.ValTotalIPI;
   Cadastro.FieldByName('N_TOT_NOT').AsFloat := VpaDNota.ValTotal;
+  Cadastro.FieldByName('N_BAS_SUB').AsFloat := VpaDNota.ValBaseICMSSubstituicao;
+  Cadastro.FieldByName('N_VLR_SUB').AsFloat := VpaDNota.ValICMSSubtituicao;
   Cadastro.FieldByName('N_PES_BRU').AsFloat := VpaDNota.PesBruto;
   Cadastro.FieldByName('N_PES_LIQ').AsFloat := VpaDNota.PesLiquido;
   IF VpaDNota.DesUFPlacaVeiculo <> '' then

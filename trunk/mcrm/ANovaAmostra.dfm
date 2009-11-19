@@ -1430,6 +1430,16 @@ object FNovaAmostra: TFNovaAmostra
       Precision = 10
       Size = 0
     end
+    object AmostraCODEMPRESA: TFMTBCDField
+      FieldName = 'CODEMPRESA'
+      Precision = 10
+      Size = 0
+    end
+    object AmostraDESTIPOCLASSIFICACAO: TWideStringField
+      FieldName = 'DESTIPOCLASSIFICACAO'
+      FixedChar = True
+      Size = 1
+    end
   end
   object DataAmostra: TDataSource
     AutoEdit = False

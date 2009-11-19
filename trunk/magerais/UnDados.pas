@@ -3,16 +3,22 @@ unit UnDados;
 interface
 Uses Classes, UnDadosCR, SysUtils;
 
+
 Type
   TRBDFilial = class
     public
-      CodFilial : Integer;
+      CodFilial,
+      CodIBGEMunicipio,
+      CodAtividadeSpedFiscal,
+      CodContabilidade,
+      NumEndereco : Integer;
       NomFilial,
       NomFantasia,
       DesSite,
       DesEmail,
       DesEmailComercial,
       DesEndereco,
+      DesEnderecoSemNumero,
       DesBairro,
       DesCidade,
       DesUF,
@@ -20,28 +26,18 @@ Type
       DesFone,
       DesFax,
       DesCNPJ,
+      DesCPFContador,
+      DesCRCContador,
+      NomContador,
       DesInscricaoEstadual,
+      DesInscricaoMunicipal,
+      DesPerfilSpedFiscal,
       DesCabecalhoEmailProposta,
       DesMeioEmailProposta,
       DesRodapeEmailProposta : String;
       constructor cria;
       destructor destroy;override;
 end;
-
-
-Type
-  TRBCod_Fin = (cfRemessaOriginal,cfRemessaSubtituto);
-  TRBDSpedFiscal = class
-    public
-      CodFilial : integer;
-     DatInicio,
-     DatFinal : TDateTime;
-     CodFinalidade : TRBCod_Fin;
-     DFilial : TRBDFilial;
-     Arquivo : TStringList;
-     constructor cria;
-     destructor destroy;override;
-  end;
 
 
 Type
@@ -1648,6 +1644,25 @@ Type
       destructor destroy;override;
 end;
 
+Type
+  TRBCod_Fin = (cfRemessaOriginal,cfRemessaSubtituto);
+  TRBDSpedFiscal = class
+    public
+     CodFilial : integer;
+     DatInicio,
+     DatFinal : TDateTime;
+     PerICMSInterno : Double;
+     CodFinalidade : TRBCod_Fin;
+     DFilial : TRBDFilial;
+     DContabilidade : TRBDCliente;
+     Arquivo,
+     Incosistencias : TStringList;
+     constructor cria;
+     destructor destroy;override;
+  end;
+
+
+
 implementation
 Uses FunObjeto, FunData;
 
@@ -3243,13 +3258,17 @@ constructor TRBDSpedFiscal.cria;
 begin
   inherited create;
   Arquivo := TStringList.Create;
+  Incosistencias := TStringList.Create;
   DFilial := TRBDFilial.cria;
+  DContabilidade := TRBDCliente.cria;
 end;
 
 {******************************************************************************}
 destructor TRBDSpedFiscal.destroy;
 begin
   DFilial.free;
+  DContabilidade.free;
+  Incosistencias.free;
   Arquivo.free;
   inherited;
 end;

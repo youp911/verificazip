@@ -211,6 +211,7 @@ type
     function RNomTabelaPreco(VpaCodTabelaPreco : Integer) : String;
     function RQtdPecaemMetro(VpaAltProduto, VpaLarProduto, VpaQtdProvas : Integer;VpaAltMolde, VpaLarMolde : double;VpaIndAltFixa : Boolean; Var VpaIndice : double):Integer;
     function RCodBarrasEAN13Disponivel : String;
+    function RUMMTCMBR(VpaCodUnidade : String):string;
     function PrincipioAtivoControlado(VpaCodPrincipio : Integer) : boolean;
     procedure AtualizaValorCusto(VpaSeqProduto,VpaCodFilial, VpaCodMoeda : Integer; VpaUniPadrao, VpaUniProduto,VpaFuncaoOperacao : String;VpaCodCor,VpaCodTamanho : Integer;VpaQtdProduto, VpaVlrCompra,VpaTotCompra,VpaVlrFrete,VpaPerIcms, VpaPerIPI, VpaValDescontoNota: Double;VpaIndFreteEmitente : Boolean);
     function AtualizaCodEan(VpaSeqProduto,VpaCodCor : Integer;VpaCodBarras : String):String;
@@ -290,6 +291,7 @@ type
     function GeraCodigosBArras : String;
     procedure ConverteNomesProdutosSemAcento;
     procedure AdicionaTodasTabelasdePreco(VpaDProduto : TRBDProduto);
+    function AdicionaRepeticaoInstalacaoTear(VpaDProduto : TRBDProduto; VpaColunaInicial, VpaColunaFinal,VpaQtdRepeticao : Integer) : String;
  end;
 Var
   FunProdutos : TFuncoesProduto;
@@ -2741,6 +2743,40 @@ begin
 end;
 
 {******************************************************************************}
+function TFuncoesProduto.AdicionaRepeticaoInstalacaoTear(VpaDProduto: TRBDProduto; VpaColunaInicial, VpaColunaFinal, VpaQtdRepeticao: Integer): String;
+var
+  VpfDRepeticao : TRBDRepeticaoInstalacaoTear;
+  VpfLaco,VpfAux : Integer;
+begin
+  result := '';
+  if VpaColunaInicial > VpaColunaFinal then
+  begin
+    VpfAux := VpaColunaInicial;
+    VpaColunaInicial := VpaColunaFinal;
+    VpaColunaFinal := VpfAux;
+  end;
+  for VpfLaco := 0 to VpaDProduto.DInstalacaoCorTear.Repeticoes.count - 1 do
+  begin
+    VpfDRepeticao := TRBDRepeticaoInstalacaoTear(VpaDProduto.DInstalacaoCorTear.Repeticoes.Items[VpfLaco]);
+    if ((VpaColunaInicial >= VpfDRepeticao.NumColunaInicial) and
+       (VpaColunaInicial <= VpfDRepeticao.NumColunaFinal))or
+       ((VpaColunaFinal >= VpfDRepeticao.NumColunaInicial) and
+       (VpaColunaFinal <= VpfDRepeticao.NumColunaFinal)) then
+    begin
+      result := 'COLUNA INICIAL E FINAL INVÁLIDAS!!!'#13'Já existe repetição selecinada para esse intervalo.';
+      break;
+    end;
+  end;
+  if result = ''  then
+  begin
+    VpfDRepeticao := VpaDProduto.DInstalacaoCorTear.AddRepeticoes;
+    VpfDRepeticao.NumColunaInicial := VpaColunaInicial;
+    VpfDRepeticao.NumColunaFinal := VpaColunaFinal;
+    VpfDRepeticao.QtdRepeticao := VpaQtdRepeticao;
+  end;
+end;
+
+{******************************************************************************}
 procedure TFuncoesProduto.AdicionaTodasTabelasdePreco(VpaDProduto: TRBDProduto);
 var
   VpfDTabelaPreco : TRBDProdutoTabelaPreco;
@@ -2984,6 +3020,7 @@ end;
 function TFuncoesProduto.ExisteProduto(VpaCodProduto : String;var VpaSeqProduto : Integer;var VpaNomProduto, VpaUM : String):boolean;
 begin
   result := false;
+  VpaSeqProduto := 0;
   if VpaCodProduto <> '' then
   begin
     AdicionaSQLAbreTabela(ProProduto,'Select pro.I_Seq_Pro, '+varia.CodigoProduto +
@@ -3084,7 +3121,8 @@ begin
     begin
       VpaDProdutoPedido.SeqProduto:= ProProduto.FieldByName('I_SEQ_PRO').AsInteger;
       VpaDProdutoPedido.CodProduto:= ProProduto.FieldByName('C_COD_PRO').AsString;
-      VpaDProdutoPedido.DesUM:= ProProduto.FieldByName('C_COD_UNI').AsString;
+      VpaDProdutoPedido.DesUM:= RUMMTCMBR(ProProduto.FieldByName('C_COD_UNI').AsString);
+
       VpaDProdutoPedido.NomProduto:= ProProduto.FieldByName('C_NOM_PRO').AsString;
       VpaDProdutoPedido.DesTecnica := ProProduto.FieldByName('L_DES_TEC').AsString;
       VpaDProdutoPedido.ValUnitario:= ProProduto.FieldByName('N_VLR_COM').AsFloat;
@@ -3141,7 +3179,7 @@ begin
     begin
       VpaDOrcamentoItem.SeqProduto:= ProProduto.FieldByName('I_SEQ_PRO').AsInteger;
       VpaDOrcamentoItem.CodProduto:= ProProduto.FieldByName('C_COD_PRO').AsString;
-      VpaDOrcamentoItem.DesUM:= ProProduto.FieldByName('C_COD_UNI').AsString;
+      VpaDOrcamentoItem.DesUM:= RUMMTCMBR(ProProduto.FieldByName('C_COD_UNI').AsString);
       VpaDOrcamentoItem.NomProduto:= ProProduto.FieldByName('C_NOM_PRO').AsString;
       VpaDOrcamentoItem.DesTecnica:= ProProduto.FieldByName('L_DES_TEC').AsString;
 
@@ -3998,7 +4036,8 @@ begin
                             ' CAD.I_COD_COR, CAD.C_IND_COM, CAD.C_ATI_PRO,'+
                             ' CAD.I_TAB_PED, CAD.I_QTD_CTA, CAD.C_CAR_TEX,'+
                             ' CAD.D_DAT_CAD, CAD.I_COD_COM, CAD.C_IND_MON, '+
-                            ' CAD.I_ORI_PRO, CAD.N_CAP_LIQ, CAD.C_KIT_PRO '+
+                            ' CAD.I_ORI_PRO, CAD.N_CAP_LIQ, CAD.C_KIT_PRO,  '+
+                            ' CAD.I_DES_PRO '+
                             ' FROM CADPRODUTOS CAD'+
                             ' WHERE CAD.I_SEQ_PRO = '+IntToStr(vpadproduto.Seqproduto));
 
@@ -4016,6 +4055,7 @@ begin
   VpaDProduto.DesClassificacaoFiscal:= Tabela.FieldByName('C_CLA_FIS').AsString;
   VpaDProduto.DesDescricaoTecnica:= Tabela.FieldByName('L_DES_TEC').AsString;
   VpaDProduto.NumOrigemProduto:= Tabela.FieldByName('I_ORI_PRO').AsInteger;
+  VpaDProduto.NumDestinoProduto := Tabela.FieldByName('I_DES_PRO').AsInteger;
   VpaDProduto.CodBarraFornecedor:= Tabela.FieldByName('C_BAR_FOR').AsString;
   VpaDProduto.CifraoMoeda:= Tabela.FieldByName('C_CIF_MOE').AsString;
   VpaDProduto.PerIPI:= Tabela.FieldByName('N_PER_IPI').AsFloat;
@@ -4232,6 +4272,7 @@ begin
   ProCadastro.FieldByName('C_CLA_FIS').AsString:= VpaDProduto.DesClassificacaoFiscal;
   ProCadastro.FieldByName('L_DES_TEC').AsString:= VpaDProduto.DesDescricaoTecnica;
   ProCadastro.FieldByName('I_ORI_PRO').AsInteger:= VpaDProduto.NumOrigemProduto;
+  ProCadastro.FieldByName('I_DES_PRO').AsInteger:= VpaDProduto.NumDestinoProduto;
   ProCadastro.FieldByName('C_BAR_FOR').AsString:= VpaDProduto.CodBarraFornecedor;
   ProCadastro.FieldByName('C_PAT_FOT').AsString:= VpaDProduto.PatFoto;
   ProCadastro.FieldByName('C_CIF_MOE').AsString:= VpaDProduto.CifraoMoeda;
@@ -4670,6 +4711,16 @@ begin
   VpaValVenda := AUX.FieldByName('VLRREAL').AsFloat;
   VpaValRevenda := AUX.FieldByName('VlrRevenda').AsFloat;
   Aux.Close;
+end;
+
+{******************************************************************************}
+function TFuncoesProduto.RUMMTCMBR(VpaCodUnidade: String): string;
+begin
+  result := VpaCodUnidade;
+  if config.ConverterMTeCMparaMM then
+    if (VpaCodUnidade = varia.UnidadeBarra) or
+       (VpaCodUnidade = 'MT') then
+      result := 'MM';
 end;
 
 {******************************************************************************}
@@ -5303,6 +5354,7 @@ begin
 
     if VpfDConsumo.Faca.CodFaca <> 0 then
       ProCadastro.FieldByName('I_COD_FAC').AsInteger:= VpfDConsumo.Faca.CodFaca;
+
     if VpfDConsumo.AlturaMolde <> 0 then
       ProCadastro.FieldByName('I_ALT_MOL').AsFloat:= VpfDConsumo.AlturaMolde;
     if VpfDConsumo.LarguraMolde <> 0 then

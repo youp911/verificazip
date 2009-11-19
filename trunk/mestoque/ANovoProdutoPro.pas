@@ -29,7 +29,6 @@ type
     Label9: TLabel;
     Label13: TLabel;
     Label21: TLabel;
-    Label16: TLabel;
     Label7: TLabel;
     LQtdCaixa: TLabel;
     LblQtdMin: TLabel;
@@ -41,7 +40,6 @@ type
     Label73: TLabel;
     Label6: TLabel;
     LDescricaoTecnica: TLabel;
-    SpeedButton2: TSpeedButton;
     SpeedButton3: TSpeedButton;
     SpeedButton1: TSpeedButton;
     BFoto: TBitBtn;
@@ -64,11 +62,9 @@ type
     Localiza: TConsultaPadrao;
     Label5: TLabel;
     ECifraoMoeda: TEditColor;
-    EClassificacaoFiscal: TEditColor;
+    EClassificacaoFiscal: TMaskEditColor;
     ECodBarraFornecedor: TEditColor;
     LNomClassificacao: TLabel;
-    ETipCodBarra: TEditLocaliza;
-    Label8: TLabel;
     EUnidadesPorCaixa: Tnumerico;
     EUnidadesVenda: TComboBoxColor;
     EDescricaoTecnica: TMemoColor;
@@ -334,6 +330,12 @@ type
     PanelColor9: TPanelColor;
     PanelColor10: TPanelColor;
     PanelColor11: TPanelColor;
+    EDestinoProduto: TComboBoxColor;
+    Label102: TLabel;
+    GDPC: TRBStringGridColor;
+    EQtdLinInstalacao: TSpinEditColor;
+    Label8: TLabel;
+    Splitter1: TSplitter;
 
     procedure PaginasChange(Sender: TObject);
     procedure PaginasChanging(Sender: TObject; var AllowChange: Boolean);
@@ -476,6 +478,9 @@ type
     procedure EValRevendaExit(Sender: TObject);
     procedure EValCustoExit(Sender: TObject);
     procedure PanelColor11Click(Sender: TObject);
+    procedure GDPCGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+    procedure GDPCClick(Sender: TObject);
+    procedure EQtdLinInstalacaoExit(Sender: TObject);
   private
     VprCodClassificacao,
     VprCodClassificacaoAnterior : String;
@@ -561,6 +566,7 @@ type
 
     procedure ConfiguraQtdQuadros(VpaQtdQuadros : Integer);
     procedure ConfiguraQtdColunaInstalcao(VpaQtdColunas : Integer);
+    procedure ConfiguraQtdLinhaInstalacao(VpaQtdLinhas : Integer);
     procedure ZoomGradeInstalacao(VpaIndice : Double);
     procedure CarDProdutoInstalacao;
     procedure CarDProdutoInstalacaoTela;
@@ -657,18 +663,91 @@ end;
 procedure TFNovoProdutoPro.ConfiguraQtdColunaInstalcao(VpaQtdColunas: Integer);
 var
   VpfLacoLinha, VpfLacoColuna, VpfDiferenca : Integer;
+  VpfDRepeticao : TRBDRepeticaoInstalacaoTear;
 begin
-  VpfDiferenca := VpaQtdColunas - GInstalacao.ColCount;
-  GInstalacao.ColCount := VpaQtdColunas;
-  for VpfLacoColuna := VpaQtdColunas -1 downto 0 do
+  if VpaQtdColunas <=0 then
   begin
-    for VpfLacoLinha := 0 to GInstalacao.RowCount - 1 do
+    aviso('QUANTIDADE DE COLUNAS INVÁLIDA!!!'#13'Quantidade de colunas não pode ser menor que zero.');
+    EQtdColInstalacao.Value := GInstalacao.ColCount;
+  end
+  else
+  begin
+    VpfDiferenca := VpaQtdColunas - GInstalacao.ColCount;
+    if VpfDiferenca > 0 then
     begin
-      if VpfLacoColuna < VpfDiferenca then
-        GInstalacao.Cells[VpfLacoColuna,VpfLacoLinha] := ''
-      else
-        GInstalacao.Cells[VpfLacoColuna,VpfLacoLinha] := GInstalacao.Cells[VpfLacoColuna-VpfDiferenca,VpfLacoLinha];
-      GInstalacao.ColWidths[VpfLacoColuna] := 20;
+      GInstalacao.ColCount := VpaQtdColunas;
+      for VpfLacoColuna := VpaQtdColunas -1 downto 0 do
+      begin
+        for VpfLacoLinha := 0 to GInstalacao.RowCount - 1 do
+        begin
+          if VpfLacoColuna < VpfDiferenca then
+            GInstalacao.Cells[VpfLacoColuna,VpfLacoLinha] := ''
+          else
+            GInstalacao.Cells[VpfLacoColuna,VpfLacoLinha] := GInstalacao.Cells[VpfLacoColuna-VpfDiferenca,VpfLacoLinha];
+          GInstalacao.ColWidths[VpfLacoColuna] :=GInstalacao.ColWidths[0] ;
+        end;
+      end;
+    end
+    else
+    begin
+      for VpfLacoColuna := (VpfDiferenca *-1) to GInstalacao.ColCount - 1  do
+      begin
+        for VpfLacoLinha := 0 to GInstalacao.RowCount - 1 do
+        begin
+          GInstalacao.Cells[VpfLacoColuna+VpfDiferenca,VpfLacoLinha] := GInstalacao.Cells[VpfLacoColuna,VpfLacoLinha];
+        end;
+      end;
+      GInstalacao.ColCount := VpaQtdColunas;
+    end;
+
+
+    for VpfLacoLinha := 0 to VprDProduto.DInstalacaoCorTear.Repeticoes.Count - 1 do
+    begin
+      VpfDRepeticao := TRBDRepeticaoInstalacaoTear(VprDProduto.DInstalacaoCorTear.Repeticoes.Items[VpfLacoLinha]);
+      VpfDRepeticao.NumColunaInicial := VpfDRepeticao.NumColunaInicial + VpfDiferenca;
+      VpfDRepeticao.NumColunaFinal := VpfDRepeticao.NumColunaFinal + VpfDiferenca;
+    end;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.ConfiguraQtdLinhaInstalacao(VpaQtdLinhas: Integer);
+Var
+  VpfDiferenca : Integer;
+  VpfLacoLinha, VpfLacoColuna : Integer;
+begin
+  if VpaQtdLinhas <=0  then
+  begin
+    aviso('QUANTIDADE DE LINHAS INVÁLIDAS!!!'#13'A quantidade de linhas não pode ser menor que zero.');
+    EQtdLinInstalacao.Value := GDPC.rowcount;
+  end
+  else
+  begin
+    VpfDiferenca := VpaQtdLinhas - GDPC.RowCount;
+    if VpfDiferenca > 0 then
+    begin
+      GDPC.Rowcount := VpaQtdLinhas;
+      for VpflacoLInha := VpaQtdLinhas  downto 0 do
+      begin
+        for VpfLacoColuna := 0 to GDPC.ColCount -1 do
+        begin
+          if VpfLacoLinha < VpfDiferenca then
+            GDPC.Cells[VpfLacoColuna,VpfLacoLinha] := ''
+          else
+            GDPC.Cells[VpfLacoColuna,VpfLacoLinha] := GDPC.Cells[VpfLacoColuna,VpfLacoLinha-VpfDiferenca];
+        end;
+      end;
+    end
+    else
+    begin
+      for VpfLacoLinha := (VpfDiferenca *-1) to GDPC.RowCount - 1  do
+      begin
+        for VpfLacoColuna := 0 to GDPC.ColCount - 1 do
+        begin
+          GDPC.Cells[VpfLacoColuna,VpfLacoLinha+VpfDiferenca] := GDPC.Cells[VpfLacoColuna,VpfLacoLinha];
+        end;
+      end;
+      GDPC.RowCount := VpaQtdLinhas;
     end;
   end;
 end;
@@ -679,8 +758,14 @@ var
   VpfLaco : Integer;
 begin
   GInstalacao.RowCount := VpaQtdQuadros + 3;
+  GDPC.ColCount := VpaQtdQuadros;
   for VpfLaco := 0 to VpaQtdQuadros - 1 do
+  begin
     GInstalacao.Cells[GInstalacao.ColCount-1,VpfLaco] := IntToStr(VpaQtdQuadros - Vpflaco);
+    GDPC.Cells[VpfLaco,GDPC.RowCount-1] := IntToStr(Vpflaco+1);
+    gdpc.ColWidths[VpfLaco]:=GDPC.ColWidths[0];
+  end;
+
 end;
 
 {******************************************************************************}
@@ -701,10 +786,6 @@ procedure TFNovoProdutoPro.ConfiguracoesCodigoBarra;
 begin
   ECodBarraFornecedor.Visible:= Config.CodigoBarras;
   Label13.Visible:= Config.CodigoBarras;
-  Label8.Visible:= Config.CodigoBarras;
-  Label16.Visible:= Config.CodigoBarras;
-  SpeedButton2.Visible:= Config.CodigoBarras;
-  ETipCodBarra.Visible:= Config.CodigoBarras;
 end;
 
 {******************************************************************************}
@@ -1541,10 +1622,13 @@ begin
   EPerComissao.AValor:= VprDProduto.PerComissao;
   EQuantidade.AValor:= VprDProduto.QtdEstoque;
   EOrigemProduto.ItemIndex := VprDProduto.NumOrigemProduto;
+  if VprDProduto.NumDestinoProduto = 99  then
+    EDestinoProduto.ItemIndex := 11
+  else
+    EDestinoProduto.ItemIndex := VprDProduto.NumDestinoProduto;
   EPerMaxDesconto.AValor:= VprDProduto.PerMaxDesconto;
   ECodBarraFornecedor.Text:= VprDProduto.CodBarraFornecedor;
   EValCusto.AValor:= VprDProduto.VlrCusto;
-  ETipCodBarra.AInteiro:= VprDProduto.CodTipoCodBarra;
   EValVenda.AValor:= VprDProduto.VlrVenda;
   EPerLucro.AValor := VprDProduto.PerLucro;
   CProdutoAtivo.Checked:= VprDProduto.IndProdutoAtivo;
@@ -1557,7 +1641,6 @@ begin
 
   ECodClassificacaoExit(Self);
   ECodMoeda.Atualiza;
-  ETipCodBarra.Atualiza;
 end;
 
 {******************************************************************************}
@@ -1804,12 +1887,15 @@ begin
   VprDProduto.PerComissao:= EPerComissao.AValor;
   VprDProduto.QtdEstoque:= EQuantidade.AValor;
   VprDProduto.NumOrigemProduto:= EOrigemProduto.ItemIndex;
+  if EDestinoProduto.ItemIndex = 11 then
+    VprDProduto.NumDestinoProduto := 99
+  else
+    VprDProduto.NumDestinoProduto := EDestinoProduto.ItemIndex;
   VprDProduto.PerMaxDesconto:= EPerMaxDesconto.AValor;
   VprDProduto.CodBarraFornecedor:= ECodBarraFornecedor.Text;
   VprDProduto.VlrCusto:= EValCusto.AValor;
   VprDProduto.VlrVenda := EValVenda.AValor;
   VprDProduto.VlrReVenda := EValRevenda.AValor;
-  VprDProduto.CodTipoCodBarra:= ETipCodBarra.AInteiro;
   VprDProduto.PerLucro := EPerLucro.AValor;
 
   VprDProduto.IndProdutoAtivo:= CProdutoAtivo.Checked;
@@ -2688,6 +2774,41 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.GDPCClick(Sender: TObject);
+begin
+  if BNovo.Down then
+  begin
+    if (GDPC.row < GDPC.RowCount - 1)then
+    begin
+      if GDPC.Cells[GDPC.col,GDPC.Row] = '' then
+        GDPC.Cells[GDPC.col,GDPC.Row] := '*'
+      else
+        GDPC.Cells[GDPC.col,GDPC.Row] := '';
+    end;
+  end
+  else
+    if BCursor.Down then
+    begin
+      CarDProdutoInstalacaoTela;
+    end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.GDPCGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+begin
+  if ARow < GDPC.RowCount -1 then
+  begin
+    if GDPC.Cells[Acol,ARow] = '' then
+      ABrush.Color := clInfoBk
+    else
+      if GDPC.Cells[Acol,ARow] = '*' then
+        ABrush.Color := clBlack;
+  end
+  else
+    ABrush.Color := clGray;
+end;
+
+{******************************************************************************}
 function TFNovoProdutoPro.GeraCodigoBarras: String;
 begin
   result := '';
@@ -3007,7 +3128,7 @@ begin
       begin
         CarDProdutoInstalacao;
         if GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] = '' then
-          GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] := '1'
+          GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] := '*'
         else
           GInstalacao.Cells[GInstalacao.col,GInstalacao.Row] := '';
       end
@@ -3030,8 +3151,11 @@ begin
     if GInstalacao.Cells[Acol,ARow] = '' then
       ABrush.Color := clInfoBk
     else
-      if GInstalacao.Cells[Acol,ARow] = '1' then
-        ABrush.Color := clBlack;
+      if GInstalacao.Cells[Acol,ARow] = '*' then
+        ABrush.Color := clBlack
+      else
+        if GInstalacao.Cells[Acol,ARow] = '&' then
+          ABrush.Color := clBlue;
   end
   else
     ABrush.Color := clGray;
@@ -3051,27 +3175,29 @@ procedure TFNovoProdutoPro.GInstalacaoMouseUp(Sender: TObject; Button: TMouseBut
 var
   Vpfqtd : String;
   VpfDRepeticao : TRBDRepeticaoInstalacaoTear;
+  VpfResultado : String;
+  VpfLinha, VpfLaco : Integer;
 begin
   if BRepeticaoDesenho.Down then
   begin
     GInstalacao.MouseToCell(x,y,VprColunaFinal,VprLinhaFinal);
-    VpfDRepeticao := TRBDRepeticaoInstalacaoTear.cria;
-    if VprColunaInicial > VprColunaFinal then
-    begin
-      VpfDRepeticao.NumColunaInicial := VprColunaFinal;
-      VpfDRepeticao.NumColunaFinal := VprColunaInicial;
-    end
+    VpfResultado := FunProdutos.AdicionaRepeticaoInstalacaoTear(VprDProduto,VprColunaInicial,VprColunaFinal,VprQtdRepeticao);
+    if VpfResultado <> '' then
+      aviso(VpfResultado)
     else
     begin
-      VpfDRepeticao.NumColunaInicial := VprColunaInicial;
-      VpfDRepeticao.NumColunaFinal := VprColunaFinal;
+      VpfDRepeticao := TRBDRepeticaoInstalacaoTear(VprDProduto.DInstalacaoCorTear.Repeticoes.Items[VprDProduto.DInstalacaoCorTear.Repeticoes.Count -1]);
+      if (VprDProduto.DInstalacaoCorTear.Repeticoes.Count mod 2) = 0 then
+        VpfLinha := GInstalacao.RowCount-2
+      else
+        VpfLinha := GInstalacao.RowCount-1;
+      GInstalacao.Cells[VpfDRepeticao.NumColunaInicial +((VpfDRepeticao.NumColunaFinal - VpfDRepeticao.NumColunaInicial)div 2),VpfLinha] := IntToStr(VpfDRepeticao.QtdRepeticao);
+      for Vpflaco := VpfDRepeticao.NumColunaInicial to VpfDRepeticao.NumColunaFinal do
+      begin
+        GInstalacao.Cells[Vpflaco,VpfLinha-1] := '&';
+      end;
     end;
-    VpfDRepeticao.QtdRepeticao := VprQtdRepeticao;
-    //Tem que fazer a rotina para validar se a coluna ja nao esta em outra repeticao
-    //se estiver ok adicinar na lista VprRepeticoes;
-    GInstalacao.Cells[VpfDRepeticao.NumColunaInicial,GInstalacao.RowCount-2] := IntToStr(VprQtdRepeticao);
   end;
-
 end;
 
 {******************************************************************************}
@@ -3385,6 +3511,11 @@ end;
 procedure TFNovoProdutoPro.EQtdColInstalacaoExit(Sender: TObject);
 begin
   ConfiguraQtdColunaInstalcao(EQtdColInstalacao.Value);
+end;
+
+procedure TFNovoProdutoPro.EQtdLinInstalacaoExit(Sender: TObject);
+begin
+  ConfiguraQtdLinhaInstalacao(EQtdLinInstalacao.Value);
 end;
 
 {******************************************************************************}

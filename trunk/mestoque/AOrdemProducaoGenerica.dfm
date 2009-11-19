@@ -39,7 +39,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       Top = 1
       Width = 819
       Height = 323
-      ActivePage = PSubMontagem
+      ActivePage = PFracionada
       Align = alClient
       TabOrder = 0
       OnChange = PageControl1Change
@@ -70,6 +70,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
           TitleFont.Height = -13
           TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
+          OnDblClick = BConsultarClick
           OnKeyDown = GridIndice1KeyDown
           ACorFoco = FPrincipal.CorFoco
           AListaIndice.Strings = (
@@ -1615,6 +1616,23 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       OnClick = BImprimeOrdemCorteClick
     end
   end
+  object PainelTempo1: TPainelTempo
+    Left = 301
+    Top = 8
+    Width = 29
+    Height = 29
+    Caption = 'T'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -16
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    Visible = False
+    AColorSombra = clBlack
+    AColorInicio = clSilver
+  end
   object OrdemProducao: TSQL
     Aggregates = <>
     PacketRecords = 30
@@ -1757,6 +1775,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     end
     object MReimportarProjeto: TMenuItem
       Caption = 'Reimportar Projeto'
+      OnClick = ReimportarFrao1Click
     end
     object N15: TMenuItem
       Caption = '-'
@@ -1789,9 +1808,9 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     object N4: TMenuItem
       Caption = '-'
     end
-    object GerarConsumo1: TMenuItem
+    object MGerarConsumo: TMenuItem
       Caption = 'Gerar Consumo'
-      OnClick = GerarConsumo1Click
+      OnClick = MGerarConsumoClick
     end
     object N6: TMenuItem
       Caption = '-'

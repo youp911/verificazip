@@ -500,7 +500,14 @@ begin
       begin
         VpaValidos := false;
         aviso('QTD COPIAS COLORIDA INVÁLIDA!!!'#13'A quantidade de cópias coloridas não pode ser negativa.');
-      end;
+      end
+      else
+        if (VprDItem.QtdUltimaLeituraColor > 0) and
+           (VprDItem.QtdTotalCopiasColor = 0) then
+        begin
+          VpaValidos := false;
+          aviso('QTD COPIAS COLORIDA INVÁLIDA!!!'#13'É necessário digitar a quantidade de cópias coloridas.');
+        end;
     if VpaValidos then
       CalculaValorTotal;
   end;

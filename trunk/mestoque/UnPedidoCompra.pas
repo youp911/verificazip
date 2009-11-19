@@ -483,6 +483,9 @@ begin
   ExecutaComandoSql(Cadastro,'DELETE FROM PENDENCIACOMPRA'+
                              ' WHERE CODFILIAL = '+IntToStr(VpaDPedidoCompra.CodFilial)+
                              ' AND SEQPEDIDO = '+IntToStr(VpaDPedidoCompra.SeqPedido));
+  sistema.GravaLogExclusao('PEDIDOCOMPRACORPO','Select * from PEDIDOCOMPRACORPO '+
+                          ' Where CODFILIAL = ' + InttoStr(VpaDPedidoCompra.CodFilial)+
+                          ' and SEQPEDIDO = ' + IntToStr(VpaDPedidoCompra.SeqPedido));
   ExecutaComandoSql(Cadastro,'DELETE FROM PEDIDOCOMPRACORPO'+
                              ' WHERE CODFILIAL = '+IntToStr(VpaDPedidoCompra.CodFilial)+
                              ' AND SEQPEDIDO = '+IntToStr(VpaDPedidoCompra.SeqPedido));

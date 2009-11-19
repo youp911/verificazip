@@ -138,7 +138,7 @@ var
 
 implementation
 
-uses APrincipal, FunSql, UnProdutos, AGeraFracaoOP, ANovoProdutoPro, FunObjeto;
+uses APrincipal, FunSql, UnProdutos, AGeraFracaoOP, ANovoProdutoPro, FunObjeto, AGeraFracaoOPProdutos;
 
 {$R *.DFM}
 
@@ -456,15 +456,22 @@ var
 begin
   CarDClasse;
   if varia.TipoOrdemProducao = toSubMontagem then
-    GeraFracoesOPSubmontagens;
-
-  FGeraFracaoOP := TFGeraFracaoOP.CriarSDI(self,'',FPrincipal.VerificaPermisao('FGeraFracaoOP'));
-  if  FGeraFracaoOP.GeraFracaoOP(VprDOrdemProducao) then
   begin
-    VprAcao := true;
-    close;
+    GeraFracoesOPSubmontagens;
+    FGeraFracaoOPProdutos := TFGeraFracaoOPProdutos.CriarSDI(self,'',true);
+    FGeraFracaoOPProdutos.GeraOP(VprDOrdemProducao);
+    FGeraFracaoOPProdutos.free;
+  end
+  else
+  begin
+    FGeraFracaoOP := TFGeraFracaoOP.CriarSDI(self,'',FPrincipal.VerificaPermisao('FGeraFracaoOP'));
+    if  FGeraFracaoOP.GeraFracaoOP(VprDOrdemProducao) then
+    begin
+      VprAcao := true;
+      close;
+    end;
+    FGeraFracaoOP.free;
   end;
-  FGeraFracaoOP.free;
 end;
 
 {******************************************************************************}

@@ -1992,8 +1992,8 @@ begin
            result := FormatDateTime('HH:MM',VprDNotaFiscal.HorSaida);
     19 : result := FormatFloat('#,###,##0.00', VprDNotaFiscal.ValBaseICMS);
     20 : result := FormatFloat('#,###,##0.00', VprDNotaFiscal.ValICMS);
-    21 : result := FormatFloat('#,###,##0.00', 0); //base icms substituicao
-    22 : result := FormatFloat('#,###,##0.00', 0); //Val icms substituicao
+    21 : result := FormatFloat('#,###,##0.00', VprDNotaFiscal.ValBaseICMSSubstituicao ); //base icms substituicao
+    22 : result := FormatFloat('#,###,##0.00', VprDNotaFiscal.ValICMSSubtituicao); //Val icms substituicao
     23 : result := FormatFloat('#,###,##0.00', VprDNotaFiscal.ValTotalProdutos);
     24 : if (varia.CNPJFilial = CNPJ_ZUMM) and (VprDNotaFiscal.ValFrete <> 0) Then
           result := 'Taxa de Entrega : '+FormatFloat('#,###,##0.00', VprDNotaFiscal.ValFrete)

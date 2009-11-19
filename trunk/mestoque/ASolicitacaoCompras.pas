@@ -165,6 +165,7 @@ type
     procedure ConsultaOP(VpaCodFilial,VpaSeqOrdem : Integer);
     procedure ConsultaProposta(VpaCodFilial, VpaSeqProposta : Integer);
     procedure ConsultaPedidoCompa(VpaCodfilial,VpaSeqPedido : Integer);
+    procedure ConsultaProdutoOP(VpaCodFilial,VpaSeqOrdem, VpaSeqProduto : Integer;VpaCodProduto, VpaNomProduto : String);
   end;
 
 var
@@ -219,6 +220,19 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFSolicitacaoCompra.ConsultaProdutoOP(VpaCodFilial, VpaSeqOrdem, VpaSeqProduto: Integer;VpaCodProduto, VpaNomProduto : String);
+begin
+  EFilialOP.AInteiro := VpaCodFilial;
+  EOrdemProducao.AInteiro := VpaSeqOrdem;
+  EProduto.Text := VpaCodProduto;
+  VprSeqProduto := VpaSeqProduto;
+  Label16.Caption := VpaNomProduto;
+  CPeriodo.Checked := false;
+  AtualizaConsulta(false);
+  ShowModal;
+end;
+
+{******************************************************************************}
 procedure TFSolicitacaoCompra.ConsultaProposta(VpaCodFilial, VpaSeqProposta : Integer);
 begin
   EFilial.AInteiro := VpaCodFilial;
@@ -250,6 +264,7 @@ var
   VpfPosicao : TBookmark;
 begin
   VpfPosicao := SOLICITACAOCOMPRACORPO.GetBookmark;
+  SOLICITACAOCOMPRAITEM.Close;
   SOLICITACAOCOMPRACORPO.close;
   SOLICITACAOCOMPRACORPO.SQL.Clear;
   SOLICITACAOCOMPRACORPO.SQL.Add('SELECT'+

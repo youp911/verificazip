@@ -914,8 +914,8 @@ var
   VpfIndice : Integer;
 begin
   VpfIndice := Paginas.ActivePageIndex;
-  Paginas.ActivePage := Paginas.Pages[VpfIndice-1];
   Paginas.Pages[VpfIndice].free;
+  Paginas.ActivePage := Paginas.Pages[VpfIndice-1];
   TRBDOrcamentoCompraFornecedor(VprDOrcamento.Fornecedores.Items[VpfIndice-1]).Free;
   VprDOrcamento.Fornecedores.Delete(VpfIndice-1);
 end;

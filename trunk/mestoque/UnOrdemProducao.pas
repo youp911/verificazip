@@ -134,8 +134,10 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     function ReImportaFracaoVerificaEstagioFracao(VpaDFracao : TRBDFracaoOrdemProducao;VpaDProduto : TRBDProduto):string;
     function ReImportaFracaoConsumoOP(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracao : TRBDFracaoOrdemProducao;VpaDProduto : TRBDProduto):string;
     function ReImportaFracaoFilha(VpaDOrdemProducaoNova: TRBDOrdemProducao; VpaIndiceLista : Integer; VpaDFracaoNova : TRBDFracaoOrdemProducao; VpaFracoesAtuais : TList): string;
+    function GravaConsumoFracoesNovasReimportacao(VpaDOrdemProducaoNova: TRBDOrdemProducao) : String;
     function AdicionaLogReimportacaoFracao(VpaDFracao : TRBDFracaoOrdemProducao):string;
     procedure AlteraSeqFracaoPai(VpaListaFracoes : TList;VpaSeqFracaoPaiAtual, VpaSeqFracaoPaiNovo : Integer);
+    function RProdutoAgrupadoOPSubMontagem(VpaDOrdemProducao : TRBDOrdemProducao;VpaSeqProduto, VpaCodCor,VpaCodTamanho
 //    procedure AlteraQtdReservadaFracaoOPConsumo(VpaDOP : TRBDordemProducao;VpaDFracao : TRBDFracaoOP;VpaDConsumo : TRBDConsumoFracaoOP
   public
     VplQtdFracoes : Integer;
@@ -242,6 +244,7 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     function ExisteHorarioTrabalho(VpaCodHorario : string;var VpaDesHoraInicio, VpaDesHoraFim : String):Boolean;
     function ExisteFracaoFaccionista(VpaDFracaoFaccionista : TRBDFracaoFaccionista) : Boolean;
     function ExisteBastidor(VpaCodBastidor : Integer; VpaDOrdemCorteItem : TRBDOrdemCorteItem) : Boolean;
+    function ExisteFracaoFilha(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao : Integer) : Boolean;
     procedure ProcessaProdutividadeCelula(VpaCodCelula : Integer;VpaData : TDateTime);
     procedure RegeraFracaoOPEstagio(VpaSeqProduto : Integer);
     function ReImportaProjeto(VpaCodFilial,VpaSeqOrdem, VpaSeqFracao : Integer) : string;
@@ -254,6 +257,7 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     procedure AdicionaNoFracao(VpaCodFilial,VpaSeqOrdem, VpaSeqFracao : Integer;VpaNoPai : TTreeNode;VpaArvore : TTreeView);
     procedure CarregaArvoreSubMontagem(VpaTabela : TDataSet;VpaArvore : TTreeView);
     procedure ReservaQtdEstoqueFracao(VpaDOP : TRBDordemProducao);
+    procedure AgrupaProdutosFracoesOPSubMontagem(VpaDOP : TRBDOrdemProducao);
 end;
 
 var
@@ -959,6 +963,10 @@ begin
       OrdCadastro.FieldByName('INDPLANOCORTE').AsString := 'S'
     else
       OrdCadastro.FieldByName('INDPLANOCORTE').AsString := 'N';
+    if VpfDFracao.IndPossuiEmEstoque then
+      OrdCadastro.FieldByName('INDPOSSUIEMESTOQUE').AsString := 'S'
+    else
+      OrdCadastro.FieldByName('INDPOSSUIEMESTOQUE').AsString := 'N';
 
     OrdCadastro.post;
     result := OrdCadastro.AMensagemErroGravacao;
@@ -1255,6 +1263,7 @@ begin
     if OrdCadastro.AErronaGravacao then
       break;
   end;
+  OrdCadastro.close;
 end;
 
 {******************************************************************************}
@@ -1316,7 +1325,6 @@ begin
     if result <> ''  then
       break;
   end;
-  OrdCadastro.close;
 end;
 
 {******************************************************************************}
@@ -1810,7 +1818,7 @@ begin
   OrdTabela.sql.add('Select FRA.SEQFRACAO, FRA.SEQFRACAOPAI, FRA.SEQPRODUTO, FRA.CODBARRAS, '+
                     ' FRA.QTDCELULA, FRA.DESHORAS, FRA.QTDPRODUTO, FRA.CODESTAGIO, FRA.DATENTREGA, '+
                     ' FRA.DATIMPRESSAOFICHA, FRA.DATFINALIZACAO, FRA.INDPLANOCORTE, FRA.INDCONSUMOBAIXADO, FRA.DESUM,  '+
-                    ' FRA.DESOBSERVACAO, FRA.CODCOR, FRA.CODTAMANHO, '+
+                    ' FRA.DESOBSERVACAO, FRA.CODCOR, FRA.CODTAMANHO, FRA.INDPOSSUIEMESTOQUE, '+
                     ' PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_COD_UNI UMORIGINAL, '+
                     ' EST.NOMEST '+
                     ' from FRACAOOP FRA, CADPRODUTOS PRO, ESTAGIOPRODUCAO EST'+
@@ -1853,6 +1861,7 @@ begin
     VpfDFracao.DatImpressaoFicha := OrdTabela.FieldByName('DATIMPRESSAOFICHA').AsDateTime;
     VpfDFracao.IndPlanoCorte := OrdTabela.FieldByName('INDPLANOCORTE').AsString = 'S';
     VpfDFracao.IndConsumoBaixado := OrdTabela.FieldByName('INDCONSUMOBAIXADO').AsString = 'S';
+    VpfDFracao.IndPossuiEmEstoque := OrdTabela.FieldByName('INDPOSSUIEMESTOQUE').AsString = 'S';
     VpfDFracao.IndEstagioGerado := true;
     result := VpfDFracao;
     OrdTabela.next;
@@ -3638,7 +3647,8 @@ var
 begin
   for VpfLaco := 0 to VpaListaFracoes.Count - 1 do
   begin
-    if (TRBDFracaoOrdemProducao(VpaListaFracoes.Items[VpfLaco]).SeqFracaoPai = VpaSeqFracaoPaiAtual) then
+    if (TRBDFracaoOrdemProducao(VpaListaFracoes.Items[VpfLaco]).SeqFracaoPai = VpaSeqFracaoPaiAtual) and
+       (TRBDFracaoOrdemProducao(VpaListaFracoes.Items[VpfLaco]).SeqFracao <> VpaSeqFracaoPaiAtual) then
       TRBDFracaoOrdemProducao(VpaListaFracoes.Items[VpfLaco]).SeqFracaoPai := VpaSeqFracaoPaiNovo;
   end;
 end;
@@ -4668,6 +4678,14 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFuncoesOrdemProducao.AgrupaProdutosFracoesOPSubMontagem(VpaDOP: TRBDOrdemProducao);
+var
+  VpfDProdutoOP : TRBDOrdemProducaoProduto;
+begin
+
+end;
+
+{******************************************************************************}
 procedure TRBFuncoesOrdemProducao.AdicionaProdutosSubMontagem(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracaoPrincipal : TRBDFracaoOrdemProducao;VpaBarraStatus : TStatusBar);
 var
   VpfDFracao : TRBDFracaoOrdemProducao;
@@ -4683,6 +4701,7 @@ begin
   end;
   VpfDProduto := TRBDProduto.Cria;
   FunProdutos.CarDProduto(VpfDProduto,Varia.CodigoEmpresa,VpaDOrdemProducao.CodEmpresafilial,VpaDFracaoPrincipal.SeqProduto);
+  FunProdutos.CarDEstagio(VpfDProduto);
   AdicionaEstagiosOP(VpfDProduto,VpaDFracaoPrincipal,false);
   VpfDProduto.Free;
   VpfTabela := TSQLQuery.create(nil);
@@ -5193,6 +5212,10 @@ begin
       if result = '' then
       begin
         Result := GravaDFracoesOP(VpfDNovaOrdemProducao,false);
+        if result = '' then
+        begin
+          result := GravaConsumoFracoesNovasReimportacao(VpfDNovaOrdemProducao);
+        end;
       end;
     end;
 
@@ -5372,6 +5395,7 @@ begin
     FunProdutos.ApagaSubMontagensdaListaConsumo(VpfDProduto);
     //gera o consumo da fracao;
     GeraConsumoFracao(VpaDOrdemProducaoNova,VpaDFracaoNova,VpfDProduto);
+    VpaDFracaoNova.IndFracaoNova := true;
   end;
 end;
 
@@ -5391,6 +5415,36 @@ begin
                            ' Set INDIMP = ''S'''+
                            ' Where EMPFIL = '+ VpaEmpFil+
                            ' and SEQROM = '+ VpaSeqRomaneio);
+end;
+
+{******************************************************************************}
+function TRBFuncoesOrdemProducao.GravaConsumoFracoesNovasReimportacao(VpaDOrdemProducaoNova: TRBDOrdemProducao): String;
+Var
+  VpfLaco : Integer;
+  VpfDFracao : TRBDFracaoOrdemProducao;
+  VpfDOpConsumo : TRBDOrdemProducao;
+begin
+  result := '';
+  //nao pode destruir a VpfDOpConsumo porque senao ira liberar as fracoes da VpaDOrdemProducaoNova da memoria;
+  VpfDOpConsumo := TRBDOrdemProducao.cria;
+  VpfDOpConsumo.CodEmpresafilial := VpaDOrdemProducaoNova.CodEmpresafilial;
+  VpfDOpConsumo.SeqOrdem := VpaDOrdemProducaoNova.SeqOrdem;
+  for VpfLaco := 0 to VpaDOrdemProducaoNova.Fracoes.Count - 1 do
+  begin
+    VpfDFracao := TRBDFracaoOrdemProducao(VpaDOrdemProducaoNova.Fracoes.Items[VpfLaco]);
+    if VpfDFracao.IndFracaoNova  then
+    begin
+      VpfDOpConsumo.Fracoes.add(VpfDFracao);
+    end;
+  end;
+  if VpfDOpConsumo.Fracoes.Count > 0 then
+  begin
+    result := GravaDConsumoFracoes(VpfDOpConsumo);
+    if result = '' then
+    begin
+      result := GravaDFracaoOPEstagio(VpfDOpConsumo);
+    end;
+  end;
 end;
 
 {******************************************************************************}
@@ -5735,6 +5789,17 @@ begin
   OrdAux.open;
   result := not ordAux.Eof;
   OrdAux.Close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesOrdemProducao.ExisteFracaoFilha(VpaCodFilial, VpaSeqOrdem, VpaSeqFracao: Integer): Boolean;
+begin
+  AdicionaSQLAbreTabela(OrdAux,'Select COUNT(CODFILIAL) QTD from FRACAOOP '+
+                               ' Where CODFILIAL = '+IntToStr(VpaCodFilial)+
+                               ' AND SEQORDEM = '+IntToStr(VpaSeqOrdem)+
+                               ' AND SEQFRACAOPAI = '+ IntToStr(VpaSeqFracao));
+  result := OrdAux.FieldByName('QTD').AsInteger > 0;
+  OrdAux.close;
 end;
 
 {******************************************************************************}

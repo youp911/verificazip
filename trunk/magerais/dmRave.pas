@@ -2366,15 +2366,20 @@ begin
   LimpaSqlTabela(Principal);
   AdicionaSqlAbreTabeLa(Principal,'select AMO.CODAMOSTRA, AMO.NOMAMOSTRA, AMO.DATAMOSTRA, AMO.DATENTREGACLIENTE, AMO.INDCOPIA, '+
                               ' AMO.TIPAMOSTRA, AMO.DESOBSERVACAO, AMO.QTDAMOSTRA,'''+varia.DriveFoto+'''|| AMO.DESIMAGEM DESIMAGEM, '+
+                              ' AMO.CODAMOSTRAINDEFINIDA, '+
                               ' CLI.I_COD_CLI, CLI.C_NOM_CLI, '+
                               ' VEN.I_COD_VEN, VEN.C_NOM_VEN, '+
                               ' COL.NOMCOLECAO, '+
-                              ' DES.NOMDESENVOLVEDOR '+
-                              ' from AMOSTRA AMO, CADCLIENTES CLI, CADVENDEDORES VEN, COLECAO COL, DESENVOLVEDOR DES '+
+                              ' DES.NOMDESENVOLVEDOR, '+
+                              ' CLA.C_COD_CLA, CLA.C_NOM_CLA '+
+                              ' from AMOSTRA AMO, CADCLIENTES CLI, CADVENDEDORES VEN, COLECAO COL, DESENVOLVEDOR DES, CADCLASSIFICACAO CLA '+
                               ' Where AMO.CODCOLECAO = COL.CODCOLECAO '+
                               ' AND AMO.CODDESENVOLVEDOR = DES.CODDESENVOLVEDOR '+
                               ' AND AMO.CODVENDEDOR = VEN.I_COD_VEN '+
                               ' AND AMO.CODCLIENTE = CLI.I_COD_CLI '+
+                              ' AND AMO.CODEMPRESA = CLA.I_COD_EMP '+
+                              ' AND AMO.CODCLASSIFICACAO = CLA.C_COD_CLA '+
+                              ' AND AMO.DESTIPOCLASSIFICACAO = CLA.C_TIP_CLA '+
                               ' AND AMO.CODAMOSTRA = '+IntToStr(VpaCodAmostra));
 
   AdicionaSqlAbreTabeLa(Item,'select  CON.SEQCONSUMO, CON.QTDPRODUTO, CON.VALUNITARIO, CON.VALTOTAL, CON.DESOBSERVACAO, '+

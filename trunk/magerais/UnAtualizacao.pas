@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1521;
+  CT_VersaoBanco = 1525;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -920,6 +920,38 @@ begin
                               ' C_PER_SPE CHAR(1) NULL, '+
                               ' I_ATI_SPE NUMBER(2) NULL)');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1521');
+      end;
+      if VpaNumAtualizacao < 1522 Then
+      begin
+        VpfErro := '1522';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADFILIAIS ADD( '+
+                              ' I_CON_SPE NUMBER(10) NULL, '+
+                              ' C_NCO_SPE VARCHAR2(50) NULL,'+
+                              ' C_CPC_SPE VARCHAR2(14) NULL,' +
+                              ' C_CRC_SPE VARCHAR2(15) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1522');
+      end;
+      if VpaNumAtualizacao < 1523 Then
+      begin
+        VpfErro := '1523';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADPRODUTOS ADD I_DES_PRO NUMBER(10) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1523');
+      end;
+      if VpaNumAtualizacao < 1524 Then
+      begin
+        VpfErro := '1524';
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRA ADD(CODEMPRESA NUMBER(10) NULL, '+
+                              ' DESTIPOCLASSIFICACAO CHAR(1)NULL)');
+        ExecutaComandoSql(Aux,'UPDATE AMOSTRA SET CODEMPRESA = 1, ' +
+                              ' DESTIPOCLASSIFICACAO = ''P''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1524');
+      end;
+      if VpaNumAtualizacao < 1525 Then
+      begin
+        VpfErro := '1525';
+        ExecutaComandoSql(Aux,'ALTER TABLE FRACAOOP ADD INDPOSSUIEMESTOQUE CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'Update FRACAOOP SET INDPOSSUIEMESTOQUE = ''N''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1525');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

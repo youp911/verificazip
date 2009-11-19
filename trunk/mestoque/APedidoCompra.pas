@@ -302,6 +302,7 @@ Var
   VpfPosicao : TBookmark;
 begin
   VpfPosicao := PEDIDOCOMPRACORPO.GetBookmark;
+  PRODUTOPEDIDO.Close;
   PEDIDOCOMPRACORPO.close;
   PEDIDOCOMPRACORPO.SQL.Clear;
   PEDIDOCOMPRACORPO.SQL.Add('SELECT'+

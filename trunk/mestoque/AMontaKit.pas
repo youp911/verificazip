@@ -302,11 +302,21 @@ begin
   else
     VprDConsumo.CodFaca:= 0;
   if GProdutos.Cells[12,GProdutos.ALinha] <> '' then
-    VprDConsumo.AlturaMolde:= StrToFloat(GProdutos.Cells[12,GProdutos.ALinha])
+  begin
+    if config.ConverterMTeCMparaMM then
+      VprDConsumo.AlturaMolde:= StrToFloat(GProdutos.Cells[12,GProdutos.ALinha])/10
+    else
+      VprDConsumo.AlturaMolde:= StrToFloat(GProdutos.Cells[12,GProdutos.ALinha]);
+  end
   else
     VprDConsumo.AlturaMolde:= 0;
   if GProdutos.Cells[13,GProdutos.ALinha] <> '' then
-    VprDConsumo.LarguraMolde:= StrToFloat(GProdutos.Cells[13,GProdutos.ALinha])
+  begin
+    if config.ConverterMTeCMparaMM then
+      VprDConsumo.LarguraMolde:= StrToFloat(GProdutos.Cells[13,GProdutos.ALinha]) /10
+    else
+      VprDConsumo.LarguraMolde:= StrToFloat(GProdutos.Cells[13,GProdutos.ALinha]);
+  end
   else
     VprDConsumo.LarguraMolde:= 0;
   if GProdutos.Cells[14,GProdutos.ALinha] <> '' then
@@ -546,11 +556,21 @@ begin
       GProdutos.Cells[10,VpaLinha]:= '';
     GProdutos.Cells[11,VpaLinha]:= VprDConsumo.Faca.NomFaca;
     if VprDConsumo.AlturaMolde <> 0 then
-      GProdutos.Cells[12,VpaLinha]:= FormatFloat('#,##0.00',VprDConsumo.AlturaMolde)
+    begin
+      if config.ConverterMTeCMparaMM then
+        GProdutos.Cells[12,VpaLinha]:= FormatFloat('#,##0.00',VprDConsumo.AlturaMolde*10)
+      else
+        GProdutos.Cells[12,VpaLinha]:= FormatFloat('#,##0.00',VprDConsumo.AlturaMolde);
+    end
     else
       GProdutos.Cells[12,VpaLinha]:= '';
     if VprDConsumo.LarguraMolde <> 0 then
-      GProdutos.Cells[13,VpaLinha]:= FormatFloat('#,##0.00',VprDConsumo.LarguraMolde)
+    begin
+      if config.ConverterMTeCMparaMM then
+        GProdutos.Cells[13,VpaLinha]:= FormatFloat('#,##0.00',VprDConsumo.LarguraMolde*10)
+      else
+        GProdutos.Cells[13,VpaLinha]:= FormatFloat('#,##0.00',VprDConsumo.LarguraMolde)
+    end
     else
       GProdutos.Cells[13,VpaLinha]:= '';
     if VprDConsumo.Maquina.CodMaquina <> 0 then

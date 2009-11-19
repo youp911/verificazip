@@ -112,6 +112,8 @@ type
     SpeedButton6: TSpeedButton;
     Label27: TLabel;
     PanelColor3: TPanelColor;
+    AmostraCODEMPRESA: TFMTBCDField;
+    AmostraDESTIPOCLASSIFICACAO: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -208,6 +210,8 @@ begin
   AmostraTIPAMOSTRA.AsString := 'D';
   AmostraDESDEPARTAMENTO.AsString := 'D';
   AmostraDATAMOSTRA.AsDateTime := now;
+  AmostraCODEMPRESA.AsInteger := varia.CodigoEmpresa;
+  AmostraDESTIPOCLASSIFICACAO.AsString := 'P';
   EDatEntrega.ReadOnly := true;
   EDatAprovacao.readonly := true;
   EstadoBotoes(false);
