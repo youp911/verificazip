@@ -181,6 +181,7 @@ type
     function LocalizaProduto( Var Cadastrou : Boolean; var seqPRoduto : integer; var codProduro, CodUnidade : string; Var ValorVenda, QtdEstoque, QtdPedido, QtdMinima  : Double) : boolean; overload;
     function LocalizaProduto( var seqPRoduto : integer; var codProduro, NomProduto, CodUnidade : string; Var ValorVenda, QtdEstoque, QtdPedido, QtdMinima  : Double;VpaCodCliente : Integer) : boolean; overload;
     function LocalizaProduto( var VpaSeqPRoduto : integer; var VpacodProduro, VpaNomProduto, VpaCodUnidade, VpaClaFiscal : string) : boolean; overload;
+    function LocalizaProduto( var VpaSeqPRoduto : integer) : boolean; overload;
     function LocalizaProduto(VpaDCotacao : TRBDORcamento;VpaDProCotacao : TRBDOrcProduto;VpaCodCliente,VpaCodTabelaPreco : Integer): Boolean;overload;
     function LocalizaProduto(VpaDProdutoNota : TRBDNotaFiscalProduto;VpaCodCliente : Integer): Boolean;overload;
     function LocalizaProduto(VpaDProNotaFor : TRBDNotaFiscalForItem) : Boolean;overload;
@@ -744,6 +745,23 @@ begin
   AtualizaConsulta;
   ShowModal;
   result := VprAcao;
+  CadProdutos.close;
+end;
+
+{******************************************************************************}
+function TFlocalizaProduto.LocalizaProduto(var VpaSeqPRoduto: integer): boolean;
+begin
+  AtualizaConsulta;
+  self.ShowModal;
+  result := VprAcao;
+
+  if CadProdutos.IsEmpty then  // se a tabela estiver vazia, entao nao encontrou
+    result := false;
+
+  if VprAcao then  // se achou carrega os dados das variaveis do parametro
+  begin
+    VpaseqPRoduto := CadProdutosI_SEQ_PRO.AsInteger;
+  end;
   CadProdutos.close;
 end;
 

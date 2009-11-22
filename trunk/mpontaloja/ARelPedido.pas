@@ -408,7 +408,7 @@ begin
                     else
                       if (VPANOMRELATORIO = 'DEVOLUCOES PENDENTES') then
                       begin
-                        AlterarVisibleDet([PFilial,PDataFinal,PCliente,PEstagio,PTransportadora],true);
+                        AlterarVisibleDet([PFilial,PDataFinal,PCliente,PEstagio,PTransportadora,PVendedor],true);
                         LDataFinal.Caption := 'Desde : ';
                       end
                       else
@@ -493,6 +493,10 @@ begin
         else
           if (VPANOMRELATORIO = 'VENDAS POR VENDEDOR') then
             AlterarVisibleDet([PFilial,PPeriodo,PCliente,PVendedor,PTipoCotacao],true)
+          else
+            if (VPANOMRELATORIO = 'VENDAS POR TIPO COTACAO X CUSTO') then
+              AlterarVisibleDet([PFilial,PPeriodo,PCliente,PVendedor,PTipoCotacao],true)
+
 end;
 
 
@@ -553,8 +557,8 @@ begin
                                              LFilial.Caption,LCliente.Caption,LVendedor.Caption,CDataIni.DateTime,CDataFim.Date)
                   else
                     if (VPRNOMRELATORIO = 'DEVOLUCOES PENDENTES') then
-                      dtRave.ImprimeDevolucoesPendente(EFilial.AInteiro,ECliente.AInteiro,ETransportadora.AInteiro,ECodEstagio.AInteiro,CDataFinal.Date,VprCaminhoRelatorio,
-                                               LFilial.Caption,LCliente.Caption,LTransportadora.Caption,LEstagio.Caption)
+                      dtRave.ImprimeDevolucoesPendente(EFilial.AInteiro,ECliente.AInteiro,ETransportadora.AInteiro,ECodEstagio.AInteiro,EVendedor.AInteiro,CDataFinal.Date,VprCaminhoRelatorio,
+                                               LFilial.Caption,LCliente.Caption,LTransportadora.Caption,LEstagio.Caption,LVendedor.Caption)
                   else
                     if (VPRNOMRELATORIO = 'ESTOQUE FISCAL') then
                       dtRave.ImprimeEstoqueFiscal(EFilial.AInteiro,VprSeqProduto,VprCaminhoRelatorio,
@@ -645,7 +649,10 @@ begin
         dtRave.ImprimeVendasporVendedor(CDataIni.Date,CDataFim.Date,EFilial.AInteiro,ECliente.AInteiro, EVendedor.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.Caption,lVendedor.caption,LTipoCotacao.Caption)
       else
         if (VPRNOMRELATORIO = 'POR PLANO DE CONTAS SINTETICO POR MES')then
-          FunRave.ImprimeContasAPagarPorPlanoContasSinteticoMES(CDataIni.Date,CDataFim.Date,VprCaminhoRelatorio);
+          FunRave.ImprimeContasAPagarPorPlanoContasSinteticoMES(CDataIni.Date,CDataFim.Date,VprCaminhoRelatorio)
+        else
+          if (VPRNOMRELATORIO = 'VENDAS POR TIPO COTACAO X CUSTO')then
+            FunRave.ImprimeTotalTipoCotacaoXCusto(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.Caption,LVendedor.Caption,LTipoCotacao.Caption,CDataIni.DateTime,CDataFim.DateTime);
   dtRave.free;
 end;
 

@@ -121,6 +121,8 @@ type
     Label21: TLabel;
     EPedidoCompra: Tnumerico;
     Label22: TLabel;
+    PopupMenu1: TPopupMenu;
+    AdicionaraoFiltro1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -149,6 +151,7 @@ type
     procedure ConsultaPropostasVendas1Click(Sender: TObject);
     procedure ESolicitacaoExit(Sender: TObject);
     procedure ESolicitacaoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure AdicionaraoFiltro1Click(Sender: TObject);
   private
     VprSeqProduto: Integer;
     VprOrdem,
@@ -532,6 +535,14 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFSolicitacaoCompra.AdicionaraoFiltro1Click(Sender: TObject);
+begin
+  EProduto.Text := SOLICITACAOCOMPRAITEMC_COD_PRO.AsString;
+  VprSeqProduto := SOLICITACAOCOMPRAITEMSEQPRODUTO.AsInteger;
+  DataInicial.Date := DecMes(date,3);
+  AtualizaConsulta(false);
+end;
+
 procedure TFSolicitacaoCompra.AlteraEstgio1Click(Sender: TObject);
 begin
   if SOLICITACAOCOMPRACORPOCODFILIAL.AsInteger <> 0 then

@@ -346,7 +346,8 @@ begin
   aux.sql.add('order by CLI.I_COD_CLI');
   Aux.Open;
   VpfCodCliente := -99;
-  AdicionaSQLAbreTabela(Cadastro,'SELECT * FROM TAREFAEMARKETINGITEM');
+  AdicionaSQLAbreTabela(Cadastro,'SELECT * FROM TAREFAEMARKETINGITEM '+
+                                 ' Where SEQTAREFA = 0 AND CODCLIENTE = 0 AND SEQCONTATO = 0 ');
   while not Aux.Eof do
   begin
     BarraStatus.Panels[0].Text := 'Gerando e-mail para o cliente '+Aux.FieldByName('I_COD_CLI').AsString+'-'+Aux.FieldByName('NOMCLIENTE').AsString;

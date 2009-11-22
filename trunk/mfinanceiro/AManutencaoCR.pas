@@ -240,7 +240,7 @@ begin
   begin
     AbreTransacao;
     Tempo.Execute('Estornando Baixa ... ');
-    VpfResultado := FunContasAreceber.EstornaParcela(MovContasAReceberI_EMP_FIL.AsInteger, MovContasAReceberI_LAN_REC.AsInteger, MovContasAReceberI_NRO_PAR.AsInteger,
+    VpfResultado := FunContasAreceber.EstornaParcela(CadContaaReceberI_COD_CLI.AsInteger, MovContasAReceberI_EMP_FIL.AsInteger, MovContasAReceberI_LAN_REC.AsInteger, MovContasAReceberI_NRO_PAR.AsInteger,
                       MovContasAReceberI_PAR_FIL.AsInteger,true);
     if VpfResultado <> '' then
     begin

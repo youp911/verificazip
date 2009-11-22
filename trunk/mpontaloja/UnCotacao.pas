@@ -2799,7 +2799,12 @@ begin
     begin
       VpaDOrcamento.FinanceiroGerado := true;
       VpaDOrcamento.IndCancelado := false;
+      if VpaDContaReceber.ValUtilizadoCredito > 0 then
+      begin
+        VpaDOrcamento.DesObservacao.add('Abatido do Crédito "'+FormatFloat('R$ #,###,###,###,##0.00',VpaDContaReceber.ValUtilizadoCredito)+'". Saldo Crédito "'+FormatFloat('R$ #,###,###,###,##0.00',VpaDContaReceber.ValSaldoCreditoCliente)+'" - '+FormatDateTime('DD/MM/YYYY - HH:MM',now));
+      end;
     end;
+
   end
   else
     result := true;
@@ -2993,13 +2998,16 @@ end;
 {******************************************************************************}
 procedure TFuncoesCotacao.SetaFinanceiroGerado(VpaDOrcamento : TRBDOrcamento);
 begin
-  ExecutaComandoSql(Aux,'Update CADORCAMENTOS '+
-                        ' Set C_GER_FIN = ''S'','+
-                        ' I_COD_FRM = '+IntToStr(VpaDOrcamento.CodFormaPaqamento)+
-                        ' , N_VLR_TOT = '+SubstituiStr(FormatFloat('0.00',VpaDOrcamento.ValTotal),',','.')+
-                        ' , C_ORP_IMP = ''S'''+
-                        ' Where I_EMP_FIL = '+IntToStr(Varia.CodigoEmpFil)+
-                        ' and I_LAN_ORC = '+IntToStr(VpaDOrcamento.LanOrcamento));
+  AdicionaSQLAbreTabela(CotCadastro,'Select * from CADORCAMENTOS '+
+                                    ' Where I_EMP_FIL = '+IntToStr(VpaDOrcamento.CodEmpFil)+
+                                    ' AND I_LAN_ORC = '+IntToStr(VpaDOrcamento.LanOrcamento));
+  CotCadastro.Edit;
+  CotCadastro.FieldByName('C_GER_FIN').AsString := 'S';
+  CotCadastro.FieldByName('I_COD_FRM').AsInteger := VpaDOrcamento.CodFormaPaqamento;
+  CotCadastro.FieldByName('N_VLR_TOT').AsFloat := VpaDOrcamento.ValTotal;
+  CotCadastro.FieldByName('C_ORP_IMP').AsString := 'S';
+  CotCadastro.FieldByName('L_OBS_ORC').AsString := VpaDOrcamento.DesObservacao.Text;
+  CotCadastro.Post;
 end;
 
 {******************************************************************************}
@@ -3966,13 +3974,14 @@ begin
                                   ' Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '+
                                   ' AND CAD.I_LAN_REC = MOV.I_LAN_REC '+
                                   ' AND MOV.C_NRO_CON = CON.C_NRO_CON '+
+                                  ' AND MOV.D_DAT_PAG IS NULL '+
                                   ' AND CAD.I_EMP_FIL = '+IntToStr(VpaCodfilial)+
                                   ' and CAD.I_LAN_ORC = '+IntToStr(VpaLanOrcamento));
 
-  while not(Orcamento.Eof) and (Orcamento.FieldByName('C_EMI_BOL').AsString = 'T') and
-        (Orcamento.FieldByName('I_COD_FRM').AsInteger = varia.FormaPagamentoBoleto) do
+  while not(Orcamento.Eof) and (Orcamento.FieldByName('C_EMI_BOL').AsString = 'T') do
   begin
-    VpfFunImpressao.ImprimeBoleto(VpaCodFilial,Orcamento.FieldByName('I_LAN_REC').AsInteger,Orcamento.FieldByName('I_NRO_PAR').AsInteger,
+    if (Orcamento.FieldByName('I_COD_FRM').AsInteger = varia.FormaPagamentoBoleto)then
+      VpfFunImpressao.ImprimeBoleto(VpaCodFilial,Orcamento.FieldByName('I_LAN_REC').AsInteger,Orcamento.FieldByName('I_NRO_PAR').AsInteger,
                                   VpaDCliente,false,VpaImpressora,False);
     Orcamento.Next;
   end;

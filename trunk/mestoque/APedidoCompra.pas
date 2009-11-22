@@ -122,6 +122,7 @@ type
     EProduto: TEditColor;
     N5: TMenuItem;
     ConsultaSolicitaoCompra1: TMenuItem;
+    PRODUTOPEDIDOC_COD_PRO: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -221,6 +222,7 @@ procedure TFPedidoCompra.ConsultaPedidosSolicitacao(VpaSeqSolicitacao: Integer);
 begin
   ESolicitacao.AInteiro:= VpaSeqSolicitacao;
   ESolicitacao.Atualiza;
+  CPeriodo.Checked := false;
   AtualizaConsulta;
   ShowModal;
 end;
@@ -374,7 +376,7 @@ begin
     PRODUTOPEDIDO.Close;
     PRODUTOPEDIDO.SQL.Clear;
     PRODUTOPEDIDO.SQL.Add('SELECT'+
-                          ' PRO.C_NOM_PRO, COR.NOM_COR, PCI.DESREFERENCIAFORNECEDOR,'+
+                          ' PRO.C_COD_PRO, PRO.C_NOM_PRO, COR.NOM_COR, PCI.DESREFERENCIAFORNECEDOR,'+
                           ' PCI.QTDPRODUTO, PCI.QTDBAIXADO, PCI.DESUM, PCI.VALUNITARIO, PCI.VALTOTAL, PCI.QTDSOLICITADA'+
                           ' FROM PEDIDOCOMPRAITEM PCI, CADPRODUTOS PRO, COR COR'+
                           ' WHERE'+

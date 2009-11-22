@@ -276,6 +276,22 @@ begin
         VpfDItemCaixa.DatPagamento := VpaDBaixa.DatPagamento;
       end;
     end;
+    if (VpaDBaixa.ValParaGerardeCredito > 0) and
+       (VpaDBaixa.Parcelas.Count > 0) then
+    begin
+      VpfDParcela := TRBDParcelaBaixaCR(VpaDBaixa.Parcelas.Items[0]);
+      VpfDItemCaixa := VpfDCaixa.AddCaixaItem;
+      VpfDItemCaixa.CodUsuario := varia.CodigoUsuario;
+      VpfDItemCaixa.CodFilial := VpfDParcela.CodFilial;
+      VpfDItemCaixa.LanReceber := VpfDParcela.LanReceber;
+      VpfDItemCaixa.NumParcelaReceber := VpfDParcela.NumParcela;
+      VpfDItemCaixa.DesLancamento := 'Credito ref pagto a maior da duplicata '+VpfDParcela.NumDuplicata +' do Cliente "'+VpfDParcela.NomCliente +'" do CR';
+      VpfDItemCaixa.DesDebitoCredito := 'C';
+      VpfDItemCaixa.ValLancamento := VpaDBaixa.ValParaGerardeCredito;
+      VpfDItemCaixa.DatLancamento := now;
+      VpfDItemCaixa.CodFormaPagamento := VpaDBaixa.CodFormaPagamento;
+      VpfDItemCaixa.DatPagamento := VpaDBaixa.DatPagamento;
+    end;
   end;
 end;
 

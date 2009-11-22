@@ -794,6 +794,9 @@
 			<DCCReference Include="AReorganizaPlanoContas.pas">
 				<Form>FReorganizaPlanoContas</Form>
 			</DCCReference>
+			<DCCReference Include="..\mestoque\AGeraFracaoOPProdutos.pas">
+				<Form>FGeraFracaoOPProdutos</Form>
+			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

@@ -150,6 +150,7 @@ type
       procedure DefineTabelaCustoProjeto(VpaObjeto : TObject);
       procedure DefineTabelaTabelaPreco(VpaObjeto : TObject);
       procedure DefineTabelaTotalAmostraporVendedor(VpaObjeto : TObject);
+      procedure DefineTabelaTotalTipoCotacaoXCusto(VpaObjeto : TObject);
       procedure ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
       procedure SalvaTabelaProdutosPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
       procedure SalvaTabelaPrecoPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
@@ -160,6 +161,7 @@ type
       procedure ImprimeTotalCelulaTrabalho(VpaValTotal : Double;VpaDiaAtua : Integer);
       procedure ImprimeCabecalhoEstoque;
       procedure ImprimeCabecalhoTabelaPreco;
+      procedure ImprimeCabecalhoTotalTipoPedidoXCusto;
       procedure ImprimeCabecalhoProdutosVendidoseTrocados;
       procedure ImprimeCabecalhoQtdMinima;
       procedure ImprimeCabecalhoAnaliseFaturamento;
@@ -190,6 +192,7 @@ type
       function CarValoresPlanoContasMes(VpaPlanoContas : String; VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente):boolean;
       procedure CarValoresContasAPagar(VpaPlanoContas : String; VpaDatInicio,VpaDatFim : TDateTime;Var VpaValPago : Double;Var VpaValtotal : Double);
       procedure CarValorTrocasProdutos(VpaDProduto : TRBDProdutoRave; VpaDatInicio,VpaDatFim : TDateTime;VpaSeqProduto :Integer);
+      function RValCustoCotacao(VpaCodFilial,VpaLanOrcamento : Integer) : Double;
 
       procedure ConfiguraRelatorioPDF;
       procedure ImprimeRelEstoqueMinimo(VpaObjeto : TObject);
@@ -202,6 +205,7 @@ type
       procedure ImprimeRelExtratoProdutividade(VpaObjeto : TObject);
       procedure ImprimeRelCustoProjeto(VpaObjeto : TObject);
       procedure ImprimeRelTotalAmostrasVendedor(VpaObjeto : TObject);
+      procedure ImprimeRelTotalTipoCotacaoXCusto(VpaObjeto : TObject);
 
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
@@ -227,6 +231,7 @@ type
       procedure ImprimeFichaAmosta(VpaDAmostra : TRBDAmostra);
       procedure ImprimeProdutosVendidoseTrocacos(VpaCodFilial, VpaTipCotacao,VpaCodCliente,VpaCodVendedor,VpaCodClienteMaster : Integer;VpaCaminho,VpaNomFilial,VpaNomVendedor,VpaNomTipCotacao,VpaNomCliente,VpaNomClienteMaster:string ;VpaDatInicio,VpaDatFim : TDateTime);
       procedure ImprimeContasAPagarPorPlanoContasSinteticoMes(VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho : String);
+      procedure ImprimeTotalTipoCotacaoXCusto(VpaCodFilial, VpaCodCliente, VpaCodVendedor, VpaCodTipoCotacao : Integer;VpaCaminho, VpaNomFilial, VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String;VpaDAtInicio, VpaDatFim : TDAteTime);
   end;
 implementation
 
@@ -612,6 +617,22 @@ begin
      SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Qtd Aprovadas
      SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Qtd Clientes;
      SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Per Aprovacao;
+     SaveTabs(1);
+   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaTotalTipoCotacaoXCusto(VpaObjeto: TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1.0,pjRight,1.0,0.5,BOXLINEALL,0); //Codigo
+     SetTab(NA,pjleft,7.0,0.2,BOXLINEALL,0); //Tipo Cotacao
+     SetTab(NA,pjRight,1.5,0.2,BOXLINEALL,0); //Qtd Pedidos
+     SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Total Total
+     SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Val Produtos
+     SetTab(NA,pjRight,2.5,0.2,BOXLINEALL,0); //Val Custo
+     SetTab(NA,pjRight,1,0.2,BOXLINEALL,0); //%Produto
      SaveTabs(1);
    end;
 end;
@@ -1452,6 +1473,25 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoTotalTipoPedidoXCusto;
+begin
+    with RVSystem.BaseReport do
+    begin
+      RestoreTabs(1);
+      bold := true;
+      PrintTab('Código');
+      PrintTab('Tipo Cotação');
+      PrintTab('Qtd');
+      PrintTab('Val Total ');
+      PrintTab('Total Produto ');
+      PrintTab('Custo ');
+      PrintTab('% ');
+      bold := false;
+      newline;
+    end;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeCabecalhoAnaliseFaturamento;
 begin
     with RVSystem.BaseReport do
@@ -1824,6 +1864,27 @@ begin
     else
       Result.NomTamanho := FunProdutos.RNomeTamanho(VpaCodTamanho);
   end;
+end;
+
+{******************************************************************************}
+function TRBFunRave.RValCustoCotacao(VpaCodFilial, VpaLanOrcamento: Integer): Double;
+Var
+  VpfQtd, VpfValCusto : Double;
+begin
+  result := 0;
+  AdicionaSQLAbreTabela(Aux,'Select MOV.N_QTD_PRO, MOV.I_SEQ_PRO, MOV.I_COD_COR, MOV.I_COD_TAM, MOV.I_EMP_FIL, MOV.C_COD_UNI, '+
+                            ' PRO.C_COD_UNI UMORIGINAL '+
+                           ' from MOVORCAMENTOS MOV, CADPRODUTOS PRO '+
+                           ' Where MOV.I_EMP_FIL = '+IntToStr(VpaCodFilial)+
+                           ' AND MOV.I_LAN_ORC = '+ IntToStr(VpaLanOrcamento)+
+                           ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO');
+  while not Aux.Eof do
+  begin
+    FunProdutos.CQtdValorCusto(VpaCodFilial,Aux.FieldByName('I_SEQ_PRO').AsInteger,Aux.FieldByName('I_COD_COR').AsInteger,VpfQtd,VpfValCusto);
+    result := result + FunProdutos.ValorPelaUnidade(Aux.FieldByName('UMORIGINAL').AsString,Aux.FieldByName('C_COD_UNI').AsString,Aux.FieldByName('I_SEQ_PRO').AsInteger,VpfValCusto );
+    aux.Next;
+  end;
+  Aux.close;
 end;
 
 {******************************************************************************}
@@ -2496,6 +2557,58 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeRelTotalTipoCotacaoXCusto(VpaObjeto: TObject);
+var
+  VpfCodTipAtual : Integer;
+  VpfValTotal, VpfValProdutos, VpfValCusto : Double;
+  VpfQtdPedidos : Integer;
+  VpfNomTipo : String;
+begin
+  VpfCodTipAtual := -1;
+  with RVSystem.BaseReport do begin
+    while not Tabela.Eof  do
+    begin
+      if VpfCodTipAtual <> Tabela.FieldByName('I_COD_TIP').AsInteger then
+      begin
+        if VpfCodTipAtual <> -1 then
+        begin
+          PrintTab(IntToStr(VpfCodTipAtual));
+          PrintTab('  '+VpfNomTipo);
+          PrintTab(IntToStr(VpfQtdPedidos));
+          PrintTab(FormatFloat('#,###,###,##0.00',VpfValTotal )+' ');
+          PrintTab(FormatFloat('#,###,###,##0.00',VpfValProdutos)+' ');
+          PrintTab(FormatFloat('#,###,###,##0.00',VpfValCusto)+' ');
+          PrintTab('');
+          newline;
+          If LinesLeft<=1 Then
+            NewPage;
+        end;
+        VpfValTotal := 0; VpfValProdutos := 0; VpfValCusto := 0; VpfQtdPedidos := 0;
+        VpfCodTipAtual := Tabela.FieldByName('I_COD_TIP').AsInteger;
+        VpfNomTipo := Tabela.FieldByName('C_NOM_TIP').AsString;
+      end;
+      inc(VpfQTdPedidos);
+      VpfValTotal := VpfValTotal + Tabela.FieldByName('N_VLR_LIQ').AsFloat;
+      VpfValProdutos := VpfValProdutos + Tabela.FieldByName('N_VLR_PRO').AsFloat;
+      VpfValCusto := VpfValCusto + RValCustoCotacao(Tabela.FieldByName('I_EMP_FIL').AsInteger,Tabela.FieldByName('I_LAN_ORC').AsInteger);
+      Tabela.Next;
+    end;
+    if VpfCodTipAtual <> -1 then
+    begin
+      PrintTab(IntToStr(VpfCodTipAtual));
+      PrintTab('  '+VpfNomTipo);
+      PrintTab(IntToStr(VpfQtdPedidos));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfValTotal )+' ');
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfValProdutos)+' ');
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfValCusto)+' ');
+      PrintTab('');
+      newline;
+    end;
+  end;
+  Tabela.Close;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
 var
   VpfValPago, VpfValDuplicata, VpfTotalPago,VpfTotalDuplicata : Double;
@@ -2913,6 +3026,7 @@ begin
       13 : ImprimeCabecalhoTotalAmostrasVendedor;
       14 : ImprimeCabecalhoPorPlanoContasSintetico;
       17 : ImprimeCabecalhoPorPlanoContasSinteticoporMes;
+      18 : ImprimeCabecalhoTotalTipoPedidoXCusto;
      end;
    end;
 end;
@@ -3723,5 +3837,52 @@ begin
   ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeTotalTipoCotacaoXCusto(VpaCodFilial, VpaCodCliente, VpaCodVendedor, VpaCodTipoCotacao: Integer; VpaCaminho, VpaNomFilial, VpaNomCliente, VpaNomVendedor, VpaNomTipoCotacao: String; VpaDAtInicio, VpaDatFim: TDAteTime);
+begin
+  RvSystem.Tag := 18;
+  LimpaSQlTabela(Tabela);
+  AdicionaSqltabela(Tabela,'select ORC.I_EMP_FIL, ORC.I_LAN_ORC, TIP.I_COD_TIP, N_VLR_LIQ, N_VLR_PRO, ORC.I_LAN_ORC QTD,  TIP.C_NOM_TIP  '+
+                           ' from CADORCAMENTOS ORC, CADTIPOORCAMENTO TIP '+
+                           ' Where ORC.I_TIP_ORC = TIP.I_COD_TIP '+
+                            SQLTextoDataEntreAAAAMMDD('ORC.D_DAT_ORC',VpaDatInicio,VpaDatFim,true));
+  if VpaCodfilial <> 0 then
+    AdicionaSqlTabela(Tabela,' and ORC.I_EMP_FIL = '+InttoStr(VpaCodFilial));
+  if VpaCodCliente <> 0 then
+    AdicionaSqlTabela(Tabela,' and ORC.I_COD_CLI = '+InttoStr(VpaCodCliente));
+  if VpaCodVendedor   <> 0 then
+    AdicionaSqlTabela(Tabela,' and ORC.I_COD_VEN = '+InttoStr(VpaCodVendedor));
+  if VpaCodTipoCotacao <> 0  then
+    AdicionaSqlTabela(Tabela,' and ORC.I_TIP_ORC = '+InttoStr(VpaCodTipoCotacao));
+
+  AdicionaSqlTabela(Tabela,' ORDER BY TIP.I_COD_TIP ');
+
+  Tabela.open;
+
+  rvSystem.onBeforePrint := DefineTabelaTotalTipoCotacaoXCusto;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelTotalTipoCotacaoXCusto;
+
+  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Valor ';
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Filial : ' +VpaNomFilial);
+  if VpaCodCliente <> 0 then
+    VprCabecalhoEsquerdo.add('Cliente : ' +VpaNomCliente);
+  if DeletaChars(VpaNomTipoCotacao,' ') <> '' then
+    VprCabecalhoEsquerdo.add('Tipo Cotação : ' +VpaNomTipoCotacao);
+
+  VprCabecalhoDireito.Clear;
+  VprCabecalhoDireito.add('Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até ' +FormatDatetime('DD/MM/YYYY',VpaDatFim)+'     ');
+  if VpaCodVendedor <> 0  then
+    VprCabecalhoDireito.add('Vendedor : ' +VpaNomVendedor);
+
+  ConfiguraRelatorioPDF;
+  RvSystem.execute;
+
+end;
+
 
 end.

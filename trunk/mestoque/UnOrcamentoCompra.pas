@@ -182,6 +182,9 @@ var
   VpfLaco : INteger;
   VpfDOrcFornecedor : TRBDOrcamentoCompraFornecedor;
 begin
+  ExecutaComandoSql(Aux,'Delete from ORCAMENTOCOMPRAFORNECEDORITEM '+
+                        ' Where CODFILIAL = '+IntToStr(VpadOrcamento.CodFilial)+
+                        ' and SEQORCAMENTO = '+ IntToStr(VpadOrcamento.SeqOrcamento));
   ExecutaComandoSql(Aux,'Delete from ORCAMENTOCOMPRAFORNECEDORCORPO '+
                         ' Where CODFILIAL = '+IntToStr(VpadOrcamento.CodFilial)+
                         ' and SEQORCAMENTO = '+ IntToStr(VpadOrcamento.SeqOrcamento));
@@ -390,15 +393,16 @@ begin
   VpaTexto.add('    <a href="http://'+VpaDFilial.DesSite+ '">');
   VpaTexto.add('      <IMG src="cid:'+IntToStr(VpaDOrcamentoCompra.CodFilial)+'.jpg" width='+IntToStr(varia.CRMTamanhoLogo)+' height = '+IntToStr(Varia.CRMAlturaLogo)+'border="0" >');
   VpaTexto.add('    </a></td> <td bgcolor="#'+varia.CRMCorClaraEmail+'">');
-  VpaTexto.add('    <b>'+VpaDFilial.NomFilial+ '.</b>');
+  VpaTexto.add('    <b>'+VpaDFilial.NomFantasia+ '.</b>');
   VpaTexto.add('    <br>');
   VpaTexto.add('    '+VpaDFilial.DesEndereco+'              Bairro : '+VpaDFilial.DesBairro);
   VpaTexto.add('    <br>');
   VpaTexto.add('    '+VpaDFilial.DesCidade +' / '+VpaDFilial.DesUF+ '                CEP : '+VpaDFilial.DesCep);
   VpaTexto.add('    <br>');
   VpaTexto.add('    Fone : '+VpaDFilial.DesFone +'         -             e-mail comercial :'+VpaDFilial.DesEmailComercial);
-  VpaTexto.add('    <br>');
-  VpaTexto.add('    CNPJ : '+VpaDFilial.DesCNPJ +'         -             Inscrição Estadual :'+VpaDFilial.DesInscricaoEstadual);
+//  VpaTexto.add('    <br>');
+//Nao é mais enviado o cnpj porque na premer estava dando confusao quando o forndecedor fazia o pedido;
+//  VpaTexto.add('    CNPJ : '+VpaDFilial.DesCNPJ +'         -             Inscrição Estadual :'+VpaDFilial.DesInscricaoEstadual);
   VpaTexto.add('    <br>');
   VpaTexto.add('    site : <a href="http://'+VpaDFilial.DesSite+'">'+VpaDFilial.DesSite);
   VpaTexto.add('    </td><td bgcolor="#'+varia.CRMCorClaraEmail+'"> ');
@@ -916,9 +920,11 @@ begin
       VprMensagem.Recipients.EMailAddresses := VpfDOrcFornecedor.DesEmailFornecedor;
       VprMensagem.ReplyTo.EMailAddresses := VpfDComprador.DesEmail;
       VprMensagem.Recipients.Add.Address := VpfDComprador.DesEmail;
+      if Varia.EmailGeralCompras <> '' then
+        VprMensagem.Recipients.Add.Address := Varia.EmailGeralCompras;
+
 
       VprMensagem.Subject := VpfDFilial.NomFantasia+' - Cotação de preços nr. ' +IntToStr(VpaDOrcamentoCompra.SeqOrcamento);
-//      VpfEmailHTML.Body.SaveToFile('c:\Orcamento.html');
       result := EnviaEmail(VprMensagem,VprSMTP,VpfDFilial,VpfDComprador);
   {    if Result = '' then
         result := AlteraEstagioPedidoCompra(VpaDPedidoCompra.CodFilial,VpaDPedidoCompra.SeqPedido,Varia.EstagioComprasAguardandoConfirmacaoRecebFornececedor,'E-mail enviado');}

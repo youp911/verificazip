@@ -323,7 +323,8 @@ begin
                                  ' and cad.i_lan_rec = mov.i_lan_rec ' +
                                  ' and cad.I_emp_fil = mov.I_emp_fil ' +
                                  ' and cad.I_cod_cli = cli.i_cod_cli ' +
-                                 ' AND MOV.C_NRO_CON = CON.C_NRO_CON ');
+                                 ' AND MOV.C_NRO_CON = CON.C_NRO_CON '+
+                                 ' and MOV.D_DAT_PAG IS NULL');
 
 end;
 

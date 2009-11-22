@@ -3060,7 +3060,8 @@ end;
 function TRBFuncoesClientes.AdicionaCredito(VpaCodCliente : Integer;VpaValor : Double;VpaTipCredito, VpaDesObservacao : String):String;
 begin
   result := '';
-  AdicionaSQLAbreTabela(CliCadastro,'Select * from CREDITOCLIENTE ');
+  AdicionaSQLAbreTabela(CliCadastro,'Select * from CREDITOCLIENTE '+
+                                    ' Where CODCLIENTE = 0 AND SEQCREDITO = 0' );
   CliCadastro.Insert;
   CliCadastro.FieldByName('CODCLIENTE').AsInteger := VpaCodCliente;
   CliCadastro.FieldByName('VALINICIAL').AsFloat := VpaValor;

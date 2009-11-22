@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios, Grids, CGrades, Componentes1, ExtCtrls, PainelGradiente,
-  UnDadosProduto, StdCtrls, Buttons;
+  UnDadosProduto, StdCtrls, Buttons, UnOrdemProducao;
 
 type
   TFGeraFracaoOPProdutos = class(TFormularioPermissao)
@@ -19,14 +19,17 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BCancelarClick(Sender: TObject);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
+    procedure BGravarClick(Sender: TObject);
+    procedure GradeGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
   private
     { Private declarations }
     VprDProdutoOP :TRBDOrdemProducaoProduto;
     VprDOrdemProducao : TRBDOrdemProducao;
+    VprAcao : Boolean;
     procedure CarTitulosGrade;
   public
     { Public declarations }
-    function GeraOP(VprDOrdemProducao : TRBDOrdemProducao) : Boolean;
+    function GeraOP(VpaDOrdemProducao : TRBDOrdemProducao) : Boolean;
   end;
 
 var
@@ -34,7 +37,7 @@ var
 
 implementation
 
-uses APrincipal, Constantes, constmsg;
+uses APrincipal, Constantes, constmsg, AGeraFracaoOP;
 
 {$R *.DFM}
 
@@ -44,14 +47,17 @@ procedure TFGeraFracaoOPProdutos.FormCreate(Sender: TObject);
 begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
+  VprAcao := false;
   CarTitulosGrade;
 end;
 
 { **************************************************************************** }
-function TFGeraFracaoOPProdutos.GeraOP(VprDOrdemProducao: TRBDOrdemProducao): Boolean;
+function TFGeraFracaoOPProdutos.GeraOP(VpaDOrdemProducao: TRBDOrdemProducao): Boolean;
 begin
   PainelTempo1.execute('Agrupando produtos. Aguarde.');
-  Grade.ADados := VprDOrdemProducao.ProdutosSubmontagemAgrupados;
+  FunOrdemProducao.AgrupaProdutosFracoesOPSubMontagem(VpaDOrdemProducao);
+  VprDOrdemProducao := VpaDOrdemProducao;
+  Grade.ADados := VpaDOrdemProducao.ProdutosSubmontagemAgrupados;
   Grade.CarregaGrade;
   PainelTempo1.fecha;
   showmodal;
@@ -76,11 +82,33 @@ begin
   Grade.Cells[7,VpaLinha] := VprDProdutoOP.DesUM;
   Grade.Cells[8,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdaProduzir);
   Grade.Cells[9,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdOp);
-  Grade.Cells[10,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdEstoque);
-  Grade.Cells[11,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdReservado);
-  Grade.Cells[12,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdMinimo);
-  Grade.Cells[13,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdemProcesso);
-  Grade.Cells[14,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdemProcessoSerie);
+  Grade.Cells[10,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdEstoque);
+  Grade.Cells[11,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdReservado);
+  Grade.Cells[12,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdAReservar);
+  Grade.Cells[13,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdMinima);
+  Grade.Cells[14,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdemProcesso);
+  Grade.Cells[15,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdemProcessoSerie);
+end;
+
+procedure TFGeraFracaoOPProdutos.GradeGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+var
+  VpfDProdutoOP : TRBDOrdemProducaoProduto;
+begin
+  if (ARow > 0) and (Acol > 0) then
+  begin
+    if VprDOrdemProducao.ProdutosSubmontagemAgrupados.Count >0 then
+    begin
+      VpfDProdutoOP := TRBDOrdemProducaoProduto(VprDOrdemProducao.ProdutosSubmontagemAgrupados.Items[arow-1]);
+      if (VpfDProdutoOP.DProduto.QtdMinima > 0) and
+         ((VpfDProdutoOP.DProduto.QtdEstoque - VpfDProdutoOP.QtdaProduzir) < VpfDProdutoOP.DProduto.QtdMinima)  then
+        ABrush.Color := $008080FF
+      else
+        if (VpfDProdutoOP.QtdaProduzir < VpfDProdutoOP.DProduto.QtdEstoque) then
+              ABrush.Color := $0080FF80;
+//                ABrush.Color := $0080FFFF
+    end;
+  end;
+
 end;
 
 { **************************************************************************** }
@@ -89,6 +117,20 @@ begin
   close;
 end;
 
+{ **************************************************************************** }
+procedure TFGeraFracaoOPProdutos.BGravarClick(Sender: TObject);
+begin
+  FunOrdemProducao.MarcaFracoesQuePossuemEstoque(VprDOrdemProducao);
+  FGeraFracaoOP := TFGeraFracaoOP.CriarSDI(self,'',FPrincipal.VerificaPermisao('FGeraFracaoOP'));
+  if  FGeraFracaoOP.GeraFracaoOP(VprDOrdemProducao) then
+  begin
+    VprAcao := true;
+    close;
+  end;
+  FGeraFracaoOP.free;
+end;
+
+{ **************************************************************************** }
 procedure TFGeraFracaoOPProdutos.CarTitulosGrade;
 begin
   Grade.Cells[1,0] := 'Código';
@@ -102,9 +144,10 @@ begin
   Grade.Cells[9,0] := 'Qtd OP';
   Grade.Cells[10,0] := 'Qtd Estoque';
   Grade.Cells[11,0] := 'Qtd Reservado';
-  Grade.Cells[12,0] := 'Qtd Mínimo';
-  Grade.Cells[13,0] := 'Qtd em Processo';
-  Grade.Cells[14,0] := 'Qtd Série';
+  Grade.Cells[12,0] := 'Qtd A Reservar';
+  Grade.Cells[13,0] := 'Qtd Mínimo';
+  Grade.Cells[14,0] := 'Qtd em Processo';
+  Grade.Cells[15,0] := 'Qtd Série';
   if not Config.EstoquePorCor then
   begin
     Grade.ColWidths[3] := -1;

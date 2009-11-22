@@ -512,7 +512,9 @@ Type
       PerComissao,
       PerComissaoPreposto,
       ValComissao,
-      ValComissaoPreposto : Double;
+      ValComissaoPreposto,
+      ValUtilizadoCredito,
+      ValSaldoCreditoCliente : Double;
       TipComissao,
       TipComissaoPreposto : Integer; // 0 direta 1 produtos
       DPNumDuplicata : Integer;
@@ -604,7 +606,8 @@ type
       ValorAcrescimo,
       ValorDesconto,
       ValorPago,
-      ValParcialFaltante : Double;
+      ValParcialFaltante,
+      ValParaGerardeCredito : Double;
       DatPagamento,
       DatVencimentoParcial : TDateTime;
       IndPagamentoParcial,
@@ -1124,6 +1127,7 @@ begin
   IndBaixaRetornoBancario := false;
   IndDesconto := false;
   IndBaixaUtilizandoOCreditodoCliente := false;
+  ValParaGerardeCredito := 0;
 end;
 
 {******************************************************************************}

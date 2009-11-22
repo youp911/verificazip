@@ -459,7 +459,11 @@ begin
   begin
     GeraFracoesOPSubmontagens;
     FGeraFracaoOPProdutos := TFGeraFracaoOPProdutos.CriarSDI(self,'',true);
-    FGeraFracaoOPProdutos.GeraOP(VprDOrdemProducao);
+    if  FGeraFracaoOPProdutos.GeraOP(VprDOrdemProducao) then
+    begin
+      VprAcao := true;
+      close;
+    end;
     FGeraFracaoOPProdutos.free;
   end
   else

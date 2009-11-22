@@ -116,8 +116,8 @@ begin
                          ' Where I_COD_REG = '+CadRegiaoI_COD_REG.AsString);
    ExecutaComandoSql(Aux,'UPDATE CADCLIENTES '+
                          ' SET I_COD_REG = '+CadRegiaoI_COD_REG.AsString+
-                         ' Where ISNULL(C_CEP_CLI,0) >= '+IntToStr(CadRegiaoI_CEP_INI.AsInteger)+
-                         ' and ISNULL(C_CEP_CLI,0) <= '+IntToStr(CadRegiaoI_CEP_FIM.AsInteger));
+                         ' Where NVL(C_CEP_CLI,0) >= '+IntToStr(CadRegiaoI_CEP_INI.AsInteger)+
+                         ' and NVL(C_CEP_CLI,0) <= '+IntToStr(CadRegiaoI_CEP_FIM.AsInteger));
    consulta.AtualizaTabela;
    ConfiguraConsulta(true);
 end;

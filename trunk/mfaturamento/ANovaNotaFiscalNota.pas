@@ -2129,6 +2129,10 @@ begin
       EValOutrasDespesas.AValor := VprDNota.ValOutrasDepesesas;
       CalculaValorTotal;
     end;
+    if VprDContasaReceber.ValUtilizadoCredito > 0 then
+    begin
+      VprDNota.DesObservacao.add('Abatido do Crédito "'+FormatFloat('R$ #,###,###,###,##0.00',VprDContasaReceber.ValUtilizadoCredito)+'". Saldo Crédito "'+FormatFloat('R$ #,###,###,###,##0.00',VprDContasaReceber.ValSaldoCreditoCliente)+'" - '+FormatDateTime('DD/MM/YYYY - HH:MM',now));
+    end;
   end;
 end;
 

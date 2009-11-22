@@ -63,6 +63,7 @@ Type TRBFuncoesEMarketing = class(TRBLocalizaEMarketing)
     function GeraTarefaTeleMarketing(VpaSeqTarefa, VpaCodUsuario : Integer):string;
     function VerificaEmailInvalido(VpaProgresso : TProgressBar;VpaStatus,VpaContaEmail : TLabel) : string;
     function ExisteEmail(VpaEmail : string) : boolean;
+    procedure ExcluiTarefa(VpaSeqTarefa : Integer);
 end;
 
 
@@ -478,6 +479,14 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFuncoesEMarketing.ExcluiTarefa(VpaSeqTarefa: Integer);
+begin
+  ExecutaComandoSql(Aux,'Delete from TAREFAEMARKETINGITEM ' +
+                        ' Where SEQTAREFA = '+  IntToStr(VpaSeqTarefa));
+  ExecutaComandoSql(Aux,'Delete from TAREFAEMARKETING ' +
+                        ' Where SEQTAREFA = '+  IntToStr(VpaSeqTarefa));
+end;
+
 function TRBFuncoesEMarketing.ExisteEmail(VpaEmail : string) : boolean;
 begin
   AdicionaSQLAbreTabela(Aux,'Select I_COD_CLI  from CADCLIENTES ' +

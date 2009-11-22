@@ -482,14 +482,21 @@ var
 begin
   if (ACol > 0) and (ARow > 0) and (VprDOrdemProducao <> nil) then
   begin
-    if varia.TipoOrdemProducao = toFracionada then
+    if VprDOrdemProducao.Fracoes.Count > 0  then
     begin
-      if VprDOrdemProducao.Fracoes.Count > 0  then
+      VpfDItem := TRBDFracaoOrdemProducao(VprDOrdemProducao.Fracoes.Items[Arow-1]);
+      if varia.TipoOrdemProducao = toFracionada then
       begin
-        VpfDItem := TRBDFracaoOrdemProducao(VprDOrdemProducao.Fracoes.Items[Arow-1]);
         if VpfDItem.IndEstagioGerado then
-          ABrush.Color := clGray;
+          ABrush.Color := clGray
+      end
+      else
+      if varia.TipoOrdemProducao = toSubMontagem then
+      begin
+        if VpfDItem.IndPossuiEmEstoque then
+          ABrush.Color := $0080FF80;
       end;
+
     end;
   end;
 end;

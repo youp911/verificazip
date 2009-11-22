@@ -125,7 +125,7 @@ begin
   { chamar a rotina de atualização de menus }
   VprDLeitura := TRBDLeituraLocacaoCorpo.cria;
   FunContratos := TRBFuncoesContrato.cria(FPrincipal.BaseDados);
-  if dia(date) < 20 then
+  if dia(date) <= 20 then
   begin
     EDataInicial.DateTime := Decdia(PrimeiroDiaMes(date),10);
     EDataFinal.DateTime := UltimoDiaMes(date);

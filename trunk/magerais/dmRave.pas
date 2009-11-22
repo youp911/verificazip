@@ -76,7 +76,7 @@ type
     procedure ImprimeConsistenciadeEstoque(VpaCodFilial, VpaSeProduto : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaCaminhoRelatorio,VpaNomFilial,VpaNomProduto : String;VpaIndSomenteMonitorados : Boolean);
     procedure ImprimeConsumoSubmontagem(VpaCodFilial, VpaSeqOrdemProduccao, VpaSeqFracao : Integer;VpaSomenteAReservar, VpaConsumoExcluir : Boolean);
     procedure ImprimeRecibo(VpaCodFilial : Integer;VpaDCliente : TRBDCliente;VpaDesDuplicata, VpaValDuplicata,VpaValExtenso,VpaLocaleData : String);
-    procedure ImprimeDevolucoesPendente(VpaCodFilial,VpaCodCliente,VpaCodTransportadora,VpaCodEstagio : Integer; VpaData : TDatetime;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomTranportadora,VpaNomEstagio : String);
+    procedure ImprimeDevolucoesPendente(VpaCodFilial,VpaCodCliente,VpaCodTransportadora,VpaCodEstagio,VpaCodVendedor : Integer; VpaData : TDatetime;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomTranportadora,VpaNomEstagio, VpaNomVendedor : String);
     procedure ImprimeEstoqueFiscal(VpaCodFilial,VpaSeqProduto : integer;VpaCaminhoRelatorio,VpaNomFilial, VpaNomProduto : String);
     procedure ImprimeNotaFiscalEntrada(VpaCodFilial,VpaSeqNota : integer;VpaVisualizar : Boolean);
     procedure ImprimeOrdemSerra(VpaCodFilial, VpaSeqOrdemProducao : Integer);
@@ -1430,7 +1430,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimeDevolucoesPendente(VpaCodFilial, VpaCodCliente,  VpaCodTransportadora, VpaCodEstagio: Integer; VpaData: TDatetime;  VpaCaminhoRelatorio, VpaNomFilial, VpaNomCliente, VpaNomTranportadora,  VpaNomEstagio: String);
+procedure TdtRave.ImprimeDevolucoesPendente(VpaCodFilial, VpaCodCliente,  VpaCodTransportadora, VpaCodEstagio, VpaCodVendedor: Integer; VpaData: TDatetime;  VpaCaminhoRelatorio, VpaNomFilial, VpaNomCliente, VpaNomTranportadora,  VpaNomEstagio, VpaNomVendedor: String);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Devoluções pendentes';
@@ -1476,6 +1476,12 @@ begin
     AdicionaSQlTabela(Principal,'AND CAD.I_COD_CLI = '+Inttostr(VpacodCliente));
     Rave.SetParam('CLIENTE',VpaNomCliente);
   end;
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSQlTabela(Principal,'AND CAD.I_COD_VEN = '+Inttostr(VpaCodVendedor));
+    Rave.SetParam('VENDEDOR',VpaNomVendedor);
+  end;
+
   Rave.SetParam('DATFINAL',FormatDateTime('DD/MM/YYYY',VpaData));
 
   Rave.SetParam('CAMINHO',VpaCaminhoRelatorio);

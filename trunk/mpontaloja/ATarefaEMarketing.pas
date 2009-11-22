@@ -12,7 +12,6 @@ type
   TFTarefaEMarketing = class(TFormularioPermissao)
     PanelColor1: TPanelColor;
     BotaoCadastrar1: TBotaoCadastrar;
-    BotaoExcluir1: TBotaoExcluir;
     BotaoConsultar1: TBotaoConsultar;
     BFechar: TBitBtn;
     PainelGradiente1: TPainelGradiente;
@@ -50,6 +49,7 @@ type
     EUsuario: TEditLocaliza;
     Localiza: TConsultaPadrao;
     TarefaEmarketingItemNOMCONTATO: TWideStringField;
+    BExcluir: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -63,6 +63,8 @@ type
     procedure BEnviarClick(Sender: TObject);
     procedure TarefaEMarketingAfterScroll(DataSet: TDataSet);
     procedure BGeraTelemarketingClick(Sender: TObject);
+    procedure BotaoExcluir1Click(Sender: TObject);
+    procedure BExcluirClick(Sender: TObject);
   private
     VprOrdem: String;
     VprDTarefa : TRBDTarefaEMarketing;
@@ -204,6 +206,11 @@ begin
                                                                ' WHERE SEQTAREFA = '+InttoStr(TarefaEMarketingSEQTAREFA.AsInteger));
 end;
 
+procedure TFTarefaEMarketing.BotaoExcluir1Click(Sender: TObject);
+begin
+
+end;
+
 {******************************************************************************}
 procedure TFTarefaEMarketing.BEnviarClick(Sender: TObject);
 begin
@@ -217,6 +224,16 @@ begin
     Animate1.Active := false;
     AtualizaConsulta;
   end;
+end;
+
+procedure TFTarefaEMarketing.BExcluirClick(Sender: TObject);
+begin
+  if confirmacao(CT_DeletaRegistro) then
+  begin
+    FunEMarketing.ExcluiTarefa(TarefaEMarketingSEQTAREFA.AsInteger);
+    AtualizaConsulta;
+  end;
+
 end;
 
 {******************************************************************************}

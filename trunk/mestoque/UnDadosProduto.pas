@@ -1083,11 +1083,9 @@ Type
       DesUM : String;
       QtdaProduzir,
       QtdOp,
-      QtdEstoque,
-      QtdReservado,
-      QtdMinimo,
       QtdemProcesso,
       QtdemProcessoSerie : Double;
+      Fracoes : TList;
       constructor cria;
       destructor destroy;override;
   end;
@@ -3803,11 +3801,13 @@ constructor TRBDOrdemProducaoProduto.cria;
 begin
   inherited create;
   DProduto := TRBDProduto.Cria;
+  Fracoes := TList.create;
 end;
 
 {******************************************************************************}
 destructor TRBDOrdemProducaoProduto.destroy;
 begin
+  Fracoes.free;
   DProduto.Free;
   inherited;
 end;

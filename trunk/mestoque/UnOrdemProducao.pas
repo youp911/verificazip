@@ -137,7 +137,7 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     function GravaConsumoFracoesNovasReimportacao(VpaDOrdemProducaoNova: TRBDOrdemProducao) : String;
     function AdicionaLogReimportacaoFracao(VpaDFracao : TRBDFracaoOrdemProducao):string;
     procedure AlteraSeqFracaoPai(VpaListaFracoes : TList;VpaSeqFracaoPaiAtual, VpaSeqFracaoPaiNovo : Integer);
-    function RProdutoAgrupadoOPSubMontagem(VpaDOrdemProducao : TRBDOrdemProducao;VpaSeqProduto, VpaCodCor,VpaCodTamanho
+    function RProdutoAgrupadoOPSubMontagem(VpaDOrdemProducao : TRBDOrdemProducao;VpaDFracao : TRBDFracaoOrdemProducao):TRBDOrdemProducaoProduto;
 //    procedure AlteraQtdReservadaFracaoOPConsumo(VpaDOP : TRBDordemProducao;VpaDFracao : TRBDFracaoOP;VpaDConsumo : TRBDConsumoFracaoOP
   public
     VplQtdFracoes : Integer;
@@ -258,6 +258,7 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     procedure CarregaArvoreSubMontagem(VpaTabela : TDataSet;VpaArvore : TTreeView);
     procedure ReservaQtdEstoqueFracao(VpaDOP : TRBDordemProducao);
     procedure AgrupaProdutosFracoesOPSubMontagem(VpaDOP : TRBDOrdemProducao);
+    procedure MarcaFracoesQuePossuemEstoque(VpaDOP : TRBDOrdemProducao);
 end;
 
 var
@@ -480,6 +481,36 @@ begin
     Ordtabela.next;
   end;
   result := RetornaInteiro(VpfProdutividade);
+end;
+
+{******************************************************************************}
+function TRBFuncoesOrdemProducao.RProdutoAgrupadoOPSubMontagem(VpaDOrdemProducao: TRBDOrdemProducao;VpaDFracao: TRBDFracaoOrdemProducao): TRBDOrdemProducaoProduto;
+var
+  VpfLaco : Integer;
+  VpfDProdutoOP : TRBDOrdemProducaoProduto;
+begin
+  result := nil;
+  for VpfLaco := 0 to VpaDOrdemProducao.ProdutosSubmontagemAgrupados.Count - 1 do
+  begin
+    VpfDProdutoOP := TRBDOrdemProducaoProduto(VpaDOrdemProducao.ProdutosSubmontagemAgrupados.Items[VpfLaco]);
+    if (VpfDProdutoOP.DProduto.SeqProduto = VpaDFracao.SeqProduto) and
+       (VpfDProdutoOP.CodCor = VpaDFracao.CodCor) and
+       (VpfDProdutoOP.CodTamanho = VpaDFracao.CodTamanho) then
+    begin
+      result := VpfDProdutoOP;
+      break;
+    end;
+  end;
+  if result = nil then
+  begin
+    result := VpaDOrdemProducao.AddProdutoAgrupadoSubmontagem;
+    FunProdutos.CarDProduto(Result.DProduto,varia.codigoempresa,VpaDOrdemProducao.CodEmpresafilial,VpaDFracao.SeqProduto);
+    result.CodCor := VpaDFracao.CodCor;
+    Result.NomCor := VpaDFracao.NomCor;
+    result.CodTamanho := VpaDFracao.CodTamanho;
+    result.NomTamanho := VpaDFracao.NomTamanho;
+    Result.DesUM := VpaDFracao.UM;
+  end;
 end;
 
 {******************************************************************************}
@@ -2416,6 +2447,35 @@ begin
     VpfDEstagio := TRBDordemProducaoEstagio(VpaDFracao.Estagios.Items[VpfLaco]);
     if VpfDEstagio.CodEstagio = VpaCodEstagio then
       VpfDEstagio.IndFinalizado := false;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesOrdemProducao.MarcaFracoesQuePossuemEstoque(VpaDOP: TRBDOrdemProducao);
+var
+  VpfLacoProduto, VpfLacoFracao : Integer;
+  VpfDProdutoOP : TRBDOrdemProducaoProduto;
+  VpfDFracao : TRBDFracaoOrdemProducao;
+  VpfQtdFracao : Double;
+begin
+  for VpfLacoProduto := 0 to VpaDOP.ProdutosSubmontagemAgrupados.Count - 1 do
+  begin
+    VpfDProdutoOP := TRBDOrdemProducaoProduto(VpaDOP.ProdutosSubmontagemAgrupados.Items[VpfLacoProduto]);
+    if VpfDProdutoOP.DProduto.QtdEstoque > 0 then
+    begin
+      for VpfLacoFracao := 0 to VpfDProdutoOP.Fracoes.Count - 1 do
+      begin
+        VpfDFracao := TRBDFracaoOrdemProducao(VpfDProdutoOP.Fracoes.Items[VpfLacoFracao]);
+        VpfQtdFracao := FunProdutos.CalculaQdadePadrao(VpfDFracao.UM,VpfDProdutoOP.DesUM,VpfDFracao.QtdProduto,IntToStr(VpfDFracao.SeqProduto));
+        if (VpfDProdutoOP.DProduto.QtdEstoque >= VpfQtdFracao)  then
+        begin
+          VpfDFracao.IndPossuiEmEstoque := true;
+{          FunProdutos.BaixaQtdAReservarProduto(VpfDFracao.CodFilial,VpfDFracao.SeqProduto,VpfDFracao.CodCor,
+                                               VpfDFracao.CodTamanho,VpfDFracao.QtdProduto,VpfDFracao.UM,VpfDProdutoOP.DProduto.CodUnidade,'E');}
+          VpfDProdutoOP.DProduto.QtdEstoque := VpfDProdutoOP.DProduto.QtdEstoque - VpfQtdFracao;
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -4681,8 +4741,19 @@ end;
 procedure TRBFuncoesOrdemProducao.AgrupaProdutosFracoesOPSubMontagem(VpaDOP: TRBDOrdemProducao);
 var
   VpfDProdutoOP : TRBDOrdemProducaoProduto;
+  VpfDFracao : TRBDFracaoOrdemProducao;
+  VpfLaco : Integer;
+  VpfQtdFracao : Double;
 begin
-
+  for VpfLaco := 0 to VpaDOP.Fracoes.Count - 1 do
+  begin
+    VpfDFracao := TRBDFracaoOrdemProducao(VpaDOP.Fracoes.Items[VpfLaco]);
+    VpfDProdutoOP := RProdutoAgrupadoOPSubMontagem(VpaDOP,VpfDFracao);
+    VpfQtdFracao := FunProdutos.CalculaQdadePadrao(VpfDFracao.UM,VpfDProdutoOP.DesUM,VpfDFracao.QtdProduto,IntToStr(VpfDFracao.SeqProduto));
+    VpfDProdutoOP.QtdaProduzir :=  VpfDProdutoOP.QtdaProduzir + VpfQtdFracao;
+    VpfDProdutoOP.QtdOp :=  VpfDProdutoOP.QtdOp + VpfQtdFracao;
+    VpfDProdutoOP.Fracoes.add(VpfDFracao);
+  end;
 end;
 
 {******************************************************************************}

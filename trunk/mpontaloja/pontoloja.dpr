@@ -314,7 +314,8 @@ uses
   AComposicoes in '..\mestoque\AComposicoes.pas' {FComposicoes},
   UnNFe in '..\mfaturamento\UnNFe.pas',
   AGraficoComprativoAno in 'AGraficoComprativoAno.pas' {FGraficoComparativoAno},
-  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos};
+  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
+  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos};
 
 {$R *.RES}
 

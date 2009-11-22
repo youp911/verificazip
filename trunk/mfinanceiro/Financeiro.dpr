@@ -293,7 +293,8 @@ uses
   ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
   ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
   AProjetos in 'AProjetos.pas' {FProjetos},
-  AReorganizaPlanoContas in 'AReorganizaPlanoContas.pas' {FReorganizaPlanoContas};
+  AReorganizaPlanoContas in 'AReorganizaPlanoContas.pas' {FReorganizaPlanoContas},
+  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos};
 
 {$R *.RES}
 begin

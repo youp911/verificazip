@@ -33,7 +33,8 @@ type
     procedure ConsultaOrcamentoCompra1Click(Sender: TObject);
     procedure BGeraOrcamentoCompraClick(Sender: TObject);
     procedure MOrdenaPorClassificacaoClick(Sender: TObject);
-    procedure GradeGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+    procedure GradeKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     VprAcao: Boolean;
     VprListaOrcamentos: TList;
@@ -56,7 +57,7 @@ implementation
 
 uses
   Constantes, FunObjeto, APrincipal, ANovoPedidoCompra, FunNumeros,
-  APedidosCompraAberto, ANovaSolicitacaoCompra, ANovoOrcamentoCompra;
+  APedidosCompraAberto, ANovaSolicitacaoCompra, ANovoOrcamentoCompra, ALocalizaProdutos;
 
 {$R *.DFM}
 
@@ -73,6 +74,30 @@ begin
   ConfiguraPermissaoUsuario;
 
   CarTitulosGrade;
+end;
+
+procedure TFSolicitacaoCompraProdutosPendentes.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+Var
+  VpfSeqProduto : Integer;
+  VpfLaco : Integer;
+begin
+  if Key = 114 then
+  begin
+    FlocalizaProduto := TFlocalizaProduto.CriarSDI(self,'',true);
+    if FlocalizaProduto.LocalizaProduto(VpfSeqProduto) then
+    begin
+      for vpflaco := 0 to VprProdutosPendentes.Count - 1 do
+      begin
+        if VpfSeqProduto = TRBDProdutoPendenteCompra(VprProdutosPendentes.Items[VpfLaco]).SeqProduto then
+        begin
+          Grade.Row := VpfLaco +1;
+          break;
+        end;
+      end;
+    end;
+    FlocalizaProduto.free;
+  end;
+
 end;
 
 { ******************* Quando o formulario e fechado ************************** }
@@ -162,8 +187,7 @@ begin
   end;
 end;
 
-procedure TFSolicitacaoCompraProdutosPendentes.GradeGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush;
-  AFont: TFont);
+procedure TFSolicitacaoCompraProdutosPendentes.GradeKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
 end;
 

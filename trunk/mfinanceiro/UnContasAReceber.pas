@@ -10,10 +10,6 @@ uses
     UnDados, UnDadosCR, UnClassesImprimir, UnSistema, UnDadosProduto,FunValida, forms,
     SQLExpr, Tabela ;
 
-Const
-  CT_BancoBorderoInvalido = 'O banco %s não pertence ao bordero nro. %s ';
-
-
 
 // calculos
 type
@@ -166,9 +162,10 @@ type
     function ExcluiTitulo( VpaCodFilial,VpaLanReceber, VpaNumParcela : Integer) : string;
     function TemParcelaPaga(VpaCodFilial, VpaLanReceber, VpaNumParcela : Integer): Boolean;
     function TemParcelas(VpaCodFilial, VpaLanReceber : Integer): Boolean;
-    function EstornaParcela(VpaCodFilial, VpaLanReceber,VpaNumParcela, VpaNumParcelaFilha : integer;VpaVerificarCheques : Boolean) : String;
+    function EstornaParcela(VpaCodCliente, VpaCodFilial, VpaLanReceber,VpaNumParcela, VpaNumParcelaFilha : integer;VpaVerificarCheques : Boolean) : String;
     function EstornaDesconto(VpaCodFilial, VpaLanReceber,VpaNumParcela: integer) : String;
     function EstornaParcelaParcial(VpaCodFilial, VpaLanReceber, VpaNumParcelaFilha : integer) : string;
+    function EstornaCreditoCliente(VpaCodCliente,VpaCodFilial, VpaLanReceber, VpaNumParcela : Integer) : string;
     function ExisteChequeAssociadoCP(VpaCheques, VpaParcelas : TList;VpaIndDevolucaoCheque : Boolean):String;
     function ValidaChequesCR(VpaCodFilial,VpaLanReceber,VpaNumparcela : Integer;Var VpaExisteCheques : Boolean):string;
 
@@ -1352,6 +1349,19 @@ begin
 end;
 
 {******************************************************************************}
+function TFuncoesContasAReceber.EstornaCreditoCliente(VpaCodCliente, VpaCodFilial, VpaLanReceber, VpaNumParcela: Integer): string;
+begin
+  result := '';
+  LocalizaParcela(Tabela,VpaCodFilial,VpaLanReceber,VpaNumParcela);
+  if Tabela.FieldByName('I_COD_FRM').AsInteger = varia.FormaPagamentoCreditoCliente then
+  begin
+    result := FunClientes.AdicionaCredito(VpaCodCliente,Tabela.FieldByName('N_VLR_PAG').AsFloat,'C','Extorno do pagamento da duplicata "'+Tabela.FieldByName('C_NRO_DUP').AsString+'"');
+    if result = '' then
+      aviso('ADICIONADO "'+FormatFloat('R$ #,###,###,##0.00',Tabela.FieldByName('N_VLR_PAG').AsFloat) +'" DE CRÉDITO PARA CLIENTE!!!'#13'O estorno desse contas a receber gerou um crédito para o cliente.');
+  end;
+end;
+
+{******************************************************************************}
 function TFuncoesContasAReceber.VerificaCaixa(VpaDNovaCR : TRBDContasCR) : string;
 var
   VpfLaco : Integer;
@@ -1599,6 +1609,7 @@ begin
         result := BaixaParcelaAutomatica(VpaDNovaCR);
         if result = '' then
         begin
+          VpaDNovaCR.ValUtilizadoCredito := 0;
           FunClientes.CarCreditoCliente(VpaDNovaCR.CodCliente,VpfCreditoCliente,true,'C');
           if ClientePossuiCredito(VpfCreditoCliente) then
           begin
@@ -1967,12 +1978,7 @@ var
   VpfValCredito : Double;
 begin
 { O que falta:
-  - A rotina ja esta baixando o contas a receber e gerando uma parcial.
-  -so imprimir boleto de duplicatas em aberto;
-  -Na observacao da nota imprimir quanto foi abatido do credito e quanto ainda tem de saldo;
-  -Na observacao da cotacao imprimir quanto foi abatido do credito e quanto ainda tem de saldo;
-  -Quando estorna um contas a receber que foi pago com um credito o valor tem que voltar para o credito do cliente;
-  -Um contas a receber que foi pago a maior gera um credito para o cliente, quando é estornado esse contas a receber tem que estonar o credito do cliente; }
+  -No credito quem que informar qual a conta caixa que gerou esse credito, para quando excluir o credito no cadastro de clientes tem que adicionar esse valor no caixa novamente;}
 
   result := '';
   VpfDBaixa := TRBDBaixaCR.Cria;
@@ -1990,9 +1996,16 @@ begin
       break;
   end;
   if VpfValCredito >= 0 then
-    VpfDBaixa.ValorPago := VpaDNovaCR.ValTotal
+  begin
+    VpfDBaixa.ValorPago := VpaDNovaCR.ValTotal;
+    VpaDNovaCR.ValSaldoCreditoCliente := VpfValCredito;
+  end
   else
+  begin
     VpfDBaixa.ValorPago := RValTotalCredito(VpaCredito);
+    VpaDNovaCR.ValSaldoCreditoCliente := 0;
+  end;
+  VpaDNovaCR.ValUtilizadoCredito := VpfDBaixa.ValorPago;
   //baixa o contas a receber;
   result := VerificaSeGeraParcial(VpfDBaixa,VpfDBaixa.ValorPago,false);
   if result = '' then
@@ -2012,6 +2025,7 @@ function TFuncoesContasAReceber.BaixaContasAReceber(VpaDBaixa : TRBDBaixaCR) : s
 var
   VpfLaco : Integer;
   VpfDParcela : TRBDParcelaBaixaCR;
+  VpfValTotalParcelas : Double;
 begin
   result := GeraParcelaParcial(VpaDBaixa);
   if result = '' then
@@ -2037,6 +2051,19 @@ begin
       result := GravaDCheques(VpaDBaixa.Cheques);
     if result = '' then
       Result := GravaDChequeCR(VpaDBaixa);
+    if result = ''  then
+    begin
+      VpfValTotalParcelas := RValTotalParcelasBaixa(VpaDBaixa);
+      if VpaDBaixa.ValorPago > VpfValTotalParcelas   then
+      begin
+        if confirmacao('VALOR PAGO A MAIOR!!!'#13'Está sendo pago um valor de "'+FormatFloat('R$ #,###,###,###,##0.00',VpaDBaixa.ValorPago - RValTotalParcelasBaixa(VpaDBaixa))+
+                       '" a mais do que o valor da(s) parcela(s). Deseja gerar esse valor de crédito para o cliente?') then
+        begin
+          result := FunClientes.AdicionaCredito(VpfDParcela.CodCliente,VpaDBaixa.ValorPago - VpfValTotalParcelas,'C','Referente valor pago a maior das parcelas "'+RNumParcelas(VpaDBaixa)+'"');
+          VpaDBaixa.ValParaGerardeCredito := VpaDBaixa.ValorPago - VpfValTotalParcelas;
+        end;
+      end;
+    end;
     if result = '' then
     begin
       if ConfigModulos.Caixa and
@@ -2044,17 +2071,6 @@ begin
       begin
         result := FunCaixa.AdicionaBaixaCRCaixa(VpaDBaixa);
       end;
-    end;
-    if result = ''  then
-    begin
-      if VpaDBaixa.ValorPago >  RValTotalParcelasBaixa(VpaDBaixa) then
-      begin
-        if confirmacao('VALOR PAGO A MAIOR!!!'#13'Está sendo pago um valor de "'+FormatFloat('R$ #,###,###,###,##0.00',VpaDBaixa.ValorPago - RValTotalParcelasBaixa(VpaDBaixa))+
-                       '" a mais do que o valor da(s) parcela(s). Deseja gerar esse valor de crédito para o cliente?') then
-          result := FunClientes.AdicionaCredito(VpfDParcela.CodCliente,VpaDBaixa.ValorPago - RValTotalParcelasBaixa(VpaDBaixa),'C','Referente valor pago a maior das parcelas "'+RNumParcelas(VpaDBaixa)+'"');
-
-      end;
-
     end;
   end;
 end;
@@ -2751,7 +2767,7 @@ begin
 end;
 
 {*************** estorna a parcela  ****************************************** }
-function TFuncoesContasAReceber.EstornaParcela(VpaCodFilial, VpaLanReceber,VpaNumParcela, VpaNumParcelaFilha : integer;VpaVerificarCheques : Boolean) : String;
+function TFuncoesContasAReceber.EstornaParcela(VpaCodCliente,VpaCodFilial, VpaLanReceber,VpaNumParcela, VpaNumParcelaFilha : integer;VpaVerificarCheques : Boolean) : String;
 var
   VpfPossuiCheques : boolean;
 begin
@@ -2767,34 +2783,39 @@ begin
   begin
     // Verificar se tem mais de uma parcela parcial.
     result := EstornaParcelaParcial(VpaCodFilial,VpaLanReceber,VpaNumParcelaFilha);
+    // Verifica se a parcela foi paga com o credito do cliente
     if result = '' then
     begin
-      result := FunComissoes.EstornaComissao(VpaCodFilial,VpaLanReceber,VpaNumParcela);
+      result := EstornaCreditoCliente(VpaCodCliente,VpaCodFilial,VpaLanReceber,VpaNumParcela);
       if result = '' then
       begin
-           // estorna conta
-        LocalizaParcela(Cadastro2,VpaCodFilial, VpaLanReceber, VpaNumParcela);
-           // estorna desconto nos produtos
-        if Cadastro2.FieldByName('N_VLR_DES').AsFloat <> 0 then
-          ExtornaValorDescontoCotacao(VpaCodFilial,VpaLanReceber,Cadastro2.FieldByName('N_VLR_DES').AsFloat);
-        Cadastro2.edit;
-        if Cadastro2.FieldByName('D_DAT_PAG').IsNull then
-          Cadastro2.FieldByName('C_DUP_DES').Clear
-        else
-          Cadastro2.FieldByName('D_DAT_PAG').Clear;
-        Cadastro2.FieldByName('N_VLR_DES').Clear;
-        Cadastro2.FieldByName('N_VLR_ACR').Clear;
-        Cadastro2.FieldByName('N_VLR_PAG').Clear;
-        Cadastro2.FieldByName('C_FUN_PER').AsString := 'N';
-        Cadastro2.FieldByName('C_BAI_CAR').AsString := 'N';
-        // Atualiza o valor adicional.
-        Cadastro2.FieldByName('I_PAR_FIL').AsInteger := 0; // Não possui mais filhas.
-        //atualiza a data de alteracao para poder exportar
-        Cadastro2.FieldByName('D_ULT_ALT').AsDateTime := Date;
-        Cadastro2.post;
-        result := Cadastro2.AMensagemErroGravacao;
-        Cadastro2.close;
-        GeraLogReceber(VpaCodFilial,VpaLanReceber,VpaNumParcela,'EXTORNO');
+        result := FunComissoes.EstornaComissao(VpaCodFilial,VpaLanReceber,VpaNumParcela);
+        if result = '' then
+        begin
+             // estorna conta
+          LocalizaParcela(Cadastro2,VpaCodFilial, VpaLanReceber, VpaNumParcela);
+             // estorna desconto nos produtos
+          if Cadastro2.FieldByName('N_VLR_DES').AsFloat <> 0 then
+            ExtornaValorDescontoCotacao(VpaCodFilial,VpaLanReceber,Cadastro2.FieldByName('N_VLR_DES').AsFloat);
+          Cadastro2.edit;
+          if Cadastro2.FieldByName('D_DAT_PAG').IsNull then
+            Cadastro2.FieldByName('C_DUP_DES').Clear
+          else
+            Cadastro2.FieldByName('D_DAT_PAG').Clear;
+          Cadastro2.FieldByName('N_VLR_DES').Clear;
+          Cadastro2.FieldByName('N_VLR_ACR').Clear;
+          Cadastro2.FieldByName('N_VLR_PAG').Clear;
+          Cadastro2.FieldByName('C_FUN_PER').AsString := 'N';
+          Cadastro2.FieldByName('C_BAI_CAR').AsString := 'N';
+          // Atualiza o valor adicional.
+          Cadastro2.FieldByName('I_PAR_FIL').AsInteger := 0; // Não possui mais filhas.
+          //atualiza a data de alteracao para poder exportar
+          Cadastro2.FieldByName('D_ULT_ALT').AsDateTime := Date;
+          Cadastro2.post;
+          result := Cadastro2.AMensagemErroGravacao;
+          Cadastro2.close;
+          GeraLogReceber(VpaCodFilial,VpaLanReceber,VpaNumParcela,'EXTORNO');
+        end;
       end;
     end;
   end;
@@ -3448,7 +3469,7 @@ begin
         for VpfLaco := 0 to VpfParcelas.Count - 1 do
         begin
           VpfDParcela := TRBDParcelaBaixaCR(VpfParcelas.Items[VpfLaco]);
-          result := EstornaParcela(VpfDParcela.CodFilial,VpfDParcela.LanReceber,VpfDParcela.NumParcela,VpfDParcela.NumParcelaParcial,false);
+          result := EstornaParcela(VpfDParcela.CodCliente,VpfDParcela.CodFilial,VpfDParcela.LanReceber,VpfDParcela.NumParcela,VpfDParcela.NumParcelaParcial,false);
           if result <> '' then
             break;
         end;
