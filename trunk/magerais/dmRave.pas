@@ -106,6 +106,7 @@ type
     procedure ImprimeSolicitacaoCompra(VpaCodFilial, VpaSeqSolicitacao : Integer; VpaVisualizar : Boolean);
     procedure ImprimeProposta(VpaCodFilial, VpaSeqProposta : Integer; VpaVisualizar : Boolean);
     procedure ImprimeFichaTecnicaAmostra(VpaCodAmostra : Integer;VpaVisulizar : Boolean);
+    procedure ImprimeTotalClientesAtendidoseProdutosVendidos(VpaCodClienteMaster : INteger;VpaCaminho, VpaNomClienteMaster : String;VpaDatInicio, VpaDatFim : TDateTime);
   end;
 
 
@@ -1751,6 +1752,38 @@ begin
                               ' AND AMO.CODVENDEDOR = VEN.I_COD_VEN '+
                               ' AND AMO.CODCLIENTE = CLI.I_COD_CLI '+
                               ' AND AMO.CODAMOSTRA = '+IntToStr(VpaCodAmostra));
+
+  Principal.open;
+
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeTotalClientesAtendidoseProdutosVendidos(VpaCodClienteMaster: INteger; VpaCaminho, VpaNomClienteMaster: String;VpaDatInicio, VpaDatFim: TDateTime);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Clientes atendidos e produtos vendidos';
+  Rave.projectfile := varia.PathRelatorios+'\Cotacao\Vendedor\0500PL_Total Clientes Atendidos e Produtos Vendidos.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select VEN.C_NOM_VEN, CLI.C_NOM_CLI, SUM(MOV.N_VLR_TOT) VALPRODUTO, SUM(MOV.N_QTD_PRO) QTDPRODUTO, COUNT(DISTINCT(CAD.I_COD_CLI))QTDCLIENTE, COUNT(DISTINCT(MOV.I_SEQ_PRO))PRODUTOS '+
+                              ' From CADORCAMENTOS CAD, MOVORCAMENTOS MOV, CADVENDEDORES VEN, CADCLIENTES CLI '+
+                              ' Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '+
+                              ' AND CAD.I_LAN_ORC = MOV.I_LAN_ORC '+
+                              ' AND CAD.I_COD_VEN = VEN.I_COD_VEN '+
+                              ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '+
+                              ' and CAD.C_IND_CAN = ''N''');
+  if VpaCodClienteMaster <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.I_CLI_MAS = '+InttoStr(VpaCodClienteMaster));
+    Rave.SetParam('CLIENTEMASTER','Cliente Master : '+VpaNomClienteMaster);
+  end;
+  AdicionaSQLTabela(Principal,SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,True));
+  Rave.SetParam('PERIODO','Período de : '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+ ' até ' + FormatDateTime('DD/MM/YYYY',VpaDatFim));
+  AdicionaSqlTabeLa(Principal,' GROUP BY VEN.C_NOM_VEN, CLI.C_NOM_CLI '+
+                              ' ORDER BY 1, 2');
+
+  Rave.SetParam('CAMINHO',VpaCaminho);
 
   Principal.open;
 

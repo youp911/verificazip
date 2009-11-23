@@ -1655,6 +1655,8 @@ Type
      CodFinalidade : TRBCod_Fin;
      DFilial : TRBDFilial;
      DContabilidade : TRBDCliente;
+     QtdLinhasBloco0,
+     QtdLinhasBlocoC : Integer;
      Arquivo,
      Incosistencias : TStringList;
      constructor cria;

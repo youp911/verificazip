@@ -167,14 +167,11 @@ begin
   if  VpaDParcela.PerMora > 0 then
     VpaTitulo.Instrucoes.add('APÓS VENCIMENTO, COBRAR JUROS DE MORA DE R$ '+FormatFloat('#,###,##0.00',((VpaDParcela.Valor*VpaDParcela.PerMora)/100)/30)+' AO DIA');
   if VpaTitulo.Sacado.Endereco.DiasProtesto > 0 then
-    VpaTitulo.Instrucoes.Add('PROTESTAR NO '+ IntToStr(Varia.QtdDiasProtesto)+'o. DIA APÓS O VENCIMENTO' )
-  else
-    VpaTitulo.Instrucoes.Add('PROTESTAR NO 15o. DIA  APÓS O VENCIMENTO' );
-  VpaTitulo.Instrucoes.Add('NÃO RECEBER APÓS 15 DIAS DO VENCIMENTO' );
+    VpaTitulo.Instrucoes.Add('PROTESTAR NO '+ IntToStr(Varia.QtdDiasProtesto)+'o. DIA APÓS O VENCIMENTO' );
   if VpaDParcela.ValAcrescimoFrm > 0 then
      VpaTitulo.Instrucoes.add('VALOR DE ACRÉSCIMO FINANCEIRO REF BOLETO - '+FormatFloat('R$ ###,###,##0.00',VpaDParcela.ValAcrescimoFrm));
   VpaTitulo.Instrucoes.Add('');
-  VpaTitulo.Instrucoes.Add('****O DEPÓSITO BANCÁRIO NÃO QUITA ESTE BOLETO****');
+  VpaTitulo.Instrucoes.text := VpaTitulo.Instrucoes.text +VARIA.DesObservacaoBoleto;
 end;
 
 {******************************************************************************}

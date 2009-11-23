@@ -72,7 +72,7 @@ begin
   if (VprDSped.Incosistencias.Count > 0) then
   begin
     VprDSped.Incosistencias.SaveToFile('c:\InconsistenciasSped.txt');
-    StatusBar1.Panels[0].Text := 'Foram gerados inconsistencias no arquivo "c:\Inconsistencias.txt"';
+    StatusBar1.Panels[0].Text := 'Foram gerados '+IntToStr(VprDSped.Incosistencias.Count)+' inconsistencias no arquivo "c:\Inconsistencias.txt"';
   end
   else
   begin

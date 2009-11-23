@@ -375,6 +375,7 @@ type
       CentroCustoPadrao,
       TipComissao : Integer;
       TipoValorComissao : TRBDTipoValorComissao;
+      DesObservacaoBoleto : String;
 
       // caixa
       ValorTolerancia : Double; // valor de tolerância de esouro do caixa - máximo e mínimo.
@@ -1373,6 +1374,7 @@ begin
        QtdMaximaMesesEntregaPedido := VpfTabela.FieldByName('I_COT_QME').AsInteger;
        QtdDiasUteisEntregaAmostra := VpfTabela.FieldByName('I_DIA_AMO').AsInteger;
        CodDesenvolvedorRequisicaoAmostra := VpfTabela.FieldByName('I_COD_DEA').AsInteger;
+       DesObservacaoBoleto := VpfTabela.FieldByName('C_OBS_BOL').AsString;
     end;
 
     with Config do   // boolean

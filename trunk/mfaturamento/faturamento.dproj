@@ -750,6 +750,9 @@
 				<Form>FSpedFiscal</Form>
 			</DCCReference>
 			<DCCReference Include="UnSpedFiscal.pas"/>
+			<DCCReference Include="..\mestoque\AGeraFracaoOPProdutos.pas">
+				<Form>FGeraFracaoOPProdutos</Form>
+			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
@@ -775,7 +778,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">sISCorp RAFAEL MORRO 1 11</Parameters>
+						<Parameters Name="RunParams">Kleber RAFAEL MORRO 1 11</Parameters>
 					</Parameters>
 					<Language>
 						<Language Name="ProjectLang">$00000416</Language>

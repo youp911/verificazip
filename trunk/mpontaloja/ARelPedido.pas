@@ -434,7 +434,8 @@ begin
                                   LDataFinal.Caption := 'Mês : ';
                                 end
                                 else
-                                  if (VPANOMRELATORIO = 'TOTAL CLIENTES ATENDIDOS E PRODUTOS VENDIDOS POR VENDEDOR') then
+                                  if (VPANOMRELATORIO = 'TOTAL CLIENTES ATENDIDOS E PRODUTOS VENDIDOS POR VENDEDOR')or
+                                     (VPANOMRELATORIO = 'TOTAL CLIENTES ATENDIDOS E PRODUTOS VENDIDOS')  then
                                     AlterarVisibleDet([PPeriodo,PClienteMaster],true)
                                   else
                                     if (VPANOMRELATORIO = 'CUSTO PROJETO') then
@@ -652,7 +653,10 @@ begin
           FunRave.ImprimeContasAPagarPorPlanoContasSinteticoMES(CDataIni.Date,CDataFim.Date,VprCaminhoRelatorio)
         else
           if (VPRNOMRELATORIO = 'VENDAS POR TIPO COTACAO X CUSTO')then
-            FunRave.ImprimeTotalTipoCotacaoXCusto(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.Caption,LVendedor.Caption,LTipoCotacao.Caption,CDataIni.DateTime,CDataFim.DateTime);
+            FunRave.ImprimeTotalTipoCotacaoXCusto(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.Caption,LVendedor.Caption,LTipoCotacao.Caption,CDataIni.DateTime,CDataFim.DateTime)
+          else
+            if (VPRNOMRELATORIO = 'TOTAL CLIENTES ATENDIDOS E PRODUTOS VENDIDOS') then
+              dtRave.ImprimeTotalClientesAtendidoseProdutosVendidos(EClienteMaster.AInteiro,VprCaminhoRelatorio,LClienteMaster.Caption,CDataIni.Date,CDataFim.Date);
   dtRave.free;
 end;
 

@@ -550,9 +550,6 @@
 			<DCCReference Include="..\mcrm\ANovaAgendaProspect.pas">
 				<Form>FNovaAgendaProspect</Form>
 			</DCCReference>
-			<DCCReference Include="..\mcrm\APropostas.pas">
-				<Form>FPropostas</Form>
-			</DCCReference>
 			<DCCReference Include="..\mcrm\ANovoTelemarketingProspect.pas">
 				<Form>FNovoTelemarketingProspect</Form>
 			</DCCReference>
@@ -743,6 +740,9 @@
 			<DCCReference Include="..\mfinanceiro\AProjetos.pas">
 				<Form>FProjetos</Form>
 			</DCCReference>
+			<DCCReference Include="..\mestoque\AGeraFracaoOPProdutos.pas">
+				<Form>FGeraFracaoOPProdutos</Form>
+			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
@@ -768,7 +768,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">sisCorp RAFAEL MORRO 1 11</Parameters>
+						<Parameters Name="RunParams">AGZ RAFAEL MORRO 1 11</Parameters>
 					</Parameters>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>

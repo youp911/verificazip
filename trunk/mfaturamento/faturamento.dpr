@@ -276,7 +276,8 @@ uses
   UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
   AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
   ASpedFiscal in 'ASpedFiscal.pas' {FSpedFiscal},
-  UnSpedFiscal in 'UnSpedFiscal.pas';
+  UnSpedFiscal in 'UnSpedFiscal.pas',
+  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos};
 
 {$R *.RES}
 

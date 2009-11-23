@@ -271,7 +271,8 @@ uses
   ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
   ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
   UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
-  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos};
+  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
+  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos};
 
 {$R *.RES}
 

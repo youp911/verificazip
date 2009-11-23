@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1525;
+  CT_VersaoBanco = 1527;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -952,6 +952,13 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE FRACAOOP ADD INDPOSSUIEMESTOQUE CHAR(1) NULL');
         ExecutaComandoSql(Aux,'Update FRACAOOP SET INDPOSSUIEMESTOQUE = ''N''');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1525');
+      end;
+      if VpaNumAtualizacao < 1526 Then
+      begin
+        VpfErro := '1526';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD C_OBS_BOL VARCHAR2(600) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL SET C_OBS_BOL = ''****O DEPOSITO BANCARIO NAO QUITA ESTE BOLETO****''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1526');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

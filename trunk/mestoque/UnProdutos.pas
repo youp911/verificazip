@@ -1228,7 +1228,8 @@ end;
 {******************************************************************************}
 function TFuncoesProduto.GravaDBaixaConsumoFracaoLog(VpaDBaixa : TRBDConsumoFracaoOP;VpaCodUsuario : Integer): String;
 begin
-  AdicionaSQLAbreTabela(ProCadastro,'Select * from FRACAOOPCONSUMOLOG ');
+  AdicionaSQLAbreTabela(ProCadastro,'Select * from FRACAOOPCONSUMOLOG '+
+                                    ' Where CODFILIAL = 0 AND SEQORDEM = 0 AND SEQFRACAO = 0 AND SEQCONSUMO = 0 AND SEQLOG = 0');
   ProCadastro.Insert;
   ProCadastro.FieldByName('CODFILIAL').AsInteger := VpaDBaixa.CodFilial;
   ProCadastro.FieldByName('SEQORDEM').AsInteger := VpaDBaixa.SeqOrdem;
