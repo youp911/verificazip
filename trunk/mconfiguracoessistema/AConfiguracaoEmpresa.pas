@@ -184,6 +184,10 @@ type
     CadEmpresasC_IND_ROT: TWideStringField;
     DBCheckBox8: TDBCheckBox;
     CadEmpresasC_COT_ICS: TWideStringField;
+    PanelColor2: TPanelColor;
+    DBCheckBox9: TDBCheckBox;
+    PanelColor4: TPanelColor;
+    CadEmpresasC_IND_FCA: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BPlanoClick(Sender: TObject);

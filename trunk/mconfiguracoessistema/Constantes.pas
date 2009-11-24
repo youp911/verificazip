@@ -259,6 +259,7 @@ type
       TipoCotacaoContrato,
       TipoCotacaoGarantia,
       TipoCotacaoRevenda,
+      TipoCotacaoFaturaLocacao,
       TipoCotacaoFaturamentoPendente,
       CodTransportadoraVazio,
       CodFilialControladoraEstoque,
@@ -1475,6 +1476,7 @@ begin
          TipoCotacaoContrato := VpfTabela.FieldByName('I_ORC_CON').AsInteger;
          TipoCotacaoGarantia := VpfTabela.FieldByName('I_ORC_GAR').AsInteger;
          TipoCotacaoRevenda := VpfTabela.FieldByName('I_ORC_REV').AsInteger;
+         TipoCotacaoFaturaLocacao := VpfTabela.FieldByName('I_ORC_LOC').AsInteger;
          TipoCotacaoFaturamentoPendente := VpfTabela.FieldByName('I_FAT_PEN').AsInteger;
          CodTransportadoraVazio := VpfTabela.FieldByName('I_COD_TRA').AsInteger;
          OperacaoEstoqueEstornoEntrada := VpfTabela.FieldByName('I_OPE_EEN').AsInteger;

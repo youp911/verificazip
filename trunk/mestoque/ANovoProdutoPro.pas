@@ -336,6 +336,27 @@ type
     EQtdLinInstalacao: TSpinEditColor;
     Label8: TLabel;
     Splitter1: TSplitter;
+    PanelColor12: TPanelColor;
+    PCadarcoFita: TTabSheet;
+    PanelColor13: TPanelColor;
+    Label16: TLabel;
+    SpeedButton2: TSpeedButton;
+    Label103: TLabel;
+    EditLocaliza1: TEditLocaliza;
+    Label107: TLabel;
+    EditColor1: TEditColor;
+    EditColor2: TEditColor;
+    Label108: TLabel;
+    Label109: TLabel;
+    EditColor3: TEditColor;
+    Label110: TLabel;
+    EditColor4: TEditColor;
+    Label111: TLabel;
+    EditColor5: TEditColor;
+    Label112: TLabel;
+    EditColor6: TEditColor;
+    CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
 
     procedure PaginasChange(Sender: TObject);
     procedure PaginasChanging(Sender: TObject; var AllowChange: Boolean);

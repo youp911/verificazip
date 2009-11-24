@@ -360,6 +360,12 @@ type
     Label95: TLabel;
     DBEditLocaliza36: TDBEditLocaliza;
     CFGI_EST_REI: TFMTBCDField;
+    PanelColor3: TPanelColor;
+    Label96: TLabel;
+    DBEditLocaliza37: TDBEditLocaliza;
+    SpeedButton42: TSpeedButton;
+    Label97: TLabel;
+    CFGI_ORC_LOC: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);
