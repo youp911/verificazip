@@ -426,8 +426,52 @@ end;
 
 {********************************************************************************}
 procedure TRBFuncoesSpedFiscal.GeraBlocoCRegistroC100(VpaDSped: TRBDSpedFiscal);
+Var
+  VpfLinha : String;
 begin
   LocalizaNotasFiscaisSaidaRegC100(Tabela,VpaDSped);
+  while not Tabela.eof do
+  begin
+    VpfLinha := '|'+
+    //01 REG
+    'C100|';
+    //02 IND_OPER
+    if Tabela.FieldByName('C_ENT_SAI').AsString = 'E' then
+      VpfLinha := VpfLinha +'0|' //entrada
+    else
+      VpfLinha := VpfLinha +'1|'; //saida;
+    //03 IND_EMIT
+    VpfLinha := VpfLinha + '0|'+
+    //04 COD_PART
+    Tabela.FieldByName('I_COD_CLI').AsString+'|';
+    //05 COD_MOD
+    if VpaDSped.DFilial.IndEmiteNFE then
+      VpfLinha := VpfLinha +'55|'
+    else
+      VpfLinha := VpfLinha +'01|';
+    //06 COD_SIT
+    if Tabela.FieldByName('C_NOT_CAN').AsString = 'S' then
+      VpfLinha := VpfLinha + '02|'
+    else
+      VpfLinha := VpfLinha + '00|';
+    // 07 SER
+    VpfLinha := VpfLinha + Tabela.FieldByName('C_SER_NOT').AsString+ '|'+
+    //08 NUM_DOC
+    Tabela.FieldByName('I_NRO_NOT').AsString+'|'+
+    //09 CHV_NFE
+    Tabela.FieldByName('C_CHA_NFE').AsString+'|'+
+    //10 DT_DOC
+    FormatDateTime('DDMMYYYY', Tabela.FieldByName('D_DAT_EMI').AsDatetime)+'|'+
+    //11 DT_SAI
+    FormatDateTime('DDMMYYYY', Tabela.FieldByName('D_DAT_SAI').AsDatetime)+'|'+
+    //12 VL_DOC
+    FormatFloat('0.00',Tabela.FieldByName('N_TOT_NOT').AsFloat)+'|';
+
+    VpaDSped.Arquivo.add(VpfLinha);
+    Inc(VpaDSped.QtdLinhasBlocoC);
+    Tabela.next;
+  end;
+
 end;
 
 {********************************************************************************}

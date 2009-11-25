@@ -48,13 +48,17 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     function RQtdAmostraAprovada(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
     function RQtdClientesAmostra(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
     function RLegendaDisponivel(VpaDAmostra : TRBDAmostra):String;
+    function RCodAmostraDisponivel(VpaCodClassificacao : String) : Integer;
+    procedure ExcluiAmostra(VpaCodAmostra : Integer);
+    procedure ExportaFichaTecnicaAmostra(VpaDAmostra : TRBDAmostra);
 end;
 
 
 
 implementation
 
-Uses FunSql, FunObjeto, UnProdutos, Constantes, FunData;
+Uses FunSql, FunObjeto, UnProdutos, Constantes, FunData, dmRave, UnCotacao,
+     UnClientes, UnSistema;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                               eventos da classe TRBLocalizaAmostra
@@ -137,6 +141,24 @@ begin
                             SQLTextoDataEntreAAAAMMDD('DATAMOSTRA',VpaDatInicio,INCDIA(VpaDatFim,1),true));
   result := Aux.FieldByName('QTD').AsInteger;
   Aux.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.RCodAmostraDisponivel(VpaCodClassificacao: String): Integer;
+var
+  VpfBaseCodigo : String;
+  VpfProximoCodigoSemBase : Integer;
+begin
+  VpfBaseCodigo :=Copy(VpaCodClassificacao,2,length(VpaCodClassificacao));
+  AdicionaSQLAbreTabela(Aux,'Select MAX(CODAMOSTRA) ULTIMO FROM AMOSTRA '+
+                            ' Where CODCLASSIFICACAO = '''+VpaCodClassificacao+'''');
+  if Aux.FieldByName('ULTIMO').AsInteger = 0 then
+    result := StrToInt(VpfBaseCodigo+'1')
+  else
+  begin
+    VpfProximoCodigoSemBase := StrtoInt(COPY(Aux.FieldByName('ULTIMO').AsString,length(VpfBaseCodigo),20))+1;
+    Result := StrToInt(VpfBaseCodigo + IntToStr(VpfProximoCodigoSemBase));
+  end;
 end;
 
 {******************************************************************************}
@@ -647,12 +669,41 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFuncoesAmostra.ExcluiAmostra(VpaCodAmostra: Integer);
+begin
+  ExecutaComandoSql(Aux,'Delete from AMOSTRACONSUMO '+
+                        ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
+  ExecutaComandoSql(Aux,'Delete from AMOSTRA '+
+                        ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
+end;
+
+{******************************************************************************}
 function TRBFuncoesAmostra.ExisteAmostraDefinidaDesenvolvida(VpaCodAmostra : integer):Boolean;
 begin
   AdicionaSQLAbreTabela(Aux,'Select CODAMOSTRA FROM AMOSTRA '+
                             ' Where CODAMOSTRAINDEFINIDA = '+IntToStr(VpaCodAmostra));
   result := not Aux.eof;
   Aux.close;
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesAmostra.ExportaFichaTecnicaAmostra(VpaDAmostra: TRBDAmostra);
+var
+  VpfNomArquivo, VpfTextoEmail, VpfNomVendedor, VpfEmailVendedor : String;
+begin
+  VpfNomVendedor := FunCotacao.RNomVendedor(VpaDAmostra.CodVendedor);
+  VpfNomArquivo := Varia.PathFichaAmostra+'\Arquivos '+VpfNomVendedor+'\Ficha Técnica\'+FunClientes.RNomeFantasia(VpaDAmostra.CodProspect)+'\'+IntToStr(VpaDAmostra.CodAmostra)+'A.PDF';
+  dtRave := TdtRave.Create(nil);
+  dtRave.ImprimeFichaTecnicaAmostra(VpaDAmostra.CodAmostra,false,VpfNomArquivo);
+  dtRave.free;
+  VpfEmailVendedor := FunCotacao.REmailVencedor(VpaDAmostra.CodVendedor);
+  if VpfEmailVendedor <> '' then
+  begin
+    VpfTextoEmail := 'Prezado <b>'+VpfNomVendedor+'</b> <br><br>Segue anexo a <b>F</b>icha <b>T</b>ecnica de <b>A</b>mostra. <br><br><br>Atenciosamente<br><br>Departamento de Criação <br>'+varia.NomeFilial;
+
+    Sistema.EnviaEmail(VpfEmailVendedor,Varia.NomeFilial+' - FTA - ' +IntToStr(VpaDAmostra.CodAmostra),
+                       VpfTextoEmail,VpfNomArquivo);
+  end;
 end;
 
 end.

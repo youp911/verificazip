@@ -16,7 +16,6 @@ type
     Grade: TGridIndice;
     BotaoCadastrar1: TBotaoCadastrar;
     BotaoAlterar1: TBotaoAlterar;
-    BotaoExcluir1: TBotaoExcluir;
     BotaoConsultar1: TBotaoConsultar;
     BFechar: TBitBtn;
     Amostra: TSQL;
@@ -72,6 +71,8 @@ type
     MRequisicaoMaquina: TMenuItem;
     ECliente: TRBEditLocaliza;
     AmostraTIPAMOSTRA: TWideStringField;
+    BExcluir: TBitBtn;
+    BExportaFicha: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -92,6 +93,8 @@ type
     procedure MConcluiPrecoClick(Sender: TObject);
     procedure AmostraAfterScroll(DataSet: TDataSet);
     procedure MRequisicaoMaquinaClick(Sender: TObject);
+    procedure BExcluirClick(Sender: TObject);
+    procedure BExportaFichaClick(Sender: TObject);
   private
     { Private declarations }
     VprOrdem : String;
@@ -142,6 +145,28 @@ end;
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
 
 {******************************************************************************}
+procedure TFAmostras.BExcluirClick(Sender: TObject);
+begin
+  if confirmacao(CT_DeletaRegistro) then
+  begin
+    FunAmostra.ExcluiAmostra(AmostraCODAMOSTRA.AsInteger);
+    AtualizaConsulta;
+  end;
+end;
+
+procedure TFAmostras.BExportaFichaClick(Sender: TObject);
+var
+  VpfDAmostra : TRBDAmostra;
+begin
+  if AmostraCODAMOSTRA.AsInteger <> 0 then
+  begin
+    VpfDAmostra := TRBDAmostra.cria;
+    FunAmostra.CarDAmostra(VpfDAmostra,AmostraCODAMOSTRA.AsInteger);
+    FunAmostra.ExportaFichaTecnicaAmostra(VpfDAmostra);
+    VpfDAmostra.free;
+  end;
+end;
+
 procedure TFAmostras.BFecharClick(Sender: TObject);
 begin
   close;
@@ -254,7 +279,7 @@ procedure TFAmostras.BImprimirClick(Sender: TObject);
 begin
   dtRave := TdtRave.create(self);
   if AmostraTIPAMOSTRA.AsString = 'D' then
-    dtRave.ImprimeFichaTecnicaAmostra(AmostraCodAmostra.AsInteger,true)
+    dtRave.ImprimeFichaTecnicaAmostra(AmostraCodAmostra.AsInteger,true,'')
   else
     dtRave.ImprimeFichaDesenvolvimento(AmostraCodAmostra.AsInteger);
   dtRave.free;

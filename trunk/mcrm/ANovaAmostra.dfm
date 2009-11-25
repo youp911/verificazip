@@ -1301,7 +1301,6 @@ object FNovaAmostra: TFNovaAmostra
     AGravar = BotaoGravar1
     ACancelar = BotaoCancelar1
     AAlterar = FAmostras.BotaoAlterar1
-    AExcluir = FAmostras.BotaoExcluir1
     AConsultar = FAmostras.BotaoConsultar1
     ACadastrar = FAmostras.BotaoCadastrar1
     ASQlConnection = FPrincipal.BaseDados

@@ -72,7 +72,6 @@ type
     AtualizaPermissao: TDBCheckBox;
     PDiretorios: TTabSheet;
     Label31: TLabel;
-    EPathRestauracao: TEditColor;
     Label6: TLabel;
     Label9: TLabel;
     ESybase: TEditColor;
@@ -473,11 +472,14 @@ type
     CFGC_OBS_BOL: TWideStringField;
     DBMemoColor2: TDBMemoColor;
     PanelColor3: TPanelColor;
+    DBCheckBox44: TDBCheckBox;
+    CFGC_AMO_CAC: TWideStringField;
+    PanelColor4: TPanelColor;
+    DBEditColor27: TDBEditColor;
+    CFGC_DIR_FAM: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);
-    procedure DrivesExit(Sender: TObject);
-    procedure PathRelatorioChange(Sender: TObject);
     procedure DBEditLocaliza3Select(Sender: TObject);
     procedure FecharClick(Sender: TObject);
     procedure DBEditLocaliza1Retorno(Retorno1, Retorno2: String);
@@ -537,11 +539,8 @@ begin
   ini := TRegIniFile.Create(CT_DIRETORIOREGEDIT);
   CFG.open;
 //  Drives.Text := varia.DriveFoto;
-//  EPathVersoes.Text := Varia.PathVersoes;
-//  ERelatorios.Text := Varia.PathRelatorios;
 //  ERemessaBancario.Text := Varia.PathRemessaBancaria;
   CAtualizaVersoesAutomaticamente.Checked:= Config.AtualizarVersaoAutomaticamente;
-  EPathRestauracao.Text := varia.PathRestauracaoBackup;
   ESybase.Text := varia.PathSybase;
 //  EBackup.text := varia.PathBackup;
   EInSig.text := varia.PathInSig;
@@ -631,20 +630,7 @@ end;
                  Grava Path foto, Porta Impressora e Relatorios
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
 
-{***************************Grava o drive da foto******************************}
-procedure TFConfiguracoesGeral.DrivesExit(Sender: TObject);
-begin
-{  ini.WriteString('DRIVEFOTO','DRIVE',Drives.Text);
-  varia.DriveFoto := Drives.Text;}
-end;
 
-
-{*************************Grava o path do relatório****************************}
-procedure TFConfiguracoesGeral.PathRelatorioChange(Sender: TObject);
-begin
-  ini.WriteString('DIRETORIOS','RESTAURACAO',EPathRestauracao.Text);
-  varia.PathRestauracaoBackup := EPathRestauracao.Text;
-end;
 
 {*************************Grava o path do Sybase ******************************}
 procedure TFConfiguracoesGeral.ESybaseExit(Sender: TObject);
@@ -808,7 +794,7 @@ var
   VpfTexto : String;
 begin
   if CFG.State = dsedit then
-    if Entrada('Senha','Senha Secreta :',VpfTexto,true,EPathRestauracao.Color,PanelColor1.color) then
+    if Entrada('Senha','Senha Secreta :',VpfTexto,true,DBEditLocaliza2.Color,PanelColor1.color) then
     begin
       if Uppercase(VpfTexto) = 'MORRO' then
         CFGC_DIR_REL.AsString := 'C:\Eficacia\siscorp\minstalacao\relatorios';

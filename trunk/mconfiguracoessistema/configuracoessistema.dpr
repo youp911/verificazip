@@ -272,7 +272,8 @@ uses
   ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
   UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
   AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
-  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos};
+  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos},
+  ACoeficientes in 'ACoeficientes.pas' {FCoeficientes};
 
 {$R *.RES}
 
@@ -281,6 +282,7 @@ begin
   Application.Initialize;
   Application.HelpFile := '';
   Application.CreateForm(TFPrincipal, FPrincipal);
+  Application.CreateForm(TFCoeficientes, FCoeficientes);
   if ParamCount = 0 then  // verifica se a parametros da base de dados
     Varia.ParametroBase := 'SisCorp'
   else

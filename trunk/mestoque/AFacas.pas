@@ -41,6 +41,16 @@ type
     GridIndice1: TGridIndice;
     DBEditColor4: TDBEditColor;
     Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    DBEditColor5: TDBEditColor;
+    DBEditColor6: TDBEditColor;
+    FacaALTPROVA: TFMTBCDField;
+    FacaLARPROVA: TFMTBCDField;
+    LMedida1: TLabel;
+    LMedida2: TLabel;
+    LMedida4: TLabel;
+    LMedida3: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PanelColor1Click(Sender: TObject);
@@ -61,7 +71,7 @@ var
 
 implementation
 
-uses APrincipal;
+uses APrincipal,constantes, FunObjeto;
 
 {$R *.DFM}
 
@@ -72,6 +82,9 @@ begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
   EConsulta.AtualizaConsulta;
+  if config.ConverterMTeCMparaMM then
+    AlteraCaption([LMedida1,LMedida2,LMedida3,LMedida4],'mm');
+
 end;
 
 { ******************* Quando o formulario e fechado ************************** }

@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1528;
+  CT_VersaoBanco = 1532;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -972,6 +972,43 @@ begin
         VpfErro := '1528';
         ExecutaComandoSql(Aux,'ALTER TABLE CFG_PRODUTO ADD I_ORC_LOC NUMBER(10) NULL');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1528');
+      end;
+      if VpaNumAtualizacao < 1529 Then
+      begin
+        VpfErro := '1529';
+        ExecutaComandoSql(Aux,'ALTER TABLE FACA ADD (ALTPROVA NUMBER(9,3)NULL, '+
+                               ' LARPROVA NUMBER(9,3) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1529');
+      end;
+      if VpaNumAtualizacao < 1530 Then
+      begin
+        VpfErro := '1530';
+        ExecutaComandoSql(Aux,'alter TABLE CFG_GERAL ADD C_AMO_CAC CHAR(1) NULL ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set C_AMO_CAC = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1530');
+      end;
+      if VpaNumAtualizacao < 1531 Then
+      begin
+        VpfErro := '1531';
+        ExecutaComandoSql(Aux,'alter TABLE CFG_GERAL ADD C_DIR_FAM VARCHAR2(200) NULL ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1531');
+      end;
+      if VpaNumAtualizacao < 1532 Then
+      begin
+        VpfErro := '1532';
+        ExecutaComandoSql(Aux,'create table COEFICIENTECUSTO('+
+                              ' CODCOEFICIENTE NUMBER(10) NOT NULL,' +
+                              ' NOMCOEFICIENTE VARCHAR2(50) NOT NULL,' +
+                              ' PERICMS NUMBER(9,3) NULL, ' +
+                              ' PERPISCOFINS NUMBER(9,3) NULL,' +
+                              ' PERCOMISSAO NUMBER(9,3) NULL,' +
+                              ' PERFRETE NUMBER(9,3) NULL,' +
+                              ' PERADMINISTRATIVO NUMBER(9,3) NULL,' +
+                              ' PERPROPAGANDA NUMBER(9,3) NULL,' +
+                              ' PERVENDAPRAZO NUMBER(9,3) NULL,' +
+                              ' PERLUCRO NUMBER(9,3) NULL,' +
+                              ' PRIMARY KEY(CODCOEFICIENTE))');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1532');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

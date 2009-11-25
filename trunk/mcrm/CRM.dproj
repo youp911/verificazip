@@ -430,9 +430,6 @@
 			<DCCReference Include="..\mpontaloja\AAlteraEstagioAgendamento.pas">
 				<Form>FAlteraEstagioAgendamento</Form>
 			</DCCReference>
-			<DCCReference Include="..\mestoque\AOrdemProducaoGenerica.pas">
-				<Form>FOrdemProducaoGenerica</Form>
-			</DCCReference>
 			<DCCReference Include="..\mestoque\ANovaOrdemProducaoGenerica.pas">
 				<Form>FNovaOrdemProducaoGenerica</Form>
 			</DCCReference>
@@ -796,6 +793,12 @@
 			</DCCReference>
 			<DCCReference Include="ATipoMateriaPrima.pas">
 				<Form>FTipoMateriaPrima</Form>
+			</DCCReference>
+			<DCCReference Include="..\mestoque\AOrdemProducaoGenerica.pas">
+				<Form>FOrdemProducaoGenerica</Form>
+			</DCCReference>
+			<DCCReference Include="..\mestoque\AGeraFracaoOPProdutos.pas">
+				<Form>FGeraFracaoOPProdutos</Form>
 			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>

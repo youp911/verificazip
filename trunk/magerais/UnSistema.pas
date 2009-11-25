@@ -485,7 +485,7 @@ begin
                                ' C_BAI_FIL, C_CID_FIL, C_EST_FIL, I_CEP_FIL, C_FON_FIL, C_END_FIL,I_NUM_FIL, '+
                                ' C_CRM_CES, C_CRM_CCL, C_EMA_COM, C_CGC_FIL, C_INS_FIL, C_CAB_EMA, C_MEI_EMA,  '+
                                ' L_ROD_EMA, I_COD_FIS, C_INS_MUN, C_PER_SPE, I_ATI_SPE, C_CPC_SPE, '+
-                               ' C_CRC_SPE, C_NCO_SPE, I_CON_SPE '+
+                               ' C_CRC_SPE, C_NCO_SPE, I_CON_SPE, C_IND_NFE '+
                                ' from CADFILIAIS '+
                                ' Where I_EMP_FIL = '+IntToStr(VpaCodFilial));
   with VpaDFilial do
@@ -519,6 +519,7 @@ begin
     DesCRCContador := SisAux.FieldByName('C_CRC_SPE').AsString;
     NomContador := SisAux.FieldByName('C_NCO_SPE').AsString;
     CodContabilidade := SisAux.FieldByName('I_CON_SPE').AsInteger;
+    IndEmiteNFE := SisAux.FieldByName('C_IND_NFE').AsString = 'T';
   end;
   sisAux.Close;
 

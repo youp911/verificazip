@@ -965,7 +965,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">aNisio RAFAEL MORRO 1 11</Parameters>
+						<Parameters Name="RunParams">SISCorp RAFAEL MORRO 1 11</Parameters>
 					</Parameters>
 					<Language>
 						<Language Name="ProjectLang">$00000416</Language>

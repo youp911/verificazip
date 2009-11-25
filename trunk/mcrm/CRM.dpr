@@ -159,7 +159,6 @@ uses
   AParentesCliente in '..\mpontaloja\AParentesCliente.pas' {FParentesClientes},
   AAlteraEstagioChamado in '..\mpontaloja\AAlteraEstagioChamado.pas' {FAlteraEstagioChamado},
   AAlteraEstagioAgendamento in '..\mpontaloja\AAlteraEstagioAgendamento.pas' {FAlteraEstagioAgendamento},
-  AOrdemProducaoGenerica in '..\mestoque\AOrdemProducaoGenerica.pas' {FOrdemProducaoGenerica},
   ANovaOrdemProducaoGenerica in '..\mestoque\ANovaOrdemProducaoGenerica.pas' {FNovaOrdemProducaoGenerica},
   AHistoricoECobranca in '..\mfinanceiro\AHistoricoECobranca.pas' {FHistoricoECobranca},
   ALocalizaProdutoContrato in '..\mChamado\ALocalizaProdutoContrato.pas' {FLocalizaProdutoContrato},
@@ -292,7 +291,9 @@ uses
   UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
   AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
   ADepartamentoAmostra in 'ADepartamentoAmostra.pas' {FDepartamentoAmostra},
-  ATipoMateriaPrima in 'ATipoMateriaPrima.pas' {FTipoMateriaPrima};
+  ATipoMateriaPrima in 'ATipoMateriaPrima.pas' {FTipoMateriaPrima},
+  AOrdemProducaoGenerica in '..\mestoque\AOrdemProducaoGenerica.pas' {FOrdemProducaoGenerica},
+  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos};
 
 {$R *.RES}
 

@@ -146,6 +146,7 @@ type
     FunClassificacao : TFuncoesClassificacao;
     procedure EstadoBotoes(VpaEstado : Boolean);
     function LocalizaClassificacao : boolean;
+    procedure CarNomeImagemPadrao(VpaNomClassificacao : String);
   public
     { Public declarations }
     procedure NovaAmostra(VpaCodRequisicaoAmostra : Integer);
@@ -157,7 +158,7 @@ var
 implementation
 
 uses APrincipal, AAmostras, ADesenvolvedor, AColecao, ANovoProspect, FunObjeto,
-  Constmsg, Constantes, AAmostraConsumo, ALocalizaClassificacao, FunData;
+  Constmsg, Constantes, AAmostraConsumo, ALocalizaClassificacao, FunData, Funstring;
 
 {$R *.DFM}
 
@@ -322,6 +323,9 @@ begin
     if Amostra.State in [dsedit,dsinsert] then
       AmostraCODCLASSIFICACAO.AsString := VpfCodClassificacao;
     LNomClassificacao.Caption := VpfNomClassificacao;
+    if Amostra.State = dsinsert then
+      AmostraCODAMOSTRA.AsInteger := FunAmostra.RCodAmostraDisponivel(AmostraCODCLASSIFICACAO.AsString);
+    CarNomeImagemPadrao(VpfNomClassificacao);
   end
   else
     result := false;
@@ -349,6 +353,16 @@ begin
   EColecao.Atualiza;
   VpfDAmostra.free;
   ShowModal;
+end;
+
+{******************************************************************************}
+procedure TFNovaAmostra.CarNomeImagemPadrao(VpaNomClassificacao: String);
+begin
+  if (varia.CNPJFilial = CNPJ_VENETO)  then
+  begin
+    AmostraDESIMAGEM.AsString := DeletaEspaco(CopiaAteChar(VpaNomClassificacao,'-'))+'\'+AmostraCODAMOSTRA.AsString +'A.BMP';
+  end;
+
 end;
 
 {******************************************************************************}
@@ -432,9 +446,9 @@ begin
            ECodClassificacao.SetFocus;
       end
       else
-      begin
         LNomClassificacao.Caption := VpfNomClassificacao;
-      end;
+      if Amostra.State = dsinsert then
+        AmostraCODAMOSTRA.AsInteger := FunAmostra.RCodAmostraDisponivel(AmostraCODCLASSIFICACAO.AsString);
     end
     else
       LNomClassificacao.Caption := '';

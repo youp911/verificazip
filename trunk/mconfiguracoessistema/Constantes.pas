@@ -151,7 +151,8 @@ type
       PathSybase : string;
       PathBackup,
       PathSecundarioBackup,
-      PathCliente: String;
+      PathCliente,
+      PathFichaAmostra: String;
       NomBackup: String;
       PathInSig : string;
       ImpressoraRelatorio,
@@ -676,6 +677,9 @@ type
     //nfe
     NFEHomologacao,
     NFEDanfeRetrato : Boolean;
+
+    //Amostra
+    CodigoAmostraGeradoPelaClassificacao : Boolean;
 
     //------------------------Outros
     AtualizarVersaoAutomaticamente: Boolean;
@@ -1352,6 +1356,7 @@ begin
 
        PathVersoes:= VpfTabela.FieldByName('C_DIR_VER').AsString;
        DriveFoto:= VpfTabela.FieldByName('C_DIR_FOT').AsString;
+       PathFichaAmostra := VpfTabela.FieldByName('C_DIR_FAM').AsString;
        PathRelatorios:= VpfTabela.FieldByName('C_DIR_REL').AsString;
        PathCliente := VpfTabela.FieldByName('C_DIR_CLI').AsString;
        PathRemessaBancaria:= VpfTabela.FieldByName('C_DIR_REM').AsString;
@@ -1429,6 +1434,7 @@ begin
       ObservacaoProdutoPedidoCompra := TipoCheck( VpfTabela.fieldByName('C_OBP_PED').AsString);
       ConverterMTeCMparaMM := TipoCheck( VpfTabela.fieldByName('C_ORP_CMM').AsString);
       ImprimirCodigoCorNaNota := TipoCheck( VpfTabela.fieldByName('C_NOF_ICO').AsString);
+      CodigoAmostraGeradoPelaClassificacao := TipoCheck( VpfTabela.fieldByName('C_AMO_CAC').AsString);
     end;
   end;
 

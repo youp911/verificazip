@@ -743,6 +743,9 @@
 			<DCCReference Include="..\mestoque\AGeraFracaoOPProdutos.pas">
 				<Form>FGeraFracaoOPProdutos</Form>
 			</DCCReference>
+			<DCCReference Include="ACoeficientes.pas">
+				<Form>FCoeficientes</Form>
+			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

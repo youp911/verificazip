@@ -35,6 +35,7 @@ Type
       DesCabecalhoEmailProposta,
       DesMeioEmailProposta,
       DesRodapeEmailProposta : String;
+      IndEmiteNFE : Boolean;
       constructor cria;
       destructor destroy;override;
 end;

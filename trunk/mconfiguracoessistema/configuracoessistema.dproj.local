@@ -2,5 +2,7 @@
 <BorlandProject>
 	<Transactions>
     <Transaction>2009/08/01 10:08:46.953.dproj,C:\Documents and Settings\Rafael Budag\Meus documentos\RAD Studio\Projects\Project1.dproj=C:\Eficacia\siscorp\mconfiguracoessistema\configuracoessistema.dproj</Transaction>
+    <Transaction>2009/11/25 17:20:02.734.pas,C:\Eficacia\siscorp\mconfiguracoessistema\formpadraopermissao.pas=C:\Eficacia\SisCorp\mconfiguracoessistema\ACoeficientes.pas</Transaction>
+    <Transaction>2009/11/25 17:20:02.734.dfm,C:\Eficacia\siscorp\mconfiguracoessistema\formpadraopermissao.dfm=C:\Eficacia\SisCorp\mconfiguracoessistema\ACoeficientes.dfm</Transaction>
   </Transactions>
 </BorlandProject>

@@ -55,6 +55,7 @@ Type TRBFuncoesClientes = class(TRBLocalizaClientes)
     function RDatUltimoPedido(VpaCodCliente : String):TDateTime;
     function RQtdClientes(VpaCodSituacao : String) : Integer;
     function RNomCliente(VpaCodCliente : String) : String;
+    function RNomeFantasia(VpaCodCliente : Integer) : String;
     function RNomTranpostadora(VpaCodTransportadora : Integer) : String;
     function RNomProfissao(VpaCodProfissao : Integer) : string;
     function REmailCliente(VpaCodcliente : Integer) : String;
@@ -839,6 +840,15 @@ begin
   AdicionaSqlAbreTabela(CliAux,'Select C_NOM_CLI from CADCLIENTES '+
                                ' Where I_COD_CLI = '+VpaCodCliente);
   result := CliAux.FieldByName('C_NOM_CLI').AsString;
+  CliAux.Close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesClientes.RNomeFantasia(VpaCodCliente: Integer): String;
+begin
+  AdicionaSqlAbreTabela(CliAux,'Select C_NOM_FAN from CADCLIENTES '+
+                               ' Where I_COD_CLI = '+IntToStr(VpaCodCliente));
+  result := CliAux.FieldByName('C_NOM_FAN').AsString;
   CliAux.Close;
 end;
 

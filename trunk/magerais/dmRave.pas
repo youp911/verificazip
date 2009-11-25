@@ -105,7 +105,7 @@ type
     procedure ImprimeVendasporVendedor(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao: String);
     procedure ImprimeSolicitacaoCompra(VpaCodFilial, VpaSeqSolicitacao : Integer; VpaVisualizar : Boolean);
     procedure ImprimeProposta(VpaCodFilial, VpaSeqProposta : Integer; VpaVisualizar : Boolean);
-    procedure ImprimeFichaTecnicaAmostra(VpaCodAmostra : Integer;VpaVisulizar : Boolean);
+    procedure ImprimeFichaTecnicaAmostra(VpaCodAmostra : Integer;VpaVisulizar : Boolean;VpaNomArquivo : String);
     procedure ImprimeTotalClientesAtendidoseProdutosVendidos(VpaCodClienteMaster : INteger;VpaCaminho, VpaNomClienteMaster : String;VpaDatInicio, VpaDatFim : TDateTime);
   end;
 
@@ -2396,7 +2396,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimeFichaTecnicaAmostra(VpaCodAmostra: Integer; VpaVisulizar: Boolean);
+procedure TdtRave.ImprimeFichaTecnicaAmostra(VpaCodAmostra: Integer; VpaVisulizar: Boolean;VpaNomArquivo : String);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Ficha Tecnica Amostra';
@@ -2435,6 +2435,8 @@ begin
                              ' AND ' +SQLTextoRightJoin('CON.CODFACA','FAC.CODFACA')+
                              ' AND ' +SQLTextoRightJoin('CON.CODTIPOMATERIAPRIMA','TIP.CODTIPOMATERIAPRIMA')+
                              ' ORDER BY CON.CODTIPOMATERIAPRIMA, CON.NUMSEQUENCIA, CON.DESLEGENDA');
+  if VpaNomArquivo <> '' then
+    VplArquivoPDF := VpaNomArquivo;
   Rave.Execute;
 end;
 
