@@ -201,6 +201,9 @@ type
     CFGC_NOT_IEC: TWideStringField;
     DBCheckBox8: TDBCheckBox;
     CFGC_COM_ROM: TWideStringField;
+    CFGI_TRA_PRO: TFMTBCDField;
+    PanelColor2: TPanelColor;
+    PanelColor3: TPanelColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBEditLocaliza2Retorno(Retorno1, Retorno2: String);

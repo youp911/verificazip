@@ -1405,12 +1405,7 @@ begin
         if flag.ItemIndex = 1 Then
           VpaSelect.add(' and orc.C_Fla_Sit = ''E''');
     if CNaoFaturados.checked then
-    begin
-      if varia.CNPJFilial = CNPJ_MetalVidros then
-        VpaSelect.Add('And ORC.C_GER_FIN IS NULL')
-      else
-        VpaSelect.Add('And ORC.C_NRO_NOT IS NULL');
-    end;
+      VpaSelect.Add('And ORC.C_GER_FIN IS NULL');
     if COPNaoImpressas.checked then
     begin
       if (varia.CNPJFilial = CNPJ_METALVIDROS) then

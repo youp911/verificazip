@@ -5,7 +5,7 @@ interface
        SQLExpr ;
 
 Const
-  CT_VersaoBanco = 1532;
+  CT_VersaoBanco = 1534;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1009,6 +1009,20 @@ begin
                               ' PERLUCRO NUMBER(9,3) NULL,' +
                               ' PRIMARY KEY(CODCOEFICIENTE))');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1532');
+      end;
+      if VpaNumAtualizacao < 1533 Then
+      begin
+        VpfErro := '1533';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADTRANSPORTADORAS ADD(I_COD_PAI NUMBER(10) NULL, '+
+                              ' I_COD_IBG NUMBER(10) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1533');
+      end;
+      if VpaNumAtualizacao < 1534 Then
+      begin
+        VpfErro := '1534';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADTRANSPORTADORAS ADD C_IND_PRO CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CADTRANSPORTADORAS SET C_IND_PRO = ''N''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1534');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

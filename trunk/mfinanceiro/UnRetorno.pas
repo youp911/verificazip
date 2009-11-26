@@ -930,25 +930,45 @@ begin
       end;
     end
     else
-    begin
-      case VpaDItem.CodOcorrencia of
-        2 : processaEntradaConfirmada(VpaDRetornoCorpo,VpaDItem); //entradaConfirmada;
-        3 : ProcessaEntradaRejeitadaItau(VpaDRetornoCorpo,VpaDItem); //entrada rejeitada
-        4 : processaDescontoDuplicata(VpaDRetornoCorpo,VpaDItem);
-        6,16,17 : ProcessaLiquidacaoNormal(VpaDRetornoCorpo,VpaDItem); //liquidação normal;
-        9 : ProcessaBaixaSimples(VpaDRetornoCorpo, VpaDItem);
-        14,29 : begin
-              VpaDItem.DesErro := '';//
-              VpaDItem.IndProcessada := true;
-              VpaDItem.IndPossuiErro := false;
-            end;
-        20 : ProcessaCancelamentoProtesto(VpaDRetornoCorpo, VpaDItem);
-        23 : ProcessaEnvioCartorio(VpaDRetornoCorpo, VpaDItem);
-        28 : ProcessaDebitoTarifas(VpaDRetornoCorpo, VpaDItem);
+      if VpaDRetornoCorpo.CodBanco = 237 then
+      begin
+        case VpaDItem.CodOcorrencia of
+          2 : processaEntradaConfirmada(VpaDRetornoCorpo,VpaDItem); //entradaConfirmada;
+          3 : ProcessaEntradaRejeitadaItau(VpaDRetornoCorpo,VpaDItem); //entrada rejeitada
+          6 : ProcessaLiquidacaoNormal(VpaDRetornoCorpo,VpaDItem); //liquidação normal;
+          10 : ProcessaBaixaSimples(VpaDRetornoCorpo, VpaDItem);
+          14: begin
+                VpaDItem.DesErro := '';//
+                VpaDItem.IndProcessada := true;
+                VpaDItem.IndPossuiErro := false;
+              end;
+          24 : ProcessaCancelamentoProtesto(VpaDRetornoCorpo, VpaDItem);
+          23 : ProcessaEnvioCartorio(VpaDRetornoCorpo, VpaDItem);
+          28 : ProcessaDebitoTarifas(VpaDRetornoCorpo, VpaDItem);
+        else
+          VpaDItem.DesErro:= 'OCORRÊNCIA NAO CADASTRADA!!!';
+        end;
+      end
       else
-        VpaDItem.DesErro:= 'OCORRÊNCIA NAO CADASTRADA!!!';
+      begin
+        case VpaDItem.CodOcorrencia of
+          2 : processaEntradaConfirmada(VpaDRetornoCorpo,VpaDItem); //entradaConfirmada;
+          3 : ProcessaEntradaRejeitadaItau(VpaDRetornoCorpo,VpaDItem); //entrada rejeitada
+          4 : processaDescontoDuplicata(VpaDRetornoCorpo,VpaDItem);
+          6,16,17 : ProcessaLiquidacaoNormal(VpaDRetornoCorpo,VpaDItem); //liquidação normal;
+          9 : ProcessaBaixaSimples(VpaDRetornoCorpo, VpaDItem);
+          14,29 : begin
+                VpaDItem.DesErro := '';//
+                VpaDItem.IndProcessada := true;
+                VpaDItem.IndPossuiErro := false;
+              end;
+          20 : ProcessaCancelamentoProtesto(VpaDRetornoCorpo, VpaDItem);
+          23 : ProcessaEnvioCartorio(VpaDRetornoCorpo, VpaDItem);
+          28 : ProcessaDebitoTarifas(VpaDRetornoCorpo, VpaDItem);
+        else
+          VpaDItem.DesErro:= 'OCORRÊNCIA NAO CADASTRADA!!!';
+        end;
       end;
-    end;
 end;
 {******************************************************************************}
 procedure TRBDFuncoesRetorno.ProcessaRetornoItemCNAB240(VpaArquivo : TStringList;VpaDRetorno : TRBDRetornoCorpo);

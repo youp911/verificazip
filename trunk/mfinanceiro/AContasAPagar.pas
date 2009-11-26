@@ -291,6 +291,7 @@ type
     procedure MConsultaChequesClick(Sender: TObject);
     procedure ImprimirAutorizaoPagamento1Click(Sender: TObject);
     procedure ImprimirTodasAutorizaesPagamento1Click(Sender: TObject);
+    procedure CPeriodoClick(Sender: TObject);
   private
     Despesa : TFuncoesDespesas;
     TeclaPresionada : Boolean;
@@ -365,6 +366,11 @@ begin
   VprSeqCheque := VpaSeqCheque;
   executaParcelaPai;
   showmodal;
+end;
+
+procedure TFContasaPagar.CPeriodoClick(Sender: TObject);
+begin
+  executaParcelaPai;
 end;
 
 {**************************Munda o Enabled dos botões**************************}

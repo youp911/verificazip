@@ -87,6 +87,10 @@ type
     DBCheckBox1: TDBCheckBox;
     CadTransportadorasC_IND_ATI: TWideStringField;
     ECodigo: TDBKeyViolation;
+    CadTransportadorasI_COD_PAI: TFMTBCDField;
+    CadTransportadorasI_COD_IBG: TFMTBCDField;
+    CadTransportadorasC_IND_PRO: TWideStringField;
+    DBCheckBox2: TDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadTransportadorasAfterInsert(DataSet: TDataSet);
@@ -108,7 +112,8 @@ var
 
 implementation
 
-uses APrincipal, ATransportadoras, ACadCidades, AConsultaRuas, funstring;
+uses APrincipal, ATransportadoras, ACadCidades, AConsultaRuas, funstring,
+     UnClientes;
 
 {$R *.DFM}
 
@@ -145,6 +150,7 @@ begin
   DBEditColor12.Field.Value := date;
   ECodigo.ReadOnly := False;
   CadTransportadorasC_IND_ATI.AsString:= 'S';
+  CadTransportadorasC_IND_PRO.AsString := 'N';
 end;
 
 {*********************Coloca o campo chave em read-only************************}
@@ -174,11 +180,15 @@ end;
 procedure TFNovaTransportadora.ECidadeRetorno(Retorno1,
   Retorno2: String);
 begin
-  if (Retorno1 <> '') then
+  if (Retorno2 <> '') then
     if (CadTransportadoras.State in [dsInsert, dsEdit]) then
     begin
-      CadTransportadorasCOD_CIDADE.AsInteger:=StrToInt(Retorno1); // Grava a cidade;
+      if Retorno1 <> '' then
+        CadTransportadorasI_COD_IBG.AsInteger:=StrToInt(Retorno1)
+      else
+        CadTransportadorasI_COD_IBG.clear;
       CadTransportadorasC_EST_TRA.AsString:=Retorno2; // Grava o Estado;
+      CadTransportadorasI_COD_PAI.AsInteger := FunClientes.RCodPais(Retorno2);
     end;
 end;
 

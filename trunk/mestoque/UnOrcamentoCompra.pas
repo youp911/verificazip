@@ -915,7 +915,8 @@ begin
       VpfEmailHTML.ContentType := 'text/html';
 
       MontaEmailOrcamentoCompra(VpfEmailHTML.Body,VpaDOrcamentoCompra,VpfDOrcFornecedor, VpfDCliente,VpfDComprador, VpfDFilial);
-      VpfEmailHTML.Body.Text := RetiraAcentuacaoHTML(VpfEmailHTML.Body.Text);
+      VpfEmailHTML.Body.Text := RetiraAcentuacao(VpfEmailHTML.Body.Text);
+//      VpfEmailHTML.Body.Text := RetiraAcentuacaoHTML(VpfEmailHTML.Body.Text);
 
       VprMensagem.Recipients.EMailAddresses := VpfDOrcFornecedor.DesEmailFornecedor;
       VprMensagem.ReplyTo.EMailAddresses := VpfDComprador.DesEmail;

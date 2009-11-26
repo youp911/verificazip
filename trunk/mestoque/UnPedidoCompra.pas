@@ -519,12 +519,14 @@ begin
     VpfDComprador := TRBDComprador.cria;
     FunClientes.CarDComprador(VpfDComprador,VpaDPedidoCompra.CodComprador);
 
+    VprMensagem.CharSet := 'ISO-8859-1';
     VpfEmailHTML := TIdText.Create(VprMensagem.MessageParts);
     VpfEmailHTML.ContentType := 'text/html';
 
     MontaEmailPedidoCompra(VpfEmailHTML.Body,VpaDPedidoCompra,VpfDCliente,VpfDComprador, VpfDFilial);
 
-    VpfEmailHTML.Body.Text := RetiraAcentuacaoHTML(VpfEmailHtml.Body.Text);
+    VpfEmailHTML.Body.Text := RetiraAcentuacao(VpfEmailHtml.Body.Text);
+//    VpfEmailHTML.Body.Text := RetiraAcentuacaoHTML(VpfEmailHtml.Body.Text);
     VpfEmailFornecedor := VpaDPedidoCompra.DesEmailComprador;
     VpfChar := ',';
     if ExisteLetraString(';',VpfEmailFornecedor) then
