@@ -1425,6 +1425,15 @@ begin
 
   AdicionaSqlTabela(Principal,' ORDER BY PRO.C_COD_PRO, CLA.C_COD_CLA, MP.C_NOM_PRO');
   Principal.open;
+  if not  VpaConsumoExcluir then
+    AdicionaSqlAbreTabela(Item,'select  FRA.QTDPRODUTO, FRA.DESUM, '+
+                             ' PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_PRA_PRO '+
+                             ' from FRACAOOP FRA, CADPRODUTOS PRO '+
+                             ' Where FRA.INDPOSSUIEMESTOQUE = ''S'''+
+                             ' AND PRO.I_SEQ_PRO = FRA.SEQPRODUTO '+
+                             ' AND FRA.CODFILIAL = '+IntToStr(VpaCodFilial)+
+                             ' AND SEQORDEM =  '+IntToStr(VpaSeqOrdemProduccao)+
+                             ' ORDER BY PRO.C_COD_PRO ');
   if  VpaConsumoExcluir then
     Rave.SetParam('DESTITULO','PRODUTOS A EXCLUIR');
   Rave.Execute;

@@ -889,9 +889,9 @@ begin
     if VpfDProdutoPendente.IndMarcado then
     begin
 
-      FPedidosCompraAberto:= TFPedidosCompraAberto.CriarSDI(Application,'',True);
+{      FPedidosCompraAberto:= TFPedidosCompraAberto.CriarSDI(Application,'',True);
       FPedidosCompraAberto.AtualizaPedidoCompraAberto(VpfDProdutoPendente);
-      FPedidosCompraAberto.Free;
+      FPedidosCompraAberto.Free;}
 
       if VpfDProdutoPendente.QtdAprovada <= 0 then
       begin

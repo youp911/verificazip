@@ -15,12 +15,20 @@ type
     BGravar: TBitBtn;
     BCancelar: TBitBtn;
     PainelTempo1: TPainelTempo;
+    Panel1: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Panel2: TPanel;
+    Label3: TLabel;
+    Panel3: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BCancelarClick(Sender: TObject);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
     procedure BGravarClick(Sender: TObject);
     procedure GradeGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+    procedure GradeDadosValidos(Sender: TObject; var VpaValidos: Boolean);
+    procedure GradeMudouLinha(Sender: TObject; VpaLinhaAtual, VpaLinhaAnterior: Integer);
   private
     { Private declarations }
     VprDProdutoOP :TRBDOrdemProducaoProduto;
@@ -37,7 +45,7 @@ var
 
 implementation
 
-uses APrincipal, Constantes, constmsg, AGeraFracaoOP;
+uses APrincipal, Constantes, constmsg, AGeraFracaoOP, FunString;
 
 {$R *.DFM}
 
@@ -82,14 +90,53 @@ begin
   Grade.Cells[7,VpaLinha] := VprDProdutoOP.DesUM;
   Grade.Cells[8,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdaProduzir);
   Grade.Cells[9,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdOp);
-  Grade.Cells[10,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdEstoque);
-  Grade.Cells[11,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdReservado);
-  Grade.Cells[12,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdAReservar);
-  Grade.Cells[13,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdMinima);
-  Grade.Cells[14,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdemProcesso);
-  Grade.Cells[15,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdemProcessoSerie);
+  Grade.Cells[10,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdRealEstoque);
+  Grade.Cells[11,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdEstoque);
+  Grade.Cells[12,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdReservado);
+  Grade.Cells[13,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdAReservar);
+  Grade.Cells[14,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdMinima);
+  Grade.Cells[15,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.DProduto.QtdPedido);
+  Grade.Cells[16,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdemProcesso);
+  Grade.Cells[17,VpaLinha] := FormatFloat('#,###,###,##0.00',VprDProdutoOP.QtdemProcessoSerie);
 end;
 
+{ **************************************************************************** }
+procedure TFGeraFracaoOPProdutos.GradeDadosValidos(Sender: TObject; var VpaValidos: Boolean);
+begin
+  VpaValidos := true;
+  if (Grade.Cells[8,Grade.ALinha] = '') then
+  begin
+    VpaValidos := false;
+    aviso('QUANTIDADE A PRODUZIR INVALIDA!!!'#13'É necessário informar a quantidade a produzir.');
+    Grade.Col := 8;
+  end;
+  if VpaValidos then
+  begin
+    VprDProdutoOP.QtdaProduzir := StrToFloat(DeletaChars(Grade.Cells[8,Grade.ALinha],'.'));
+    if VprDProdutoOP.QtdaProduzir < 0 then
+    begin
+      VpaValidos := false;
+      aviso('QUANTIDADE A PRODUZIR INVALIDA!!!'#13'A quantidade a produzir não pode ser menor que zero.');
+      VprDProdutoOP.QtdaProduzir := VprDProdutoOP.QtdOp;
+      Grade.Col := 8;
+    end;
+    if VpaValidos then
+    begin
+      if VprDProdutoOP.QtdaProduzir < VprDProdutoOP.QtdOp then
+      begin
+        if ((VprDProdutoOP.QtdOp - VprDProdutoOP.QtdaProduzir) > VprDProdutoOP.DProduto.QtdRealEstoque) then
+        begin
+          VpaValidos := false;
+          aviso('QUANTIDADE A PRODUZIR INVALIDA!!!'#13'Não é possivel diminuir a quantidade a produzir pois não existe quantidade em estoque disponivel.');
+          VprDProdutoOP.QtdaProduzir := VprDProdutoOP.QtdOp;
+          Grade.Col := 8;
+        end;
+      end;
+    end;
+  end;
+end;
+
+{ **************************************************************************** }
 procedure TFGeraFracaoOPProdutos.GradeGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
 var
   VpfDProdutoOP : TRBDOrdemProducaoProduto;
@@ -99,16 +146,24 @@ begin
     if VprDOrdemProducao.ProdutosSubmontagemAgrupados.Count >0 then
     begin
       VpfDProdutoOP := TRBDOrdemProducaoProduto(VprDOrdemProducao.ProdutosSubmontagemAgrupados.Items[arow-1]);
-      if (VpfDProdutoOP.DProduto.QtdMinima > 0) and
-         ((VpfDProdutoOP.DProduto.QtdEstoque - VpfDProdutoOP.QtdaProduzir) < VpfDProdutoOP.DProduto.QtdMinima)  then
+      if (VpfDProdutoOP.QtdaProduzir > VpfDProdutoOP.QtdOp) then
         ABrush.Color := $008080FF
       else
-        if (VpfDProdutoOP.QtdaProduzir < VpfDProdutoOP.DProduto.QtdEstoque) then
-              ABrush.Color := $0080FF80;
-//                ABrush.Color := $0080FFFF
+        if (VpfDProdutoOP.QtdaProduzir  = 0) then
+          ABrush.Color := $0080FF80
+        else
+          if (VpfDProdutoOP.QtdaProduzir < VpfDProdutoOP.QtdOp) then
+            ABrush.Color := $0080FFFF;
     end;
   end;
+end;
 
+{ **************************************************************************** }
+procedure TFGeraFracaoOPProdutos.GradeMudouLinha(Sender: TObject; VpaLinhaAtual, VpaLinhaAnterior: Integer);
+begin
+  if VprDOrdemProducao.ProdutosSubmontagemAgrupados.Count >0 then
+  begin
+    VprDProdutoOP := TRBDOrdemProducaoProduto(VprDOrdemProducao.ProdutosSubmontagemAgrupados.Items[VpaLinhaAtual-1]);  end;
 end;
 
 { **************************************************************************** }
@@ -142,12 +197,14 @@ begin
   Grade.Cells[7,0] := 'UM';
   Grade.Cells[8,0] := 'Qtd Produzir';
   Grade.Cells[9,0] := 'Qtd OP';
-  Grade.Cells[10,0] := 'Qtd Estoque';
-  Grade.Cells[11,0] := 'Qtd Reservado';
-  Grade.Cells[12,0] := 'Qtd A Reservar';
-  Grade.Cells[13,0] := 'Qtd Mínimo';
-  Grade.Cells[14,0] := 'Qtd em Processo';
-  Grade.Cells[15,0] := 'Qtd Série';
+  Grade.Cells[10,0] := 'Qtd Disponível';
+  Grade.Cells[11,0] := 'Qtd Estoque';
+  Grade.Cells[12,0] := 'Qtd Reservado';
+  Grade.Cells[13,0] := 'Qtd A Reservar';
+  Grade.Cells[14,0] := 'Qtd Mínimo';
+  Grade.Cells[15,0] := 'Qtd Ideal';
+  Grade.Cells[16,0] := 'Qtd em Processo';
+  Grade.Cells[17,0] := 'Qtd Série';
   if not Config.EstoquePorCor then
   begin
     Grade.ColWidths[3] := -1;

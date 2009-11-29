@@ -64,8 +64,8 @@ type
     procedure AtuDiaFechamentoEst(VpaDia : TDateTime);
     procedure ExcluiMovEstoque(VpaFilial : Integer;VpaDatInicio,VpaDatFim : TDateTime);
     procedure PosCaOrcamentoMes(VpaTabela : TDataSet;VpaCodFilial : Integer; VpaDatInicio, VpaDatFim : TDateTime);
-    function RIndiceDescontoAcrescimoOrcamento(VpaEmpfil, VpaLanOrcamento : Integer;VpaTotalCadOrcamento : Double) : Double;
-    procedure GeraMovEstoqueOrcamento(VpaCodFilial, VpaLanOrcamento : Integer;VpaDatMovimento : TDateTime; VpaIndice : Double);
+    function RValTotalProdutos(VpaEmpfil, VpaLanOrcamento : Integer;var VpaVaTotalComDesconto : Double) : Double;
+    procedure GeraMovEstoqueOrcamento(VpaCodFilial, VpaLanOrcamento : Integer;VpaDatMovimento : TDateTime; VpaValTotal : Double);
   public
     constructor criar( aowner : TComponent; VpaBaseDados : TSQLConnection ); override;
     procedure CamposSumarizaMes( var VpaValorMes, VpaQdadeMes : string; VpaFuncaoEstoque : string );
@@ -355,23 +355,48 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesSumarizaEstoque.RIndiceDescontoAcrescimoOrcamento(VpaEmpfil, VpaLanOrcamento : Integer;VpaTotalCadOrcamento : Double) : Double;
+function TFuncoesSumarizaEstoque.RValTotalProdutos(VpaEmpfil, VpaLanOrcamento : Integer;var VpaVaTotalComDesconto : Double) : Double;
 begin
-  AdicionaSQLAbreTabela(Aux,'Select SUM(N_VLR_TOT) TOTAL FROM MOVORCAMENTOS '+
+  AdicionaSQLAbreTabela(Aux,'Select SUM(N_VLR_TOT) TOTAL, SUM((N_VLR_TOT * (100- N_PER_DES))/100) TOTALCOMDESCONTO '+
+                            ' FROM MOVORCAMENTOS '+
                             ' Where I_EMP_FIL = '+IntToStr(VpaEmpfil)+
                             ' and I_LAN_ORC = ' +IntToStr(VpaLanOrcamento));
-  if Aux.FieldByname('TOTAL').AsFloat > 0 then
-    result := VpaTotalCadOrcamento / Aux.FieldByname('TOTAL').AsFloat
-  else
-    result := 1;
+  result := Aux.FieldByname('TOTAL').AsFloat;
+  VpaVaTotalComDesconto := Aux.FieldByname('TOTALCOMDESCONTO').AsFloat;
   Aux.close;
 end;
 
 {******************************************************************************}
-procedure TFuncoesSumarizaEstoque.GeraMovEstoqueOrcamento(VpaCodFilial, VpaLanOrcamento : Integer;VpaDatMovimento : TDateTime; VpaIndice : Double);
+procedure TFuncoesSumarizaEstoque.GeraMovEstoqueOrcamento(VpaCodFilial, VpaLanOrcamento : Integer;VpaDatMovimento : TDateTime; VpaValTotal : Double);
+var
+  VpfValTotalProdutos, VpfValTotalProdutosComDesconto, VpfIndice, VpfValMovimento :Double;
+  VpfProdutoComDesconto : boolean;
 begin
+  VpfValTotalProdutos := RValTotalProdutos(VpaCodFilial,VpaLanOrcamento,VpfValTotalProdutosComDesconto);
+  VpfProdutoComDesconto := false;
+  VpfIndice := 1;
+  if ArredondaDecimais(VpaValTotal,2) <> ArredondaDecimais(VpfValTotalProdutos,2)  then
+  begin
+    if VpfValTotalProdutos < VpaValTotal then
+      VpfIndice := (VpaValTotal )/VpfValTotalProdutos
+    else
+      if VpfValTotalProdutos > VpaValTotal then
+      begin
+        if VpaValTotal >= (VpfValTotalProdutosComDesconto)  then
+        begin
+          VpfProdutoComDesconto := true;
+          if VpfValTotalProdutosComDesconto > 0 then
+            VpfIndice := (VpaValTotal)/VpfValTotalProdutosComDesconto;
+        end
+        else
+        begin
+          if VpfValTotalProdutos > 0 then
+            VpfIndice := (VpaValTotal)/VpfValTotalProdutos;
+        end;
+      end;
+  end;
   AdicionaSQLAbreTabela(Produtos,'select MOV.I_EMP_FIL, MOV.I_LAN_ORC,  MOV.I_SEQ_PRO, MOV.N_QTD_PRO, MOV.N_VLR_TOT, '+
-                                 ' MOV.C_COD_UNI, MOV.I_COD_COR, QTD.N_VLR_CUS '+
+                                 ' MOV.C_COD_UNI, MOV.I_COD_COR, MOV.N_PER_DES, QTD.N_VLR_CUS '+
                                  ' from MOVORCAMENTOS MOV, MOVQDADEPRODUTO QTD '+
                                  ' Where MOV.I_SEQ_PRO = QTD.I_SEQ_PRO '+
                                  ' And MOV.I_EMP_FIL =  QTD.I_EMP_FIL '+
@@ -388,7 +413,12 @@ begin
     Cadastro.FieldByname('D_DAT_MOV').AsDateTime := VpaDatMovimento;
     Cadastro.FieldByname('N_QTD_MOV').AsFloat := Produtos.FieldByname('N_QTD_PRO').AsFloat;
     Cadastro.FieldByname('C_TIP_MOV').AsString := 'S';
-    Cadastro.FieldByname('N_VLR_MOV').AsFloat := Produtos.FieldByname('N_VLR_TOT').AsFloat * VpaIndice;
+    if VpfProdutoComDesconto then
+      VpfValMovimento := (Produtos.FieldByname('N_VLR_TOT').AsFloat * (100 - Produtos.FieldByname('N_PER_DES').AsFloat))/100
+    else
+      VpfValMovimento := Produtos.FieldByname('N_VLR_TOT').AsFloat;
+    VpfValMovimento := VpfValMovimento * VpfIndice;
+    Cadastro.FieldByname('N_VLR_MOV').AsFloat := VpfValMovimento;
     Cadastro.FieldByname('C_COD_UNI').AsString := Produtos.FieldByname('C_COD_UNI').AsString;
     Cadastro.FieldByname('I_NRO_NOT').AsInteger := Produtos.FieldByname('I_LAN_ORC').AsInteger;
     Cadastro.FieldByname('D_DAT_CAD').AsDateTime := VpaDatMovimento;
@@ -810,7 +840,6 @@ end;
 procedure TFuncoesSumarizaEstoque.ReprocessaMes(VpaMesInicio, VpaAnoInicio, VpaMesFim, VpaAnoFim : Integer);
 var
   VpfDataInicio, VpfDataFim : TDateTime;
-  VpfIndiceDescontoAcrescimo : Double;
 begin
   VpfDataInicio := MontaData(1,VpaMesInicio,VpaAnoInicio);
   VpfDataFim := UltimoDiaMes(MontaData(1,VpaMesFim,VpaAnoFim));
@@ -818,10 +847,8 @@ begin
   PosCaOrcamentoMes(Tabela,Varia.CodigoEmpFil,VpfDataInicio,VpfDataFim);
   While not Tabela.eof do
   begin
-    VpfIndiceDescontoAcrescimo := RIndiceDescontoAcrescimoOrcamento(Tabela.FieldByname('I_EMP_FIL').AsInteger,Tabela.FieldByname('I_LAN_ORC').AsInteger,
-                                         Tabela.FieldByname('N_VLR_TOT').AsFloat);
     GeraMovEstoqueOrcamento(Tabela.FieldByname('I_EMP_FIL').AsInteger,Tabela.FieldByname('I_LAN_ORC').AsInteger,Tabela.FieldByname('D_DAT_ORC').AsDateTime,
-                            VpfIndiceDescontoAcrescimo);
+                            Tabela.FieldByname('N_VLR_TOT').AsFloat);
     Tabela.Next;
   end;
 end;

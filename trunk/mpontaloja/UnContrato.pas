@@ -476,7 +476,8 @@ begin
   result := GeraCotacaoCorpoContrato(VpaDContrato,VpaDCliente);
   if Varia.TipoCotacaoFaturaLocacao <> 0 then
     result.CodTipoOrcamento := varia.TipoCotacaoFaturaLocacao;
-
+  if VpaDContrato.CodVendedor <> 0 then
+    result.CodVendedor := VpaDContrato.CodVendedor;
   if VpaDLeitura.ValDesconto <> 0 then
     result.ValDesconto := VpaDLeitura.ValDesconto;
   result.DesObservacaoFiscal := 'Qtd copias = '+IntToStr(VpaDLeitura.QtdCopias);

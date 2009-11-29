@@ -930,6 +930,7 @@ function TRBFuncoesOrdemProducao.GravaDFracoesOP(VpaDOrdemProducao : TRBDOrdemPr
 Var
   VpfLaco : Integer;
   VpfDFracao : TRBDFracaoOrdemProducao;
+  VpfInserindo : Boolean;
 begin
   result := '';
   if VpaApagarOPAntes then
@@ -951,6 +952,9 @@ begin
     VpfDFracao := TRBDFracaoOrdemProducao(VpaDOrdemProducao.Fracoes.Items[VpfLaco]);
     if VpfDFracao.SeqFracao = 0 then
       VpfDFracao.SeqFracao := VpfLaco+1;
+
+    VpfInserindo := true;
+
     if VpaApagarOPAntes then
       OrdCadastro.Insert
     else
@@ -962,7 +966,10 @@ begin
       if OrdCadastro.Eof then
         OrdCadastro.Insert
       else
+      begin
         OrdCadastro.Edit;
+        VpfInserindo := false;
+      end;
     end;
     OrdCadastro.FieldByName('CODFILIAL').AsInteger := VpaDOrdemProducao.CodEmpresafilial;
     OrdCadastro.FieldByName('SEQORDEM').AsInteger := VpaDOrdemProducao.SeqOrdem;
@@ -1003,6 +1010,13 @@ begin
     result := OrdCadastro.AMensagemErroGravacao;
     if OrdCadastro.AErronaGravacao then
       break;
+    if VpfInserindo then
+    begin
+      if VpfDFracao.IndPossuiEmEstoque then
+          FunProdutos.BaixaQtdAReservarProduto(VpfDFracao.CodFilial,VpfDFracao.SeqProduto,VpfDFracao.CodCor,
+                                               VpfDFracao.CodTamanho,VpfDFracao.QtdProduto,VpfDFracao.UM,VpfDFracao.UM,'E');
+
+    end;
   end;
   OrdCadastro.close;
 end;
@@ -2456,24 +2470,42 @@ var
   VpfLacoProduto, VpfLacoFracao : Integer;
   VpfDProdutoOP : TRBDOrdemProducaoProduto;
   VpfDFracao : TRBDFracaoOrdemProducao;
-  VpfQtdFracao : Double;
+  VpfQtdaBaixar : Double;
 begin
   for VpfLacoProduto := 0 to VpaDOP.ProdutosSubmontagemAgrupados.Count - 1 do
   begin
     VpfDProdutoOP := TRBDOrdemProducaoProduto(VpaDOP.ProdutosSubmontagemAgrupados.Items[VpfLacoProduto]);
-    if VpfDProdutoOP.DProduto.QtdEstoque > 0 then
+    if VpfDProdutoOP.DProduto.QtdRealEstoque > 0  then
     begin
+      if VpfDProdutoOP.QtdaProduzir < VpfDProdutoOP.QtdOp then
+        VpfQtdaBaixar := VpfDProdutoOP.QtdOp - VpfDProdutoOP.QtdaProduzir
+      else
+      begin
+        if VpfDProdutoOP.QtdaProduzir > VpfDProdutoOP.QtdOp then
+        begin
+          if (VpfDProdutoOP.QtdaProduzir > VpfDProdutoOP.DProduto.QtdRealEstoque) then
+            VpfQtdaBaixar := VpfDProdutoOP.DProduto.QtdRealEstoque
+          else
+            VpfQtdaBaixar := VpfDProdutoOP.QtdaProduzir;
+        end;
+      end;
       for VpfLacoFracao := 0 to VpfDProdutoOP.Fracoes.Count - 1 do
       begin
         VpfDFracao := TRBDFracaoOrdemProducao(VpfDProdutoOP.Fracoes.Items[VpfLacoFracao]);
-        VpfQtdFracao := FunProdutos.CalculaQdadePadrao(VpfDFracao.UM,VpfDProdutoOP.DesUM,VpfDFracao.QtdProduto,IntToStr(VpfDFracao.SeqProduto));
-        if (VpfDProdutoOP.DProduto.QtdEstoque >= VpfQtdFracao)  then
+        VpfDFracao.IndPossuiEmEstoque := false;
+        if (VpfQtdaBaixar > 0 )  then
         begin
+          VpfQtdaBaixar := VpfQtdaBaixar - 1;
           VpfDFracao.IndPossuiEmEstoque := true;
-{          FunProdutos.BaixaQtdAReservarProduto(VpfDFracao.CodFilial,VpfDFracao.SeqProduto,VpfDFracao.CodCor,
-                                               VpfDFracao.CodTamanho,VpfDFracao.QtdProduto,VpfDFracao.UM,VpfDProdutoOP.DProduto.CodUnidade,'E');}
-          VpfDProdutoOP.DProduto.QtdEstoque := VpfDProdutoOP.DProduto.QtdEstoque - VpfQtdFracao;
         end;
+      end;
+    end
+    else
+    begin //zera as fracoes marcadas com a qtd a produzir
+      for VpfLacoFracao := 0 to VpfDProdutoOP.Fracoes.Count - 1 do
+      begin
+        VpfDFracao := TRBDFracaoOrdemProducao(VpfDProdutoOP.Fracoes.Items[VpfLacoFracao]);
+        VpfDFracao.IndPossuiEmEstoque := false;
       end;
     end;
   end;
@@ -4753,6 +4785,29 @@ begin
     VpfDProdutoOP.QtdaProduzir :=  VpfDProdutoOP.QtdaProduzir + VpfQtdFracao;
     VpfDProdutoOP.QtdOp :=  VpfDProdutoOP.QtdOp + VpfQtdFracao;
     VpfDProdutoOP.Fracoes.add(VpfDFracao);
+  end;
+  for VpfLaco := 0 to VpaDOP.ProdutosSubmontagemAgrupados.Count - 1 do
+  begin
+    VpfDProdutoOP := TRBDOrdemProducaoProduto(VpaDOP.ProdutosSubmontagemAgrupados.Items[VpfLaco]);
+    if (VpfDProdutoOP.DProduto.QtdMinima > 0)  then
+    begin
+      if ((VpfDProdutoOP.DProduto.QtdRealEstoque - VpfDProdutoOP.QtdaProduzir) < VpfDProdutoOP.DProduto.QtdMinima) then
+      begin
+        if VpfDProdutoOP.DProduto.QtdPedido > 0 then
+          VpfDProdutoOP.QtdaProduzir :=  VpfDProdutoOP.DProduto.QtdPedido - (VpfDProdutoOP.DProduto.QtdRealEstoque - VpfDProdutoOP.QtdOp)
+        else
+          VpfDProdutoOP.QtdaProduzir :=  VpfDProdutoOP.DProduto.QtdMinima - (VpfDProdutoOP.DProduto.QtdRealEstoque - VpfDProdutoOP.QtdOp);
+      end;
+    end
+    else
+      if (VpfDProdutoOP.DProduto.QtdRealEstoque > 0)  then
+      begin
+        if (VpfDProdutoOP.DProduto.QtdRealEstoque > VpfDProdutoOP.QtdOp) then
+          VpfDProdutoOP.QtdaProduzir := 0
+        else
+          VpfDProdutoOP.QtdaProduzir := VpfDProdutoOP.DProduto.QtdRealEstoque;
+      end;
+
   end;
 end;
 

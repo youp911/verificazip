@@ -2438,7 +2438,7 @@ begin
     PrintTab(FormatFloat('#,###,###,###,##0.00',VpfQtdGeralVenda));
     PrintTab(FormatFloat('#,###,###,###,##0.00',VpfValGeralVenda));
     PrintTab(FormatFloat('#,###,###,###,##0.00',VpfValGeralCustoVenda));
-    if VpfValGeralCustoVenda <> 0  then
+    if VpfValGeralVenda <> 0  then
       PrintTab(FormatFloat('#,##0.00%',(100 - ((VpfValGeralCustoVenda*100)/VpfValGeralVenda))))
     else
       PrintTab(FormatFloat('0.00%',0));

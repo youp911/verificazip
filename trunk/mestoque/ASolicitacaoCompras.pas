@@ -123,6 +123,7 @@ type
     Label22: TLabel;
     PopupMenu1: TPopupMenu;
     AdicionaraoFiltro1: TMenuItem;
+    PainelTempo1: TPainelTempo;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -654,10 +655,12 @@ end;
 {******************************************************************************}
 procedure TFSolicitacaoCompra.BProdutosPendentesClick(Sender: TObject);
 begin
+  PainelTempo1.execute('Aguarde. Carregando os produtos...');
   FSolicitacaoCompraProdutosPendentes:= TFSolicitacaoCompraProdutosPendentes.CriarSDI(Application,'', True);
   if FSolicitacaoCompraProdutosPendentes.CarregarProdutosPendentes then
     AtualizaConsulta(true);
-  FSolicitacaoCompraProdutosPendentes.Free; 
+  FSolicitacaoCompraProdutosPendentes.Free;
+  PainelTempo1.fecha;
 end;
 
 {******************************************************************************}

@@ -1646,10 +1646,28 @@ Type
 end;
 
 Type
+  TRBDSpedfiscalRegistroC190 = class
+    public
+      CodCFOP : Integer;
+      CodCST : String;
+      PerICMS,
+      ValOperacao,
+      ValBaseCalculoICMS,
+      ValICMS,
+      ValBaseCalculoICMSSubstituica,
+      ValICMSSubstituicao,
+      ValReducaBaseCalculo,
+      ValIPI : Double;
+      constructor cria;
+      destructor destroy;override;
+end;
+
+Type
   TRBCod_Fin = (cfRemessaOriginal,cfRemessaSubtituto);
   TRBDSpedFiscal = class
     public
-     CodFilial : integer;
+     CodFilial,
+     CodModeloDocumento : integer;
      DatInicio,
      DatFinal : TDateTime;
      PerICMSInterno : Double;
@@ -1657,11 +1675,30 @@ Type
      DFilial : TRBDFilial;
      DContabilidade : TRBDCliente;
      QtdLinhasBloco0,
-     QtdLinhasBlocoC : Integer;
+     QtdLinhasBlocoC,
+     QtdLinhasBlocoD,
+     QtdLinhasBlocoE,
+     QtdLinhasBlocoH,
+     QtdLinhasBloco1,
+     QtdLinhasBloco9 : Integer;
+     QtdLinhasRegistro0150,
+     QtdLinhasRegistro0190,
+     QtdLinhasRegistro0200,
+     QtdLinhasRegistro0400,
+     QtdLinhasRegistroC100,
+     QtdLinhasRegistroC140,
+     QtdLinhasRegistroC141,
+     QtdLinhasRegistroC160,
+     QtdLinhasRegistroC170,
+     QtdLinhasRegistroC190,
+
+     QtdLinhasRegistro9900     : Integer;
      Arquivo,
      Incosistencias : TStringList;
+     RegistroC190 : TList;
      constructor cria;
      destructor destroy;override;
+     function RRegistroC190(VpaCodCST : String; VpaCodCFOP : Integer; VpaPerICMS : Double):TRBDSpedfiscalRegistroC190;
   end;
 
 
@@ -3264,6 +3301,7 @@ begin
   Incosistencias := TStringList.Create;
   DFilial := TRBDFilial.cria;
   DContabilidade := TRBDCliente.cria;
+  RegistroC190 := TList.create;
 end;
 
 {******************************************************************************}
@@ -3273,10 +3311,59 @@ begin
   DContabilidade.free;
   Incosistencias.free;
   Arquivo.free;
+  FreeTObjectsList(RegistroC190);
+  RegistroC190.free;
   inherited;
 end;
 
+{******************************************************************************}
+function TRBDSpedFiscal.RRegistroC190(VpaCodCST : String; VpaCodCFOP: Integer; VpaPerICMS: Double): TRBDSpedfiscalRegistroC190;
+var
+  VpfLaco : Integer;
+  VpfDRegistroC190 : TRBDSpedfiscalRegistroC190;
+begin
+  result := nil;
+  for Vpflaco := 0 to RegistroC190.Count - 1 do
+  begin
+    VpfDRegistroC190 := TRBDSpedfiscalRegistroC190(RegistroC190.Items[VpfLaco]);
+    if (VpfDRegistroC190.CodCST = VpaCodCST) and
+       (VpfDRegistroC190.CodCFOP = VpaCodCFOP) and
+       (VpfDRegistroC190.PerICMS = VpaPerICMS) then
+    begin
+      result := VpfDRegistroC190;
+      break;
+    end;
+  end;
+  if result = nil then
+  begin
+    result := TRBDSpedfiscalRegistroC190.cria;
+    RegistroC190.add(result);
+    Result.CodCST := VpaCodCST;
+    Result.CodCFOP := VpaCodCFOP;
+    result.PerICMS := VpaPerICMS;
+  end;
+end;
+
 { TRBDSpedFiscal }
+
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Classe da classe
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDSpedfiscalRegistroC190.cria;
+begin
+  inherited create;
+end;
+
+{******************************************************************************}
+destructor TRBDSpedfiscalRegistroC190.destroy;
+begin
+  inherited destroy;
+end;
+
+{ TRBDSpedfiscalRegistroC190 }
 
 
 end.

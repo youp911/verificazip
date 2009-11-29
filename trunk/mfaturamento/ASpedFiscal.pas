@@ -76,8 +76,8 @@ begin
   end
   else
   begin
-    VprDSped.Arquivo.SaveToFile('c:\spedeficacia.txt');
-    StatusBar1.Panels[0].Text := 'Arquivo "c:\spedeficacia.txt" gerado com sucesso';
+    VprDSped.Arquivo.SaveToFile('c:\A_spedeficacia.txt');
+    StatusBar1.Panels[0].Text := 'Arquivo "c:\A_spedeficacia.txt" gerado com sucesso';
   end;
 end;
 

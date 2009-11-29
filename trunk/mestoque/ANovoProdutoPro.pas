@@ -1446,7 +1446,7 @@ end;
 procedure TFNovoProdutoPro.ConsultarProduto(VpaCodEmpresa, VpaCodFilial, VpaSeqProduto: Integer);
 begin
   VprOperacao:= ocConsulta;
-  FunProdutos.CarDProduto(VprDProduto,VpaCodEmpresa,VpaCodFilial,VpaSeqProduto);
+  CarProduto(VpaCodEmpresa,VpaCodFilial,VpaSeqProduto);
   ECodClassificacao.EditMask:= RetornaPicture(Varia.MascaraCla,VprDProduto.CodClassificacao,'_');
   CarDTela;
   BloquearTela(True);

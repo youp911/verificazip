@@ -952,9 +952,12 @@ begin
                                  ' and CODCOR = '+IntToStr(VpfDProOrcamento.CodCor));
     While not Tabela.eof do
     begin
-      VpfDFornecedor := RFornecedorPedidoCompra(VpaDOrcamentoCompra,Tabela.FieldByName('CODCLIENTE').AsInteger);
-      VpfDProFornecedor := VpfDFornecedor.addProdutoAdicionado;
-      CopiaDProdutoOrcamento(VpfDProOrcamento,VpfDProFornecedor);
+      if Tabela.FieldByName('CODCLIENTE').AsInteger <> 0 then
+      begin
+        VpfDFornecedor := RFornecedorPedidoCompra(VpaDOrcamentoCompra,Tabela.FieldByName('CODCLIENTE').AsInteger);
+        VpfDProFornecedor := VpfDFornecedor.addProdutoAdicionado;
+        CopiaDProdutoOrcamento(VpfDProOrcamento,VpfDProFornecedor);
+      end;
       Tabela.next;
     end;
   end;
