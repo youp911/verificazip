@@ -84,6 +84,8 @@ type
     ConfiguraesECF1: TMenuItem;
     Quebrar: TDatabase;
     BaseDados: TSQLConnection;
+    N6: TMenuItem;
+    CoeficintesCusto1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -121,7 +123,7 @@ uses Abertura, AEmpresas, AFiliais, AUsuarios, funsql,
   AAlterarFilialUso, AConfigImpNotaFiscal,
   ATextoBoletos, ADriveImpressora, ABackup,
   AConfiguracaoEmpresa, AConfiguracaoFilial,
-  AConfiguracaoECF;
+  AConfiguracaoECF, ACoeficientes;
 
 
 {$R *.DFM}
@@ -307,6 +309,11 @@ begin
     2675 : begin
              FConfiguraImpressao := TFConfiguraImpressao.CriarSDI(application,'', VerificaPermisao('FConfiguraImpressao'));
              FConfiguraImpressao.ShowModal;
+           end;
+    2680 : begin
+             FCoeficientes := TFCoeficientes.CriarSDI(self,'',true);
+             FCoeficientes.ShowModal;
+             FCoeficientes.free;
            end;
     2700 : begin
              FTextoBoletos := TFTextoBoletos.CriarSDI(application, '' , VerificaPermisao('FTextoBoletos'));

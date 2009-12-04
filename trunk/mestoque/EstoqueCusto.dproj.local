@@ -16,5 +16,9 @@
     <Transaction>2009/10/15 05:31:21.625.dfm,C:\Eficacia\siscorp\mestoque\formpadraopermissao.dfm=C:\Eficacia\SisCorp\mestoque\AMotivoParada.dfm</Transaction>
     <Transaction>2009/11/19 15:14:04.515.pas,C:\Eficacia\siscorp\mestoque\formpadraopermissao.pas=C:\Eficacia\SisCorp\mestoque\AGeraFracaoOPProdutos.pas</Transaction>
     <Transaction>2009/11/19 15:14:04.515.dfm,C:\Eficacia\siscorp\mestoque\formpadraopermissao.dfm=C:\Eficacia\SisCorp\mestoque\AGeraFracaoOPProdutos.dfm</Transaction>
+    <Transaction>2009/11/30 08:19:43.000.pas,C:\Eficacia\siscorp\mestoque\formpadraopermissao.pas=C:\Eficacia\SisCorp\mestoque\ABaixaOrdemCorte.pas</Transaction>
+    <Transaction>2009/11/30 08:19:43.000.dfm,C:\Eficacia\siscorp\mestoque\formpadraopermissao.dfm=C:\Eficacia\SisCorp\mestoque\ABaixaOrdemCorte.dfm</Transaction>
+    <Transaction>2009/11/30 08:51:43.953.pas,C:\Eficacia\siscorp\mestoque\formpadraopermissao.pas=C:\Eficacia\SisCorp\mestoque\AOrdemCortePendente.pas</Transaction>
+    <Transaction>2009/11/30 08:51:43.953.dfm,C:\Eficacia\siscorp\mestoque\formpadraopermissao.dfm=C:\Eficacia\SisCorp\mestoque\AOrdemCortePendente.dfm</Transaction>
   </Transactions>
 </BorlandProject>

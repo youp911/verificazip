@@ -175,7 +175,11 @@ begin
      (VpaDNota.DesChaveNFE <> '') then
     VpfNomArquivo := VpaDNota.DesChaveNFE+'-nfe.xml'
   else
-    VpfNomArquivo := IntToStr(VpaDNota.NumNota)+'-NFe.xml';
+    if ExisteArquivo(Varia.PathVersoes+'\nfe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml') and
+       (VpaDNota.DesChaveNFE <> '') then
+      VpfNomArquivo := FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml'
+    else
+      VpfNomArquivo := IntToStr(VpaDNota.NumNota)+'-NFe.xml';
 
   if not ExisteArquivo(Varia.PathVersoes+'\nfe\'+NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf') then
     result := 'Falta arquivo "'+Varia.PathVersoes+'\nfe\'+NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf"';
@@ -988,7 +992,8 @@ Var
 begin
   AtualizaStatus(VpaStatus,'Verificando clientes');
   AdicionaSQLAbreTabela(Aux,'Select * from CADCLIENTES '+
-                            ' Where C_IND_CLI = ''S''');
+                            ' Where C_IND_CLI = ''S'''+
+                            ' OR C_IND_FOR = ''S''');
   while not aux.eof do
   begin
     AtualizaStatus(VpaStatus,'Verificando o cliente "'+Aux.FieldByName('C_NOM_CLI').AsString+'"');

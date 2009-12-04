@@ -136,6 +136,10 @@ type
     BImprimir: TBitBtn;
     Label36: TLabel;
     ETamanho: TRBEditLocaliza;
+    ETipoDocumentoFiscal: TRBEditLocaliza;
+    Shape22: TShape;
+    SpeedButton7: TSpeedButton;
+    Label37: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EValFreteExit(Sender: TObject);

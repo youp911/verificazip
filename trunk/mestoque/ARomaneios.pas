@@ -6,21 +6,21 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Db, DBTables, Grids, DBGrids, Tabela, DBKeyViolation, Componentes1,
   ExtCtrls, PainelGradiente, StdCtrls, ComCtrls, Buttons, UnOrdemProducao,
-  Mask, numericos;
+  Mask, numericos, DBClient;
 
 type
   TFRomaneios = class(TFormularioPermissao)
     PainelGradiente1: TPainelGradiente;
     PanelColor1: TPanelColor;
     PanelColor2: TPanelColor;
-    RomaneioCorpo: TQuery;
+    RomaneioCorpo: TSQL;
     DataRomaneioCorpo: TDataSource;
-    RomaneioCorpoEMPFIL: TIntegerField;
-    RomaneioCorpoSEQROM: TIntegerField;
-    RomaneioCorpoDATINI: TDateTimeField;
-    RomaneioCorpoDATFIM: TDateTimeField;
-    RomaneioCorpoNOTGER: TStringField;
-    RomaneioCorpoINDIMP: TStringField;
+    RomaneioCorpoEMPFIL: TFMTBCDField;
+    RomaneioCorpoSEQROM: TFMTBCDField;
+    RomaneioCorpoDATINI: TSQLTimeStampField;
+    RomaneioCorpoDATFIM: TSQLTimeStampField;
+    RomaneioCorpoNOTGER: TWideStringField;
+    RomaneioCorpoINDIMP: TWideStringField;
     EDatInicio: TCalendario;
     EDatFim: TCalendario;
     ESituacaoNota: TComboBoxColor;
@@ -34,28 +34,28 @@ type
     BGerarNota: TBitBtn;
     BImprimir: TBitBtn;
     BFechar: TBitBtn;
-    RomaneioItem: TQuery;
+    RomaneioItem: TSQL;
     DataRomaneioItem: TDataSource;
-    RomaneioItemC_NOM_PRO: TStringField;
-    RomaneioItemNUMPED: TIntegerField;
-    RomaneioItemVALUNI: TFloatField;
-    RomaneioItemCODCOM: TIntegerField;
-    RomaneioItemCODMAN: TStringField;
-    RomaneioItemNROFIT: TIntegerField;
-    RomaneioItemMETCOL: TFloatField;
-    RomaneioItemTOTALKM: TFloatField;
+    RomaneioItemC_NOM_PRO: TWideStringField;
+    RomaneioItemNUMPED: TFMTBCDField;
+    RomaneioItemVALUNI: TFMTBCDField;
+    RomaneioItemCODCOM: TFMTBCDField;
+    RomaneioItemCODMAN: TWideStringField;
+    RomaneioItemNROFIT: TFMTBCDField;
+    RomaneioItemMETCOL: TFMTBCDField;
+    RomaneioItemTOTALKM: TFMTBCDField;
     PanelColor3: TPanelColor;
     GridIndice2: TGridIndice;
     GridIndice1: TGridIndice;
     BFinaliza: TBitBtn;
-    RomaneioItemSEQORD: TIntegerField;
-    RomaneioItemSEQCOL: TIntegerField;
-    RomaneioItemSEQROM: TIntegerField;
-    Aux: TQuery;
-    RomaneioCorpoNRONOT: TIntegerField;
+    RomaneioItemSEQORD: TFMTBCDField;
+    RomaneioItemSEQCOL: TFMTBCDField;
+    RomaneioItemSEQROM: TFMTBCDField;
+    Aux: TSQL;
+    RomaneioCorpoNRONOT: TFMTBCDField;
     ESeqRomaneio: Tnumerico;
     Label5: TLabel;
-    RomaneioItemCODPRO: TStringField;
+    RomaneioItemCODPRO: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure RomaneioCorpoAfterScroll(DataSet: TDataSet);
@@ -117,6 +117,7 @@ var
   VpfPosicao : TBookMark;
 begin
   VpfPosicao := RomaneioCorpo.GetBookmark;
+  RomaneioCorpo.Close;
   RomaneioCorpo.Sql.Clear;
   RomaneioCorpo.Sql.Add('Select * from ROMANEIOCORPO ');
   if ESeqRomaneio.AsInteger <>  0 then

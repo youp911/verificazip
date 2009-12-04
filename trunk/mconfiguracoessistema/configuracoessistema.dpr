@@ -273,7 +273,8 @@ uses
   UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
   AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
   AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos},
-  ACoeficientes in 'ACoeficientes.pas' {FCoeficientes};
+  ACoeficientes in 'ACoeficientes.pas' {FCoeficientes},
+  ANovoCoeficienteCusto in 'ANovoCoeficienteCusto.pas' {FNovoCoeficienteCusto};
 
 {$R *.RES}
 
@@ -282,7 +283,6 @@ begin
   Application.Initialize;
   Application.HelpFile := '';
   Application.CreateForm(TFPrincipal, FPrincipal);
-  Application.CreateForm(TFCoeficientes, FCoeficientes);
   if ParamCount = 0 then  // verifica se a parametros da base de dados
     Varia.ParametroBase := 'SisCorp'
   else

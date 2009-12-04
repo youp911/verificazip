@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   StdCtrls, Buttons, Componentes1, ExtCtrls, PainelGradiente, Db, DBTables,
-  Grids, DBGrids, Tabela, DBKeyViolation;
+  Grids, DBGrids, Tabela, DBKeyViolation, DBClient;
 
 type
   TFMostraEstoqueProdutoCor = class(TFormularioPermissao)
@@ -14,13 +14,13 @@ type
     PanelColor2: TPanelColor;
     BFechar: TBitBtn;
     Grade: TGridIndice;
-    Estoque: TQuery;
+    Estoque: TSQL;
     DataEstoque: TDataSource;
-    EstoqueI_COD_COR: TIntegerField;
-    EstoqueN_QTD_PRO: TFloatField;
-    EstoqueC_COD_UNI: TStringField;
-    EstoqueQtdPeca: TFloatField;
-    EstoqueI_CMP_PRO: TIntegerField;
+    EstoqueI_COD_COR: TFMTBCDField;
+    EstoqueN_QTD_PRO: TFMTBCDField;
+    EstoqueC_COD_UNI: TWideStringField;
+    EstoqueQtdPeca: TFMTBCDField;
+    EstoqueI_CMP_PRO: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -81,6 +81,7 @@ end;
 {******************************************************************************}
 procedure TFMostraEstoqueProdutoCor.AtualizaConsulta;
 begin
+  Estoque.close;
   Estoque.Sql.Clear;
   Estoque.Sql.Add('select MOV.I_COD_COR, MOV.N_QTD_PRO, PRO.C_COD_UNI, PRO.I_CMP_PRO '+
                   ' from MOVQDADEPRODUTO MOV, CADPRODUTOS PRO '+
@@ -91,7 +92,6 @@ begin
     Estoque.Sql.Add('and MOV.I_EMP_FIL = '+ IntToStr(Varia.CodFilialControladoraEstoque))
   else
     Estoque.Sql.add('and MOV.I_EMP_FIL = '+InttoStr(varia.CodigoempFil));
-  Estoque.Sql.SaveToFile('c:\consulta.sql');
   Estoque.Open;
 end;
 

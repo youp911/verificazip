@@ -36,6 +36,7 @@ type
     EValVenda: Tnumerico;
     Label3: TLabel;
     ETipoMateriaPrima: TRBEditLocaliza;
+    PanelColor5: TPanelColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
@@ -554,11 +555,11 @@ begin
       VprDConsumoAmostra.CodMaquina := VprDConsumoAmostra.Maquina.CodMaquina;
       Grade.Cells[18,Grade.ALinha] := VprDConsumoAmostra.Maquina.NomMaquina;
       if Grade.Cells[15,Grade.ALinha] <> '' then
-        VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[14,Grade.ALinha])
+        VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[15,Grade.ALinha])
       else
         VprDConsumoAmostra.LarMolde := 0;
       if Grade.Cells[16,Grade.ALinha] <> '' then
-        VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[15,Grade.ALinha])
+        VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[16,Grade.ALinha])
       else
         VprDConsumoAmostra.AltMolde := 0;
       CalculaConsumos;

@@ -214,16 +214,20 @@ type
     BMFReservaEstoque: TSpeedButton;
     MReservaEstoque: TMenuItem;
     MotivoParada1: TMenuItem;
+    N44: TMenuItem;
+    BaixarOrdemCorte1: TMenuItem;
+    CortePendente1: TMenuItem;
+    N45: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
     procedure MenuClick(Sender: TObject);
-    procedure Constexto1Click(Sender: TObject);
     procedure ndice1Click(Sender: TObject);
     procedure GeraEstoque1Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure ToolBar1Click(Sender: TObject);
+    procedure CortePendente1Click(Sender: TObject);
   private
     UnPri : TFuncoesPrincipal;
     FunImpressaoRel : TImpressaoRelatorio;
@@ -284,7 +288,7 @@ uses Constantes, UnRegistro, funsql,
   ADesenhosPendentes, AOrcamentoCompras, ANovoOrcamentoCompra,
   AConsultaLogSeparacaoConsumo, APrecoPendente, AAmostrasPendentes,
   AExcluiProdutoDuplicado, APendenciasCompras, AAgendamentos, AFiguraGRF,
-  AComposicoes, UnOrdemProducao, AEmbalagem, AMotivoParada;
+  AComposicoes, UnOrdemProducao, AEmbalagem, AMotivoParada, ABaixaOrdemCorte, AOrdemCortePendente;
 
 {$R *.DFM}
 
@@ -939,6 +943,11 @@ begin
              FNovaColetaRomaneio.NovaColeta;
              FNovaColetaRomaneio.free;
            end;
+    10850: begin
+             FBaixaOrdemCorte := TFBaixaOrdemCorte.CriarSDI(self,'',true);
+             FBaixaOrdemCorte.BaixaOrdemCorte;
+             FBaixaOrdemCorte.free;
+           end;
     10900: begin
              FImpEtiquetaTermicaProduto := TFImpEtiquetaTermicaProduto.CriarSDI(self,'',FPrincipal.VerificaPermisao('FImpEtiquetaTermicaProduto'));
              FImpEtiquetaTermicaProduto.ShowModal;
@@ -1098,6 +1107,11 @@ begin
              FPendenciasCompras.ShowModal;
              FPendenciasCompras.free;
             end;
+    19600 : begin
+              FOrdemCortePendente := TFOrdemCortePendente.CriarSDI(self,'',true);
+              FOrdemCortePendente.showmodal;
+              FOrdemCortePendente.free;
+            end;
     20100 : begin
              FAgendamentos := TFAgendamentos.CriarSDI(self,'',FPrincipal.VerificaPermisao('FAgendamentos'));
              FAgendamentos.agenda;
@@ -1124,7 +1138,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFPrincipal.Constexto1Click(Sender: TObject);
+procedure TFPrincipal.CortePendente1Click(Sender: TObject);
 begin
 
 end;

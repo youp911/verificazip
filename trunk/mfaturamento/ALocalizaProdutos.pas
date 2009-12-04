@@ -175,6 +175,7 @@ type
     procedure AdicionaFiltrosProduto(VpaSelect : TStrings);
     procedure configuraTela;
     function LocalizaClassificacao : Boolean;
+    function DadosProdutosValidos : Boolean;
   public
     function LocalizaProduto( var Cadastrou : Boolean; var seqPRoduto : integer; var codProduro : string; Var EstoqueAtual : Double;VpaCodCliente : Integer  ) : boolean; overload;
     function LocalizaProduto( Var Cadastrou : Boolean; var seqPRoduto : integer; var codProduro, VpaNomProduto : string ) : boolean; overload;
@@ -231,6 +232,20 @@ procedure TFlocalizaProduto.CProAtiClick(Sender: TObject);
 begin
   AtualizaConsulta;
   BFechar.Default := true;
+end;
+
+{******************************************************************************}
+function TFlocalizaProduto.DadosProdutosValidos: Boolean;
+begin
+  result := true;
+  if config.EmiteNFe or config.EmiteSped then
+  begin
+    if CadProdutosC_CLA_FIS.AsString = '' then
+    begin
+      aviso('CODIGO NCM/CLASSIFICAÇÃO FISCAL NÃO PREENCHIDA!!!'#13'O código fiscal do produto não foi preenchido.');
+      result := false;
+    end;
+  end;
 end;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
@@ -1043,8 +1058,9 @@ end;
 {******************************************************************************}
 procedure TFlocalizaProduto.BFecharClick(Sender: TObject);
 begin
-  VprAcao := true;
-  self.close;
+  VprAcao := DadosProdutosValidos;
+  if VprAcao then
+    self.close;
 end;
 
 {******************************************************************************}

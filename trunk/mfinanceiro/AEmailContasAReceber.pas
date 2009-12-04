@@ -63,7 +63,7 @@ var
 
 implementation
 
-uses APrincipal, ANovoEmailContasAReceber, FunData, Funsql, UnCrystal,Constantes;
+uses APrincipal, ANovoEmailContasAReceber, FunData, Funsql, UnCrystal,Constantes, dmRave;
 
 {$R *.DFM}
 
@@ -158,7 +158,9 @@ procedure TFEmailContasaReceber.BImprimirClick(Sender: TObject);
 begin
   if ECobrancaSEQEMAIL.AsInteger <> 0 then
   begin
-    FunCrystal.ImprimeRelatorio(Varia.PathRelatorios+ '\Financeiro\Cobrança\XX_ECobranca.rpt',[ECobrancaSEQEMAIL.asString]);
+    dtRave := tdtRave.Create(self);
+    dtRave.ImprimeHistoricoECobranca(ECobrancaSEQEMAIL.asInteger);
+    dtRave.free;
   end;
 end;
 

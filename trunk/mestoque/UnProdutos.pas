@@ -141,6 +141,7 @@ type
     function BaixaQtdAReservarProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao :String):string;
     function ReservaEstoqueProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho, VpaSeqOrdemProducao: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao, VpaTipOperacao :String):string;
     function BaixaQtdReservadoOP(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho, VpaSeqOrdemProducao: Integer; VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao,  VpaTipOperacao :String):string;
+    function BaixaProdutoReservadoSubmontagemOP(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho, VpaSeqOrdemProducao: Integer; var VpaQtdProduto : Double;VpaUnidadeAtual,VpaUnidadePadrao,  VpaTipOperacao :String):string;
     function AtualizaQtdKit(VpaSeqProduto : String;VpaKit : Boolean):Boolean;
     function EstornaEstoque(VpaDMovimento : TRBDMovEstoque) : String;
     function AdicionaProdutoNaTabelaPreco(VpaCodTabela: Integer; VpaDProduto: TRBDProduto;VpaCodTamanho, VpaCodCor : Integer): String;
@@ -858,12 +859,15 @@ begin
                                ' FOC.DESUM, FOC.INDBAIXADO, FOC.CODFACA, FOC.QTDRESERVADAESTOQUE, '+
                                ' FOC.INDORIGEMCORTE, FOC.QTDARESERVAR,  '+
                                ' FAC.NOMFACA '+
-                               ' FROM FRACAOOPCONSUMO FOC, COR, CADPRODUTOS PRO, FACA FAC'+
+                               ' FROM FRACAOOPCONSUMO FOC, COR, CADPRODUTOS PRO, FACA FAC, FRACAOOP FRA '+
                                ' WHERE FOC.CODFILIAL = '+IntToStr(VpaCodFilial)+
                                ' AND FOC.SEQORDEM = '+IntToStr(VpaSeqOrdem)+
                                ' AND FOC.SEQFRACAO = '+IntToStr(VpaSeqFracao)+
                                ' AND '+SQLTextoRightJoin('FOC.CODCOR','COR.COD_COR')+
                                ' AND '+SQLTextoRightJoin('FOC.CODFACA','FAC.CODFACA')+
+                               ' AND FOC.CODFILIAL = FRA.CODFILIAL '+
+                               ' AND FOC.SEQORDEM = FRA.SEQORDEM '+
+                               ' AND FOC.SEQFRACAO = FRA.SEQFRACAO '+
                                ' AND PRO.I_SEQ_PRO = FOC.SEQPRODUTO');
   if VpaIndConsumoOrdemCorte then
     Tabela.sql.add(' AND FOC.INDORDEMCORTE = ''S''')
@@ -874,6 +878,8 @@ begin
   else
     Tabela.sql.add(' AND FOC.INDEXCLUIR = ''N''');
 
+  if varia.TipoOrdemProducao = toSubMontagem then
+    Tabela.sql.add('AND FRA.DATFINALIZACAO IS NULL');
 
   Tabela.Open;
 
@@ -1909,6 +1915,32 @@ begin
     aviso(VpfResultado);
 end;
 
+{******************************************************************************}
+function TFuncoesProduto.BaixaProdutoReservadoSubmontagemOP(VpaCodFilial, VpaSeqProduto, VpaCodCor, VpaCodTamanho, VpaSeqOrdemProducao: Integer;
+  var VpaQtdProduto: Double; VpaUnidadeAtual, VpaUnidadePadrao, VpaTipOperacao: String): string;
+begin
+  if VpaTipOperacao = 'E' then
+  begin
+    AdicionaSQLAbreTabela(Tabela,'Select * ' +
+                                 ' from FRACAOOP '+
+                                 ' Where SEQPRODUTO = ' +IntToStr(VpaSeqProduto)+
+                                 ' and CODFILIAL = '+IntToStr(VpaCodFilial)+
+                                 ' and SEQORDEM = '+IntToStr(VpaSeqOrdemProducao)+
+                                 ' AND NVL(CODCOR,0) = '+IntToStr(VpaCodCor)+
+                                 ' AND NVL(CODTAMANHO,0) = ' +IntToStr(VpaCodTamanho)+
+                                 ' AND DATFINALIZACAO IS NULL ' +
+                                 ' ORDER BY INDPOSSUIEMESTOQUE DESC');
+    while not Tabela.Eof and
+          (VpaQtdProduto > 0) do
+    begin
+      VpaQtdProduto := VpaQtdProduto -1;
+      FunOrdemProducao.AlteraEstagioFracaoOP(Tabela.FieldByName('CODFILIAL').AsInteger,Tabela.FieldByName('SEQORDEM').AsInteger,
+                                             Tabela.FieldByName('SEQFRACAO').AsInteger,varia.EstagioFinalOrdemProducao);
+      Tabela.next;
+    end;
+    Tabela.close;
+  end;
+end;
 
 {******************************************************************************}
 function TFuncoesProduto.BaixaEstoqueFiscal(VpaCodFilial,VpaSeqProduto,VpaCodCor, VpaCodTamanho : Integer;VpaQtdProduto : Double;VpaUnidadeAtual,vpaUnidadePadrao, VpaTipoOperacao : String) : String;
@@ -2261,13 +2293,18 @@ begin
   begin
     if VpaQtdProduto > 0  then
     begin
-      Result := GravaProdutoReservadoEmExcesso(VpaSeqProduto,VpaCodFilial,VpaSeqOrdemProducao,VpfUmInicial,0,VpfQtdInicial,VpaQtdProduto);
+      result := BaixaProdutoReservadoSubmontagemOP(VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho,VpaSeqOrdemProducao,VpaQtdProduto,VpaUnidadeAtual,
+                                                   VpaUnidadePadrao,VpaTipOperacao);
+      if (result = '') and (VpaQtdProduto > 0) then
+      begin
+        Result := GravaProdutoReservadoEmExcesso(VpaSeqProduto,VpaCodFilial,VpaSeqOrdemProducao,VpfUmInicial,0,VpfQtdInicial,VpaQtdProduto);
+      end;
     end;
     if result = ''  then
     begin
       if VpaTipOperacao = 'E' then
         VpfOperacaoQtdAReservar := 'S'
-      ELSE
+      else
         VpfOperacaoQtdAReservar := 'E';
       result := BaixaQtdAReservarProduto(VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho,VpfQtdAReservarBaixada,VpaUnidadeAtual,
                                         VpaUnidadePadrao,VpfOperacaoQtdAReservar);
@@ -2320,7 +2357,9 @@ begin
   if result = ''  then
   begin
     if VpaSeqOrdemProducao <> 0 then
+    begin
       Result := BaixaQtdReservadoOP(VpaCodFilial,VpaSeqProduto,VpaCodCor,VpaCodTamanho,VpaSeqOrdemProducao,VpaQtdProduto,VpaUnidadeAtual,VpaUnidadePadrao,VpaTipOperacao);
+    end;
   end;
   ProCadastro.close;
 end;
@@ -5126,7 +5165,8 @@ Var
 begin
   result := '';
   ExcluiCombinacoes(IntToStr(VpaDProduto.SeqProduto));
-  AdicionaSQLAbreTabela(ProCadastro,'Select * FROM COMBINACAO');
+  AdicionaSQLAbreTabela(ProCadastro,'Select * FROM COMBINACAO'+
+                                    ' where SEQPRO = 0 AND CODCOM = 0');
   for VpfLaco := 0 to VpaDProduto.Combinacoes.count - 1 do
   begin
     VpfDCombinacao := TRBDCombinacao(VpaDProduto.Combinacoes.Items[VpfLaco]);
@@ -5155,7 +5195,8 @@ begin
     end;
   end;
 
-  AdicionaSQLAbreTabela(ProCadastro,'Select * FROM COMBINACAOFIGURA');
+  AdicionaSQLAbreTabela(ProCadastro,'Select * FROM COMBINACAOFIGURA'+
+                                    ' Where SEQPRO = 0 AND CODCOM = 0 AND SEQCOR = 0');
   for VpfLaco := 0 to VpaDProduto.Combinacoes.count - 1 do
   begin
     VpfDCombinacao := TRBDCombinacao(VpaDProduto.Combinacoes.Items[VpfLaco]);

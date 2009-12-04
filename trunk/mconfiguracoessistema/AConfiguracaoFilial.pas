@@ -173,6 +173,8 @@ type
     Label34: TLabel;
     DBEditColor12: TDBEditColor;
     Label35: TLabel;
+    DBCheckBox9: TDBCheckBox;
+    CadFiliaisC_IND_SPE: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FecharClick(Sender: TObject);

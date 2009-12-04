@@ -746,6 +746,9 @@
 			<DCCReference Include="ACoeficientes.pas">
 				<Form>FCoeficientes</Form>
 			</DCCReference>
+			<DCCReference Include="ANovoCoeficienteCusto.pas">
+				<Form>FNovoCoeficienteCusto</Form>
+			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

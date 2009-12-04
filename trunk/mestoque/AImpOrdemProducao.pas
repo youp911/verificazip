@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Qrctrls, QuickRpt, ExtCtrls, Geradores, UnDados, UnClientes,UnOrdemProducao, UnProdutos,
-  qrBarcode, Db, DBTables, UnDadosProduto, UnSistema;
+  qrBarcode, Db, DBTables, UnDadosProduto, UnSistema, DBClient, Tabela;
 
 type
   TFImpOrdemProducao = class(TForm)
@@ -126,7 +126,7 @@ type
     QRLabel53: TQRLabel;
     QRLabel54: TQRLabel;
     QRDBText6: TQRDBText;
-    ColetaOP: TQuery;
+    ColetaOP: TSQL;
     QRDBText7: TQRDBText;
     QRDBText8: TQRDBText;
     QRDBText9: TQRDBText;
@@ -198,7 +198,7 @@ type
     QRSysData3: TQRSysData;
     QRSysData4: TQRSysData;
     QRDBText31: TQRDBText;
-    RomaneioFaturamento: TQuery;
+    RomaneioFaturamento: TSQL;
     QRDBText32: TQRDBText;
     L004Combinacoes: TQRLabel;
     L004Manequins: TQRLabel;
@@ -216,9 +216,9 @@ type
     QRLabel78: TQRLabel;
     L004Icms: TQRLabel;
     L002Emenda: TQRLabel;
-    Aux: TQuery;
+    Aux: TSQL;
     Rel003OpCadarco: TQuickRepNovo;
-    OPCadarco: TQuery;
+    OPCadarco: TSQL;
     TitleBand1: TQRBand;
     L003Detalhes: TQRBand;
     SummaryBand2: TQRBand;

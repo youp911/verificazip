@@ -25,6 +25,8 @@ Type TRBFuncoesInventario = class(TRBLocalizaInventario)
     procedure CarDItemInventario(VpaDInventario : TRBDInventarioCorpo);
     procedure AtualizaDataFechamento(VpaCodFilial, VpaSeqInventario : String);
     procedure ZeraProdutoForaInventario(VpaDInventario : TRBDInventarioCorpo);
+    procedure ZeraProdutoReservados(VpaDInventario : TRBDInventarioCorpo);
+    procedure ZeraProdutoAReservar(VpaDInventario : TRBDInventarioCorpo);
   public
     constructor cria(VpaBaseDados : TSQLConnection);
     destructor destroy;override;
@@ -157,6 +159,45 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFuncoesInventario.ZeraProdutoAReservar(VpaDInventario: TRBDInventarioCorpo);
+var
+  VpfDProduto : TRBDProduto;
+begin
+  InvAza.Close;
+  InvAza.Sql.Clear;
+  InvAza.Sql.add('SELECT MOV.I_SEQ_PRO, MOV.I_COD_COR, MOV.I_COD_TAM, MOV.N_QTD_ARE, '+
+                               ' MOV.N_VLR_CUS, '+
+                               ' PRO.C_COD_UNI, PRO.I_COD_MOE ' +
+                               '  FROM MOVQDADEPRODUTO MOV, CADPRODUTOS PRO, CADCLASSIFICACAO CLA '+
+                               ' WHERE MOV.N_QTD_ARE <> 0 '+
+                               ' AND MOV.I_EMP_FIL = '+ IntToStr(VpaDInventario.CodFilial)+
+                               ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO' +
+                               ' AND CLA.C_COD_CLA = PRO.C_COD_CLA ');
+  if VpaDInventario.CodClassificacao <> '' then
+    InvAza.sql.add('and CLA.C_COD_CLA like '''+VpaDInventario.CodClassificacao+'%''');
+  InvAza.Sql.add(' order by mov.i_seq_pro');
+  InvAza.open;
+  While not InvAza.Eof do
+  begin
+    VpfDProduto := TRBDProduto.Cria;
+    FunProdutos.CarDProduto(VpfDProduto,0,varia.CodigoEmpFil,InvAza.FieldByName('I_SEQ_PRO').AsInteger);
+      if InvAza.FieldByName('N_QTD_ARE').AsFloat < 0  then
+      FunProdutos.BaixaQtdAReservarProduto(varia.CodigoEmpFil,VpfDProduto.SeqProduto,InvAza.FieldByName('I_COD_COR').AsInteger,
+                                        InvAza.FieldByName('I_COD_TAM').AsInteger,InvAza.FieldByName('N_QTD_ARE').AsFloat*-1,
+                                        InvAza.FieldByName('C_COD_UNI').AsString,InvAza.FieldByName('C_COD_UNI').AsString,
+                                        'E')
+    else
+      FunProdutos.BaixaQtdAReservarProduto(varia.CodigoEmpFil,VpfDProduto.SeqProduto,InvAza.FieldByName('I_COD_COR').AsInteger,
+                                        InvAza.FieldByName('I_COD_TAM').AsInteger,InvAza.FieldByName('N_QTD_ARE').AsFloat,
+                                        InvAza.FieldByName('C_COD_UNI').AsString,InvAza.FieldByName('C_COD_UNI').AsString,
+                                        'S');
+    VpfDProduto.free;
+    InvAza.Next;
+  end;
+  InvAza.Close;
+end;
+
+{******************************************************************************}
 procedure TRBFuncoesInventario.ZeraProdutoForaInventario(VpaDInventario : TRBDInventarioCorpo);
 var
   VpfSeqEstoqueBarra : Integer;
@@ -200,6 +241,46 @@ begin
                                         InvAza.FieldByName('I_COD_COR').AsInteger,InvAza.FieldByName('I_COD_TAM').AsInteger,Date,InvAza.FieldByName('N_QTD_PRO').AsFloat,
                                         InvAza.FieldByName('N_QTD_PRO').AsFloat*InvAza.FieldByName('N_VLR_CUS').AsFLOAT,
                                         InvAza.FieldByName('C_COD_UNI').AsString,'',false,VpfSeqEstoqueBarra);
+    VpfDProduto.free;
+    InvAza.Next;
+  end;
+  InvAza.Close;
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesInventario.ZeraProdutoReservados(VpaDInventario: TRBDInventarioCorpo);
+var
+  VpfDProduto : TRBDProduto;
+begin
+  InvAza.Close;
+  InvAza.Sql.Clear;
+  InvAza.Sql.add('SELECT MOV.I_SEQ_PRO, MOV.I_COD_COR, MOV.I_COD_TAM, MOV.N_QTD_RES, '+
+                               ' MOV.N_VLR_CUS, '+
+                               ' PRO.C_COD_UNI, PRO.I_COD_MOE ' +
+                               '  FROM MOVQDADEPRODUTO MOV, CADPRODUTOS PRO, CADCLASSIFICACAO CLA '+
+                               ' WHERE MOV.N_QTD_RES <> 0 '+
+                               ' AND MOV.I_EMP_FIL = '+ IntToStr(VpaDInventario.CodFilial)+
+                               ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO' +
+                               ' AND CLA.C_COD_CLA = PRO.C_COD_CLA ');
+//                               ' and MOV.I_SEQ_PRO >= 1103' +
+  if VpaDInventario.CodClassificacao <> '' then
+    InvAza.sql.add('and CLA.C_COD_CLA like '''+VpaDInventario.CodClassificacao+'%''');
+  InvAza.Sql.add(' order by mov.i_seq_pro');
+  InvAza.open;
+  While not InvAza.Eof do
+  begin
+    VpfDProduto := TRBDProduto.Cria;
+    FunProdutos.CarDProduto(VpfDProduto,0,varia.CodigoEmpFil,InvAza.FieldByName('I_SEQ_PRO').AsInteger);
+      if InvAza.FieldByName('N_QTD_RES').AsFloat < 0  then
+      FunProdutos.ReservaEstoqueProduto(varia.CodigoEmpFil,VpfDProduto.SeqProduto,InvAza.FieldByName('I_COD_COR').AsInteger,
+                                        InvAza.FieldByName('I_COD_TAM').AsInteger,0, InvAza.FieldByName('N_QTD_RES').AsFloat*-1,
+                                        InvAza.FieldByName('C_COD_UNI').AsString,InvAza.FieldByName('C_COD_UNI').AsString,
+                                        'E')
+    else
+      FunProdutos.ReservaEstoqueProduto(varia.CodigoEmpFil,VpfDProduto.SeqProduto,InvAza.FieldByName('I_COD_COR').AsInteger,
+                                        InvAza.FieldByName('I_COD_TAM').AsInteger,0, InvAza.FieldByName('N_QTD_RES').AsFloat,
+                                        InvAza.FieldByName('C_COD_UNI').AsString,InvAza.FieldByName('C_COD_UNI').AsString,
+                                        'S');
     VpfDProduto.free;
     InvAza.Next;
   end;
@@ -353,6 +434,8 @@ begin
       InvAza.Next;
     end;
     ZeraProdutoForaInventario(VpaDINventario);
+    ZeraProdutoReservados(VpaDInventario);
+    ZeraProdutoAReservar(VpaDInventario);
     AtualizaDataFechamento(IntToStr(VpaDInventario.CodFilial),IntToStr(VpaDInventario.SeqInventario));
   end;
 end;

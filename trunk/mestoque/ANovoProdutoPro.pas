@@ -678,6 +678,7 @@ begin
   EValCusto.ACampoObrigatorio:= Config.ExigirPrecoCustoProdutonoCadastro;
   EValVenda.ACampoObrigatorio:= Config.ExigirPrecoVendaProdutonoCadastro;
   PAcessorios.TabVisible := config.MostrarAcessoriosnoProduto;
+  EClassificacaoFiscal.ACampoObrigatorio := (config.EmiteNFe or config.EmiteSped);
 end;
 
 {******************************************************************************}
@@ -892,6 +893,7 @@ begin
   GCombinacao.Cells[9,0]:= 'Urd Figura';
   GCombinacao.Cells[10,0]:= 'Título';
   GCombinacao.Cells[11,0]:= 'Nro Fios';
+  GCombinacao.ColWidths[8]:= 0;
 
   GFigura.Cells[1,0]:= 'Figura';
   GFigura.Cells[2,0]:= 'Cor';

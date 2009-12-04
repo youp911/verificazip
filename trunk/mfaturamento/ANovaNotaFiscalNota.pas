@@ -1125,7 +1125,7 @@ begin
   end;
   if result = '' then
   begin
-    if config.EmiteNFe then
+    if (config.EmiteNFe) or (Config.EmiteSped) then
     begin
       if varia.CodIBGEMunicipio = 0  then
         result := 'CODIGO IBGE MUNICIPIO EMITENTE NÃO PREENCHIDO!!!'#13'É necessário importar os municipios com o codigo o IBGE, em seguida altere a filial entre e saia do campo cidade.';
@@ -1255,7 +1255,7 @@ end;
 function TFNovaNotaFiscalNota.DadoNfeValidos(VpaDCliente: TRBDCliente): string;
 begin
   result := '';
-  if config.EmiteNFe then
+  if (config.EmiteNFe) or (config.EmiteSped)  then
   begin
     if VpaDCliente.DesEndereco = '' then
       result := 'ENDEREÇO DO CLIENTE NÃO PREENCHIDO!!!'#13'É necessário preencher o endereço do cliente.';

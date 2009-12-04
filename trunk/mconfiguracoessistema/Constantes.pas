@@ -626,6 +626,7 @@ type
     QtdVolumeObrigatorio : Boolean;
     CancelarNotaCancelarBaixaCotacao : Boolean;
     EmiteNFe : Boolean;
+    EmiteSped : Boolean;
     NotaFiscalConjugada : Boolean;
     MostrarEnderecoCobrancanaNota : Boolean;
     QuandoForQuartodeNotanoRomaneioFazeroValorFaltante : Boolean;
@@ -1209,6 +1210,7 @@ begin
       CobrarFormaPagamento := TipoCheck(VpfTabela.fieldByName('C_COB_FRM').AsString);
       UtilizarCompose := TipoCheck(VpfTabela.fieldByName('C_COT_COM').AsString);
       EmiteNFe := TipoCheck(VpfTabela.fieldByName('C_IND_NFE').AsString);
+      EmiteSped := TipoCheck(VpfTabela.fieldByName('C_IND_SPE').AsString);
       NFEHomologacao := TipoCheck(VpfTabela.fieldByName('C_AMH_NFE').AsString);
       NFEDanfeRetrato := VpfTabela.fieldByName('C_IND_NFE').AsString = 'R';
       NotaFiscalConjugada := TipoCheck(VpfTabela.fieldByName('C_NOT_CON').AsString);

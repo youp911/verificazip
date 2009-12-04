@@ -218,6 +218,8 @@ begin
           ImprimeTexto(VpfPosicaoX+30,75,0,1,1,1,false,copy(VpfDEtiqueta.Produto.NomProduto,26,26));
         ImprimeTexto(VpfPosicaoX+180,100,0,1,1,1,false,'NF:'+IntTostr(VpfDEtiqueta.NumPedido));
         ImprimeTexto(VpfPosicaoX+180,115,0,1,1,1,false,FormatDateTime('DD/MM/YY',date));
+        ImprimeTexto(VpfPosicaoX+180,130,0,1,1,1,false,'Localiz.:');
+        ImprimeTexto(VpfPosicaoX+180,145,0,1,2,2,false,VpfDEtiqueta.Produto.PraProduto);
         ImprimeCodigoBarras(VpfPosicaoX+35,90,0,'2',2,4,40,true,AdicionaCharE('0',FloatToStr(VpfDEtiqueta.Produto.SeqProduto),8));
       end;
       if VpfColuna >= 2 then

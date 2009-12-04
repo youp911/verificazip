@@ -62,6 +62,7 @@ type
     ValidaGravacao1: TValidaGravacao;
     MenuGrade: TPopupMenu;
     ConsultaSolicitaoCompra1: TMenuItem;
+    CDescontaReservado: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
@@ -110,6 +111,7 @@ type
     procedure EUsuarioChange(Sender: TObject);
     procedure ConsultaSolicitaoCompra1Click(Sender: TObject);
     procedure GradeMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure CDescontaReservadoClick(Sender: TObject);
   private
     VprSeqOrdem,
     VprSeqFracao,
@@ -135,6 +137,7 @@ type
     procedure CarDClasse;
     procedure CarDClasseOrdemCorte;
     procedure MarcaTodos;
+    procedure MarcaTodosDescontaReservado;
     procedure CarDConsumo;
     function AlteraEstagioFracao : string;
     procedure ImprimeEtiqueta;
@@ -191,15 +194,16 @@ begin
   Grade.Cells[2,0]:= 'A Baixar';
   Grade.Cells[3,0]:= 'UM';
   Grade.Cells[4,0]:= 'Qtd Produto';
-  Grade.Cells[5,0]:= 'Baixado';
-  Grade.Cells[6,0]:= 'Qtd Unitário';
-  Grade.Cells[7,0]:= 'Código';
-  Grade.Cells[8,0]:= 'Produto';
-  Grade.Cells[9,0]:= 'Código';
-  Grade.Cells[10,0]:= 'Cor';
-  Grade.Cells[11,0]:= 'Código';
-  Grade.Cells[12,0]:= 'Faca';
-  Grade.Cells[13,0]:= 'Observações';
+  Grade.Cells[5,0]:= 'Reservado';
+  Grade.Cells[6,0]:= 'Baixado';
+  Grade.Cells[7,0]:= 'Qtd Unitário';
+  Grade.Cells[8,0]:= 'Código';
+  Grade.Cells[9,0]:= 'Produto';
+  Grade.Cells[10,0]:= 'Código';
+  Grade.Cells[11,0]:= 'Cor';
+  Grade.Cells[12,0]:= 'Código';
+  Grade.Cells[13,0]:= 'Faca';
+  Grade.Cells[14,0]:= 'Observações';
 
   GOrdemCorte.Cells[2,0]:= 'A Baixar';
   GOrdemCorte.Cells[3,0]:= 'UM';
@@ -216,17 +220,22 @@ begin
 
 end;
 
+procedure TFBaixaConsumoProduto.CDescontaReservadoClick(Sender: TObject);
+begin
+  MarcaTodosDescontaReservado;
+end;
+
 {******************************************************************************}
 function TFBaixaConsumoProduto.ExisteProduto : Boolean;
 begin
   Result:= False;
-  if Grade.Cells[7,Grade.ALinha] <> '' then
+  if Grade.Cells[8,Grade.ALinha] <> '' then
   begin
-    if Grade.Cells[7,Grade.ALinha] = VprProdutoAnterior then
+    if Grade.Cells[8,Grade.ALinha] = VprProdutoAnterior then
       Result:= True
     else
     begin
-      VprDBaixaConsumo.CodProduto:= Grade.Cells[7,Grade.ALinha];
+      VprDBaixaConsumo.CodProduto:= Grade.Cells[8,Grade.ALinha];
       Result:= FunProdutos.ExisteProduto(VprDBaixaConsumo.CodProduto,VprDBaixaConsumo.SeqProduto,VprDBaixaConsumo.NomProduto,VprDBaixaConsumo.DesUM);
       if Result then
       begin
@@ -234,8 +243,8 @@ begin
         VprDBaixaConsumo.UnidadesParentes:= FunProdutos.RUnidadesParentes(VprDBaixaConsumo.DesUM);
 
         Grade.Cells[3,Grade.ALinha]:= VprDBaixaConsumo.DesUM;
-        Grade.Cells[7,Grade.ALinha]:= VprDBaixaConsumo.CodProduto;
-        Grade.Cells[8,Grade.ALinha]:= VprDBaixaConsumo.NomProduto;
+        Grade.Cells[8,Grade.ALinha]:= VprDBaixaConsumo.CodProduto;
+        Grade.Cells[9,Grade.ALinha]:= VprDBaixaConsumo.NomProduto;
       end;
     end;
   end
@@ -270,12 +279,12 @@ end;
 function TFBaixaConsumoProduto.ExisteCor: Boolean;
 begin
   Result:= True;
-  if Grade.Cells[9,Grade.Alinha] <> '' then
+  if Grade.Cells[10,Grade.Alinha] <> '' then
   begin
-    Result:= FunProdutos.ExisteCor(Grade.Cells[9,Grade.ALinha],VprDBaixaConsumo.NomCor);
+    Result:= FunProdutos.ExisteCor(Grade.Cells[10,Grade.ALinha],VprDBaixaConsumo.NomCor);
     if Result then
     begin
-      Grade.Cells[10,Grade.ALinha]:= VprDBaixaConsumo.NomCor;
+      Grade.Cells[11,Grade.ALinha]:= VprDBaixaConsumo.NomCor;
     end;
   end;
 end;
@@ -294,8 +303,8 @@ begin
     VprDBaixaConsumo.UnidadesParentes:= FunProdutos.RUnidadesParentes(VprDBaixaConsumo.DesUM);
     VprProdutoAnterior:= VprDBaixaConsumo.CodProduto;
     Grade.Cells[3,Grade.ALinha]:= VprDBaixaConsumo.DesUM;
-    Grade.Cells[7,Grade.ALinha]:= VprDBaixaConsumo.CodProduto;
-    Grade.Cells[8,Grade.ALinha]:= VprDBaixaConsumo.NomProduto;
+    Grade.Cells[8,Grade.ALinha]:= VprDBaixaConsumo.CodProduto;
+    Grade.Cells[9,Grade.ALinha]:= VprDBaixaConsumo.NomProduto;
   end;
 end;
 
@@ -313,8 +322,8 @@ begin
     VprDBaixaOrdemCorte.UnidadesParentes:= FunProdutos.RUnidadesParentes(VprDBaixaOrdemCorte.DesUM);
     VprProdutoAnteriorOC:= VprDBaixaOrdemCorte.CodProduto;
     GOrdemCorte.Cells[3,GOrdemCorte.ALinha]:= VprDBaixaOrdemCorte.DesUM;
-    GOrdemCorte.Cells[7,GOrdemCorte.ALinha]:= VprDBaixaOrdemCorte.CodProduto;
-    GOrdemCorte.Cells[8,GOrdemCorte.ALinha]:= VprDBaixaOrdemCorte.NomProduto;
+    GOrdemCorte.Cells[8,GOrdemCorte.ALinha]:= VprDBaixaOrdemCorte.CodProduto;
+    GOrdemCorte.Cells[9,GOrdemCorte.ALinha]:= VprDBaixaOrdemCorte.NomProduto;
   end;
 end;
 
@@ -376,27 +385,31 @@ begin
 
   Grade.Cells[3,VpaLinha]:= VprDBaixaConsumo.DesUM;
   Grade.Cells[4,VpaLinha]:= FormatFloat(Varia.MascaraQtd,VprDBaixaConsumo.QtdProduto);
-  if VprDBaixaConsumo.QtdBaixado <> 0 then
-    Grade.Cells[5,VpaLinha]:= FormatFloat(Varia.MascaraQtd,VprDBaixaConsumo.QtdBaixado)
+  if VprDBaixaConsumo.QtdReservado> 0 then
+    Grade.Cells[5,VpaLinha]:= FormatFloat(Varia.MascaraQtd,VprDBaixaConsumo.QtdReservado)
   else
     Grade.Cells[5,VpaLinha]:= '';
+  if VprDBaixaConsumo.QtdBaixado <> 0 then
+    Grade.Cells[6,VpaLinha]:= FormatFloat(Varia.MascaraQtd,VprDBaixaConsumo.QtdBaixado)
+  else
+    Grade.Cells[6,VpaLinha]:= '';
   if UPPERCASE(VprDBaixaConsumo.DesUMUnitario) = 'CM' then
-    Grade.Cells[6,VpaLinha]:= FormatFloat(Varia.MascaraQtd,VprDBaixaConsumo.QtdUnitario)+'cm'
+    Grade.Cells[7,VpaLinha]:= FormatFloat(Varia.MascaraQtd,VprDBaixaConsumo.QtdUnitario)+'cm'
   else
-    Grade.Cells[6,VpaLinha]:= FormatFloat(Varia.MascaraQtd,VprDBaixaConsumo.QtdUnitario);
-  Grade.Cells[7,VpaLinha]:= VprDBaixaConsumo.CodProduto;
-  Grade.Cells[8,VpaLinha]:= VprDBaixaConsumo.NomProduto;
+    Grade.Cells[7,VpaLinha]:= FormatFloat(Varia.MascaraQtd,VprDBaixaConsumo.QtdUnitario);
+  Grade.Cells[8,VpaLinha]:= VprDBaixaConsumo.CodProduto;
+  Grade.Cells[9,VpaLinha]:= VprDBaixaConsumo.NomProduto;
   if VprDBaixaConsumo.CodCor <> 0 then
-    Grade.Cells[9,VpaLinha]:= IntToStr(VprDBaixaConsumo.CodCor)
+    Grade.Cells[10,VpaLinha]:= IntToStr(VprDBaixaConsumo.CodCor)
   else
-    Grade.Cells[9,VpaLinha]:= '';
-  Grade.Cells[10,VpaLinha]:= VprDBaixaConsumo.NomCor;
+    Grade.Cells[10,VpaLinha]:= '';
+  Grade.Cells[11,VpaLinha]:= VprDBaixaConsumo.NomCor;
   if VprDBaixaConsumo.CodFaca <> 0 then
-    Grade.Cells[11,VpaLinha]:= IntToStr(VprDBaixaConsumo.CodFaca)
+    Grade.Cells[12,VpaLinha]:= IntToStr(VprDBaixaConsumo.CodFaca)
   else
-    Grade.Cells[11,VpaLinha]:= '';
-  Grade.Cells[12,VpaLinha]:= VprDBaixaConsumo.NomFaca;
-  Grade.Cells[13,VpaLinha]:= VprDBaixaConsumo.DesObservacao;
+    Grade.Cells[12,VpaLinha]:= '';
+  Grade.Cells[13,VpaLinha]:= VprDBaixaConsumo.NomFaca;
+  Grade.Cells[14,VpaLinha]:= VprDBaixaConsumo.DesObservacao;
 end;
 
 {******************************************************************************}
@@ -415,14 +428,14 @@ begin
     begin
       aviso('PRODUTO INVALIDO!!!'#13'Produto não cadastrado.');
       VpaValidos:= False;
-      Grade.Col:= 7;
+      Grade.Col:= 8;
     end
     else
       if not ExisteCor then
       begin
         aviso('COR INVALIDA!!!'#13'Cor não cadastrada.');
         VpaValidos:= False;
-        Grade.Col:= 9;
+        Grade.Col:= 10;
       end;
   if VpaValidos then
   begin
@@ -442,17 +455,17 @@ begin
     VprDBaixaConsumo.QtdProduto:= StrToFloat(DeletaChars(Grade.Cells[4,Grade.ALinha],'.'))
   else
     VprDBaixaConsumo.QtdProduto:= 0;
-  if Grade.Cells[5,Grade.ALinha] <> '' then
-    VprDBaixaConsumo.QtdBaixado:= StrToFloat(DeletaChars(Grade.Cells[5,Grade.ALinha],'.'))
+  if Grade.Cells[6,Grade.ALinha] <> '' then
+    VprDBaixaConsumo.QtdBaixado:= StrToFloat(DeletaChars(Grade.Cells[6,Grade.ALinha],'.'))
   else
     VprDBaixaConsumo.QtdBaixado:= 0;
-  VprDBaixaConsumo.CodProduto:= Grade.Cells[7,Grade.ALinha];
-  VprDBaixaConsumo.NomProduto:= Grade.Cells[8,Grade.ALinha];
-  if Grade.Cells[9,Grade.ALinha] <> '' then
-    VprDBaixaConsumo.CodCor:= StrToInt(Grade.Cells[9,Grade.ALinha])
+  VprDBaixaConsumo.CodProduto:= Grade.Cells[8,Grade.ALinha];
+  VprDBaixaConsumo.NomProduto:= Grade.Cells[9,Grade.ALinha];
+  if Grade.Cells[10,Grade.ALinha] <> '' then
+    VprDBaixaConsumo.CodCor:= StrToInt(Grade.Cells[10,Grade.ALinha])
   else
     VprDBaixaConsumo.CodCor:= 0;
-  VprDBaixaConsumo.NomCor:= Grade.Cells[10,Grade.ALinha];
+  VprDBaixaConsumo.NomCor:= Grade.Cells[11,Grade.ALinha];
   VprDBaixaConsumo.CodFilial:= VprCodFilial;
   VprDBaixaConsumo.SeqOrdem:= VprSeqOrdem;
   VprDBaixaConsumo.SeqFracao:= VprSeqFracao;
@@ -495,7 +508,7 @@ begin
   begin
     if CMarcarTodos.Checked then
     begin
-      TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdABaixar := TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdProduto - TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdBaixado;
+      TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdABaixar := TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdProduto - TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdBaixado -TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdReservado;
       GOrdemCorte.Cells[1,VpfLaco+1] := '1';
     end
     else
@@ -510,6 +523,41 @@ begin
     if CMarcarTodos.Checked then
     begin
       TRBDConsumoFracaoOP(VprBaixas.Items[VpfLaco]).QtdABaixar := TRBDConsumoFracaoOP(VprBaixas.Items[VpfLaco]).QtdProduto - TRBDConsumoFracaoOP(VprBaixas.Items[VpfLaco]).QtdBaixado;
+      Grade.Cells[1,VpfLaco+1] := '1';
+    end
+    else
+    begin
+      TRBDConsumoFracaoOP(VprBaixas.Items[VpfLaco]).QtdABaixar := 0;
+      Grade.Cells[1,VpfLaco+1] := '0';
+    end;
+  end;
+  Grade.CarregaGrade;
+end;
+
+{******************************************************************************}
+procedure TFBaixaConsumoProduto.MarcaTodosDescontaReservado;
+var
+  VpfLaco : Integer;
+begin
+  for VpfLaco := 0 to VprBaixaOrdemCorte.Count - 1 do
+  begin
+    if CDescontaReservado.Checked then
+    begin
+      TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdABaixar := TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdProduto - TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdBaixado -TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdReservado ;
+      GOrdemCorte.Cells[1,VpfLaco+1] := '1';
+    end
+    else
+    begin
+      TRBDConsumoFracaoOP(VprBaixaOrdemCorte.Items[VpfLaco]).QtdABaixar := 0;
+      GOrdemCorte.Cells[1,VpfLaco+1] := '0';
+    end;
+  end;
+  GOrdemCorte.CarregaGrade;
+  for VpfLaco := 0 to VprBaixas.Count - 1 do
+  begin
+    if CDescontaReservado.Checked then
+    begin
+      TRBDConsumoFracaoOP(VprBaixas.Items[VpfLaco]).QtdABaixar := TRBDConsumoFracaoOP(VprBaixas.Items[VpfLaco]).QtdProduto - TRBDConsumoFracaoOP(VprBaixas.Items[VpfLaco]).QtdBaixado-TRBDConsumoFracaoOP(VprBaixas.Items[VpfLaco]).QtdReservado;
       Grade.Cells[1,VpfLaco+1] := '1';
     end
     else
@@ -584,8 +632,8 @@ procedure TFBaixaConsumoProduto.GradeKeyDown(Sender: TObject;
 begin
   if Key = 114 then
     case Grade.AColuna of
-      7: LocalizaProduto;
-      9: ECor.AAbreLocalizacao;
+       8: LocalizaProduto;
+      10: ECor.AAbreLocalizacao;
     end;
 end;
 
@@ -594,8 +642,8 @@ procedure TFBaixaConsumoProduto.ECorRetorno(Retorno1, Retorno2: String);
 begin
   if Retorno1 <> '' then
   begin
-    Grade.Cells[9,Grade.ALinha]:= Retorno1;
-    Grade.Cells[10,Grade.ALinha]:= Retorno2;
+    Grade.Cells[10,Grade.ALinha]:= Retorno1;
+    Grade.Cells[11,Grade.ALinha]:= Retorno2;
   end;
 end;
 
@@ -642,19 +690,19 @@ begin
     if Grade.AColuna <> ACol then
     begin
       case Grade.AColuna of
-        7: if not ExisteProduto then
+        8: if not ExisteProduto then
            begin
              if not LocalizaProduto then
              begin
-               Grade.Cells[7,Grade.ALinha]:= '';
+               Grade.Cells[8,Grade.ALinha]:= '';
                Abort;
              end;
            end;
-        9: if not ExisteCor then
+       10: if not ExisteCor then
            begin
              if not ECor.AAbreLocalizacao then
              begin
-               Grade.Cells[9,Grade.ALinha]:= '';
+               Grade.Cells[10,Grade.ALinha]:= '';
                Abort;
              end;
            end;

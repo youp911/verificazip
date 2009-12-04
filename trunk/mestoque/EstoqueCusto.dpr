@@ -340,7 +340,9 @@ uses
   AMotivoParada in 'AMotivoParada.pas' {FMotivoParada},
   AAmostrasPendentes in 'AAmostrasPendentes.pas' {FAmostrasPendentes},
   ATipoMateriaPrima in '..\mcrm\ATipoMateriaPrima.pas' {FTipoMateriaPrima},
-  AGeraFracaoOPProdutos in 'AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos};
+  AGeraFracaoOPProdutos in 'AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos},
+  ABaixaOrdemCorte in 'ABaixaOrdemCorte.pas' {FBaixaOrdemCorte},
+  AOrdemCortePendente in 'AOrdemCortePendente.pas' {FOrdemCortePendente};
 
 {$R *.RES}
 

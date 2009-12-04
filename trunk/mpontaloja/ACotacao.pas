@@ -162,7 +162,6 @@ type
     EFilial: TEditLocaliza;
     Label15: TLabel;
     SpeedButton6: TSpeedButton;
-    Label16: TLabel;
     MAlterarVendedor: TMenuItem;
     CadOrcamentoI_TIP_ORC: TFMTBCDField;
     MovOrcamentosPRODUTOCOTACAO: TWideStringField;
@@ -242,6 +241,11 @@ type
     EValorTotal: Tnumerico;
     MPedidosPendentesSemClienteMaster: TMenuItem;
     N14: TMenuItem;
+    SpeedButton11: TSpeedButton;
+    Label25: TLabel;
+    Label26: TLabel;
+    Label16: TLabel;
+    ECondicaoPagamento: TRBEditLocaliza;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FlagClick(Sender: TObject);
@@ -1398,6 +1402,9 @@ begin
 
      if EClienteMaster.Text <> '' then
        VpaSelect.Add(' and CLI.I_CLI_MAS = '+ EClienteMaster.Text);
+     if ECondicaoPagamento.AInteiro <> 0 then
+       VpaSelect.Add(' and ORC.I_COD_PAG = '+ ECondicaoPagamento.Text );
+
 
      if Flag.ItemIndex = 0 then
         VpaSelect.add(' and orc.C_Fla_Sit = ''A''')

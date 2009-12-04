@@ -203,7 +203,6 @@ uses
   ANovoProspect in '..\mcrm\ANovoProspect.pas' {FNovoProspect},
   AProspects in '..\mcrm\AProspects.pas' {FProspects},
   ANovaAgendaProspect in '..\mcrm\ANovaAgendaProspect.pas' {FNovaAgendaProspect},
-  APropostas in '..\mcrm\APropostas.pas' {FPropostas},
   ANovoTelemarketingProspect in '..\mcrm\ANovoTelemarketingProspect.pas' {FNovoTelemarketingProspect},
   AProdutosProspect in '..\mcrm\AProdutosProspect.pas' {FProdutosProspect},
   AContatosProspect in '..\mcrm\AContatosProspect.pas' {FContatosProspect},
@@ -268,7 +267,12 @@ uses
   UnRave in '..\magerais\UnRave.pas',
   ANovaComposicao in '..\mestoque\ANovaComposicao.pas' {FNovaComposicao},
   AComposicoes in '..\mestoque\AComposicoes.pas' {FComposicoes},
-  UnNFe in '..\mfaturamento\UnNFe.pas';
+  UnNFe in '..\mfaturamento\UnNFe.pas',
+  ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
+  ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
+  UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
+  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos},
+  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos};
 
 {$R *.RES}
 

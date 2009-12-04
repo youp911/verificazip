@@ -576,36 +576,35 @@ end;
 {******************************************************************************}
 function TFPrincipal.RAtualizarSistema : Boolean;
 var
-  VpfRegistry : TRegistry;
+  VpfRegistry : TIniFile;
 begin
   result := false;
   AdicionaSQLAbreTabela(Aux,'Select * from CFG_GERAL');
-  VpfRegistry := TRegistry.Create;
-  VpfRegistry.RootKey := HKEY_LOCAL_MACHINE;
-  VpfRegistry.OpenKey(CT_DIRETORIOREGEDIT+'\Versoes',true);
+  VpfRegistry := TIniFile.Create(VprDiretorioCorrente+'\'+ varia.ParametroBase+ '.ini');
+
   if UpperCase(CampoPermissaoModulo) = 'C_MOD_PON' then
-    result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('PONTOLOJA'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
+    result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('VERSAO','PONTOLOJA','0'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
   else
     if UpperCase(CampoPermissaoModulo) = 'C_CON_SIS' then
-      result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('CONFIGURACAOSISTEMA'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
+      result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('VERSAO','CONFIGURACAOSISTEMA','0'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
     else
       if UpperCase(CampoPermissaoModulo) = 'C_MOD_FIN' then
-        result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('FINANCEIRO'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
+        result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('VERSAO','FINANCEIRO','0'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
       else
         if UpperCase(CampoPermissaoModulo) = 'C_MOD_FAT' then
-          result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('FATURAMENTO'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
+          result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('VERSAO','FATURAMENTO','0'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
         else
           if UpperCase(CampoPermissaoModulo) = 'C_MOD_EST' then
-            result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('ESTOQUE'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
+            result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('VERSAO','ESTOQUE','0'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
           else
             if UpperCase(CampoPermissaoModulo) = 'C_MOD_CHA' then
-              result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('CHAMADO'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
+              result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('VERSAO','CHAMADO','0'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
             else
               if UpperCase(CampoPermissaoModulo) = 'C_MOD_CRM' then
-                result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('CRM'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
+                result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('VERSAO','CRM','0'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','))
               else
                 if UpperCase(CampoPermissaoModulo) = 'C_MOD_CAI' then
-                  result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('CAIXA'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','));
+                  result := StrToFloat(AdicionaCharD('0',SubstituiStr(VpfRegistry.ReadString('VERSAO','CAIXA','0'),'.',','),1)) < StrToFloat(SubstituiStr(Aux.FieldByName(CampoPermissaoModulo).AsString,'.',','));
 
   VpfRegistry.free;
   Aux.Close;

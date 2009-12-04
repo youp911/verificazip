@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Componentes1, ExtCtrls, PainelGradiente, StdCtrls, Buttons, ComCtrls, Db,
-  DBTables, Grids, DBGrids, Tabela, DBKeyViolation, UnOrdemProducao, UnDadosProduto;
+  DBTables, Grids, DBGrids, Tabela, DBKeyViolation, UnOrdemProducao, UnDadosProduto, DBClient;
 
 type
   TFAdicionaColetaOPRomaneio = class(TFormularioPermissao)
@@ -14,7 +14,7 @@ type
     PanelColor2: TPanelColor;
     EOrdemProducao: TEditColor;
     Label1: TLabel;
-    ColetaOPCorpo: TQuery;
+    ColetaOPCorpo: TSQL;
     Label2: TLabel;
     EDatInicio: TCalendario;
     EDatFim: TCalendario;
@@ -22,20 +22,20 @@ type
     BAdicionar: TBitBtn;
     BFechar: TBitBtn;
     DataColetaOpCorpo: TDataSource;
-    ColetaOPCorpoEMPFIL: TIntegerField;
-    ColetaOPCorpoSEQORD: TIntegerField;
-    ColetaOPCorpoSEQCOL: TIntegerField;
-    ColetaOPCorpoDATCOL: TDateTimeField;
-    ColetaOPCorpoINDFIN: TStringField;
-    ColetaOPCorpoINDREP: TStringField;
-    ColetaOpItem: TQuery;
+    ColetaOPCorpoEMPFIL: TFMTBCDField;
+    ColetaOPCorpoSEQORD: TFMTBCDField;
+    ColetaOPCorpoSEQCOL: TFMTBCDField;
+    ColetaOPCorpoDATCOL: TSQLTimeStampField;
+    ColetaOPCorpoINDFIN: TWideStringField;
+    ColetaOPCorpoINDREP: TWideStringField;
+    ColetaOpItem: TSQL;
     DataColetaOpItem: TDataSource;
-    ColetaOPCorpoC_NOM_PRO: TStringField;
-    ColetaOPCorpoUNMPED: TStringField;
-    ColetaOpItemCODCOM: TIntegerField;
-    ColetaOpItemCODMAN: TStringField;
-    ColetaOpItemNROFIT: TIntegerField;
-    ColetaOpItemMETCOL: TFloatField;
+    ColetaOPCorpoC_NOM_PRO: TWideStringField;
+    ColetaOPCorpoUNMPED: TWideStringField;
+    ColetaOpItemCODCOM: TFMTBCDField;
+    ColetaOpItemCODMAN: TWideStringField;
+    ColetaOpItemNROFIT: TFMTBCDField;
+    ColetaOpItemMETCOL: TFMTBCDField;
     PanelColor3: TPanelColor;
     GridIndice1: TGridIndice;
     GridIndice2: TGridIndice;
@@ -44,8 +44,8 @@ type
     BRevisaoExterna: TBitBtn;
     BImprimir: TBitBtn;
     CVisualizar: TCheckBox;
-    ColetaOPCorpoCODPRO: TStringField;
-    ColetaOPCorpoTIPPED: TIntegerField;
+    ColetaOPCorpoCODPRO: TWideStringField;
+    ColetaOPCorpoTIPPED: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -116,6 +116,7 @@ Var
   vpfPosicao : TBookMark;
 begin
   VpfPosicao := ColetaOPCorpo.GetBookmark;
+  ColetaOPCorpo.Close;
   ColetaOPCorpo.Sql.Clear;
   ColetaOPCorpo.Sql.Add('select OPC.EMPFIL, OPC.SEQORD, OPC.SEQCOL, OPC.DATCOL,'+
                         ' OPC.INDFIN, OPC.INDREP, ' +
@@ -142,7 +143,6 @@ begin
     0 : ColetaOPCorpo.SQL.Add('and OPC.INDROM = ''N''');
     1 : ColetaOPCorpo.SQL.Add('and OPC.INDROM = ''S''');
   end;
-  ColetaOPCorpo.Sql.SaveToFile('c:\consulta.sql');
   ColetaOPCorpo.Open;
   try
     ColetaOPCorpo.GotoBookmark(vpfPosicao);
@@ -154,6 +154,7 @@ end;
 {******************************************************************************}
 procedure TFAdicionaColetaOPRomaneio.AtualizaConsultaItem;
 begin
+  ColetaOpItem.Close;
   ColetaOpItem.Sql.Clear;
   IF ColetaOPCorpoSEQORD.AsInteger <> 0 then
   begin
@@ -162,7 +163,6 @@ begin
                          ' Where EMPFIL = '+ ColetaOPCorpoEMPFIL.AsString+
                          ' and SEQORD = '+ColetaOPCorpoSEQORD.AsString+
                          ' and SEQCOL = ' + ColetaOPCorpoSEQCOL.AsString);
-    ColetaOpItem.Sql.SaveToFile('C:\consulta.sql');
     ColetaOpItem.Open;
   end;
 end;

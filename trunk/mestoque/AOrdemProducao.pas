@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   StdCtrls, Buttons, Grids, DBGrids, Tabela, DBKeyViolation, Componentes1,
   ExtCtrls, PainelGradiente, ComCtrls, Localizacao, Db, DBTables, UnDados, UnOrdemProducao,
-  Mask, numericos, UnDadosProduto;
+  Mask, numericos, UnDadosProduto, DBClient;
 
 type
   TFOrdemProducao = class(TFormularioPermissao)
@@ -27,28 +27,28 @@ type
     SpeedButton1: TSpeedButton;
     Label2: TLabel;
     Label3: TLabel;
-    OrdemProducao: TQuery;
+    OrdemProducao: TSQL;
     DataOrdemProducao: TDataSource;
-    OrdemProducaoEMPFIL: TIntegerField;
-    OrdemProducaoSEQORD: TIntegerField;
-    OrdemProducaoDATEMI: TDateTimeField;
-    OrdemProducaoDATENT: TDateTimeField;
-    OrdemProducaoDATENP: TDateTimeField;
-    OrdemProducaoCODCLI: TIntegerField;
-    OrdemProducaoCODCOM: TIntegerField;
-    OrdemProducaoNUMPED: TIntegerField;
-    OrdemProducaoHORPRO: TStringField;
-    OrdemProducaoCODEST: TIntegerField;
-    OrdemProducaoCODMAQ: TIntegerField;
-    OrdemProducaoTIPPED: TIntegerField;
-    OrdemProducaoC_NOM_PRO: TStringField;
-    OrdemProducaoI_SEQ_PRO: TIntegerField;
-    OrdemProducaoNOMEST: TStringField;
-    OrdemProducaoProduto: TStringField;
-    OrdemProducaoEstagio: TStringField;
-    OrdemProducaoNOMMAQ: TStringField;
-    OrdemProducaoQTDFIO: TIntegerField;
-    OrdemProducaoMaquina: TStringField;
+    OrdemProducaoEMPFIL: TFMTBCDField;
+    OrdemProducaoSEQORD: TFMTBCDField;
+    OrdemProducaoDATEMI: TSQLTimeStampField;
+    OrdemProducaoDATENT: TSQLTimeStampField;
+    OrdemProducaoDATENP: TSQLTimeStampField;
+    OrdemProducaoCODCLI: TFMTBCDField;
+    OrdemProducaoCODCOM: TFMTBCDField;
+    OrdemProducaoNUMPED: TFMTBCDField;
+    OrdemProducaoHORPRO: TWideStringField;
+    OrdemProducaoCODEST: TFMTBCDField;
+    OrdemProducaoCODMAQ: TFMTBCDField;
+    OrdemProducaoTIPPED: TFMTBCDField;
+    OrdemProducaoC_NOM_PRO: TWideStringField;
+    OrdemProducaoI_SEQ_PRO: TFMTBCDField;
+    OrdemProducaoNOMEST: TWideStringField;
+    OrdemProducaoProduto: TWideStringField;
+    OrdemProducaoEstagio: TWideStringField;
+    OrdemProducaoNOMMAQ: TWideStringField;
+    OrdemProducaoQTDFIO: TFMTBCDField;
+    OrdemProducaoMaquina: TWideStringField;
     Label4: TLabel;
     EPeriodoPor: TComboBoxColor;
     EPedido: Tnumerico;
@@ -61,11 +61,11 @@ type
     Label6: TLabel;
     ENroOPCliente: Tnumerico;
     BAlterarTear: TBitBtn;
-    OrdemProducaoMETTOT: TFloatField;
+    OrdemProducaoMETTOT: TFMTBCDField;
     ENumeroOp: Tnumerico;
     Label7: TLabel;
     BAlterar: TBitBtn;
-    OrdemProducaoCODPRO: TStringField;
+    OrdemProducaoCODPRO: TWideStringField;
     Label8: TLabel;
     EProduto: TEditLocaliza;
     SpeedButton2: TSpeedButton;
@@ -163,7 +163,7 @@ begin
                         ' CADPRODUTOS PRO, MAQUINA MAQ '+
                         ' Where ORD.SEQPRO = PRO.I_SEQ_PRO '+
                         ' AND ORD.CODEST = EST.CODEST '+
-                        ' AND ORD.CODMAQ *= MAQ.CODMAQ ');
+                        ' AND '+SQLTextoRightJoin('ORD.CODMAQ','MAQ.CODMAQ'));
   if config.EstoqueCentralizado then
     OrdemProducao.SQl.Add('and ORD.EMPFIL = '+Inttostr(Varia.CodFilialControladoraEstoque))
   else
@@ -198,7 +198,6 @@ begin
 
     end;
   OrdemProducao.SQL.Add(VprOrdem);
-  OrdemProducao.Sql.saveToFile('c:\Ordem.sql');
   OrdemProducao.Open;
   Grade.ALinhaSQLOrderBy := OrdemProducao.Sql.Count -1;
   if VpaPosicionar and not(OrdemProducao.Eof) then

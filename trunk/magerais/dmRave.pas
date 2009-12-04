@@ -39,7 +39,7 @@ type
     rvItem3: TRvDataSetConnection;
     PedidosPendentesI_SEQ_ORD: TFMTBCDField;
     PDF: TRvRenderPDF;
-    procedure DSServerModuleCreate(Sender: TObject);
+    procedure f(Sender: TObject);
     procedure RvSystem1BeforePrint(Sender: TObject);
     procedure RaveBeforeOpen(Sender: TObject);
   private
@@ -55,7 +55,7 @@ type
     procedure ImprimePedidoPendente(VpaCodFilial,VpaCodCliente,VpaCodClienteMaster, VpaSeqProduto : Integer;VpaCodClassificacao,VpaNomClassificacao,VpaNomCliente : String;VpaDatInicio,VpaDatFim : TDateTime;VpaClienteMaster : Boolean);
     procedure ImprimePedidoParcial(VpaCodFilial,VpaLanOrcamento, VpaSeqParcial : Integer);
     procedure ImprimeNotasFiscaisEmitidas(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodClienteMaster,VpaCodVendedor : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaSituacaoNota : Integer);
-    procedure ImprimePedidosPorDia(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao : String);
+    procedure ImprimePedidosPorDia(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao, VpaCodCondicaoPagamento: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao, VpaNomCodicaoPagamento : String);
     procedure ImprimePedido(VpaCodFilial,VpaNumPedido : Integer;VpaVisualizar : Boolean);
     procedure ImprimeGarantia(VpaCodFilial,VpaNumPedido : Integer;VpaVisualizar : Boolean);
     procedure ImprimeChamado(VpaCodFilial,VpaNumChamado : Integer;VpaVisualizar : Boolean);
@@ -107,6 +107,10 @@ type
     procedure ImprimeProposta(VpaCodFilial, VpaSeqProposta : Integer; VpaVisualizar : Boolean);
     procedure ImprimeFichaTecnicaAmostra(VpaCodAmostra : Integer;VpaVisulizar : Boolean;VpaNomArquivo : String);
     procedure ImprimeTotalClientesAtendidoseProdutosVendidos(VpaCodClienteMaster : INteger;VpaCaminho, VpaNomClienteMaster : String;VpaDatInicio, VpaDatFim : TDateTime);
+    procedure ImprimeCortePendente;
+    procedure ImprimeDiasCorte(VpaDatInicio,VpaDatFim : TDateTime;VpaCaminho : String);
+    procedure ImprimeHistoricoECobranca(VpaSeqEmail : Integer);
+    procedure ImprimePedidosPorCliente(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao, VpaCodCondicaoPagamento: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao, VpaNomCodicaoPagamento : String);
   end;
 
 
@@ -129,7 +133,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.DSServerModuleCreate(Sender: TObject);
+procedure TdtRave.f(Sender: TObject);
 begin
   FunRave := TRBFunRave.cria(FPrincipal.BaseDados);
   VprDFilial := TRBDFilial.Cria;
@@ -285,8 +289,9 @@ begin
   Rave.Execute;
 end;
 
+
 {******************************************************************************}
-procedure TdtRave.ImprimePedidosPorDia(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao : String);
+procedure TdtRave.ImprimePedidosPorDia(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao, VpaCodCondicaoPagamento: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao, VpaNomCodicaoPagamento : String);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Pedidos por dia';
@@ -322,6 +327,11 @@ begin
   begin
     AdicionaSqlTabeLa(Principal,'AND CAD.I_TIP_ORC = '+InttoStr(VpaCodTipoCotacao));
     Rave.SetParam('TIPOCOTACAO',VpaNomTipoCotacao);
+  end;
+  if VpaCodCondicaoPagamento <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_PAG = '+InttoStr(VpaCodCondicaoPagamento));
+    Rave.SetParam('CONDICAOPAGAMENTO',VpaNomCodicaoPagamento);
   end;
   if VpaSituacaoCotacao = 0 then
   begin
@@ -1369,7 +1379,7 @@ procedure TdtRave.ImprimeConsistenciaReservaEstoque(VpaSeProduto: Integer; VpaCa
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Consistencia Reserva Produto';
-  Rave.projectfile := varia.PathRelatorios+'\Produto\Reserva Estoque\1000ES_Consistencia Reserva Estoque.rav';
+  Rave.projectfile := varia.PathRelatorios+'\Produto\Reserva Estoque\1100ES_Consistencia Reserva Estoque.rav';
   Rave.clearParams;
   LimpaSqlTabela(Principal);
   AdicionaSqlTabeLa(Principal,'SELECT PRE.SEQPRODUTO, PRE.TIPMOVIMENTO, PRE.DATRESERVA, PRE.QTDRESERVADA , PRE.QTDINICIAL, '+
@@ -1716,8 +1726,7 @@ begin
                               ' AND CHA.NUMCHAMADO = CHP.NUMCHAMADO '+
                               ' AND CHA.CODTECNICO = TEC.CODTECNICO '+
                               ' AND CHA.CODCLIENTE = CLI.I_COD_CLI '+
-                              ' AND CHA.CODESTAGIO = EST.CODEST '+
-                              ' AND CHA.CODESTAGIO < 170 ');
+                              ' AND CHA.CODESTAGIO = EST.CODEST ');
 
   if VpaCodEstagio <> 0 then
   begin
@@ -1892,6 +1901,7 @@ end;
 procedure TdtRave.RaveBeforeOpen(Sender: TObject);
 begin
   RpDev.DevMode.dmPaperSize := DMPAPER_A4;
+  RPDev.DeviceIndex := RPDev.Printers.IndexOf(varia.ImpressoraRelatorio);
   if VplArquivoPDF <> '' then
     ConfiguraRelatorioPDF;
 end;
@@ -2143,6 +2153,31 @@ begin
   Rave.SetParam('CAMINHO',VpaCaminho);
 
   Rave.SetParam('PERIODO','Período de  '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDateTime('DD/MM/YYY',VpaDatFim));
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeCortePendente;
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Corte Pendente';
+  Rave.projectfile := varia.PathRelatorios+'\Ordem Producao\xx_OrdemCortePendente.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select FRA.CODFILIAL, FRA.SEQORDEM, FRA.SEQFRACAO, FRA.QTDPRODUTO, FRA.DATENTREGA, '+
+                                      ' OP.DATEMI, '+
+                                      ' CLI.I_COD_CLI, CLI.C_NOM_CLI, '+
+                                      ' PRO.C_COD_PRO, PRO.C_NOM_PRO '+
+                                      ' from FRACAOOP FRA, ORDEMPRODUCAOCORPO OP, CADCLIENTES CLI, CADPRODUTOS PRO, ORDEMCORTECORPO OCP '+
+                                      ' where FRA.DATCORTE IS NULL '+
+                                      ' AND OP.EMPFIL = FRA.CODFILIAL '+
+                                      ' AND OP.SEQORD = FRA.SEQORDEM '+
+                                      ' AND OP.CODCLI = CLI.I_COD_CLI '+
+                                      ' AND OP.SEQPRO = PRO.I_SEQ_PRO '+
+                                      ' AND OP.EMPFIL = OCP.CODFILIAL ' +
+                                      ' AND OP.SEQORD = OCP.SEQORDEMPRODUCAO '+
+                                      ' ORDER BY FRA.DATENTREGA, FRA.CODFILIAL, FRA.SEQORDEM, FRA.SEQFRACAO');
   Rave.Execute;
 end;
 
@@ -2446,6 +2481,122 @@ begin
                              ' ORDER BY CON.CODTIPOMATERIAPRIMA, CON.NUMSEQUENCIA, CON.DESLEGENDA');
   if VpaNomArquivo <> '' then
     VplArquivoPDF := VpaNomArquivo;
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeDiasCorte(VpaDatInicio, VpaDatFim: TDateTime; VpaCaminho: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Dias Corte ';
+  Rave.projectfile := varia.PathRelatorios+'\Ordem Producao\2300ES_Dias Ordem de Corte.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'SELECT EXTRACT(DAY FROM FRA.DATCORTE - OP.DATEMI)DIAS, COUNT(FRA.SEQFRACAO) QTD '+
+                              ' FROM FRACAOOP FRA , ORDEMPRODUCAOCORPO OP '+
+                              ' Where FRA.CODFILIAL = OP.EMPFIL '+
+                              SQLTextoDataEntreAAAAMMDD('FRA.DATCORTE',VpaDatInicio,VpaDatFim,true)+
+                              ' AND FRA.SEQORDEM = OP.SEQORD '+
+                              ' AND FRA.DATCORTE IS NOT NULL '+
+                              ' GROUP BY EXTRACT(DAY FROM FRA.DATCORTE - OP.DATEMI) '+
+                              ' ORDER BY 2 DESC');
+  Rave.SetParam('PERIODO','Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDatetime('DD/MM/YYYY',VpaDatFim));
+  Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeHistoricoECobranca(VpaSeqEmail: Integer);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Historico e-Cobranca';
+  Rave.projectfile := varia.PathRelatorios+'\Financeiro\Cobranca\xx_ECobranca.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select CLI.I_COD_CLI, CLI.C_NOM_CLI, ' +
+                              ' COR.SEQEMAIL, COR.DATENVIO, COR.QTDENVIADOS, COR.QTDERROS, ' +
+                              ' ITE.DESSTATUS, ITE.INDENVIADO, ' +
+                              ' MOV.D_DAT_VEN, MOV.N_VLR_PAR, MOV.C_NRO_DUP ' +
+                              ' FROM CADCLIENTES CLI, ECOBRANCACORPO COR, ECOBRANCAITEM ITE, MOVCONTASARECEBER MOV, CADCONTASARECEBER CAD ' +
+                              ' WHERE COR.SEQEMAIL = ITE.SEQEMAIL ' +
+                              ' AND ITE.CODFILIAL = MOV.I_EMP_FIL ' +
+                              ' AND ITE.LANRECEBER = MOV.I_LAN_REC ' +
+                              ' AND ITE.NUMPARCELA = MOV.I_NRO_PAR ' +
+                              ' AND MOV.I_EMP_FIL = CAD.I_EMP_FIL ' +
+                              ' AND MOV.I_LAN_REC = CAD.I_LAN_REC ' +
+                              ' AND CAD.I_COD_CLI = CLI.I_COD_CLI ' +
+                              ' AND COR.SEQEMAIL = '+ IntToStr(VpaSeqEmail)+
+                              ' ORDER BY ITE.INDENVIADO, CLI.I_COD_CLI');
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimePedidosPorCliente(VpaDatInicio, VpaDatFim: TDateTime; VpaCodFilial, VpaCodCliente, VpaCodVendedor, VpaCodTipoCotacao,VpaSituacaoCotacao, VpaCodCondicaoPagamento: Integer; VpaCaminhoRelatorio, VpaNomFilial, VpaNomCliente, VpaNomVendedor, VpaNomTipoCotacao,VpaNomSituacao, VpaNomCodicaoPagamento: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Pedidos por dia';
+  Rave.projectfile := varia.PathRelatorios+'\Cotacao\Venda\0275PL_Pedidos por Cliente.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select CAD.D_DAT_ORC, CAD.I_EMP_FIL, CAD.I_LAN_ORC, ' +
+                        ' CAD.D_DAT_PRE,  CAD.D_DAT_ENT, CAD.I_COD_CLI , CAD.C_IND_CAN , '+
+                        ' CLI.C_NOM_CLI, ' +
+                        ' N_VLR_TOT, PAG.I_COD_PAG, PAG.C_NOM_PAG ' );
+  AdicionaSqlTabeLa(Principal,'from cadorcamentos CAD, CADCLIENTES CLI, CADCONDICOESPAGTO PAG ');
+  AdicionaSqlTabeLa(Principal,'WHERE CAD.I_COD_CLI = CLI.I_COD_CLI '+
+                        ' AND CAD.I_COD_PAG = PAG.I_COD_PAG '+
+                        ' AND CAD.C_IND_CAN = ''N'''+
+                        SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,true));
+  Rave.SetParam('PERIODO','Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDatetime('DD/MM/YYYY',VpaDatFim));
+  if vpacodfilial <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_EMP_FIL = '+InttoStr(VpaCodFilial));
+    Rave.SetParam('FILIAL',VpaNomFilial);
+  end;
+  if VpaCodCliente <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_CLI = '+InttoStr(VpaCodCliente));
+    Rave.SetParam('CLIENTE',VpaNomCliente);
+  end;
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_VEN = '+InttoStr(VpaCodVendedor));
+    Rave.SetParam('VENDEDOR',VpaNomVendedor);
+  end;
+  if VpaCodTipoCotacao <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_TIP_ORC = '+InttoStr(VpaCodTipoCotacao));
+    Rave.SetParam('TIPOCOTACAO',VpaNomTipoCotacao);
+  end;
+  if VpaCodCondicaoPagamento <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_PAG = '+InttoStr(VpaCodCondicaoPagamento));
+    Rave.SetParam('CONDICAOPAGAMENTO',VpaNomCodicaoPagamento);
+  end;
+  if VpaSituacaoCotacao = 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.C_FLA_SIT = ''A''');
+    Rave.SetParam('SITUACAOCOTACAO','Em Aberto');
+  end
+  else
+    if VpaSituacaoCotacao = 1 then
+    begin
+      AdicionaSqlTabeLa(Principal,'AND CAD.C_FLA_SIT = ''E''');
+      Rave.SetParam('SITUACAOCOTACAO','Entregue');
+    end
+    else
+      Rave.SetParam('SITUACAOCOTACAO','Todas');
+
+  if (varia.CNPJFilial = CNPJ_Kairos) or (varia.CNPJFilial = CNPJ_AviamentosJaragua) then
+    AdicionaSqlTabeLa(Principal,' and CAD.I_EMP_FIL <> 13 ');
+
+  Rave.SetParam('CAMINHO',VpaCaminhoRelatorio);
+
+  AdicionaSqlTabeLa(Principal,'ORDER BY CLI.C_NOM_CLI, CAD.D_DAT_ORC,CAD.I_LAN_ORC');
+  Principal.open;
+
   Rave.Execute;
 end;
 

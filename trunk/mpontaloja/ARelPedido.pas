@@ -358,8 +358,9 @@ begin
      (VPANOMRELATORIO = 'NOTAS FISCAIS EMITIDAS POR NATUREZA OPERACAO') then
     AlterarVisibleDet([PVendedor,PFilial,PCliente,PClienteMaster, PPeriodo,PCotacaoCancelada],true)
   else
-    if (VPANOMRELATORIO = 'PEDIDOS POR DIA') then
-      AlterarVisibleDet([PVendedor,PFilial,PCliente,PPeriodo,PTipoCotacao,PSituacao],true)
+    if (VPANOMRELATORIO = 'PEDIDOS POR DIA') or
+       (VPANOMRELATORIO = 'PEDIDOS POR CLIENTE') then
+      AlterarVisibleDet([PVendedor,PFilial,PCliente,PPeriodo,PTipoCotacao,PCondPgto,PSituacao],true)
     else
       if (VPANOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO') or
          (VPANOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO E ESTADO') then
@@ -497,6 +498,9 @@ begin
           else
             if (VPANOMRELATORIO = 'VENDAS POR TIPO COTACAO X CUSTO') then
               AlterarVisibleDet([PFilial,PPeriodo,PCliente,PVendedor,PTipoCotacao],true)
+            else
+              if (VPANOMRELATORIO = 'DIAS ORDEM DE CORTE') then
+                AlterarVisibleDet([PPeriodo],true)
 
 end;
 
@@ -525,7 +529,7 @@ begin
     dtRave.ImprimeNotasFiscaisEmitidas(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EClienteMaster.AInteiro, EVendedor.Ainteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,ESituacaoCotacao.itemindex)
   else
     if (VPRNOMRELATORIO = 'PEDIDOS POR DIA') then
-      dtRave.ImprimePedidosPorDia(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,RFlagSituacao.Itemindex,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,RFlagSituacao.Items.Strings[RFlagSituacao.Itemindex])
+      dtRave.ImprimePedidosPorDia(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,RFlagSituacao.Itemindex,ECondPgto.AInteiro, VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,RFlagSituacao.Items.Strings[RFlagSituacao.Itemindex],LCondPgto.Caption)
     else
       if (VPRNOMRELATORIO = 'PRODUTOS VENDIDOS POR CLASSIFICACAO') then
         FunRave.ImprimeProdutoVendidosPorClassificacao(EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,EClienteMaster.AInteiro,CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,LClienteMaster.Caption, false,TBitBtn(Sender).Tag = 20 )
@@ -656,7 +660,13 @@ begin
             FunRave.ImprimeTotalTipoCotacaoXCusto(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LFilial.Caption,LCliente.Caption,LVendedor.Caption,LTipoCotacao.Caption,CDataIni.DateTime,CDataFim.DateTime)
           else
             if (VPRNOMRELATORIO = 'TOTAL CLIENTES ATENDIDOS E PRODUTOS VENDIDOS') then
-              dtRave.ImprimeTotalClientesAtendidoseProdutosVendidos(EClienteMaster.AInteiro,VprCaminhoRelatorio,LClienteMaster.Caption,CDataIni.Date,CDataFim.Date);
+              dtRave.ImprimeTotalClientesAtendidoseProdutosVendidos(EClienteMaster.AInteiro,VprCaminhoRelatorio,LClienteMaster.Caption,CDataIni.Date,CDataFim.Date)
+          else
+            if (VPRNOMRELATORIO = 'DIAS ORDEM DE CORTE') then
+              dtRave.ImprimeDiasCorte(CDataIni.Date,CDataFim.Date,VprCaminhoRelatorio)
+          else
+            if (VPRNOMRELATORIO = 'PEDIDOS POR CLIENTE') then
+              dtRave.ImprimePedidosPorCliente(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,RFlagSituacao.Itemindex,ECondPgto.AInteiro, VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,RFlagSituacao.Items.Strings[RFlagSituacao.Itemindex],LCondPgto.Caption);
   dtRave.free;
 end;
 

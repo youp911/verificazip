@@ -1640,7 +1640,10 @@ begin
          (varia.CNPJFilial = CNPJ_IMPOX) then
       begin
         if (VprDCotacao.CodTransportadora = varia.CodTransportadoraVazio) then
+        begin
+          FunCotacao.AdicionaFinanceiroArqRemessa(VprDCotacao);
           FunCotacao.ImprimirBoletos(VprDCotacao.CodEmpFil,VprDCotacao.LanOrcamento,VprDCliente,Varia.ImpressoraRelatorio)
+        end
         else
           FunCotacao.ImprimirBoletos(VprDCotacao.CodEmpFil,VprDCotacao.LanOrcamento,VprDCliente,varia.ImpressoraAlmoxarifado);
 

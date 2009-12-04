@@ -1178,6 +1178,14 @@ begin
         end
         else
           IndReducaoICMS := false;
+        if (config.EmitirECF or config.EmiteSped) then
+        begin
+          if VpaDProdutoNota.CodClassificacaoFiscal = '' then
+          begin
+            result := false;
+            aviso('CODIGO NCM/CLASSIFICAÇÃO FISCAL NÃO PREENCHIDO!!!'#13'É necessário digitar o codigo NCM do produto.');
+          end;
+        end;
       end;
     end;
   end;

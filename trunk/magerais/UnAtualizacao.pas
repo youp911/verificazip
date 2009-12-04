@@ -2,10 +2,10 @@ Unit UnAtualizacao;
 
 interface
   Uses Classes, DbTables,SysUtils, APrincipal, Windows, Forms, UnVersoes,
-       SQLExpr ;
+       SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1534;
+  CT_VersaoBanco = 1537;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -85,37 +85,35 @@ end;
 {******************************************************************************}
 procedure TAtualiza.AtualizaNumeroVersaoSistema;
 var
-  VpfRegistry : TRegistry;
+  VpfRegistry : TIniFile;
 begin
-  VpfRegistry := TRegistry.Create;
-  VpfRegistry.RootKey := HKEY_LOCAL_MACHINE;
-  VpfRegistry.OpenKey(CT_DIRETORIOREGEDIT+'\Versoes',true);
+  VpfRegistry := TIniFile.Create(RetornaDiretorioCorrente+'\'+ varia.ParametroBase+ '.ini');
   if UpperCase(CampoPermissaoModulo) = 'C_MOD_PON' then
-    VpfRegistry.WriteString('PONTOLOJA',VersaoPontoLoja)
+    VpfRegistry.WriteString('VERSAO','PONTOLOJA',VersaoPontoLoja)
   else
     if UpperCase(CampoPermissaoModulo) = 'C_CON_SIS' then
-      VpfRegistry.WriteString('CONFIGURACAOSISTEMA',VersaoConfiguracaoSistema)
+      VpfRegistry.WriteString('VERSAO','CONFIGURACAOSISTEMA',VersaoConfiguracaoSistema)
     else
       if UpperCase(CampoPermissaoModulo) = 'C_MOD_FIN' then
-        VpfRegistry.WriteString('FINANCEIRO',VersaoFinanceiro)
+        VpfRegistry.WriteString('VERSAO','FINANCEIRO',VersaoFinanceiro)
       else
         if UpperCase(CampoPermissaoModulo) = 'C_MOD_FAT' then
-          VpfRegistry.WriteString('FATURAMENTO',VersaoFaturamento)
+          VpfRegistry.WriteString('VERSAO','FATURAMENTO',VersaoFaturamento)
         else
           if UpperCase(CampoPermissaoModulo) = 'C_MOD_EST' then
-            VpfRegistry.WriteString('ESTOQUE',VersaoEstoque)
+            VpfRegistry.WriteString('VERSAO','ESTOQUE',VersaoEstoque)
           else
             if UpperCase(CampoPermissaoModulo) = 'C_MOD_CHA' then
-              VpfRegistry.WriteString('CHAMADO',VersaoChamadoTecnico)
+              VpfRegistry.WriteString('VERSAO','CHAMADO',VersaoChamadoTecnico)
             else
               if UpperCase(CampoPermissaoModulo) = 'C_MOD_AGE' then
-                VpfRegistry.WriteString('AGENDA',VersaoAgenda)
+                VpfRegistry.WriteString('VERSAO','AGENDA',VersaoAgenda)
               else
                 if UpperCase(CampoPermissaoModulo) = 'C_MOD_CRM' then
-                  VpfRegistry.WriteString('CRM',VersaoCRM)
+                  VpfRegistry.WriteString('VERSAO','CRM',VersaoCRM)
                 else
                   if UpperCase(CampoPermissaoModulo) = 'C_MOD_CAI' then
-                    VpfRegistry.WriteString('CAIXA',VersaoCaixa);
+                    VpfRegistry.WriteString('VERSAO','CAIXA',VersaoCaixa);
 
 
   VpfRegistry.Free;
@@ -1023,6 +1021,53 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE CADTRANSPORTADORAS ADD C_IND_PRO CHAR(1) NULL');
         ExecutaComandoSql(Aux,'UPDATE CADTRANSPORTADORAS SET C_IND_PRO = ''N''');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1534');
+      end;
+      if VpaNumAtualizacao < 1535 Then
+      begin
+        VpfErro := '1535';
+        ExecutaComandoSql(Aux,'create table TIPODOCUMENTOFISCAL ('+
+                              ' CODTIPODOCUMENTOFISCAL CHAR(2) NOT NULL, '+
+                              ' NOMTIPODOCUMENTOFISCAL VARCHAR2(70) NULL, '+
+                              ' PRIMARY KEY(CODTIPODOCUMENTOFISCAL))');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''01'',''NOTA FISCAL MODELO 1/1A'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''1B'',''NOTA FISCAL AVULSA'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''02'',''NOTA FISCAL DE VENDA AO CONSUMIDOR'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''2D'',''CUPOM FISCAL'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''04'',''NOTA FISCAL DE PRODUTOR'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''06'',''CONTA DE ENERGIA ELETRICA'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''07'',''NOTA FISCAL DE SERVICO DE TRANSPORTE'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''08'',''CONHECIMENTO DE TRANSPORTE RODOVIARIO DE CARGAS'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''8B'',''CONHECIMENTO DE TRANSPORTE AVULSO'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''09'',''CONHECIMENTO DE TRANSPORTE AQUAVIARIO DE CARGAS'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''10'',''CONHECIMENTO DE AEREO'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''11'',''CONHECIMENTO DE TRANSPORTE FERROVIARIO DE CARGAS'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''13'',''BILHETE DE PASSAGEM RODOVIARIO'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''14'',''BILHETE DE PASSAGEM AQUAVIARIO'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''15'',''BILHETE DE PASSAGEM E NOTA DE BAGAGEM'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''16'',''BILHETE DE PASSAGEM FERROVIARIO'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''18'',''RESUMO DE MOVIMENTO DIARIO'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''21'',''NOTA FISCAL DE SERVICO DE COMUNICACAO'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''22'',''NOTA FISCAL DE SERVICO DE TELECOMUNICACAO'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''26'',''CONHECIMENTO DE TRANSPORTE MULTIMODAL DE CARGAS'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''27'',''NOTA FISCAL DE TRANSPORTE FERROVIARIO DE CARGA'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''28'',''NOTA FISCAL/CONTA DE FORNECIMENTO DE GAS CANALIZADO'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''29'',''NOTA FISCAL/CONTA DE FORNECIMENTO DE AGUA CANALIZADA'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''55'',''NOTA FISCAL ELETRONICA (NF-E)'')');
+        ExecutaComandoSql(Aux,'INSERT INTO TIPODOCUMENTOFISCAL VALUES(''57'',''CONHECIMENTO DE TRANSPORTE ELETRONICO (CT-E)'')');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1535');
+      end;
+      if VpaNumAtualizacao < 1536 Then
+      begin
+        VpfErro := '1536';
+        ExecutaComandoSql(Aux,'ALTER TABLE FRACAOOP ADD DATCORTE DATE NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1536');
+      end;
+      if VpaNumAtualizacao < 1537 Then
+      begin
+        VpfErro := '1537';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADFILIAIS ADD C_IND_SPE CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CADFILIAIS SET C_IND_SPE = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1537');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then
