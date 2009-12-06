@@ -371,7 +371,7 @@ var
 implementation
 
 uses fundata, APrincipal, constmsg, ANovoContasaReceber,
-   AGraficosContasaReceber, AImprimeCR, AManutencaoCR, funsql, APlanoConta,
+   AGraficosContasaReceber, AManutencaoCR, funsql, APlanoConta,
   AMovComissoes, ANovaNotaFiscalNota, AConsolidarCR, ANovaCotacao, FunObjeto,
   AVisualizaLogReceber, ACobrancas, AConsultacheques,
   ABaixaContasAReceberOO, AMostraObservacaoCliente, ANovaCobranca,

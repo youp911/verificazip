@@ -501,7 +501,15 @@ begin
             else
               if (VPANOMRELATORIO = 'DIAS ORDEM DE CORTE') then
                 AlterarVisibleDet([PPeriodo],true)
-
+            else
+              if (VPANOMRELATORIO = 'PRODUTOS VENDIDOS COM DEFEITO') then
+                AlterarVisibleDet([PFilial,PVendedor,PCliente,PPeriodo,PClassificacaoProduto],true)
+            else
+              if (VPANOMRELATORIO = 'PROSPECTS CADASTRADOS POR VENDEDOR') then
+                AlterarVisibleDet([PVendedor,PPeriodo],true)
+            else
+              if (VPANOMRELATORIO = 'AGENDA USUARIO') then
+                AlterarVisibleDet([PUsuario,PPeriodo],true)
 end;
 
 
@@ -666,7 +674,16 @@ begin
               dtRave.ImprimeDiasCorte(CDataIni.Date,CDataFim.Date,VprCaminhoRelatorio)
           else
             if (VPRNOMRELATORIO = 'PEDIDOS POR CLIENTE') then
-              dtRave.ImprimePedidosPorCliente(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,RFlagSituacao.Itemindex,ECondPgto.AInteiro, VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,RFlagSituacao.Items.Strings[RFlagSituacao.Itemindex],LCondPgto.Caption);
+              dtRave.ImprimePedidosPorCliente(CDataIni.Date,CdataFim.Date,EFilial.AInteiro,ECliente.AInteiro,EVendedor.Ainteiro,ETipoCotacao.Ainteiro,RFlagSituacao.Itemindex,ECondPgto.AInteiro, VprCaminhoRelatorio,LFilial.Caption,LCliente.caption,lVendedor.caption,LTipoCotacao.Caption,RFlagSituacao.Items.Strings[RFlagSituacao.Itemindex],LCondPgto.Caption)
+          else
+            if (VPRNOMRELATORIO = 'PRODUTOS VENDIDOS COM DEFEITO')then
+              FunRave.ImprimeProdutosVendidosComDefeito(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,CDataIni.Date,CDataFiM.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.Caption,LVendedor.Caption,ECodClassifcacao.Text,LNomClassificacao.Caption,VpfPdf)
+          else
+            if (VPRNOMRELATORIO = 'PROSPECTS CADASTRADOS POR VENDEDOR') then
+              dtRave.ImprimeProspectCadastradosporVendedor(CDataIni.Date,CdataFim.Date,EVendedor.AInteiro,VprCaminhoRelatorio,lVendedor.caption)
+          else
+            if (VPRNOMRELATORIO = 'AGENDA USUARIO') then
+              dtRave.ImprimeAgenda(ECodUsuario.AInteiro,VprCaminhoRelatorio,LNomUsuario.caption, CDataIni.Date,CdataFim.Date);
   dtRave.free;
 end;
 

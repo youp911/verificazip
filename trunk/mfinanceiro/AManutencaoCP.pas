@@ -303,13 +303,19 @@ end;
 procedure TFManutencaoCP.EDuplicataSelect(Sender: TObject);
 begin
   EDuplicata.ASelectLocaliza.Clear;
-  EDuplicata.ASelectLocaliza.Add(' select * from MovContasaPagar as MCP key join CadContasaPagar as CCP, CadClientes as Cli where ' +
-                                 ' MCP.i_emp_fil =  ' + InttoStr(varia.CodigoEmpFil) +
+  EDuplicata.ASelectLocaliza.Add(' select * ' +
+                                 ' from MovContasaPagar MCP, CadContasaPagar CCP, CadClientes Cli ' +
+                                 ' Where MCP.i_emp_fil =  ' + InttoStr(varia.CodigoEmpFil) +
+                                 ' and MCP.I_EMP_FIL = CCP.I_EMP_FIL '+
+                                 ' AND MCP.I_LAN_APG = CCP.I_LAN_APG '+
                                  ' and CCP.i_cod_cli = Cli.i_cod_cli ' +
                                  ' and  MCP.c_nro_dup like ''@%''');
   EDuplicata.ASelectValida.Clear;
-  EDuplicata.ASelectValida.Add(' select * from MovContasaPagar as MCP key join CadContasaPagar as CCP, CadClientes as Cli where ' +
-                               ' MCP.i_emp_fil =  ' + InttoStr(varia.CodigoEmpFil) +
+  EDuplicata.ASelectValida.Add(' select * ' +
+                               ' from MovContasaPagar MCP, CadContasaPagar CCP, CadClientes Cli ' +
+                               ' Where MCP.i_emp_fil =  ' + InttoStr(varia.CodigoEmpFil) +
+                               ' and MCP.I_EMP_FIL = CCP.I_EMP_FIL '+
+                               ' AND MCP.I_LAN_APG = CCP.I_LAN_APG '+
                                ' and CCP.i_cod_cli = Cli.i_cod_cli ' +
                                ' and  MCP.c_nro_dup = ''@''');
 end;
@@ -327,13 +333,13 @@ end;
 procedure TFManutencaoCP.ENotaSelect(Sender: TObject);
 begin
   ENota.ASelectValida.Clear;
-  ENota.ASelectValida.Add(' select C.c_nom_CLI, cp.I_LAN_APG from dba.CadContasaPagar  as CP, dba.CadClientes as C '+
+  ENota.ASelectValida.Add(' select C.c_nom_CLI, cp.I_LAN_APG from CadContasaPagar  CP, CadClientes C '+
                           ' where CP.I_COD_CLI = C.I_COD_CLI ' +
                           ' and I_EMP_FIL = ' + IntToStr(varia.CodigoEmpFil) +
                           ' and CP.I_NRO_NOT = @');
   ENota.ASelectLocaliza.Clear;
   ENota.ASelectLocaliza.Add(' Select CP.I_LAN_APG, CP.I_NRO_NOT, C.C_NOM_CLI, C.I_COD_CLI from '+
-                            ' CadContasaPagar as CP, CadClientes as C '+
+                            ' CadContasaPagar CP, CadClientes C '+
                             ' where CP.I_EMP_FIL = ' + IntTostr(varia.CodigoEmpFil) +
                             ' and CP.I_COD_CLI = C.I_COD_CLI and I_NRO_NOT like ''@%''' +
                             ' and not CP.I_NRO_NOT is null ');
@@ -426,10 +432,10 @@ end;
 
 procedure TFManutencaoCP.MovContasAPagarAfterScroll(DataSet: TDataSet);
 begin
-  BExclui.Enabled := (MovContasAPagarN_VLR_PAG.AsFloat = 0 ) and (not MovContasAPagar.EOF);
-  BExcuiTitulo.Enabled := (MovContasAPagarN_VLR_PAG.AsFloat = 0 ) and (not MovContasAPagar.EOF);
-  BEstornar.Enabled := (MovContasAPagarN_VLR_PAG.AsFloat <> 0 ) and (not MovContasAPagar.EOF);
-  BPagamento.Enabled := (MovContasAPagarD_DAT_PAG.AsFloat = 0 ) and (not MovContasAPagar.EOF);
+  BExclui.Enabled := (MovContasAPagarN_VLR_PAG.AsFloat = 0 ) and (MovContasAPagarI_NRO_PAR.AsInteger <> 0);
+  BExcuiTitulo.Enabled := (MovContasAPagarN_VLR_PAG.AsFloat = 0 ) and (MovContasAPagarI_NRO_PAR.AsInteger <> 0);
+  BEstornar.Enabled := (MovContasAPagarN_VLR_PAG.AsFloat <> 0 ) and (MovContasAPagarI_NRO_PAR.AsInteger <> 0);
+  BPagamento.Enabled := (MovContasAPagarD_DAT_PAG.AsFloat = 0 ) and (MovContasAPagarI_NRO_PAR.AsInteger <> 0);
   GradeMov.ReadOnly := MovContasAPagarN_VLR_PAG.AsFloat <> 0;
 end;
 

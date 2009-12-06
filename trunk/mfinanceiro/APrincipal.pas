@@ -116,7 +116,6 @@ type
     N14: TMenuItem;
     N15: TMenuItem;
     ContasaReceber1: TMenuItem;
-    ClientesEmAberto1: TMenuItem;
     N16: TMenuItem;
     N18: TMenuItem;
     N19: TMenuItem;
@@ -613,11 +612,6 @@ begin
     6100 : begin
              FAlteraSenha := TFAlteraSenha.CriarSDI(Application,'',VerificaPermisao('FAlteraSenha'));
              FAlteraSenha.ShowModal;
-           end;
-    6110 : begin
-             FRelClienteEmAberto := TFRelClienteEmAberto.CriarSDI(Application,'',FPrincipal.VerificaPermisao('FRelClienteEmAberto'));
-             FRelClienteEmAberto.ClienteEmAberto;
-             FRelClienteEmAberto.free;
            end;
     6120 : begin
              FRelClienteEmAberto := TFRelClienteEmAberto.CriarSDI(Application,'',FPrincipal.VerificaPermisao('FRelClienteEmAberto'));

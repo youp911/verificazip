@@ -27,6 +27,8 @@ type
     BFechar: TBitBtn;
     CVisualizar: TCheckBox;
     BMostrarConta: TSpeedButton;
+    EFundoPerdido: TComboBoxColor;
+    Label1: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EFilialSelect(Sender: TObject);
@@ -43,7 +45,6 @@ type
     procedure ConfiguraTela;
   public
     { Public declarations }
-    procedure ClienteEmAberto;
     procedure ContasEmAberto;
   end;
 
@@ -52,7 +53,7 @@ var
 
 implementation
 
-uses APrincipal, FunData, AImprimeCR,Constantes;
+uses APrincipal, FunData, Constantes;
 
 {$R *.DFM}
 
@@ -92,20 +93,13 @@ begin
   end;
 end;
 
-{******************************************************************************}
-procedure TFRelClienteEmAberto.ClienteEmAberto;
-begin
-  VprTipoRelatorio := 1;
-  ConfiguraTela;
-  ShowModal;
-end;
 
 {******************************************************************************}
 procedure TFRelClienteEmAberto.ContasEmAberto;
 begin
   VprTipoRelatorio := 2;
   ConfiguraTela;
-  showmodal;  
+  showmodal;
 end;
 
 {********************** carrega a select da filial ****************************}
@@ -128,13 +122,8 @@ end;
 procedure TFRelClienteEmAberto.BImprimirClick(Sender: TObject);
 begin
   case VprTipoRelatorio of
-    1 : begin
-          FImprimeCR := TFImprimeCR.Create(application);
-          FImprimeCR.ImprimeClienteEmAberto(EDatFim.DateTime,EFilial.Text,ECliente.Text,not BMostrarConta.Visible, CVisualizar.Checked);
-          FImprimeCR.free;
-        end;
     2 : begin
-          FunImpressao.ImprimeClientesEmAberto(EFilial.AInteiro,ECliente.AInteiro,EDatFim.DateTime,CVisualizar.Checked);
+          FunImpressao.ImprimeClientesEmAberto(EFilial.AInteiro,ECliente.AInteiro,EDatFim.DateTime,EFundoPerdido.ItemIndex,CVisualizar.Checked);
         end;
   end;
 end;

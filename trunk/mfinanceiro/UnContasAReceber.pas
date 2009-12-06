@@ -8,7 +8,7 @@ interface
 uses
     Db, DBTables, classes, sysUtils, painelGradiente, UnComissoes,  UnMoedas, variants,
     UnDados, UnDadosCR, UnClassesImprimir, UnSistema, UnDadosProduto,FunValida, forms,
-    SQLExpr, Tabela ;
+    SQLExpr, UnCaixa, Tabela ;
 
 
 // calculos
@@ -223,7 +223,7 @@ type
     function ExisteContaCorrente(VpaNumConta : String):Boolean;
     function CompensaCheque(VpaDCheque : TRBDCheque;VpaTipOperacao : String;VpaAdicionarnoCaixa : Boolean) :string;
     function DevolveCheque(VpaCheques : TList;VpaData : TDateTime) :string;
-    function EstornaCheque(VpaDCheque: TRBDCheque) :string;
+    function EstornaCheque(VpaDCheque: TRBDCheque;VpaOrigemEstorno : TRBDOrigemEstorno) :string;
     function AlteraVencimentoCheque(VpaSeqCheque : Integer;VpaDatVencimento : TDatetime):string;
     function GeraComissaoNegativa(VpaDNotaFor : TRBDNotaFiscalFor):string;
     function CondicaoPagamentoDuplicada(VpaCondicoesPagamento : TList):Boolean;
@@ -238,7 +238,7 @@ implementation
 
 uses constMsg, constantes, funSql, funstring, fundata, funnumeros, FunObjeto,
      AMostraParReceberOO, ABaixaContasAReceberOO, ABaixaContasaPagarOO,Uncotacao, APrincipal, AChequesOO,
-     UnContasaPagar, UnCaixa, unClientes, AChequesCP;
+     UnContasaPagar, unClientes, AChequesCP;
 
 
 {#############################################################################
@@ -3492,7 +3492,7 @@ begin
     result := VerificacoesExclusaoCheque(VpaCodFilial,VpaLanReceber,VpaNumParcela,VpaCheques);
     if result = '' then
     begin
-      result := FunCaixa.ExtornaChequeCaixa(VpaCheques);
+      result := FunCaixa.ExtornaChequeCaixa(VpaCheques,oeContasAReceber);
       if result = '' then
       begin
         for vpfLaco := 0 to VpaCheques.count - 1 do
@@ -3576,7 +3576,7 @@ begin
                                   ' CHE.DATVENCIMENTO, CHE.DATCOMPENSACAO, CHE.VALCHEQUE, CHE.DATDEVOLUCAO, '+
                                   ' CHE.DATALTERACAO, CHE.CODUSUARIO,CHE.NUMCONTACAIXA, '+
                                   ' FRM.C_NOM_FRM, FRM.C_FLA_TIP,  '+
-                                  ' CON.C_NOM_CRR ' +
+                                  ' CON.C_NOM_CRR, CON.C_TIP_CON ' +
                                   ' from CHEQUE CHE, CADFORMASPAGAMENTO FRM, CADCONTAS CON ' +
                                   ' Where CHE.CODFORMAPAGAMENTO = FRM.I_COD_FRM ' +
                                   ' AND CHE.NUMCONTACAIXA = CON.C_NRO_CON ' +
@@ -3592,6 +3592,7 @@ begin
   VpaDCheque.NomFormaPagamento := CadCondicaoPgto.FieldByname('C_NOM_FRM').AsString ;
   VpaDCheque.TipCheque := CadCondicaoPgto.FieldByname('TIPCHEQUE').AsString ;
   VpaDCheque.TipFormaPagamento := CadCondicaoPgto.FieldByname('C_FLA_TIP').AsString ;
+  VpaDCheque.TipContaCaixa := CadCondicaoPgto.FieldByname('C_TIP_CON').AsString ;
   VpaDCheque.ValCheque := CadCondicaoPgto.FieldByname('VALCHEQUE').AsFloat ;
   VpaDCheque.DatCadastro := CadCondicaoPgto.FieldByname('DATCADASTRO').AsDateTime ;
   VpaDCheque.DatVencimento := CadCondicaoPgto.FieldByname('DATVENCIMENTO').AsDateTime ;
@@ -3970,7 +3971,7 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesContasAReceber.EstornaCheque(VpaDCheque: TRBDCheque): string;
+function TFuncoesContasAReceber.EstornaCheque(VpaDCheque: TRBDCheque;VpaOrigemEstorno : TRBDOrigemEstorno): string;
 var
   VpfCheques : TList;
 begin
@@ -3979,7 +3980,7 @@ begin
   begin
     VpfCheques := TList.Create;
     VpfCheques.add(VpaDCheque);
-    result := FunCaixa.ExtornaChequeCaixa(VpfCheques);
+    result := FunCaixa.ExtornaChequeCaixa(VpfCheques,VpaOrigemEstorno);
     VpfCheques.free;
   end;
   if result = '' then

@@ -2842,6 +2842,7 @@ begin
       VprDProdutoNota.SeqProduto := RomaneioItem.FieldByName('SEQPRO').AsInteger;
       VprDProdutoNota.CodProduto := RomaneioItem.FieldByName('CODPRO').AsString;
       AdicionaItemProduto(VprDProdutoNota);
+      VprDProdutoNota.PerICMS := VprDNota.ValICMSPadrao;
       VpfTotalKM := RomaneioItem.FieldByName('TOTALKM').AsFloat;
       VprDProdutoNota.QtdProduto := RomaneioItem.FieldByName('TOTALKM').AsFloat;
       VprDProdutoNota.ValUnitario := RomaneioItem.FieldByName('VALUNI').AsFloat;

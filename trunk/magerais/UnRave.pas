@@ -137,6 +137,7 @@ type
       FunClassificacao : TFuncoesClassificacao;
       VprNiveis : TList;
       procedure DefineTabelaProdutosPorClassificacao(VpaObjeto : TObject);
+      procedure DefineTabelaProdutosComDefeito(VpaObjeto : TObject);
       procedure DefineTabelaProdutosVendidoseTrocados(VpaObjeto : TObject);
       procedure DefineTabelaEstoqueProdutos(VpaObjeto : TObject);
       procedure DefineTabelaQtdMinimas(VpaObjeto : TObject);
@@ -155,12 +156,14 @@ type
       procedure SalvaTabelaProdutosPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
       procedure SalvaTabelaPrecoPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
       procedure SalvaTabelaTrocasProdutos(VpaDProduto :TRBDProdutoRave);
+      procedure SalvaTabelaProdutosComDefeito(VpaDProduto :TRBDProdutoRave);
       procedure ImprimeRelEstoqueProdutos(VpaObjeto : TObject);
       procedure ImprimeTotaisNiveis(VpaNiveis : TList;VpaIndice : integer);
       procedure ImprimeTotaisNiveisPlanoContas(VpaNiveis : TList;VpaIndice : integer);
       procedure ImprimeTotalCelulaTrabalho(VpaValTotal : Double;VpaDiaAtua : Integer);
       procedure ImprimeCabecalhoEstoque;
       procedure ImprimeCabecalhoTabelaPreco;
+      procedure ImprimeCabecalhoProdutocomDefeito;
       procedure ImprimeCabecalhoTotalTipoPedidoXCusto;
       procedure ImprimeCabecalhoProdutosVendidoseTrocados;
       procedure ImprimeCabecalhoQtdMinima;
@@ -184,6 +187,7 @@ type
       function CarregaNiveisPlanoContas(VpaNiveis : TList;VpaCodPlanoContas : string;VpaImprimirTotal : Boolean):TRBDPlanoContasRave;
       procedure ImprimeRelCustoProjetoContasAPagar;
       procedure ImprimeRelTabelaPreco(VpaObjeto : TObject);
+      procedure ImprimeRelProdutosComDefeito(VpaObjeto : TObject);
 
       procedure InicializaVendaCliente(VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente);
       function RMesVenda(VpaDVenda : TRBDVendaCliente;VpaMes, VpaAno : Integer) : TRBDVendaClienteMes;
@@ -232,6 +236,7 @@ type
       procedure ImprimeProdutosVendidoseTrocacos(VpaCodFilial, VpaTipCotacao,VpaCodCliente,VpaCodVendedor,VpaCodClienteMaster : Integer;VpaCaminho,VpaNomFilial,VpaNomVendedor,VpaNomTipCotacao,VpaNomCliente,VpaNomClienteMaster:string ;VpaDatInicio,VpaDatFim : TDateTime);
       procedure ImprimeContasAPagarPorPlanoContasSinteticoMes(VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho : String);
       procedure ImprimeTotalTipoCotacaoXCusto(VpaCodFilial, VpaCodCliente, VpaCodVendedor, VpaCodTipoCotacao : Integer;VpaCaminho, VpaNomFilial, VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String;VpaDAtInicio, VpaDatFim : TDAteTime);
+      procedure ImprimeProdutosVendidosComDefeito(VpaCodFilial,VpaCodCliente,VpaCodVendedor: Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor, VpaCodClassificao, VpaNomClassificacao : String;VpaPDF : Boolean);
   end;
 implementation
 
@@ -433,6 +438,25 @@ begin
   FunClassificacao.free;
   FreeTObjectsList(VprNiveis);
   inherited;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaProdutosComDefeito(VpaObjeto: TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1.0,pjleft,2.5,0.5,BoxlineNONE,0); //Codigo classificacao
+     SetTab(NA,pjleft,10,0.5,BoxlineNONE,0); //NomeClassificacao;
+     SaveTabs(1);
+     clearTabs;
+     SetTab(1.2,pjLeft,2.6,0.1,Boxlinenone,0); //Codigo Produto
+     SetTab(NA,pjLeft,7.6,0.5,Boxlinenone,0); //nomeproduto
+     SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Qtd
+     SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Qtd Defeito
+     SetTab(NA,pjRight,1.8,0,Boxlinenone,0); //Per Defeito
+     SetTab(NA,pjRight,2.3,0,Boxlinenone,0); //Val Perdido
+     SaveTabs(2);
+   end;
 end;
 
 {******************************************************************************}
@@ -1025,6 +1049,40 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.SalvaTabelaProdutosComDefeito(VpaDProduto: TRBDProdutoRave);
+var
+  VpfLacoCor, vpfLacoTamanho : Integer;
+  VpfDCor : TRBDCorProdutoRave;
+  VpfDTamanho : TRBDTamanhoProdutoRave;
+  VpfPerDefeito : Double;
+begin
+  with RVSystem.BaseReport do
+  begin
+    PrintTab(VpaDProduto.CodProduto);
+    PrintTab(VpaDProduto.NomProduto);
+    PrintTab(FormatFloat(varia.MascaraQtd,VpaDProduto.QtdEstoque));
+    PrintTab(FormatFloat(varia.MascaraValor,VpaDProduto.QtdTrocada));
+    if (VpaDProduto.QtdEstoque > 0) and (VpaDProduto.QtdTrocada > 0) then
+    begin
+      vpfperDefeito := (VpaDProduto.QtdTrocada*100)/VpaDProduto.QtdEstoque;
+      if VpfPerDefeito > 15 then
+        FontColor := clred;
+      if VpfPerDefeito > 50 then
+        Bold := true;
+      PrintTab(FormatFloat('0.00%',VpfPerDefeito));
+      FontColor := clBlack;
+      Bold := false;
+    end
+    else
+      PrintTab('');
+    PrintTab(FormatFloat(varia.MascaraValor,VpaDProduto.ValTroca));
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+  end;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.SalvaTabelaProdutosPorCoreTamanho(VpaDProduto: TRBDProdutoRave);
 var
   VpfLacoCor, vpfLacoTamanho : Integer;
@@ -1257,7 +1315,7 @@ procedure TRBFunRave.ImprimeTotaisNiveis(VpaNiveis : TList;VpaIndice : integer);
 var
   VpfLaco : Integer;
   VpfDClassificacao : TRBDClassificacaoRave;
-  VpfQtdProduto, VpfValTotal,VpfQtdAnterior, VpfQtdVenda, VpfValAnterior,VpfValVenda, VpfValCustoVenda : Double;
+  VpfQtdProduto, VpfValTotal,VpfQtdAnterior, VpfQtdVenda, VpfValAnterior,VpfValVenda, VpfValCustoVenda, VpfQtdTrocado,VpfValTrocado : Double;
 begin
   VpfQtdproduto := 0;
   VpfValTotal := 0;
@@ -1285,6 +1343,8 @@ begin
       VpfDClassificacao.QtdMesAnterior := VpfDClassificacao.QtdMesAnterior + VpfQtdAnterior;
       VpfDClassificacao.ValAnterior := VpfDClassificacao.ValAnterior + VpfValAnterior;
       VpfDClassificacao.QtdVenda := VpfDClassificacao.QtdVenda + VpfQtdVenda;
+      VpfDClassificacao.QtdTrocado  := VpfDClassificacao.QtdTrocado + VpfQtdTrocado;
+      VpfDClassificacao.ValTrocado  := VpfDClassificacao.QtdTrocado + VpfValTrocado;
       VpfDClassificacao.ValVenda := VpfDClassificacao.ValVenda + VpfValVenda;
       VpfDClassificacao.ValCustoVenda := VpfDClassificacao.ValCustoVenda + VpfValCustoVenda;
       PrintTab('');
@@ -1310,29 +1370,40 @@ begin
           PrintTab(FormatFloat('0.00%',0));
       end
       else
-      begin
-        if config.EstoquePorCor then
-          PrintTab('');
-        if config.EstoquePorTamanho then
-          PrintTab('');
-        if RvSystem.Tag = 4 then
+        if RvSystem.tag = 19 then
         begin
-          PrintTab('');
-          PrintTab('');
-        end;
-        PrintTab(FormatFloat(varia.MascaraQtd,VpfDClassificacao.QtdProduto));
-        if RvSystem.Tag = 4 then
-          PrintTab('');
-        PrintTab(FormatFloat(varia.MascaraValor,VpfDClassificacao.ValTotal));
-        if RvSystem.tag = 16 then//produtos trocados
+          PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDClassificacao.QTdProduto));
+          PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDClassificacao.QtdTrocado));
+          if (VpfDClassificacao.QTdProduto <> 0) and  (VpfDClassificacao.QtdTrocado <> 0) then
+            PrintTab(FormatFloat('0.00%',(VpfDClassificacao.QtdTrocado*100)/VpfDClassificacao.QTdProduto))
+          else
+            PrintTab('');
+          PrintTab(FormatFloat('#,###,###,###,##0.00',VpfDClassificacao.VAlTrocado));
+        end
+        else
         begin
-          PrintTab(FormatFloat(varia.MascaraQtd,VpfDClassificacao.QtdTrocado));
-          PrintTab(FormatFloat(varia.MascaraQtd,VpfDClassificacao.VAlTrocado));
-          if (VpfDClassificacao.QTdProduto <> 0) and (VpfDClassificacao.QtdTrocado <> 0) then
-            PrintTab(FormatFloat('#,##0.00 %',(VpfDClassificacao.QtdTrocado *100)/VpfDClassificacao.QTdProduto ));
+          if config.EstoquePorCor then
+            PrintTab('');
+          if config.EstoquePorTamanho then
+            PrintTab('');
+          if RvSystem.Tag = 4 then
+          begin
+            PrintTab('');
+            PrintTab('');
+          end;
+          PrintTab(FormatFloat(varia.MascaraQtd,VpfDClassificacao.QtdProduto));
+          if RvSystem.Tag = 4 then
+            PrintTab('');
+          PrintTab(FormatFloat(varia.MascaraValor,VpfDClassificacao.ValTotal));
+          if RvSystem.tag = 16 then//produtos trocados
+          begin
+            PrintTab(FormatFloat(varia.MascaraQtd,VpfDClassificacao.QtdTrocado));
+            PrintTab(FormatFloat(varia.MascaraQtd,VpfDClassificacao.VAlTrocado));
+            if (VpfDClassificacao.QTdProduto <> 0) and (VpfDClassificacao.QtdTrocado <> 0) then
+              PrintTab(FormatFloat('#,##0.00 %',(VpfDClassificacao.QtdTrocado *100)/VpfDClassificacao.QTdProduto ));
+          end;
+          PrintTab('  ');
         end;
-        PrintTab('  ');
-      end;
       VpfQtdProduto := VpfDClassificacao.QtdProduto;
       VpfValTotal := VpfDClassificacao.ValTotal;
       VpfQtdAnterior := VpfDClassificacao.QtdMesAnterior;
@@ -1340,6 +1411,8 @@ begin
       VpfQtdVenda := VpfDClassificacao.QtdVenda;
       VpfValVenda := VpfDClassificacao.ValVenda;
       VpfValCustoVenda := VpfDClassificacao.ValCustoVenda;
+      VpfQtdTrocado := VpfDClassificacao.QtdTrocado;
+      VpfValTrocado := VpfDClassificacao.VAlTrocado;
 
       newline;
       If LinesLeft<=1 Then
@@ -1359,6 +1432,8 @@ begin
     VpfDClassificacao.QtdVenda := VpfDClassificacao.QtdVenda + VpfQtdVenda;
     VpfDClassificacao.ValVenda := VpfDClassificacao.ValVenda + VpfValVenda;
     VpfDClassificacao.ValCustoVenda := VpfDClassificacao.ValCustoVenda + VpfValCustoVenda;
+    VpfDClassificacao.QtdTrocado := VpfDClassificacao.QtdTrocado + VpfQtdTrocado;
+    VpfDClassificacao.VAlTrocado := VpfDClassificacao.VAlTrocado + VpfValTrocado;
   end;
 end;
 
@@ -1624,6 +1699,23 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoProdutocomDefeito;
+begin
+    with RVSystem.BaseReport do
+    begin
+      RestoreTabs(2);
+      bold := true;
+      PrintTab('Código');
+      PrintTab('Nome');
+      PrintTab('Qtd Vendida');
+      PrintTab('Qtd Defeitos');
+      PrintTab('% Defeito ');
+      PrintTab('Valor Perdido');
+      Bold := false;
+  end;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeCabecalhoProdutosVendidoseTrocados;
 begin
     with RVSystem.BaseReport do
@@ -1759,6 +1851,7 @@ begin
        6 : ImprimeCabecalhoFechamentoEstoque;
        16 : ImprimeCabecalhoProdutosVendidoseTrocados;
        11 : ImprimeCabecalhoTabelaPreco;
+       19 : ImprimeCabecalhoProdutocomDefeito;
       end;
       newline;
       If LinesLeft<=1 Then
@@ -2448,6 +2541,98 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeRelProdutosComDefeito(VpaObjeto: TObject);
+var
+  VpfQtdProduto,VpfQtdGeral, VpfValGeral : Double;
+  VpfProdutoAtual, VpaTamanhoAtual,VpaCorAtual : Integer;
+  VpfClassificacaoAtual,  VpfUM : string;
+  VpfDClassificacao : TRBDClassificacaoRave;
+  VpfDProduto : TRBDProdutoRave;
+  vpfDCor : TRBDCorProdutoRave;
+  VpfDTamanho : TRBDTamanhoProdutoRave;
+begin
+  VpfProdutoAtual := 0;
+  VpfQtdGeral := 0;
+  VpfValGeral := 0;
+  VpfClassificacaoAtual := '';
+  VprUfAtual := '';
+  VpfDClassificacao := nil;
+  with RVSystem.BaseReport do begin
+    while not Tabela.Eof  do
+    begin
+      if VpfProdutoAtual <> Tabela.FieldByName('I_SEQ_PRO').AsInteger then
+      begin
+        if VpfProdutoAtual <> 0  then
+          SalvaTabelaProdutosComDefeito(VpfDProduto);
+
+        if VpfDClassificacao <> nil then
+        begin
+          VpfDClassificacao.QtdProduto := VpfDClassificacao.QtdProduto +VpfDProduto.QtdEstoque;
+          VpfDClassificacao.ValTotal := VpfDClassificacao.ValTotal + VpfDProduto.ValEstoque;
+          VpfDClassificacao.QtdTrocado := VpfDClassificacao.QtdTrocado +VpfDProduto.QtdTrocada;
+          VpfDClassificacao.VAlTrocado := VpfDClassificacao.VAlTrocado + VpfDProduto.ValTroca;
+        end;
+
+        if VpfClassificacaoAtual <> Tabela.FieldByName('C_COD_CLA').AsString then
+        begin
+          VpfDClassificacao := CarregaNiveis(VprNiveis,Tabela.FieldByName('C_COD_CLA').AsString);
+          ImprimeTituloClassificacao(VprNiveis,VpfClassificacaoAtual = '');
+          VpfClassificacaoAtual := Tabela.FieldByName('C_COD_CLA').AsString;
+        end;
+        VpfDProduto := TRBDProdutoRave.cria;
+        VpfDProduto.SeqProduto := Tabela.FieldByname('I_SEQ_PRO').AsInteger;
+        VpfDProduto.CodProduto := Tabela.FieldByname('C_COD_PRO').AsString;
+        VpfDProduto.NomProduto := Tabela.FieldByname('C_NOM_PRO').AsString;
+        VpfDProduto.DesUM := Tabela.FieldByname('UMPADRAO').AsString;
+        VpfProdutoAtual := Tabela.FieldByname('I_SEQ_PRO').AsInteger;
+      end;
+      VpfQtdProduto := FunProdutos.CalculaQdadePadrao( Tabela.FieldByName('C_COD_UNI').AsString,Tabela.FieldByName('UMPADRAO').AsString,
+                                       Tabela.FieldByName('N_QTD_PRO').AsFloat,Tabela.FieldByName('I_SEQ_PRO').AsString);
+      VpfDProduto.QtdEstoque := VpfDProduto.QtdEstoque + VpfQtdproduto;
+      VpfDProduto.ValEstoque := VpfDProduto.ValEstoque + Tabela.FieldByName('N_VLR_TOT').AsFloat;
+      if Tabela.FieldByName('I_TIP_ORC').AsInteger = Varia.TipoCotacaoGarantia then
+      begin
+        VpfDProduto.QtdTrocada := VpfDProduto.QtdTrocada + VpfQtdproduto;
+        VpfDProduto.ValTroca := VpfDProduto.ValTroca + Tabela.FieldByName('N_VLR_TOT').AsFloat;
+      end;
+
+      VpfQtdGeral := VpfQTdGeral + VpfQtdProduto;
+      VpfValGeral := VpfValGeral + Tabela.FieldByName('N_VLR_TOT').AsFloat;
+      Tabela.next;
+    end;
+
+    if VpfProdutoAtual <> 0  then
+      SalvaTabelaProdutosComDefeito(VpfDProduto);
+
+    if VpfDClassificacao <> nil then
+    begin
+      VpfDClassificacao.QtdProduto := VpfDClassificacao.QtdProduto +VpfDProduto.QtdEstoque;
+      VpfDClassificacao.ValTotal := VpfDClassificacao.ValTotal + VpfDProduto.ValEstoque;
+      VpfDClassificacao.QtdTrocado := VpfDClassificacao.QtdTrocado +VpfDProduto.QtdTrocada;
+      VpfDClassificacao.VAlTrocado := VpfDClassificacao.VAlTrocado + VpfDProduto.ValTroca;
+    end;
+
+    if VprNiveis.Count > 0  then
+      ImprimeTotaisNiveis(VprNiveis,0);
+
+    newline;
+    newline;
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    PrintTab('');
+{    bold := true;
+    PrintTab('Total Geral');
+    bold := true;
+    PrintTab(FormatFloat(varia.MascaraQtd,VpfQtdGeral));
+    PrintTab(FormatFloat(varia.MascaraValor,VpfValGeral));
+    PrintTab('  ');
+    bold := false;}
+  end;
+  Tabela.Close;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeRelTabelaPreco(VpaObjeto: TObject);
 var
   VpfProdutoAtual, VpaTamanhoAtual,VpaCorAtual : Integer;
@@ -3019,7 +3204,7 @@ begin
      Home;
      AdjustLine;
      case RvSystem.Tag of
-       1,2,4,6,11 : ImprimeTituloClassificacao(VprNiveis,true);
+       1,2,4,6,11,19 : ImprimeTituloClassificacao(VprNiveis,true);
        3 : ImprimeCabecalhoAnaliseFaturamento;
        8 : ImprimeCabecalhoEntradaMetros;
        9 : ImprimeCabecalhoExtratoProdutividade;
@@ -3884,5 +4069,64 @@ begin
 
 end;
 
+{******************************************************************************}
+procedure TRBFunRave.ImprimeProdutosVendidosComDefeito(VpaCodFilial, VpaCodCliente, VpaCodVendedor: Integer; VpaDatInicio, VpaDatFim: TDateTime;VpaCaminho, VpaNomFilial, VpaNomCliente, VpaNomVendedor, VpaCodClassificao, VpaNomClassificacao: String; VpaPDF: Boolean);
+begin
+  RvSystem.Tag := 19;
+  FreeTObjectsList(VprNiveis);
+  LimpaSQlTabela(Tabela);
+  AdicionaSqltabela(Tabela,'SELECT  CLA.C_COD_CLA, CLA.C_NOM_CLA, ' +
+                           ' PRO.C_COD_PRO, PRO.C_NOM_PRO,  PRO.C_COD_UNI UMPADRAO, ' +
+                           ' MOV.N_QTD_PRO, MOV.N_VLR_TOT, MOV.I_COD_TAM, MOV.I_COD_COR, MOV.C_COD_UNI, MOV.I_SEQ_PRO, ' +
+                           ' CAD.I_TIP_ORC, '+
+                           ' TAM.NOMTAMANHO, ' +
+                           ' CLI.C_EST_CLI, '+
+                           ' COR.NOM_COR ' +
+                           ' FROM MOVORCAMENTOS MOV, CADORCAMENTOS CAD, CADPRODUTOS PRO, CADCLASSIFICACAO CLA, TAMANHO TAM, COR, CADCLIENTES CLI ' +
+                           ' WHERE MOV.I_EMP_FIL = CAD.I_EMP_FIL ' +
+                           ' AND MOV.I_LAN_ORC = CAD.I_LAN_ORC ' +
+                           ' AND CAD.C_IND_CAN = ''N'''+
+                           ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '+
+                           ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO ' +
+                           ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+) ' +
+                           ' AND MOV.I_COD_COR = COR.COD_COR(+) ' +
+                           ' AND PRO.I_COD_EMP = CLA.I_COD_EMP ' +
+                           ' AND PRO.C_COD_CLA = CLA.C_COD_CLA ' +
+                           ' AND PRO.C_TIP_CLA = CLA.C_TIP_CLA ' +
+                            SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,true));
+  if VpaCodfilial <> 0 then
+    AdicionaSqlTabela(Tabela,' and CAD.I_EMP_FIL = '+InttoStr(VpaCodFilial))
+  else
+    AdicionaSqlTabela(Tabela,' and PRO.I_COD_EMP = '+InttoStr(Varia.CodigoEmpresa));
+  if VpaCodCliente <> 0 then
+    AdicionaSqlTabela(Tabela,' and CAD.I_COD_CLI = '+InttoStr(VpaCodCliente));
+  if VpaCodVendedor   <> 0 then
+    AdicionaSqlTabela(Tabela,' and CAD.I_COD_VEN = '+InttoStr(VpaCodVendedor));
+  if VpaCodClassificao <> '' then
+    AdicionaSqlTabela(Tabela,' and PRO.C_COD_CLA LIKE '''+VpaCodClassificao+'%''');
+
+  AdicionaSqlTabela(Tabela,' ORDER BY CLA.C_COD_CLA, PRO.C_COD_PRO, COR.NOM_COR, TAM.NOMTAMANHO ');
+  Tabela.open;
+
+  rvSystem.onBeforePrint := DefineTabelaProdutosComDefeito;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelProdutosComDefeito;
+
+  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Produtos Com Defeito';
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Filial : ' +VpaNomFilial);
+  if VpaCodCliente <> 0 then
+    VprCabecalhoEsquerdo.add('Cliente : ' +VpaNomCliente);
+
+  VprCabecalhoDireito.Clear;
+  VprCabecalhoDireito.add('Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até ' +FormatDatetime('DD/MM/YYYY',VpaDatFim)+'     ');
+  if VpaCodVendedor <> 0  then
+    VprCabecalhoDireito.add('Vendedor : ' +VpaNomVendedor);
+
+  ConfiguraRelatorioPDF;
+  RvSystem.execute;
+end;
 
 end.

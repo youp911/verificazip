@@ -111,6 +111,8 @@ type
     procedure ImprimeDiasCorte(VpaDatInicio,VpaDatFim : TDateTime;VpaCaminho : String);
     procedure ImprimeHistoricoECobranca(VpaSeqEmail : Integer);
     procedure ImprimePedidosPorCliente(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao, VpaCodCondicaoPagamento: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao, VpaNomCodicaoPagamento : String);
+    procedure ImprimeProspectCadastradosporVendedor(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer;VpaCaminho,VpaNomVendedor : String);
+    procedure ImprimeAgenda(VpaCodUsuario : Integer;VpaCaminho, VpaNomUsuario : String;VpaDatInicio,VpaDatFim : TDateTime);
   end;
 
 
@@ -2214,7 +2216,8 @@ begin
                               ' CLI.C_CEP_CLI, CLI.C_CID_CLI, CLI.C_IND_VIS, ' +
                               ' RAM.NOM_RAMO_ATIVIDADE ' +
                               ' FROM CADCLIENTES CLI, RAMO_ATIVIDADE RAM ' +
-                              ' Where CLI.I_COD_RAM = RAM.COD_RAMO_ATIVIDADE (+) ');
+                              ' Where '+SQLTextoRightJoin('CLI.I_COD_RAM','RAM.COD_RAMO_ATIVIDADE')+
+                              ' AND CLI.C_IND_PRC = ''S''');
   if VpaSomenteNaoVisitados then
     AdicionaSqlTabeLa(Principal,'AND CLI.C_IND_VIS = ''N''');
   AdicionaSqlTabeLa(Principal,' ORDER BY CLI.C_CEP_CLI, C_END_CLI');
@@ -2597,6 +2600,60 @@ begin
   AdicionaSqlTabeLa(Principal,'ORDER BY CLI.C_NOM_CLI, CAD.D_DAT_ORC,CAD.I_LAN_ORC');
   Principal.open;
 
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeProspectCadastradosporVendedor(VpaDatInicio, VpaDatFim: TDateTime; VpaCodVendedor: Integer; VpaCaminho,VpaNomVendedor: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Prospect por CEP';
+  Rave.projectfile := varia.PathRelatorios+'\Prospect\0200CRPL_Prospects Cadastrados por Vendedor.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'Select CLI.I_COD_CLI, CLI.C_NOM_CLI, C_END_CLI, CLI.C_COM_END, CLI.C_BAI_CLI, ' +
+                              ' CLI.C_CEP_CLI, CLI.C_CID_CLI, CLI.C_IND_VIS, CLI.D_DAT_CAD, ' +
+                              ' VEN.C_NOM_VEN '+
+                              ' FROM CADCLIENTES CLI, CADVENDEDORES VEN ' +
+                              ' Where '+SQLTextoRightJoin('CLI.I_COD_VEN','VEN.I_COD_VEN')+
+                              ' AND CLI.C_IND_PRC = ''S'''+
+                              SQLTextoDataEntreAAAAMMDD('CLI.D_DAT_CAD',VpaDatInicio,VpaDatFim,true));
+  if VpaCodVendedor <> 0 then
+    AdicionaSqlTabeLa(Principal,'AND CLI.I_COD_VEN = '+IntToStr(VpaCodVendedor));
+  AdicionaSqlTabeLa(Principal,' ORDER BY VEN.C_NOM_VEN, CLI.C_NOM_CLI ');
+  Rave.SetParam('PERIODO','Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDatetime('DD/MM/YYYY',VpaDatFim));
+  Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeAgenda(VpaCodUsuario: Integer; VpaCaminho, VpaNomUsuario: String; VpaDatInicio, VpaDatFim: TDateTime);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Agenda Usuario';
+  Rave.projectfile := varia.PathRelatorios+'\Agenda\0100CRPLFAFICH_AGENDA USUARIO.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'SELECT AGE.CODUSUARIO, AGE.CODCLIENTE, AGE.DATCADASTRO, AGE.DATINICIO DATA, AGE.DATINICIO, AGE.DATFIM, AGE.INDREALIZADO, '+
+                              ' AGE.DESOBSERVACAO, '+
+                              ' CLI.C_NOM_CLI, '+
+                              ' USU.C_NOM_USU, '+
+                              ' TIP.NOMTIPOAGENDAMENTO, '+
+                              ' USA.C_NOM_USU USUARIOAGENDOU '+
+                              ' '+
+                              ' FROM AGENDA AGE, CADCLIENTES CLI, CADUSUARIOS USU, TIPOAGENDAMENTO TIP, CADUSUARIOS USA '+
+                              ' Where AGE.CODUSUARIO = USU.I_COD_USU '+
+                              ' AND AGE.CODCLIENTE = CLI.I_COD_CLI '+
+                              ' AND AGE.CODTIPOAGENDAMENTO = TIP.CODTIPOAGENDAMENTO '+
+                              ' AND AGE.CODUSUARIOAGENDOU = USA.I_COD_USU '+
+                              SQLTextoDataEntreAAAAMMDD('AGE.DATINICIO',VpaDatInicio,INCDIA(VpaDatFim,1),true));
+  if VpaCodUsuario <> 0 then
+    AdicionaSqlTabeLa(Principal,'AND AGE.CODUSUARIO = '+IntToStr(VpaCodUsuario));
+  AdicionaSqlTabeLa(Principal,'ORDER BY USU.C_NOM_USU, AGE.DATINICIO ');
+  Rave.SetParam('PERIODO','Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDatetime('DD/MM/YYYY',VpaDatFim));
+  Rave.SetParam('CAMINHO',VpaCaminho);
   Rave.Execute;
 end;
 

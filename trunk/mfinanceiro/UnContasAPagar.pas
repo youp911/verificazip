@@ -1347,7 +1347,7 @@ begin
       for vpfLaco := 0 to VpaCheques.count - 1 do
       begin
         VpfDCheque := TRBDCheque(VpaCheques.Items[VpfLaco]);
-        FunContasAReceber.EstornaCheque(VpfDCheque);
+        FunContasAReceber.EstornaCheque(VpfDCheque,oeContasaPagar);
         ExecutaComandoSql(Aux,'Delete from CHEQUECP '+
                           ' Where SEQCHEQUE = ' +IntToStr(VpfDCheque.SeqCheque));
         if VpfDCheque.TipCheque = 'D' then //somente exclui os cheques que foram emitidos, os cheque do tipo 'C'-Credito não pode excluir pois foram recebidos de terceiros, pode somente estornar a compensacao;

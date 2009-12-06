@@ -22,8 +22,12 @@ Type TRBLocalizaCaixa = class
   public
     constructor cria;
 end;
+
+
 //classe funcoes
-Type TRBFuncoesCaixa = class(TRBLocalizaCaixa)
+Type
+ TRBDOrigemEstorno = (oeContasaPagar,oeContasAReceber,oeConsultaCheque);
+ TRBFuncoesCaixa = class(TRBLocalizaCaixa)
   private
     Aux,
     Tabela : TSQLQuery;
@@ -52,7 +56,7 @@ Type TRBFuncoesCaixa = class(TRBLocalizaCaixa)
     function AdicionaBaixaCRCaixa(VpaDBaixa : TRBDBaixaCR):string;
     function AdicionaBaixaCPCaixa(VpaDBaixa : TRBDBaixaCP) : string;
     function AdicionaCompensacaoChequeCaixa(VpaDCheque : TRBDCheque;VpaTipOperacao : String) : string;
-    function ExtornaChequeCaixa(VpaCheques : TList):string;
+    function ExtornaChequeCaixa(VpaCheques : TList;VpaOrigemEstorno : TRBDOrigemEstorno):string;
     function ExtornaParcelaCRCaixa(VpaCodfilial,VpaLanReceber, VpaNumParcela : Integer;VpaIndExtornaDesconto : Boolean):String;
     function ExtornaParcelaCPCaixa(VpaCodfilial,VpaLanPagar, VpaNumParcela : Integer):String;
     procedure CarDCaixa(VpaDCaixa : TRBDCaixa;VpaSeqCaixa : Integer);
@@ -331,7 +335,7 @@ begin
 end;
 
 {******************************************************************************}
-function TRBFuncoesCaixa.ExtornaChequeCaixa(VpaCheques : TList):string;
+function TRBFuncoesCaixa.ExtornaChequeCaixa(VpaCheques : TList;VpaOrigemEstorno : TRBDOrigemEstorno):string;
 var
   VpfLaco : Integer;
   VpfDCheque : TRBDCheque;
@@ -346,32 +350,36 @@ begin
     for VpfLaco := 0 to VpaCheques.Count - 1 do
     begin
       VpfDCheque := TRBDCheque(VpaCheques.Items[VpfLaco]);
-      if VpfDCheque.DatCompensacao > MontaData(1,1,1900) then
       begin
-        VpfDCaixa := RCaixa(VpfDCheque.NumContaCaixa,VpfCaixas);
-        if VpfDCaixa = nil then
+        if (VpfDCheque.TipCheque = 'C') or
+           ((VpfDCheque.TipCheque = 'D') and
+            (VpfDCheque.DatCompensacao > MontaData(1,1,1900))) then
         begin
-          result := 'CONTA CAIXA "'+VpfDCheque.NumContaCaixa+'" NÃO FOI ABERTO!!!!'#13'É necessário abrir a conta caixa antes e baixar o contas a receber.';
-          break;
+          VpfDCaixa := RCaixa(VpfDCheque.NumContaCaixa,VpfCaixas);
+          if VpfDCaixa = nil then
+          begin
+            result := 'CONTA CAIXA "'+VpfDCheque.NumContaCaixa+'" NÃO FOI ABERTO!!!!'#13'É necessário abrir a conta caixa antes e baixar o contas a receber.';
+            break;
+          end;
+          VpfDItemCaixa := VpfDCaixa.AddCaixaItem;
+          VpfDItemCaixa.CodUsuario := varia.CodigoUsuario;
+          VpfDItemCaixa.SeqCheque := VpfDCheque.SeqCheque;
+          if (VpfDCheque.TipCheque = 'C') and
+             (VpaOrigemEstorno = oeContasAReceber) then
+          begin
+            VpfDItemCaixa.DesDebitoCredito := 'D';
+            VpfDItemCaixa.DesLancamento := 'Extorno do Cheque recebido '+IntToStr(VpfDCheque.NumCheque);
+          end
+          else
+          begin
+            VpfDItemCaixa.DesDebitoCredito := 'C';
+            VpfDItemCaixa.DesLancamento := 'Extorno do Cheque pago '+IntToStr(VpfDCheque.NumCheque);
+          end;
+          VpfDItemCaixa.ValLancamento := VpfDCheque.ValCheque;
+          VpfDItemCaixa.DatLancamento := now;
+          VpfDItemCaixa.DatPagamento := VpfDCheque.DatCompensacao;
+          VpfDItemCaixa.CodFormaPagamento := VpfDCheque.CodFormaPagamento;
         end;
-        VpfDItemCaixa := VpfDCaixa.AddCaixaItem;
-        VpfDItemCaixa.CodUsuario := varia.CodigoUsuario;
-        VpfDItemCaixa.SeqCheque := VpfDCheque.SeqCheque;
-        if (VpfDCheque.TipCheque = 'C') AND
-           (VpfDCheque.TipContaCaixa = 'CC') Then
-        begin
-          VpfDItemCaixa.DesDebitoCredito := 'D';
-          VpfDItemCaixa.DesLancamento := 'Extorno do Cheque recebido '+IntToStr(VpfDCheque.NumCheque);
-        end
-        else
-        begin
-          VpfDItemCaixa.DesDebitoCredito := 'C';
-          VpfDItemCaixa.DesLancamento := 'Extorno do Cheque pago '+IntToStr(VpfDCheque.NumCheque);
-        end;
-        VpfDItemCaixa.ValLancamento := VpfDCheque.ValCheque;
-        VpfDItemCaixa.DatLancamento := now;
-        VpfDItemCaixa.DatPagamento := VpfDCheque.DatCompensacao;
-        VpfDItemCaixa.CodFormaPagamento := VpfDCheque.CodFormaPagamento;
       end;
     end;
     result := GravaBaixaCaixas(VpfCaixas);

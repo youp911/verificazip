@@ -151,7 +151,7 @@ uses
         VprServicosNotaFiscal : TStringList;
         QuantidadeDocumentos : Integer;
         Linha : array [0..TamanhoArray] of TLinha;
-        procedure PosClienteEmAberto(VpaTabela : TSQLQUERY;VpaCodFilial, VpaCodCliente : Integer;VpaDataEmAberto : TDateTime);
+        procedure PosClienteEmAberto(VpaTabela : TSQLQUERY;VpaCodFilial, VpaCodCliente : Integer;VpaDataEmAberto : TDateTime;VpaFundPerdido : Integer);
         procedure CarCabecalhoFilial(VpaDocumento : TStringList);
         procedure CarCabecalhoClienteEmAberto(VpaDocumento : TStringList;VpaCliente, VpaTelefone : String);
         function  ProximoSequencialMovDoc(NroDoc : Integer): Integer;
@@ -204,7 +204,7 @@ uses
         procedure ImprimeEnvelope(Dados: TDadosEnvelope);
         procedure ImprimeEtiquetaCliente(Dados : TDadosEtiquetaCliente);
         procedure ImprimirPedido(VpaDCotacao : TRBDOrcamento);
-        procedure ImprimeClientesEmAberto(VpaCodFilial, VpaCodCliente : Integer;VpaDataEmAberto : TDateTime;VpaVisualizar : Boolean);
+        procedure ImprimeClientesEmAberto(VpaCodFilial, VpaCodCliente : Integer;VpaDataEmAberto : TDateTime;VpaFundoPerdido : Integer; VpaVisualizar : Boolean);
         procedure ImprimirNotaFiscal(VpaDNotaFiscal : TRBDNotaFiscal);
         procedure LimitaTamanhoCampos(ComponentePai: TComponent; CodModeloDocumento: Integer);
         function BuscaTamanhoCampo(Documento, Sequencial: Integer): Integer;
@@ -609,8 +609,9 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFuncoesImpressao.PosClienteEmAberto(VpaTabela : TSQLQUERY;VpaCodFilial, VpaCodCliente : Integer;VpaDataEmAberto : TDateTime);
+procedure TFuncoesImpressao.PosClienteEmAberto(VpaTabela : TSQLQUERY;VpaCodFilial, VpaCodCliente : Integer;VpaDataEmAberto : TDateTime;VpaFundPerdido : Integer);
 begin
+  VpaTabela.Close;
   VpaTabela.Sql.Clear;
   VpaTabela.Sql.add('Select CLI.I_COD_CLI, CLI.C_NOM_CLI, C_FO1_CLI, CR.D_DAT_EMI, '+
                     ' CR.I_NRO_NOT, MCR.I_NRO_PAR, MCR.D_DAT_VEN, MCR.N_VLR_PAR, MCR.D_PRO_LIG, '+
@@ -627,6 +628,10 @@ begin
     VpaTabela.Sql.Add('and CR.I_EMP_FIL = '+ IntToStr(VpaCodFilial));
   if VpaCodCliente <> 0 then
     VpaTabela.Sql.Add('and CR.I_COD_CLI = '+ IntToStr(VpaCodCliente));
+  case VpaFundPerdido  of
+    1 : VpaTabela.sql.add('and MCR.C_FUN_PER = ''S''');
+    2 : VpaTabela.sql.add('and MCR.C_FUN_PER = ''N''');
+  end;
   VpaTabela.Sql.Add('order by CLI.C_NOM_CLI, MCR.D_DAT_VEN ');
   VpaTabela.Open;
 end;
@@ -832,7 +837,7 @@ begin
   ImprimirDocumento;
 end;
 
-procedure TFuncoesImpressao.ImprimeClientesEmAberto(VpaCodFilial, VpaCodCliente : Integer;VpaDataEmAberto : TDateTime;VpaVisualizar : Boolean);
+procedure TFuncoesImpressao.ImprimeClientesEmAberto(VpaCodFilial, VpaCodCliente : Integer;VpaDataEmAberto : TDateTime;VpaFundoPerdido : Integer; VpaVisualizar : Boolean);
 VAR
   VpfLinha : String;
   VpfValJuros, VpfValCliente, VpfValTotal : Double;
@@ -853,7 +858,7 @@ begin
   DOC.add(AdicionaCharDE(' ','CONTAS EM ABERTO ATÉ '+FormatDateTime('DD/MM/YYYY',VpaDataEmAberto),75));
   DOC.add('');
 
-  PosClienteEmAberto(ClientesEmAberto,VpaCodFilial,VpaCodCliente,VpaDataEmAberto);
+  PosClienteEmAberto(ClientesEmAberto,VpaCodFilial,VpaCodCliente,VpaDataEmAberto,VpaFundoPerdido);
 
   VpfClienteAtual := -1;
   VpfValCliente := 0;

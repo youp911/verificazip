@@ -20,7 +20,6 @@ uses
   AContasAReceber in 'AContasAReceber.pas' {FContasaReceber},
   ANovoContasaReceber in 'ANovoContasaReceber.pas' {FNovoContasAReceber},
   AGraficosContasaReceber in 'AGraficosContasaReceber.pas' {FGraficosCR},
-  AImprimeCR in 'AImprimeCR.pas' {FImprimeCR},
   AGraficosFluxo in 'AGraficosFluxo.pas' {FGraficoFluxo},
   ARelContasaReceber in 'ARelContasaReceber.pas' {FRelContasaReceber},
   ARelFaturamento in 'ARelFaturamento.pas' {FRelFaturamento},

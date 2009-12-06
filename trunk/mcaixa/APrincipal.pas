@@ -42,7 +42,6 @@ type
     BNormal: TSpeedButton;
     BMFProdutos: TSpeedButton;
     BSaida: TSpeedButton;
-    SpeedButton6: TSpeedButton;
     Ajuda1: TMenuItem;
     ndice1: TMenuItem;
     MFBackup: TMenuItem;

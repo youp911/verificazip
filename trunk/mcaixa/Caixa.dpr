@@ -185,7 +185,6 @@ uses
   AContasAReceber in '..\mfinanceiro\AContasAReceber.pas' {FContasaReceber},
   ANovoContasaReceber in '..\mfinanceiro\ANovoContasaReceber.pas' {FNovoContasAReceber},
   agraficoscontasareceber in '..\mfinanceiro\agraficoscontasareceber.pas' {FGraficosCR},
-  AImprimeCR in '..\mfinanceiro\AImprimeCR.pas' {FImprimeCR},
   AManutencaoCR in '..\mfinanceiro\AManutencaoCR.pas' {FManutencaoCR},
   AChequesCP in '..\mfinanceiro\AChequesCP.pas' {FChequesCP},
   AChequesOO in '..\mfinanceiro\AChequesOO.pas' {FChequesOO},

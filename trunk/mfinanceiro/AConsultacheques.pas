@@ -128,7 +128,7 @@ var
 implementation
 
 uses APrincipal, FunSql, funData, UnCrystal, Constantes, ConstMsg,
-  AContasAPagar, AContasAReceber, ACompensaCheque, FunObjeto;
+  AContasAPagar, AContasAReceber, ACompensaCheque, FunObjeto, unCaixa;
 
 {$R *.DFM}
 
@@ -398,7 +398,7 @@ begin
       begin
         VpfDCheque := TRBDCheque.cria;
         FunContasAReceber.CarDCheque(VpfDCheque,VpaSeqCheque);
-        VpfResultado := FunContasAReceber.EstornaCheque(VpfDCheque);
+        VpfResultado := FunContasAReceber.EstornaCheque(VpfDCheque,oeConsultacheque);
         if VpfResultado <> '' then
           aviso(VpfResultado)
         else

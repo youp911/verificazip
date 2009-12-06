@@ -435,11 +435,11 @@ end;
 
 procedure TFManutencaoCR.MovContasAReceberAfterScroll(DataSet: TDataSet);
 begin
-  BExclui.Enabled :=(MovContasAReceberN_VLR_PAG.AsFloat = 0 ) and (not MovContasAReceber.EOF);
-  BExcuiTitulo.Enabled := (MovContasAReceberN_VLR_PAG.AsFloat = 0 ) and (not MovContasAReceber.EOF);
+  BExclui.Enabled :=(MovContasAReceberN_VLR_PAG.AsFloat = 0 ) and (MovContasAReceberI_NRO_PAR.AsInteger <> 0);
+  BExcuiTitulo.Enabled := (MovContasAReceberN_VLR_PAG.AsFloat = 0 )and (MovContasAReceberI_NRO_PAR.AsInteger <> 0);
   BEstornar.Enabled := (MovContasAReceberD_DAT_PAG.AsFloat <> 0);
   BEstornaDesconto.Enabled := (MovContasAReceberC_DUP_DES.AsString = 'S');
-  BPagamento.Enabled := (MovContasAReceberD_DAT_PAG.AsFloat = 0 ) and (not MovContasAReceber.EOF);
+  BPagamento.Enabled := (MovContasAReceberD_DAT_PAG.AsFloat = 0 ) and (MovContasAReceberI_NRO_PAR.AsInteger <> 0);
   GradeMov.ReadOnly := MovContasAReceberN_VLR_PAG.AsFloat <> 0;
   BAtleraFormaPagamento.Enabled := BPagamento.Enabled;
 end;

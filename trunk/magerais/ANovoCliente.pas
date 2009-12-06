@@ -1061,7 +1061,9 @@ begin
     DBEditLocaliza3.Atualiza;
   end;
   if Varia.CodVendedor <> 0 then
-    CadClientesI_COD_VEN.AsInteger := Varia.CodVendedor;
+    CadClientesI_COD_VEN.AsInteger := Varia.CodVendedor
+  else
+    AlterarEnabledDet([EVendedor,BVendedor],true);
   ECodigo.ReadOnly := False;
   DBEditLocaliza1.Limpa;
   DBEditLocaliza2.Limpa;
@@ -1263,8 +1265,7 @@ procedure TFNovoCliente.ConfiguraPermissaoUsuario;
 begin
   if not (puAdministrador in varia.PermissoesUsuario) then
   begin
-    EVendedor.ReadOnly := not config.PermitirAlterarVendedornaCotacao;
-    BVendedor.Enabled := config.PermitirAlterarVendedornaCotacao;
+    AlterarEnabledDet([EVendedor,BVendedor],config.PermitirAlterarVendedornaCotacao);
   end;
   BDiretorio.Visible := Varia.PathCliente <> '';
 end;

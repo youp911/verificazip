@@ -87,9 +87,6 @@
 			<DCCReference Include="AGraficosContasaReceber.pas">
 				<Form>FGraficosCR</Form>
 			</DCCReference>
-			<DCCReference Include="AImprimeCR.pas">
-				<Form>FImprimeCR</Form>
-			</DCCReference>
 			<DCCReference Include="AGraficosFluxo.pas">
 				<Form>FGraficoFluxo</Form>
 			</DCCReference>
@@ -822,7 +819,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">EFICACIA RAFAEL MORRO 1 11</Parameters>
+						<Parameters Name="RunParams">sisCorp RAFAEL MORRO 1 11</Parameters>
 					</Parameters>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
