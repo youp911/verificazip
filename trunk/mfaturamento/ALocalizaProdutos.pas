@@ -171,7 +171,7 @@ type
     VprSeqImpressora : Integer;
     FunClassificacao : TFuncoesClassificacao;
     procedure ConfiguraPermissaoUsuario;
-    procedure AtualizaConsulta;
+    procedure AtualizaConsulta(VpaPosicionar : Boolean = false);
     procedure AdicionaFiltrosProduto(VpaSelect : TStrings);
     procedure configuraTela;
     function LocalizaClassificacao : Boolean;
@@ -269,10 +269,13 @@ end;
 
 
 {****************** atualiza a consulta dos produtos **************************}
-procedure TFlocalizaProduto.AtualizaConsulta;
+procedure TFlocalizaProduto.AtualizaConsulta(VpaPosicionar : Boolean = false);
+Var
+  VpfPosicao : TBookmark;
 begin
   if ETabelaPreco.AInteiro = 0 then
     ETabelaPreco.AInteiro := varia.TabelaPreco;
+  VpfPosicao := CadProdutos.GetBookmark;
   CadProdutos.close;
   CadProdutos.sql.clear;
   CadProdutos.sql.add('Select C_Cod_Pro, '+
@@ -307,6 +310,14 @@ begin
   CadProdutos.sql.add(' order by PRO.C_NOM_PRO, QTD.I_COD_COR, QTD.I_COD_TAM');
   GravaEstatisticaConsulta(nil,CadProdutos,varia.CodigoUsuario,Self.name,NomeModulo,config.UtilizarPercentualConsulta);
   CadProdutos.Open;
+  if VpaPosicionar then
+  try
+    CadProdutos.GotoBookmark(VpfPosicao);
+  except
+    CadProdutos.last;
+    CadProdutos.GotoBookmark(VpfPosicao);
+  end;
+  GProdutos.ALinhaSQLOrderBy := CadProdutos.SQL.Count - 1;
   VprCodClassificacao := EClassificacaoProduto.Text;
   VprCodProduto := ECodigo.Text;
   VprNomProduto := ENomeProduto.Text;
@@ -1246,7 +1257,7 @@ procedure TFlocalizaProduto.BitBtn2Click(Sender: TObject);
 begin
   FNovoProdutoPro := TFNovoProdutoPro.CriarSDI(self,'',FPrincipal.VerificaPermisao('FNovoProdutoPro'));
   if FNovoProdutoPro.AlterarProduto(varia.codigoEmpresa,varia.CodigoEmpFil,CadProdutosI_SEQ_PRO.AsInteger) <> nil then
-    AtualizaConsulta;
+    AtualizaConsulta(true);
   FNovoProdutoPro.free;
 end;
 

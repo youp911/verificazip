@@ -175,6 +175,15 @@ type
     Label35: TLabel;
     DBCheckBox9: TDBCheckBox;
     CadFiliaisC_IND_SPE: TWideStringField;
+    CadFiliaisN_PER_COF: TFMTBCDField;
+    CadFiliaisN_PER_PIS: TFMTBCDField;
+    CadFiliaisC_CST_IPI: TWideStringField;
+    Label36: TLabel;
+    DBEditColor13: TDBEditColor;
+    Label37: TLabel;
+    DBEditColor14: TDBEditColor;
+    DBEditColor15: TDBEditColor;
+    Label39: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FecharClick(Sender: TObject);

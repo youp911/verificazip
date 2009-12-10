@@ -1019,7 +1019,7 @@ begin
     if VpfInserindo then
     begin
       if VpfDFracao.IndPossuiEmEstoque then
-          FunProdutos.BaixaQtdAReservarProduto(VpfDFracao.CodFilial,VpfDFracao.SeqProduto,VpfDFracao.CodCor,
+          FunProdutos.BaixaQtdAReservarProduto(VpaDOrdemProducao.CodEmpresafilial,VpfDFracao.SeqProduto,VpfDFracao.CodCor,
                                                VpfDFracao.CodTamanho,VpfDFracao.QtdProduto,VpfDFracao.UM,VpfDFracao.UM,'E');
 
     end;

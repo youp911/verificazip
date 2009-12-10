@@ -50,6 +50,7 @@ Type TRBFuncoesSistema = class(TRBLocalizaSistema)
     function ValidaSerieSistema : Boolean;
     function AtualizaInformacoesGerencialCustos(VpaDiaAnterior,VpaData : TDateTime) : String;
     function AtualizaDataInformacaoGerencial(VpaData : TDateTime) : string;
+    function RQtdParcelasCondicaoPagamento(VpaCodCondicaoPagamento : Integer) : Integer;
 end;
 
 Var
@@ -279,6 +280,15 @@ begin
                    ' AND AMO.TIPAMOSTRA = ''D''');
   result := SisAux.FieldByName('QTD').AsInteger;
   SisAux.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesSistema.RQtdParcelasCondicaoPagamento(VpaCodCondicaoPagamento: Integer): Integer;
+begin
+  AdicionaSQLAbreTabela(SisAux,'select I_QTD_PAR from CADCONDICOESPAGTO '+
+                               ' Where I_COD_PAG = '+IntToStr(VpaCodCondicaoPagamento));
+  result := SisAux.FieldByName('I_QTD_PAR').AsInteger;
+  SisAux.Close;
 end;
 
 {******************************************************************************}

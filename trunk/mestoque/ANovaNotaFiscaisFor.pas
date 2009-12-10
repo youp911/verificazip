@@ -65,7 +65,6 @@ type
     Label9: TLabel;
     Label14: TLabel;
     Shape17: TShape;
-    Label23: TLabel;
     Label26: TLabel;
     LNatureza: TLabel;
     Shape20: TShape;
@@ -84,8 +83,6 @@ type
     des: TRadioButton;
     AutoCalculo: TCheckBox;
     EFormaPagamento: TEditLocaliza;
-    EQtdParcelas: TSpinEditColor;
-    ENumDias: TSpinEditColor;
     EPlano: TEditColor;
     ECor: TEditLocaliza;
     EDatEntrada: TMaskEditColor;
@@ -140,6 +137,11 @@ type
     Shape22: TShape;
     SpeedButton7: TSpeedButton;
     Label37: TLabel;
+    Label23: TLabel;
+    SpeedButton8: TSpeedButton;
+    Label38: TLabel;
+    ECondicaoPagamento: TRBEditLocaliza;
+    Shape23: TShape;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EValFreteExit(Sender: TObject);
@@ -604,11 +606,11 @@ begin
               ActiveControl := EFormaPagamento;
             end
             else
-              if EQtdParcelas.Value = 0 then
+              if ECondicaoPagamento.AInteiro = 0 then
               begin
                 result := false;
-                aviso('QUANTIDADE DE PARDELAS INVÁLIDA!!!'#13'É necessário digitar a quantidade de parcelas da nota fiscal.');
-                ActiveControl := EQtdParcelas;
+                aviso('CONDIÇÃO DE PAGAMENTO INVÁLIDA!!!'#13'É necessário informar a condição de pagamento');
+                ActiveControl := ECondicaoPagamento;
               end;
         end;
   if result then
@@ -789,8 +791,7 @@ begin
     ECodFornecedor.AInteiro := CodFornecedor;
     EFormaPagamento.AInteiro := CodFormaPagamento;
     EPlano.text := DNaturezaOperacao.CodPlanoContas;
-    EQtdParcelas.Value := QtdParcelas;
-    ENumDias.Value := NumDiasPrazo;
+    ECondicaoPagamento.Ainteiro := CodCondicaoPagamento;
     EValICMS.Avalor := ValICMS;
     EValICMSSubs.Avalor := ValICMSSubstituicao;
     EBaseIcmsSubs.Avalor := ValBaseICMSSubstituicao;
@@ -809,7 +810,7 @@ begin
     EPerComissao.AValor := PerComissao;
   end;
   CarDescontoTela;
-  AtualizaLocalizas([ENatureza,ECodFornecedor,EFormaPagamento,EPlano,ECodTransportadora]);
+  AtualizaLocalizas([ENatureza,ECodFornecedor,EFormaPagamento,EPlano,ECodTransportadora, ECondicaoPagamento]);
   Grade.CarregaGrade;
 end;
 
@@ -827,8 +828,7 @@ begin
     CodFornecedor := ECodFornecedor.Ainteiro;
     CodFormaPagamento := EFormaPagamento.AInteiro;
     DNaturezaOperacao.CodPlanoContas := EPlano.Text;
-    QtdParcelas := EQtdParcelas.Value;
-    NumDiasPrazo := ENumDias.Value;
+    CodCondicaoPagamento := ECondicaoPagamento.AInteiro;
     ValICMS := EValICMS.AValor;
     ValTotal := EValTotal.AValor;
     ValFrete := EValFrete.Avalor;

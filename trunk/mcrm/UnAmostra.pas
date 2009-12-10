@@ -26,6 +26,8 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     procedure CarServicosFixoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
     function GravaDServicoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
     function GravaDServicoFixoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
+    procedure CarCoeficientesTabelaPreco(VpaDAmostra : TRBDAmostra);
+    function RValCustoMateriaPrima(VpaDAmostra : TRBDAmostra):Double;
   public
     constructor cria(VpaBaseDados : TSqlConnection);
     destructor destroy;override;
@@ -41,7 +43,9 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     function GravaRequisicaoMAquina(VpaCodAmostra, VpaCodMaquina : Integer;VpaDesRequisicao : string):string;
     function AtualizarAmostra(VpaCodAmostra: Integer; VpaDAmostra: TRBDAmostra): String;
     function CopiaConsumoAmostraProduto(VpaCodAmostra,VpaSeqProduto : Integer):String;
-    procedure CalculaValorVendaUnitario(VpaDAmostra : TRBDAmostra);
+    procedure CalculaValorVendaUnitario(VpaDAmostra : TRBDAmostra);overload;
+    procedure CalculaValorVendaUnitario(VpaDAmostra : TRBDAmostra;VpaDValorVenda : TRBDValorVendaAmostra);overload;
+    procedure CalculaValorVendaPeloValorSugerido(VpaDAmostra : TRBDAmostra;VpaValSugerido : Double);
     function ExisteAmostraDefinidaDesenvolvida(VpaCodAmostra : integer):Boolean;
     function RQtdAmostraSolicitada(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
     function RQtdAmostraEntregue(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
@@ -49,6 +53,7 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     function RQtdClientesAmostra(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
     function RLegendaDisponivel(VpaDAmostra : TRBDAmostra):String;
     function RCodAmostraDisponivel(VpaCodClassificacao : String) : Integer;
+    procedure CarPerLucroComissaoCoeficienteCusto(VpaCodCoeficiente : Integer;var VpaPerLucro, VpaPerComissao : Double);
     procedure ExcluiAmostra(VpaCodAmostra : Integer);
     procedure ExportaFichaTecnicaAmostra(VpaDAmostra : TRBDAmostra);
 end;
@@ -192,6 +197,20 @@ begin
   AdicionaSQLAbreTabela(Aux,'Select Max(SEQREQUISICAO) ULTIMO from REQUISICAOMAQUINA ');
   result := Aux.FieldByName('ULTIMO').AsInteger +1;
   Aux.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.RValCustoMateriaPrima(VpaDAmostra: TRBDAmostra): Double;
+var
+  VpfLaco : Integer;
+  VpfDConsumo : TRBDConsumoAmostra;
+begin
+  result := 0;
+  for Vpflaco := 0 to VpaDAmostra.Consumos.Count - 1 do
+  begin
+    VpfDConsumo := TRBDConsumoAmostra(VpaDAmostra.Consumos.Items[VpfLaco]);
+    result :=  result + VpfDConsumo.ValTotal;
+  end;
 end;
 
 {******************************************************************************}
@@ -416,6 +435,64 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFuncoesAmostra.CalculaValorVendaPeloValorSugerido(VpaDAmostra: TRBDAmostra; VpaValSugerido: Double);
+var
+  VpfLaco : Integer;
+  VpfDValorVenda : TRBDValorVendaAmostra;
+begin
+  CalculaValorVendaUnitario(VpaDAmostra);
+  for VpfLaco := 0 to VpaDAmostra.ValoresVenda.Count - 1 do
+  begin
+    VpfDValorVenda := TRBDValorVendaAmostra(VpaDAmostra.ValoresVenda.Items[VpfLaco]);
+    if VpfDValorVenda.ValVenda <> 0 then
+    begin
+      VpfDValorVenda.PerLucro := (VpaValSugerido * 30)/VpfDValorVenda.ValVenda;
+      CalculaValorVendaUnitario(VpaDAmostra,VpfDValorVenda);
+    end;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesAmostra.CalculaValorVendaUnitario(VpaDAmostra: TRBDAmostra; VpaDValorVenda: TRBDValorVendaAmostra);
+var
+  VpfCoeficiente  : Double;
+begin
+  VpfCoeficiente := VpaDValorVenda.PerCoeficientes + VpaDValorVenda.PerComissao + VpaDValorVenda.PerLucro+VpaDValorVenda.PerVendaPrazo;
+  VpaDValorVenda.CustoComImposto := VpaDAmostra.CustoProduto /(1-((VpaDValorVenda.PerCoeficientes+VpaDValorVenda.PerComissao)/100));
+  VpaDValorVenda.ValVenda := VpaDAmostra.CustoProduto /(1-(vpfCoeficiente/100));
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesAmostra.CarCoeficientesTabelaPreco(VpaDAmostra: TRBDAmostra);
+Var
+  VpfLaco : Integer;
+  VpfDValorVenda : TRBDValorVendaAmostra;
+  VpfDQuantidade : TRBDQuantidadeAmostra;
+begin
+  FreeTObjectsList(VpaDAmostra.ValoresVenda);
+  AdicionaSQLAbreTabela(Amostra,'Select * from COEFICIENTECUSTO'+
+                                ' order by CODCOEFICIENTE ');
+  while not Amostra.Eof do
+  begin
+    for VpfLaco := 0 to VpaDAmostra.Quantidades.Count - 1 do
+    begin
+      VpfDQuantidade := TRBDQuantidadeAmostra(VpaDAmostra.Quantidades.Items[VpfLaco]);
+      VpfDValorVenda := VpaDAmostra.addValorVenda;
+      VpfDValorVenda.CodTabela := Amostra.FieldByName('CODCOEFICIENTE').AsInteger;
+      VpfDValorVenda.NomTabela := Amostra.FieldByName('NOMCOEFICIENTE').AsString;
+      VpfDValorVenda.PerCoeficientes := Amostra.FieldByName('PERICMS').AsFloat+ Amostra.FieldByName('PERPISCOFINS').AsFloat +Amostra.FieldByName('PERFRETE').AsFloat+
+                                        Amostra.FieldByName('PERADMINISTRATIVO').AsFloat + Amostra.FieldByName('PERPROPAGANDA').AsFloat;
+      VpfDValorVenda.PerComissao := Amostra.FieldByName('PERCOMISSAO').AsFloat;
+      VpfDValorVenda.PerVendaPrazo := Amostra.FieldByName('PERVENDAPRAZO').AsFloat;
+      VpfDValorVenda.PerLucro := Amostra.FieldByName('PERLUCRO').AsFloat;
+      VpfDValorVenda.Quantidade :=VpfDQuantidade.Quantidade;
+    end;
+    Amostra.Next;
+  end;
+  Amostra.close;
+end;
+
+{******************************************************************************}
 procedure TRBFuncoesAmostra.CarConsumosAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
 Var
   VpfDConsumo : TRBDConsumoAmostra;
@@ -585,6 +662,16 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFuncoesAmostra.CarPerLucroComissaoCoeficienteCusto(VpaCodCoeficiente: Integer;var VpaPerLucro, VpaPerComissao : Double);
+begin
+  AdicionaSQLAbreTabela(Aux,'Select PERCOMISSAO, PERLUCRO FROM COEFICIENTECUSTO '+
+                            ' Where CODCOEFICIENTE = '+IntToStr(VpaCodCoeficiente));
+  VpaPerLucro := Aux.FieldByName('PERLUCRO').AsFloat;
+  VpaPerComissao := Aux.FieldByName('PERCOMISSAO').AsFloat;
+  Aux.close;
+end;
+
+{******************************************************************************}
 function TRBFuncoesAmostra.AtualizarAmostra(VpaCodAmostra: Integer; VpaDAmostra: TRBDAmostra): String;
 begin
   Result:= '';
@@ -652,19 +739,27 @@ end;
 procedure TRBFuncoesAmostra.CalculaValorVendaUnitario(VpaDAmostra : TRBDAmostra);
 var
   VpfLaco : Integer;
-  VpfDConsumo : TRBDConsumoAmostra;
-  VpfDServico : TRBDServicoAmostra;
+  VpfDValorVenda : TRBDValorVendaAmostra;
 begin
-  VpaDAmostra.ValVendaUnitario := 0;
-  for VpfLaco := 0 to VpaDAmostra.Consumos.Count - 1 do
+{Explicativo do custo
+  COEFICIENTE = %ICMS + %PIS + %COMISSAO + %FRETE + %ADM_VENDAS + %PROPAGANDA
+
+  CUSTO_IMPOSTOS = CUSTO_PRODUTO /(1-(COEFICIENTE/100))
+
+  PVENDA = (CUSTO_PRODUTO /1 -((COEFICIENTE + % LUCRO)/100)))
+
+  PVENDA_PRAZO = (CUSTO_PRODUTO / (1 - ((COEFICIENTE +%LUCRO + %VENDAPRAZO)/100)))}
+
+//  if VpaDAmostra.ValoresVenda.Count = 0 then
+    CarCoeficientesTabelaPreco(VpaDAmostra);
+  VpaDAmostra.CustoMateriaPrima := RValCustoMateriaPrima(VpaDAmostra);
+  VpaDAmostra.CustoProcessos := 0;
+  VpaDAmostra.CustoProduto := VpaDAmostra.CustoProcessos + VpaDAmostra.CustoMateriaPrima;
+
+  for VpfLaco := 0 to VpaDAmostra.ValoresVenda.Count - 1 do
   begin
-    VpfDConsumo := TRBDConsumoAmostra(VpaDAmostra.Consumos.Items[VpfLaco]);
-    VpaDAmostra.ValVendaUnitario :=  VpaDAmostra.ValVendaUnitario + VpfDConsumo.ValTotal;
-  end;
-  for VpfLaco := 0 to VpaDAmostra.Servicos.Count - 1 do
-  begin
-     VpfDServico := TRBDServicoAmostra(VpaDAmostra.Servicos.Items[VpfLaco]);
-     VpaDAmostra.ValVendaUnitario :=  VpaDAmostra.ValVendaUnitario + VpfDServico.ValTotal;
+    VpfDValorVenda := TRBDValorVendaAmostra(VpaDAmostra.ValoresVenda.Items[VpfLaco]);
+    CalculaValorVendaUnitario(VpaDAmostra,VpfDValorVenda);
   end;
 end;
 

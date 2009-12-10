@@ -44,7 +44,6 @@ type
     Label17: TLabel;
     Label12: TLabel;
     Label10: TLabel;
-    Label8: TLabel;
     LParcelas: TLabel;
     EFilial: TEditColor;
     ELanPagar: TEditColor;
@@ -56,13 +55,10 @@ type
     ECentroCusto: TEditLocaliza;
     ECodBarras: TEditColor;
     EValorparcelas: Tnumerico;
-    EQtdParcelas: Tnumerico;
     EValorTotal: Tnumerico;
     PRodape: TPanelColor;
     Label5: TLabel;
     LFoto: TLabel;
-    LQtdDiasEntre: TLabel;
-    Label19: TLabel;
     Label20: TLabel;
     SpeedButton4: TSpeedButton;
     Label7: TLabel;
@@ -70,8 +66,6 @@ type
     SpeedButton5: TSpeedButton;
     Label9: TLabel;
     EDataEmissao: TMaskEditColor;
-    EQtdDiasEntre: TSpinEditColor;
-    SpinEdit2: TSpinEditColor;
     EdcFormaPgto: TEditLocaliza;
     BFoto: TBitBtn;
     EContaCaixa: TEditLocaliza;
@@ -85,9 +79,12 @@ type
     GProjetos: TRBStringGridColor;
     BAutorizacaoPagamento: TBitBtn;
     EConsultaProjeto: TRBEditLocaliza;
+    ECondicaoPagamento: TRBEditLocaliza;
+    Label18: TLabel;
+    SpeedButton7: TSpeedButton;
+    Label8: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure DBEditColor2Exit(Sender: TObject);
     procedure DBEditButton4Exit(Sender: TObject);
     procedure BFecharClick(Sender: TObject);
     procedure BNovoClick(Sender: TObject);
@@ -157,7 +154,7 @@ implementation
 
 uses ConstMsg,  FunData, APrincipal, funString,
   ANovoCliente, funObjeto, funsql, AFormasPagamento,
-  ADespesas, APlanoConta,  UnClassesImprimir, ACentroCusto, AProjetos, dmRave;
+  ADespesas, APlanoConta,  UnClassesImprimir, ACentroCusto, AProjetos, dmRave, UnSistema;
 
 {$R *.DFM}
 
@@ -208,13 +205,11 @@ begin
   VprDContasAPagar.CodPlanoConta := EPlano.text;
   VprDContasAPagar.NumContaCaixa := EContaCaixa.Text;
   VprDContasAPagar.DesPathFoto := LFoto.Caption;
-  VprDContasAPagar.QtdParcela := EQtdParcelas.AsInteger;
+  VprDContasAPagar.CodCondicaoPagamento := ECondicaoPagamento.AInteiro;
   if EValorparcelas.AValor = 0 then
-    VprDContasAPagar.ValParcela := EValorTotal.AValor / EQtdParcelas.AsInteger
+    VprDContasAPagar.ValParcela := EValorTotal.AValor / sistema.RQtdParcelasCondicaoPagamento(ECondicaoPagamento.AInteiro)
   else
     VprDContasAPagar.ValParcela := EValorparcelas.AValor;
-  VprDContasAPagar.QtdDiasPriVen := SpinEdit2.Value;
-  VprDContasAPagar.QtdDiasDemaisVen := EQtdDiasEntre.Value;
   VprDContasAPagar.PerDescontoAcrescimo := 0;
   VprDContasAPagar.IndMostrarParcelas :=  true;
   VprDContasAPagar.IndEsconderConta := VprEsconderParcela;
@@ -243,7 +238,7 @@ function TFNovoContasAPagar.DadosValidos : string;
 begin
   result := '';
   if EValorTotal.avalor = 0 then
-    EValorTotal.AValor := EValorParcelas.AValor * EQtdParcelas.AsInteger;
+    EValorTotal.AValor := EValorParcelas.AValor * Sistema.RQtdParcelasCondicaoPagamento(ECondicaoPagamento.AInteiro);
   if EValorTotal.AValor = 0 then
   begin
     result := 'VALOR DO TÍTULO NÃO PREENCHIDO!!!'#13'É necessário informar um valor para o título.';
@@ -278,14 +273,12 @@ begin
   LPlano.Caption := '';
   EMoeda.Text := IntTostr(Varia.MoedaBase);
   EMoeda.Atualiza;
-  EQtdParcelas.AsInteger := 1; // Somente uma parcela.}
   ECentroCusto.AInteiro := varia.CentroCustoPadrao;
   ECentroCusto.Atualiza;
   EContaCaixa.Text := VprContaCaixa;
   EContaCaixa.Atualiza;
   EFilial.Text := IntTostr(Varia.CodigoEmpFil);  // adiciona o codigo da filial
   EDataEmissao.Text := dateTostr(VprDatEmissao);      // valida campo data
-  EQtdParcelas.ReadOnly := False;
   AlteraEstadoBotoes(true);
   ValidaGravacao.execute;
   Paginas.ActivePage := PGeral;
@@ -342,13 +335,6 @@ end;
 {((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                        Validação dos campos Gerais
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
-
-{*****************valida o campo parcela no minimo 1 parcela*******************}
-procedure TFNovoContasAPagar.DBEditColor2Exit(Sender: TObject);
-begin
-  LQtdDiasEntre.Enabled := EQtdParcelas.AsInteger > 1;
-  EQtdDiasEntre.Enabled := LQtdDiasEntre.Enabled;
-end;
 
 {*****************caso o valor total > 0 zera o valor das parcelas*************}
 procedure TFNovoContasAPagar.DBEditColor20Exit(Sender: TObject);
@@ -467,7 +453,7 @@ begin
       VpfDDespesaProjeto.NomProjeto := LNomProjeto.Caption;
       VpfDDespesaProjeto.PerDespesa := 100;
       if EValorparcelas.AValor <> 0 then
-        VpfDDespesaProjeto.ValDespesa := EValorparcelas.AValor * EQtdParcelas.AsInteger
+        VpfDDespesaProjeto.ValDespesa := EValorparcelas.AValor * Sistema.RQtdParcelasCondicaoPagamento(ECondicaoPagamento.AInteiro)
       else
         VpfDDespesaProjeto.ValDespesa := EValorTotal.AValor;
     end;
@@ -499,7 +485,7 @@ begin
   if EValorTotal.AValor <> 0  then
     VpfValContasAPagar := EValorTotal.AValor
   else
-    VpfValContasAPagar := EValorparcelas.AValor * EQtdParcelas.AsInteger;
+    VpfValContasAPagar := EValorparcelas.AValor * Sistema.RQtdParcelasCondicaoPagamento(ECondicaoPagamento.AInteiro);
   if VpfValContasAPagar > 0  then
   begin
     VprDDespesaProjeto.ValDespesa := StrToFloat(DeletaChars(GProjetos.Cells[4,GProjetos.ALinha],'.'));
@@ -515,7 +501,7 @@ begin
   if EValorTotal.AValor <> 0  then
     VpfValContasAPagar := EValorTotal.AValor
   else
-    VpfValContasAPagar := EValorparcelas.AValor * EQtdParcelas.AsInteger;
+    VpfValContasAPagar := EValorparcelas.AValor * Sistema.RQtdParcelasCondicaoPagamento(ECondicaoPagamento.AInteiro);
   if VpfValContasAPagar > 0  then
   begin
     VprDDespesaProjeto.PerDespesa := StrToFloat(DeletaChars(DeletaChars(GProjetos.Cells[3,GProjetos.ALinha],'.'),'%'));

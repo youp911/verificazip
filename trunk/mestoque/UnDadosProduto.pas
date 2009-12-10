@@ -336,6 +336,38 @@ Type TRBDServicoAmostra = class
     destructor destroy;override;
 end;
 
+Type
+  TRBDPrecoClienteAmostra = class
+    public
+      CodTabela,
+      CodCliente : Integer;
+      NomTabela,
+      NomCliente : String;
+      ValVenda,
+      QtdVenda,
+      PerLucro,
+      PerComissao : Double;
+      constructor cria;
+      destructor destroy;override;
+end;
+
+
+Type
+  TRBDValorVendaAmostra = class
+    public
+      CodTabela : Integer;
+      NomTabela : String;
+      Quantidade,
+      ValVenda : Double;
+      PerComissao,
+      PerLucro,
+      PerVendaPrazo,
+      PerCoeficientes,
+      CustoComImposto : Double;
+      constructor cria;
+      destructor destroy;override;
+end;
+
 Type TRBDServicoFixoAmostra = class
   public
     SeqConsumo,
@@ -351,6 +383,13 @@ Type TRBDServicoFixoAmostra = class
     destructor destroy;override;
 end;
 
+Type
+  TRBDQuantidadeAmostra = class
+    public
+      Quantidade : Double;
+      constructor cria;
+      destructor destroy;override;
+end;
 
 Type TRBDConsumoAmostra = class
   public
@@ -418,16 +457,25 @@ Type TRBDAmostra = class
     ValorCusto,
     ValorVenda,
     ValVendaUnitario,
-    QtdPrevisaoCompra: Double;
+    QtdPrevisaoCompra,
+    CustoMateriaPrima,
+    CustoProcessos,
+    CustoProduto: Double;
 
     Consumos,
     Servicos,
-    ServicoFixo : TList;
+    ServicoFixo,
+    Quantidades,
+    ValoresVenda,
+    PrecosClientes : TList;
     constructor cria;
     destructor destroy; override;
     function addConsumo : TRBDConsumoAmostra;
     function addServico : TRBDServicoAmostra;
     function addServicoFixo : TRBDServicoFixoAmostra;
+    function addQuantidade : TRBDQuantidadeAmostra;
+    function addValorVenda : TRBDValorVendaAmostra;
+    function addPrecoCliente : TRBDPrecoClienteAmostra;
 end;
 
 Type
@@ -1832,10 +1880,10 @@ Type
       CodFormaPagamento,
       CodTransportadora,
       CodVendedor,
-      QtdParcelas,
-      NumDiasPrazo : Integer;
+      CodCondicaoPagamento: Integer;
       SerNota,
       CodNatureza,
+      CodModeloDocumento,
       TipFormaPagamento,
       DesObservacao,
       CGC_CPFFornecedor : String;
@@ -2418,6 +2466,9 @@ begin
   Consumos := TList.create;
   Servicos := TList.Create;
   ServicoFixo := TList.Create;
+  Quantidades := TList.Create;
+  ValoresVenda := TList.Create;
+  PrecosClientes := TList.create;
 end;
 
 {******************************************************************************}
@@ -2429,6 +2480,12 @@ begin
   Servicos.free;
   FreeTObjectsList(ServicoFixo);
   ServicoFixo.free;
+  FreeTObjectsList(Quantidades);
+  Quantidades.free;
+  FreeTObjectsList(ValoresVenda);
+  ValoresVenda.free;
+  FreeTObjectsList(PrecosClientes);
+  PrecosClientes.free;
   inherited destroy;
 end;
 
@@ -2437,6 +2494,20 @@ function TRBDAmostra.addConsumo : TRBDConsumoAmostra;
 begin
   result := TRBDConsumoAmostra.cria;
   Consumos.add(result);
+end;
+
+{******************************************************************************}
+function TRBDAmostra.addPrecoCliente: TRBDPrecoClienteAmostra;
+begin
+  result := TRBDPrecoClienteAmostra.cria;
+  PrecosClientes.add(result);
+end;
+
+{******************************************************************************}
+function TRBDAmostra.addQuantidade: TRBDQuantidadeAmostra;
+begin
+  result := TRBDQuantidadeAmostra.cria;
+  Quantidades.Add(result);
 end;
 
 {******************************************************************************}
@@ -2451,6 +2522,13 @@ function TRBDAmostra.addServicoFixo : TRBDServicoFixoAmostra;
 begin
   result := TRBDServicoFixoAmostra.cria;
   ServicoFixo.add(result);
+end;
+
+{******************************************************************************}
+function TRBDAmostra.addValorVenda: TRBDValorVendaAmostra;
+begin
+  result := TRBDValorVendaAmostra.cria;
+  ValoresVenda.add(Result);
 end;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
@@ -3812,5 +3890,59 @@ begin
   inherited;
 end;
 { TRBDOrdemProducaoProduto }
+
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Dados da Quantidade da amostra
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDQuantidadeAmostra.cria;
+begin
+  inherited create;
+end;
+
+{******************************************************************************}
+destructor TRBDQuantidadeAmostra.destroy;
+begin
+  inherited;
+end;
+{ TRBDQuantidadeAmostra }
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Dados do preco de venda da amostra
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDValorVendaAmostra.cria;
+begin
+  inherited create;
+end;
+
+{******************************************************************************}
+destructor TRBDValorVendaAmostra.destroy;
+begin
+  inherited;
+end;
+{ TRBDValorVendaAmostra }
+
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Dados do preco do cliente da amostra
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDPrecoClienteAmostra.cria;
+begin
+  inherited create;
+end;
+
+{******************************************************************************}
+destructor TRBDPrecoClienteAmostra.destroy;
+begin
+
+  inherited;
+end;
+{ TRBDPrecoClienteAmostra }
 
 end.

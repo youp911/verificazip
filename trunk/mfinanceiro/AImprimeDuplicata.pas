@@ -147,7 +147,7 @@ var
 implementation
 
 uses APrincipal, AMostraDuplicata, Funsistema, Constantes, UnCrystal,
-  FunSql, FunData, ConstMsg, FunString, FunNumeros;
+  FunSql, FunData, ConstMsg, FunString, FunNumeros, dmRave;
 
 {$R *.DFM}
 
@@ -415,11 +415,9 @@ end;
 {******************************************************************************}
 procedure TFImprimeDuplicata.ImprimeFolhaemBranco(VpaVisualizar : Boolean);
 begin
-  if VpaVisualizar then
-    FunCrystal.ImprimeRelatorio(Varia.PathRelatorios+ '\Financeiro\XX_Duplicata.rpt',[MovParcelasI_EMP_FIL.AsString,MovParcelasI_LAN_REC.AsString,MovParcelasI_NRO_PAR.AsString,Extenso(MovParcelasN_VLR_PAR.AsFloat,'reais','real')])
-  else
-    FunCrystal.ImprimeRelatorioDiretoImpressora(varia.ImpressoraRelatorio,Varia.PathRelatorios+ '\Financeiro\XX_Duplicata.rpt',[MovParcelasI_EMP_FIL.AsString,MovParcelasI_LAN_REC.AsString,MovParcelasI_NRO_PAR.AsString,Extenso(MovParcelasN_VLR_PAR.AsFloat,'reais','real')],opPaisagem);
-
+  dtRave := TdtRave.Create(self);
+  dtRave.ImprimeDuplicata(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger,VpaVisualizar);
+  dtRave.free;
 end;
 
 {******************************************************************************}

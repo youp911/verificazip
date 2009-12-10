@@ -340,7 +340,7 @@ type
       CodMoeda,
       CodProjeto,
       CodUsuario,
-      QtdParcela,
+      CodCondicaoPagamento,
       FatorVencimento  : integer;
       DatEmissao : TDateTime;
       NomFornecedor,
@@ -352,8 +352,6 @@ type
       ValParcela,
       ValTotal,
       ValBoleto     : double;
-      QtdDiasPriVen,
-      QtdDiasDemaisVen  : integer;
       PerDescontoAcrescimo : double;
       IndBaixarConta,
       IndMostrarParcelas,

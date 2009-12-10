@@ -477,6 +477,15 @@ type
     PanelColor4: TPanelColor;
     DBEditColor27: TDBEditColor;
     CFGC_DIR_FAM: TWideStringField;
+    PSolidWork: TTabSheet;
+    PanelColor5: TPanelColor;
+    CFGC_SOW_IMC: TWideStringField;
+    DBCheckBox45: TDBCheckBox;
+    CFGI_COE_PAD: TFMTBCDField;
+    DBEditLocaliza31: TDBEditLocaliza;
+    Label115: TLabel;
+    SpeedButton40: TSpeedButton;
+    Label116: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

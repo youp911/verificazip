@@ -88,12 +88,6 @@ type
     CFGI_FRE_NOT: TFMTBCDField;
     Checkbox11: TDBCheckBox;
     CFGC_NRO_NOT: TWideStringField;
-    DBEditColor1: TDBEditColor;
-    Label34: TLabel;
-    DBEditColor2: TDBEditColor;
-    Label35: TLabel;
-    CFGN_PER_PIS: TFMTBCDField;
-    CFGN_PER_COF: TFMTBCDField;
     CAlteraNroNF: TDBCheckBox;
     CFGC_ALT_VNF: TWideStringField;
     PDadosPadraoNota: TTabSheet;
@@ -201,7 +195,6 @@ type
     CFGC_NOT_IEC: TWideStringField;
     DBCheckBox8: TDBCheckBox;
     CFGC_COM_ROM: TWideStringField;
-    CFGI_TRA_PRO: TFMTBCDField;
     PanelColor2: TPanelColor;
     PanelColor3: TPanelColor;
     procedure FormCreate(Sender: TObject);

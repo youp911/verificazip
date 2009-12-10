@@ -10,7 +10,6 @@ uses
 
 type
   TFMovNatureza = class(TFormularioPermissao)
-    PanelColor1: TPanelColor;
     Localiza: TConsultaPadrao;
     MovNaturezas: TSQL;
     DataMovNatureza: TDataSource;
@@ -73,6 +72,9 @@ type
     MovNaturezasC_EXI_CPF: TWideStringField;
     MovNaturezasC_CLA_PLA: TWideStringField;
     EProximoCodigo: TDBKeyViolation;
+    MovNaturezasC_CAL_PIS: TWideStringField;
+    MovNaturezasC_CAL_COF: TWideStringField;
+    DBCheckBox12: TDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -211,6 +213,8 @@ begin
    MovNaturezasC_GER_FIN.AsString := 'S';
    MovNaturezasC_MOS_NOT.AsString := 'S';
    MovNaturezasC_CAL_ISS.AsString := 'S';
+   MovNaturezasC_CAL_PIS.AsString := 'S';
+   MovNaturezasC_CAL_COF.AsString := 'S';
    MovNaturezasC_EXI_CPF.AsString := 'S';
 end;
 

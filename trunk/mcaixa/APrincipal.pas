@@ -210,7 +210,7 @@ end;
 {****************** organiza os botoes do formulario ************************ }
 procedure TFPrincipal.OrganizaBotoes;
 begin
- UnPri.OrganizaBotoes(0, [ BCascata, BLadoaLado, BNormal, BMFProdutos, Bsaida, SpeedButton6]);
+ UnPri.OrganizaBotoes(0, [ BCascata, BLadoaLado, BNormal, BMFProdutos, Bsaida]);
 end;
 
 // -------------------- Altera o Caption da Jabela Proncipal ------------------ }

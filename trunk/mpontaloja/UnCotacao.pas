@@ -2982,10 +2982,8 @@ begin
   VpfDContasAPagar.CodUsuario := varia.CodigoUsuario;
   VpfDContasAPagar.DatEmissao := date;
   VpfDContasAPagar.CodPlanoConta := varia.PlanoContasDevolucaoCotacao;
-  VpfDContasAPagar.QtdParcela := 1;
+  VpfDContasAPagar.CodCondicaoPagamento := varia.CondPagtoVista;
   VpfDContasAPagar.ValParcela := VpaValor;
-  VpfDContasAPagar.QtdDiasPriVen := 0;
-  VpfDContasAPagar.QtdDiasDemaisVen :=0;
   VpfDContasAPagar.PerDescontoAcrescimo := 0;
   VpfDContasAPagar.IndBaixarConta := true;
   VpfDContasAPagar.IndMostrarParcelas := false;

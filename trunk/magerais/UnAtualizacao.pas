@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1537;
+  CT_VersaoBanco = 1546;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1068,6 +1068,66 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE CADFILIAIS ADD C_IND_SPE CHAR(1) NULL');
         ExecutaComandoSql(Aux,'UPDATE CADFILIAIS SET C_IND_SPE = ''F''');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1537');
+      end;
+      if VpaNumAtualizacao < 1538 Then
+      begin
+        VpfErro := '1538';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADFILIAIS ADD (N_PER_COF NUMBER(6,3) NULL,'+
+                              ' N_PER_PIS NUMBER(6,3) NULL,'+
+                              ' C_CST_IPI CHAR(2) NULL )');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1538');
+      end;
+      if VpaNumAtualizacao < 1539 Then
+      begin
+        VpfErro := '1539';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_FISCAL DROP (N_PER_COF, N_PER_PIS)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1539');
+      end;
+      if VpaNumAtualizacao < 1540 Then
+      begin
+        VpfErro := '1540';
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVNATUREZA ADD(C_CAL_PIS CHAR(1) NULL,'+
+                              ' C_CAL_COF CHAR(1) NULL)');
+        ExecutaComandoSql(Aux,'Update MOVNATUREZA SET C_CAL_PIS = ''N'','+
+                              ' C_CAL_COF = ''N''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1540');
+      end;
+      if VpaNumAtualizacao < 1541 Then
+      begin
+        VpfErro := '1541';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADNOTAFISCAISFOR DROP (I_PRA_DIA, I_QTD_PAR)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1541');
+      end;
+      if VpaNumAtualizacao < 1542 Then
+      begin
+        VpfErro := '1542';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADNOTAFISCAISFOR ADD I_COD_PAG NUMBER(10,0) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1542');
+      end;
+      if VpaNumAtualizacao < 1543 Then
+      begin
+        VpfErro := '1543';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADCONTASAPAGAR ADD I_COD_PAG NUMBER(10,0) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1543');
+      end;
+      if VpaNumAtualizacao < 1544 Then
+      begin
+        VpfErro := '1544';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADNOTAFISCAISFOR ADD C_MOD_DOC CHAR(2) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1544');
+      end;
+      if VpaNumAtualizacao < 1545 Then
+      begin
+        VpfErro := '1545';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD C_SOW_IMC CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CFG_GERAL SET C_SOW_IMC = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1545');
+      end;
+      if VpaNumAtualizacao < 1546 Then
+      begin
+        VpfErro := '1546';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD I_COE_PAD NUMBER(10) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1546');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

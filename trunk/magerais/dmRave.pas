@@ -113,6 +113,8 @@ type
     procedure ImprimePedidosPorCliente(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaSituacaoCotacao, VpaCodCondicaoPagamento: Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao,VpaNomSituacao, VpaNomCodicaoPagamento : String);
     procedure ImprimeProspectCadastradosporVendedor(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer;VpaCaminho,VpaNomVendedor : String);
     procedure ImprimeAgenda(VpaCodUsuario : Integer;VpaCaminho, VpaNomUsuario : String;VpaDatInicio,VpaDatFim : TDateTime);
+    procedure ImprimeVencimentoContratos(VpaDatInicio,VpaDatFim : TDatetime;VpaCaminho : String);
+    procedure ImprimeDuplicata(VpaCodFilial,VpaLanReceber, VpaNumParcela : integer;vpaVisualizar : Boolean);
   end;
 
 
@@ -121,7 +123,7 @@ var
 
 implementation
 
-uses APrincipal, FunSql, Constantes, UnSistema,FunData, FunString;
+uses APrincipal, FunSql, Constantes, UnSistema,FunData, FunString, funNumeros;
 
 {$R *.dfm}
 
@@ -2654,6 +2656,62 @@ begin
   AdicionaSqlTabeLa(Principal,'ORDER BY USU.C_NOM_USU, AGE.DATINICIO ');
   Rave.SetParam('PERIODO','Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDatetime('DD/MM/YYYY',VpaDatFim));
   Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeVencimentoContratos(VpaDatInicio, VpaDatFim: TDatetime; VpaCaminho: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Vencimento Contratos';
+  Rave.projectfile := varia.PathRelatorios+'\Contrato\0300CHPL_Vencimento dos Contratos.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select CLI.I_COD_CLI, CLI.C_NOM_CLI, '+
+                              ' CON.CODFILIAL, CON.SEQCONTRATO, CON.NUMCONTRATO, CON.DATASSINATURA, CON.QTDMESES, '+
+                              ' CON.DATCANCELAMENTO, '+
+                              ' TIP.NOMTIPOCONTRATO '+
+                              ' FROM CADCLIENTES CLI, CONTRATOCORPO CON, TIPOCONTRATO TIP '+
+                              ' Where CON.CODCLIENTE = CLI.I_COD_CLI '+
+                              ' AND CON.CODTIPOCONTRATO = TIP.CODTIPOCONTRATO '+
+                              SQLTextoDataEntreAAAAMMDD('add_months(DATASSINATURA,CON.QTDMESES)',VpaDatInicio,VpaDatFim,true)+
+                              ' AND CON.DATCANCELAMENTO IS NULL '+
+                              ' order by add_months(DATASSINATURA,CON.QTDMESES) ' );
+  Rave.SetParam('PERIODO','Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDatetime('DD/MM/YYYY',VpaDatFim));
+  Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeDuplicata(VpaCodFilial, VpaLanReceber, VpaNumParcela: integer; vpaVisualizar: Boolean);
+Var
+  VpfValExtenso : String;
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Duplicata';
+  Rave.projectfile := varia.PathRelatorios+'\Financeiro\xx_Duplicata.rav';
+  if vpaVisualizar then
+    RvSystem1.defaultDest := rdPreview
+  else
+    RvSystem1.defaultDest := rdPrinter;
+  Rave.clearParams;
+  AdicionaSqlAbreTabeLa(Principal,'select CLI.I_COD_CLI, CLI.C_NOM_CLI, CLI.C_END_CLI, CLI.C_BAI_CLI, CLI.C_CEP_CLI, CLI.C_EST_CLI, CLI.C_CID_CLI, '+
+                              ' CLI.C_REG_CLI, CLI.C_CPF_CLI, CLI.C_CGC_CLI, CLI.C_INS_CLI, CLI.C_TIP_PES, CLI.I_NUM_END, CLI.C_PRA_CLI, '+
+                              ' CLI.C_END_COB, CLI.I_NUM_COB, CLI.C_BAI_COB, CLI.C_CEP_COB, CLI.C_CID_COB, CLI.C_EST_COB, '+
+                              ' CAD.D_DAT_EMI, CAD.I_NRO_NOT, CAD.I_QTD_PAR, CAD.N_VLR_TOT, '+
+                              ' MOV.I_EMP_FIL, MOV.I_LAN_REC, MOV.I_NRO_PAR, MOV.D_DAT_VEN, MOV.N_VLR_PAR, '+
+                              ' MOV.C_NRO_DUP '+
+                              ' FROM CADCLIENTES CLI, CADCONTASARECEBER CAD, MOVCONTASARECEBER MOV '+
+                              ' WHERE CAD.I_COD_CLI = CLI.I_COD_CLI '+
+                              ' AND CAD.I_EMP_FIL = MOV.I_EMP_FIL '+
+                              ' AND CAD.I_LAN_REC = MOV.I_LAN_REC '+
+                              ' AND MOV.I_EMP_FIL = '+IntToStr(VpaCodFilial)+
+                              ' AND MOV.I_LAN_REC =  '+IntToStr(VpaLanReceber)+
+                              ' AND MOV.I_NRO_PAR = '+IntToStr(VpaNumParcela));
+  Sistema.CarDFilial(VprDFilial,VpaCodFilial);
+  FunRave.EnviaParametrosFilial(Rave,VprDFilial);
+  Rave.SetParam('VALEXTENSO',Extenso(Principal.FieldByName('N_VLR_PAR').AsFloat,'reais','real'));
   Rave.Execute;
 end;
 

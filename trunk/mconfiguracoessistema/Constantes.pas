@@ -444,7 +444,8 @@ type
 
       //Amostra
       QtdDiasUteisEntregaAmostra,
-      CodDesenvolvedorRequisicaoAmostra : Integer;
+      CodDesenvolvedorRequisicaoAmostra,
+      CodCoeficienteCustoPadrao : Integer;
 
 
       constructor cria(VpaBaseDados : TSQLConnection);
@@ -681,6 +682,9 @@ type
 
     //Amostra
     CodigoAmostraGeradoPelaClassificacao : Boolean;
+
+    //SolidWork
+    NaImportacaodoSolidWorkAMateriaPrimabuscarPeloCodigo : Boolean;
 
     //------------------------Outros
     AtualizarVersaoAutomaticamente: Boolean;
@@ -1193,6 +1197,8 @@ begin
         CodIBGEMunicipio := VpfTabela.FieldByName('I_COD_FIS').AsInteger;
         PerfilSped :=VpfTabela.FieldByName('C_PER_SPE').AsString;
         TipoAtividadeSped := VpfTabela.FieldByName('I_ATI_SPE').AsInteger;
+        PerPIS := VpfTabela.FieldByname('N_PER_PIS').AsFloat;
+        PerCOFINS := VpfTabela.FieldByname('N_PER_COF').AsFloat;
 
     end;
     with Config do   // boolean
@@ -1382,6 +1388,7 @@ begin
        QtdMaximaMesesEntregaPedido := VpfTabela.FieldByName('I_COT_QME').AsInteger;
        QtdDiasUteisEntregaAmostra := VpfTabela.FieldByName('I_DIA_AMO').AsInteger;
        CodDesenvolvedorRequisicaoAmostra := VpfTabela.FieldByName('I_COD_DEA').AsInteger;
+       CodCoeficienteCustoPadrao := VpfTabela.FieldByName('I_COE_PAD').AsInteger;
        DesObservacaoBoleto := VpfTabela.FieldByName('C_OBS_BOL').AsString;
     end;
 
@@ -1437,6 +1444,7 @@ begin
       ConverterMTeCMparaMM := TipoCheck( VpfTabela.fieldByName('C_ORP_CMM').AsString);
       ImprimirCodigoCorNaNota := TipoCheck( VpfTabela.fieldByName('C_NOF_ICO').AsString);
       CodigoAmostraGeradoPelaClassificacao := TipoCheck( VpfTabela.fieldByName('C_AMO_CAC').AsString);
+      NaImportacaodoSolidWorkAMateriaPrimabuscarPeloCodigo := TipoCheck( VpfTabela.fieldByName('C_SOW_IMC').AsString);
     end;
   end;
 
@@ -1670,8 +1678,6 @@ begin
         NaturezaServicoEProdutoForaEstado := VpfTabela.fieldByName('C_NAT_PSF').AsString;
         LayoutECF := VpfTabela.fieldByName('I_LAY_ECF').AsInteger;
         TamanhoFonteECF := VpfTabela.fieldByName('I_FON_ECF').AsInteger;
-        PerPIS := VpfTabela.FieldByname('N_PER_PIS').AsFloat;
-        PerCOFINS := VpfTabela.FieldByname('N_PER_COF').AsFloat;
         PlacaVeiculoNota := VpfTabela.FieldByname('C_PLA_VEI').AsString;
         MarcaEmbalagem := VpfTabela.FieldByName('C_MAR_PRO').AsString;
         CodTransportadora :=  VpfTabela.FieldByName('I_COD_TRA').AsInteger;

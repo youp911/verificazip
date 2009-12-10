@@ -557,7 +557,7 @@ end;
 function TRBFuncoesPremer.AssociaMateriaPrima(VpaLinha : String;VpaDProduto : TRBDProduto):String;
 var
   VpfSeqProduto : Integer;
-  VpfNomProduto, VpfDimensoes, VpfQtd : string;
+  VpfNomProduto,VpfCodProduto, VpfDimensoes, VpfQtd, VpfAux : string;
 begin
   result := '';
   VpfNomProduto := RetiraAcentuacao(UpperCase(CopiaAteChar(VpaLinha,';')));
@@ -576,44 +576,54 @@ begin
     if (VpfNomProduto[length(VpfNomProduto)] = '"') and (VpfNomProduto[length(VpfNomProduto)-1] = '"') then
       VpfNomProduto := Copy(VpfNomProduto,1,length(VpfNomProduto)-1);
     VpfNomProduto := RetiraAcentuacao(VpfNomProduto);
-    if not FunProdutos.ExisteNomeProduto(VpfSeqProduto,VpfNomProduto)then
-      VpfSeqProduto := CadastraMateriaPrima(VpfNomPRODUTO,VpfDimensoes);
 
-    AdicionaSQLAbreTabela(Cadastro,'Select * from MOVKIT '+
-                                   ' Where I_PRO_KIT = 0 AND I_SEQ_MOV = 0 AND I_COR_KIT = 0 ');
-    Cadastro.insert;
-    Cadastro.FieldByname('I_PRO_KIT').AsInteger := VpaDProduto.SeqProduto;
-    Cadastro.FieldByname('I_SEQ_PRO').AsInteger := VpfSeqProduto;
-    Cadastro.FieldByname('I_COD_EMP').AsInteger := varia.CodigoEmpresa;
-    Cadastro.FieldByname('D_ULT_ALT').AsDateTime := now;
-    Cadastro.FieldByname('I_COR_KIT').AsInteger := 0;
-    Cadastro.FieldByname('I_COD_COR').AsInteger := 0;
-
-    if ContaLetra(VpfDimensoes,'X') = 0 then // Refil Aco colocar o comprimento;
+    if Config.NaImportacaodoSolidWorkAMateriaPrimabuscarPeloCodigo then
     begin
-      Cadastro.FieldByname('C_COD_UNI').AsString := 'CM';
-      Cadastro.FieldByname('N_QTD_PRO').AsFloat := RMedidaComPerda(VpfDimensoes);
+      VpfCodProduto := VpfNomProduto;
+      if not FunProdutos.ExisteCodigoProduto(VpfSeqProduto,VpfCodProduto,vpfAux)then
+        result := 'CÓDIGO "'+VpfNomProduto+'" NÃO EXISTE CADASTRADO NO SISTEMA!!!!!'#13'É necessário cadastrar o codigo do sistema antes da importação';
     end
     else
-      if ContaLetra(VpfDimensoes,'X') = 1 then // chapa de aco;
-      begin
-        Cadastro.FieldByname('C_COD_UNI').AsString := 'KG';
-        Cadastro.FieldByname('N_QTD_PRO').AsFloat := 1;
-        Cadastro.FieldByname('I_LAR_MOL').AsFloat := RMedidaComPerda(CopiaAteChar(VpfDimensoes,'X'));
-        VpfDimensoes := DeleteAteChar(VpfDimensoes,'X');
-        Cadastro.FieldByname('I_ALT_MOL').AsFloat := RMedidaComPerda(VpfDimensoes);
-      end
-      else
+      if not FunProdutos.ExisteNomeProduto(VpfSeqProduto,VpfNomProduto)then
+        VpfSeqProduto := CadastraMateriaPrima(VpfNomPRODUTO,VpfDimensoes);
+    if result = '' then
+    begin
+      AdicionaSQLAbreTabela(Cadastro,'Select * from MOVKIT '+
+                                     ' Where I_PRO_KIT = 0 AND I_SEQ_MOV = 0 AND I_COR_KIT = 0 ');
+      Cadastro.insert;
+      Cadastro.FieldByname('I_PRO_KIT').AsInteger := VpaDProduto.SeqProduto;
+      Cadastro.FieldByname('I_SEQ_PRO').AsInteger := VpfSeqProduto;
+      Cadastro.FieldByname('I_COD_EMP').AsInteger := varia.CodigoEmpresa;
+      Cadastro.FieldByname('D_ULT_ALT').AsDateTime := now;
+      Cadastro.FieldByname('I_COR_KIT').AsInteger := 0;
+      Cadastro.FieldByname('I_COD_COR').AsInteger := 0;
+
+      if ContaLetra(VpfDimensoes,'X') = 0 then // Refil Aco colocar o comprimento;
       begin
         Cadastro.FieldByname('C_COD_UNI').AsString := 'CM';
-        Cadastro.FieldByname('N_QTD_PRO').AsFloat := 1;
-      end;
+        Cadastro.FieldByname('N_QTD_PRO').AsFloat := RMedidaComPerda(VpfDimensoes);
+      end
+      else
+        if ContaLetra(VpfDimensoes,'X') = 1 then // chapa de aco;
+        begin
+          Cadastro.FieldByname('C_COD_UNI').AsString := 'KG';
+          Cadastro.FieldByname('N_QTD_PRO').AsFloat := 1;
+          Cadastro.FieldByname('I_LAR_MOL').AsFloat := RMedidaComPerda(CopiaAteChar(VpfDimensoes,'X'));
+          VpfDimensoes := DeleteAteChar(VpfDimensoes,'X');
+          Cadastro.FieldByname('I_ALT_MOL').AsFloat := RMedidaComPerda(VpfDimensoes);
+        end
+        else
+        begin
+          Cadastro.FieldByname('C_COD_UNI').AsString := 'CM';
+          Cadastro.FieldByname('N_QTD_PRO').AsFloat := 1;
+        end;
 
-    Cadastro.FieldByName('I_SEQ_MOV').AsInteger := RSeqConsumoDisponivel(VpaDProduto.SeqProduto,0);
-    Cadastro.post;
-    if Cadastro.AErronaGravacao then
-      result := 'ERRO NA GRAVAÇÃO DO CONSUMO DO PRODUTO!!!'+#13+Cadastro.AMensagemErroGravacao;
-    Cadastro.close;
+      Cadastro.FieldByName('I_SEQ_MOV').AsInteger := RSeqConsumoDisponivel(VpaDProduto.SeqProduto,0);
+      Cadastro.post;
+      if Cadastro.AErronaGravacao then
+        result := 'ERRO NA GRAVAÇÃO DO CONSUMO DO PRODUTO!!!'+#13+Cadastro.AMensagemErroGravacao;
+      Cadastro.close;
+    end;
   end;
 end;
 

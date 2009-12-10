@@ -187,7 +187,6 @@ uses
   agraficoscontasareceber in '..\mfinanceiro\agraficoscontasareceber.pas' {FGraficosCR},
   AVisualizaLogReceber in '..\mfinanceiro\AVisualizaLogReceber.pas' {FVisualizaLogReceber},
   ANovoContasaReceber in '..\mfinanceiro\ANovoContasaReceber.pas' {FNovoContasAReceber},
-  AImprimeCR in '..\mfinanceiro\AImprimeCR.pas' {FImprimeCR},
   AManutencaoCR in '..\mfinanceiro\AManutencaoCR.pas' {FManutencaoCR},
   AMovComissoes in '..\mfinanceiro\AMovComissoes.pas' {FMovComissoes},
   AContasAConsolidarCR in '..\mfinanceiro\AContasAConsolidarCR.pas' {FContasAConsolidarCR},

@@ -131,7 +131,7 @@ var
 implementation
 
 uses constMsg, constantes, funSql, funstring, fundata, FunNumeros,AMostraParPagarOO,
-      AChequesCP, UnContasAReceber, FunObjeto,ABaixaContasaPagarOO;
+      AChequesCP, UnContasAReceber, FunObjeto,ABaixaContasaPagarOO, UnSistema;
 
 
 {#############################################################################
@@ -295,7 +295,7 @@ begin
                                  ' Where I_EMP_FIL = '+IntToStr(VpaCodFilial)+
                                  ' and I_LAN_APG = ' + IntToStr(VpaLanPagar));
   VpaDContasAPagar.CodFilial := Tabela.FieldByName('I_EMP_FIL').AsInteger;
-  VpaDContasAPagar.QtdParcela := Tabela.FieldByName('I_QTD_PAR').AsInteger;
+  VpaDContasAPagar.CodCondicaoPagamento := Tabela.FieldByName('I_COD_PAG').AsInteger;
   VpaDContasAPagar.CodCentroCusto := Tabela.FieldByName('I_COD_CEN').AsInteger;
   VpaDContasAPagar.DatEmissao := Tabela.FieldByName('D_DAT_EMI').AsDateTime;
   VpaDContasAPagar.DesPathFoto := Tabela.FieldByName('C_PAT_FOT').AsString;
@@ -349,7 +349,7 @@ begin
   result := '';
   CriaParcelas(VpaDContasaPagar);
    // formas de pagamento
-  if (VpaDContasaPagar.QtdParcela = 1) and
+  if (VpaDContasaPagar.CodCondicaoPagamento = Varia.CondPagtoVista) and
      ((VpaDContasaPagar.DesTipFormaPagamento = 'D') or
      (VpaDContasaPagar.DesTipFormaPagamento = 'T') or (VpaDContasaPagar.DesTipFormaPagamento = 'E')) then  // caso par 1 e =  dinheiro, cartao, cheque eletronico naum chamar detalhes
      VpaDContasaPagar.IndMostrarParcelas := false;
@@ -385,26 +385,39 @@ end;
 {********* criacao das parcelas **********************************************}
 procedure TFuncoesContasAPagar.CriaParcelas(VpaDContasaPagar : TRBDContasaPagar);
 var
-  Vpflaco : integer;
+  VpfParcela, VpfDiaAtual : integer;
   VpfDParcela : TRBDParcelaCP;
   VpfDatVencimento : TDatetime;
 begin
   FreeTObjectsList(VpaDContasaPagar.Parcelas);
-  for VpfLaco := 1 to VpaDContasaPagar.QtdParcela do
+  VpfDatVencimento := VpaDContasaPagar.DatEmissao;
+  VpfParcela := 1;
+  VpfDiaAtual := dia(VpfDatVencimento); // usado para modificar data fixa, nos dia (29,30,e 31 ) com vencimento sempre na data da compra
+  AdicionaSQLAbreTabela(Tabela,'Select CAD.N_IND_REA, CAD.N_PER_DES, CAD.I_DIA_CAR, CAD.I_QTD_PAR, '+
+                                        ' MOV.N_PER_PAG, MOV.N_PER_CON,'+
+                                        ' MOV.C_CRE_DEB,MOV.D_DAT_FIX, MOV.I_DIA_FIX, MOV.I_NUM_DIA'+
+                                        ' from CADCONDICOESPAGTO CAD, MOVCONDICAOPAGTO MOV '+
+                                        ' Where CAD.I_COD_PAG = MOV.I_COD_PAG '+
+                                        ' AND CAD.I_COD_PAG = '+ IntToStr(VpaDContasaPagar.CodCondicaoPagamento)+
+                                        ' ORDER BY I_NRO_PAR');
+  while not Tabela.Eof do
   begin
     VpfDParcela := VpaDContasaPagar.addParcela;
     VpfDParcela.CodFilial := VpaDContasaPagar.CodFilial;
     VpfDParcela.LanPagar := VpaDContasaPagar.LanPagar;
-    VpfDParcela.NumParcela := Vpflaco;
+    VpfDParcela.NumParcela := VpfParcela;
     VpfDParcela.NumParcelaParcial := 0;
     VpfDParcela.CodCliente := VpaDContasaPagar.CodFornecedor;
     VpfDParcela.NomCliente := VpaDContasaPagar.NomFornecedor;
     VpfDParcela.CodFormaPagamento := VpaDContasaPagar.CodFormaPagamento;
     VpfDParcela.NumContaCorrente := VpaDContasaPagar.NumContaCaixa;
     VpfDParcela.NumNotaFiscal := VpaDContasaPagar.NumNota;
-    VpfDParcela.NumDuplicata := IntToStr(VpaDContasaPagar.NumNota)+'/'+IntToStr(VpfLaco);
+    VpfDParcela.NumDuplicata := IntToStr(VpaDContasaPagar.NumNota)+'/'+IntToStr(VpfParcela);
     VpfDParcela.DatEmissao := VpaDContasaPagar.DatEmissao;
-    if Vpflaco = 1 then
+    VpfDatVencimento := FunContasAReceber.CalculaVencimento(VpfDatVencimento,Tabela.FieldByName('I_NUM_DIA').AsInteger,
+                       Tabela.FieldByName('I_DIA_FIX').AsInteger,Tabela.FieldByName('D_DAT_FIX').AsDateTime,
+                       VpfDiaAtual);
+    if VpfParcela = 1 then
     begin
       if VpaDContasaPagar.CodBarras <> '' then
       begin
@@ -412,10 +425,10 @@ begin
         VpfDParcela.CodBarras := VpaDContasaPagar.CodBarras;
       end
       else
-        VpfDParcela.DatVencimento := IncDia(VpaDContasaPagar.DatEmissao,VpaDContasaPagar.QtdDiasPriVen);
+        VpfDParcela.DatVencimento := VpfDatVencimento;
     end
     else
-      VpfDParcela.DatVencimento := IncDia(VpfDatVencimento,VpaDContasaPagar.QtdDiasDemaisVen);
+      VpfDParcela.DatVencimento := VpfDatVencimento;
     VpfDatVencimento := VpfDParcela.DatVencimento;
     VpfDParcela.DatPagamento := montadata(1,1,1900);
     VpfDParcela.ValParcela := VpaDContasaPagar.ValParcela;
@@ -423,7 +436,10 @@ begin
     VpfDParcela.PerJuros := Varia.Juro;
     VpfDParcela.PerMulta := Varia.Multa;
     VpfDParcela.IndContaOculta := VpaDContasaPagar.IndEsconderConta;
+    inc(VpfParcela);
+    Tabela.next;
   end;
+  Tabela.close;
 end;
 
 {*************** atualiza o valor total do cadcontasapagar ***************** }
@@ -981,7 +997,8 @@ begin
     Cadastro.edit;
   Cadastro.FieldByName('I_COD_EMP').AsInteger := Varia.CodigoEmpresa;
   Cadastro.FieldByName('I_EMP_FIL').AsInteger := VpaDContasAPagar.CodFilial;
-  Cadastro.FieldByName('I_QTD_PAR').AsInteger := VpaDContasAPagar.QtdParcela;
+  Cadastro.FieldByName('I_COD_PAG').AsInteger := VpaDContasAPagar.CodCondicaoPagamento;
+  Cadastro.FieldByName('I_QTD_PAR').AsInteger := Sistema.RQtdParcelasCondicaoPagamento(VpaDContasAPagar.CodCondicaoPagamento);
   if VpaDContasAPagar.CodCentroCusto <> 0 then
     Cadastro.FieldByName('I_COD_CEN').AsInteger := VpaDContasAPagar.CodCentroCusto
   else
@@ -1595,29 +1612,14 @@ begin
     VpfDContasPagar.CodUsuario := varia.CodigoUsuario;
     VpfDContasPagar.DatEmissao := VpaDRetornoItem.DatOcorrencia;
     VpfDContasPagar.CodPlanoConta := VpaPlanoContas;
-    VpfDContasPagar.QtdParcela := 1;
+    VpfDContasPagar.CodCondicaoPagamento := VARIA.CondPagtoVista;
     VpfDContasPagar.ValParcela := VpaValor;
-    VpfDContasPagar.QtdDiasPriVen := 0;
-    VpfDContasPagar.QtdDiasDemaisVen := 0;
     VpfDContasPagar.IndBaixarConta := true;
     VpfDContasPagar.IndMostrarParcelas := false;
     VpfDContasPagar.IndEsconderConta := false;
     VpfDContasPagar.DesTipFormaPagamento := 'D';
     VpfDContasPagar.DesObservacao := VpaDescricao;
     CriaContaPagar(VpfDContasPagar,nil);
-
-{    VpfDBaixa := TDadosBaixaCP.Create;
-    VpfDBaixa.LancamentoCP := VpfDContasPagar.lan;
-    VpfDBaixa.NroParcela := 1;
-    VpfDBaixa.CodUsuario := varia.CodigoUsuario;
-    VpfdBaixa.CodMoedaAtual := varia.MoedaBase;
-    VpfDBaixa.CodFormaPAgamento := varia.FormaPagamentoDinheiro;
-    VpfDBaixa.DataPagamento := VpfDContasPagar.DataEmissao;
-    VpfDBaixa.ValorPago := VpfDContasPagar.ValorParcela;
-    VpfDBaixa.TipoFrmPagto := 'D'
-
-    VpfDBaixa.free;
-    VpfDContasPagar.free;}
   end;
 end;
 

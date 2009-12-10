@@ -510,6 +510,9 @@ begin
             else
               if (VPANOMRELATORIO = 'AGENDA USUARIO') then
                 AlterarVisibleDet([PUsuario,PPeriodo],true)
+            else
+              if (VPANOMRELATORIO = 'VENCIMENTO DOS CONTRATOS') then
+                AlterarVisibleDet([PPeriodo],true)
 end;
 
 
@@ -683,7 +686,10 @@ begin
               dtRave.ImprimeProspectCadastradosporVendedor(CDataIni.Date,CdataFim.Date,EVendedor.AInteiro,VprCaminhoRelatorio,lVendedor.caption)
           else
             if (VPRNOMRELATORIO = 'AGENDA USUARIO') then
-              dtRave.ImprimeAgenda(ECodUsuario.AInteiro,VprCaminhoRelatorio,LNomUsuario.caption, CDataIni.Date,CdataFim.Date);
+              dtRave.ImprimeAgenda(ECodUsuario.AInteiro,VprCaminhoRelatorio,LNomUsuario.caption, CDataIni.Date,CdataFim.Date)
+          else
+            if (VPRNOMRELATORIO = 'VENCIMENTO DOS CONTRATOS') then
+              dtRave.ImprimeVencimentoContratos(CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio);
   dtRave.free;
 end;
 

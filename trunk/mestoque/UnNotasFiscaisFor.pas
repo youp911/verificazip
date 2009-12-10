@@ -756,11 +756,11 @@ begin
   VpaDNotaFor.DNaturezaOperacao.CodPlanoContas := Tabela.FieldByName('C_CLA_PLA').AsString;
   VpaDNotaFor.DNaturezaOperacao.CodOperacaoEstoque := Tabela.FieldByName('I_COD_OPE').AsInteger;
   VpaDNotaFor.CodFormaPagamento := Tabela.FieldByName('I_COD_FRM').AsInteger;
-  VpaDNotaFor.QtdParcelas := Tabela.FieldByName('I_QTD_PAR').AsInteger;
-  VpaDNotaFor.NumDiasPrazo := Tabela.FieldByName('I_PRA_DIA').AsInteger;
+  VpaDNotaFor.CodCondicaoPagamento := Tabela.FieldByName('I_COD_PAG').AsInteger;
   VpaDNotaFor.IndNotaDevolucao :=(Tabela.FieldByName('C_IND_DEV').AsString = 'S');
   VpaDNotaFor.CodVendedor := Tabela.FieldByName('I_COD_VEN').AsInteger;
   VpaDNotaFor.PerComissao := Tabela.FieldByName('N_PER_COM').AsFloat;
+  VpaDNotaFor.CodModeloDocumento := Tabela.FieldByName('C_MOD_DOC').AsString;
   Tabela.close;
   CarDItemNotaFor(VpaDNotaFor);
 end;
@@ -813,8 +813,7 @@ begin
   NotCadastro.FieldByName('N_VLR_DES').AsFloat := VpaDNotaFor.ValDesconto;
   NotCadastro.FieldByName('N_VLR_DEC').AsFloat := VpaDNotaFor.ValDescontoCalculado;
   NotCadastro.FieldByName('N_PER_DES').AsFloat := VpaDNotaFor.PerDesconto;
-  NotCadastro.FieldByName('I_QTD_PAR').AsInteger := VpaDNotaFor.QtdParcelas;
-  NotCadastro.FieldByName('I_PRA_DIA').AsInteger := VpaDNotaFor.NumDiasPrazo;
+  NotCadastro.FieldByName('I_COD_PAG').AsInteger := VpaDNotaFor.CodCondicaoPagamento;
   if VpaDNotaFor.DNaturezaOperacao.CodPlanoContas <> '' then
     NotCadastro.FieldByName('C_CLA_PLA').AsString :=  VpaDNotaFor.DNaturezaOperacao.CodPlanoContas
   else
@@ -940,10 +939,7 @@ begin
       VpfDadoCP.DatEmissao := VpaDNotaFor.DatEmissao;
       VpfDadoCP.CodPlanoConta := VpaDNotaFor.DNaturezaOperacao.CodPlanoContas;
       VpfDadoCP.DesPathFoto := '';
-      VpfDadoCP.QtdParcela := VpaDNotaFor.QtdParcelas;
-      VpfDadoCP.ValParcela :=  VpaDNotaFor.ValTotal /VpaDNotaFor.QtdParcelas;
-      VpfDadoCP.QtdDiasPriVen := 0;
-      VpfDadoCP.QtdDiasDemaisVen := VpaDNotaFor.NumDiasPrazo;
+      VpfDadoCP.CodCondicaoPagamento := VpaDNotaFor.CodCondicaoPagamento;
       VpfDadoCP.PerDescontoAcrescimo := 0;
       VpfDadoCP.IndMostrarParcelas := true;
       VpfDadoCP.DesTipFormaPagamento := VpaDNotaFor.TipFormaPagamento;

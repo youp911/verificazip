@@ -31,12 +31,22 @@ type
     GServicos: TRBStringGridColor;
     PanelColor4: TPanelColor;
     PServicoFixo: TTabSheet;
-    PCustosIndiretos: TTabSheet;
+    PValorVenda: TTabSheet;
     GServicoFixo: TRBStringGridColor;
     EValVenda: Tnumerico;
     Label3: TLabel;
     ETipoMateriaPrima: TRBEditLocaliza;
     PanelColor5: TPanelColor;
+    GQuantidade: TRBStringGridColor;
+    GValorVenda: TRBStringGridColor;
+    EPerLucro: Tnumerico;
+    EPerComissao: Tnumerico;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    EValSugerido: Tnumerico;
+    GPrecoCliente: TRBStringGridColor;
+    BitBtn1: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
@@ -90,16 +100,38 @@ type
     procedure GradeDepoisExclusao(Sender: TObject);
     procedure ETipoMateriaPrimaCadastrar(Sender: TObject);
     procedure ETipoMateriaPrimaRetorno(VpaColunas: TRBColunasLocaliza);
+    procedure GQuantidadeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
+    procedure GQuantidadeDadosValidos(Sender: TObject; var VpaValidos: Boolean);
+    procedure GQuantidadeGetEditMask(Sender: TObject; ACol, ARow: Integer; var Value: string);
+    procedure GQuantidadeMudouLinha(Sender: TObject; VpaLinhaAtual, VpaLinhaAnterior: Integer);
+    procedure GQuantidadeNovaLinha(Sender: TObject);
+    procedure GValorVendaCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
+    procedure GValorVendaDadosValidos(Sender: TObject; var VpaValidos: Boolean);
+    procedure GValorVendaMudouLinha(Sender: TObject; VpaLinhaAtual, VpaLinhaAnterior: Integer);
+    procedure EPerLucroEnter(Sender: TObject);
+    procedure EPerLucroExit(Sender: TObject);
+    procedure EPerComissaoEnter(Sender: TObject);
+    procedure EPerComissaoExit(Sender: TObject);
+    procedure EValSugeridoEnter(Sender: TObject);
+    procedure EValSugeridoExit(Sender: TObject);
+    procedure GPrecoClienteCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
+    procedure BitBtn1Click(Sender: TObject);
   private
     VprServicoAnterior,
     VprServicoFixoAnterior,
     VprProdutoAnterior: String;
     VprCorAmostraAnterior : Integer;
     VprAcao : Boolean;
+    VprPerLucro,
+    VprPerComissao,
+    VprValSugerido : Double;
     VprDAmostra: TRBDAmostra;
     VprDConsumoAmostra: TRBDConsumoAmostra;
     VprDServicoAmostra : TRBDServicoAmostra;
     VprDServicoFixoAmostra : TRBDServicoFixoAmostra;
+    VprDQuantidadeAmostra : TRBDQuantidadeAmostra;
+    VprDValorVendaAmostra : TRBDValorVendaAmostra;
+    VprDPrecoCliente : TRBDPrecoClienteAmostra;
     FunAmostra : TRBFuncoesAmostra;
     procedure CarTitulosGrade;
     procedure CarQtdPecaMetroGrade;
@@ -122,6 +154,7 @@ type
     procedure CalculaConsumos;
     procedure CalculaValorTotalServico;
     procedure CalculaValorTotalServicoFixo;
+    procedure CarComissaoLucroPadrao;
   public
     function ConsumosAmostra(VpaDAmostra: TRBDAmostra): Boolean;
   end;
@@ -132,7 +165,7 @@ var
 implementation
 uses
   APrincipal, ConstMSG, ALocalizaProdutos, funString, ACores, FunObjeto,
-  ALocalizaServico, ATipoMateriaPrima;
+  ALocalizaServico, ATipoMateriaPrima, UnClientes;
 
 {$R *.DFM}
 
@@ -146,6 +179,7 @@ begin
   VprDConsumoAmostra:= TRBDConsumoAmostra.cria;
   FunAmostra := TRBFuncoesAmostra.cria(FPrincipal.BaseDados);
   CarTitulosGrade;
+  CarComissaoLucroPadrao
 end;
 
 { ******************* Quando o formulario e fechado ************************** }
@@ -164,25 +198,6 @@ end;
 {******************************************************************************}
 procedure TFAmostraConsumo.CarTitulosGrade;
 begin
-{  Grade.Cells[1,0] := 'Código';
-  Grade.Cells[2,0] := 'Produto';
-  Grade.Cells[3,0] := 'Código';
-  Grade.Cells[4,0] := 'Cor';
-  Grade.Cells[5,0] := 'UM';
-  Grade.Cells[6,0] := 'Quantidade';
-  Grade.Cells[7,0] := 'Valor Unitario';
-  Grade.Cells[8,0] := 'Valor Total';
-  Grade.Cells[9,0] := 'Código';
-  Grade.Cells[10,0] := 'Faca';
-  Grade.Cells[11,0] := 'Lar Molde';
-  Grade.Cells[12,0] := 'Alt Molde';
-  Grade.Cells[13,0] := 'Código';
-  Grade.Cells[14,0] := 'Máquina';
-  Grade.Cells[15,0] := 'Pcs em MT';
-  Grade.Cells[16,0] := 'Indice MT';
-  Grade.Cells[17,0] := 'Observações';
-  Grade.Cells[18,0] := 'Legenda';}
-
   Grade.Cells[1,0] := 'Código';
   Grade.Cells[2,0] := 'Produto';
   Grade.Cells[3,0] := 'Código';
@@ -224,6 +239,29 @@ begin
   GServicoFixo.Cells[4,0] := 'Quantidade';
   GServicoFixo.Cells[5,0] := 'Valor Unitário';
   GServicoFixo.Cells[6,0] := 'Valor Total';
+
+  GQuantidade.Cells[1,0] := 'Quantidade';
+
+  GValorVenda.Cells[1,0] := 'Quantidade';
+  GValorVenda.Cells[2,0] := 'Valor Venda';
+  GValorVenda.Cells[3,0] := 'Codigo';
+  GValorVenda.Cells[4,0] := 'Tabela';
+  GValorVenda.Cells[5,0] := '%Lucro';
+  GValorVenda.Cells[6,0] := '%Comissão';
+  GValorVenda.Cells[7,0] := 'Custo Mat Prima';
+  GValorVenda.Cells[8,0] := 'Custo Processos';
+  GValorVenda.Cells[9,0] := 'Custo Produto';
+  GValorVenda.Cells[10,0] := 'Custo com Impostos';
+  GValorVenda.Cells[11,0] := 'Preço sem Items Especiais';
+
+  GPrecoCliente.Cells[1,0] := 'Quantidade';
+  GPrecoCliente.Cells[2,0] := 'Valor Venda';
+  GPrecoCliente.Cells[3,0] := 'Código';
+  GPrecoCliente.Cells[4,0] := 'Tabela';
+  GPrecoCliente.Cells[5,0] := '% Lucro';
+  GPrecoCliente.Cells[6,0] := '% Comissão';
+  GPrecoCliente.Cells[7,0] := 'Codigo';
+  GPrecoCliente.Cells[8,0] := 'Cliente';
 end;
 
 {******************************************************************************}
@@ -237,6 +275,115 @@ begin
     Grade.Cells[26,Grade.ALinha]:= FormatFloat('###,###,##0.00',VprDConsumoAmostra.ValIndiceConsumo)
   else
     Grade.Cells[26,Grade.ALinha]:= '';
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GValorVendaCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
+begin
+  VprDValorVendaAmostra := TRBDValorVendaAmostra(VprDAmostra.ValoresVenda.Items[VpaLinha-1]);
+  GValorVenda.Cells[1,GValorVenda.ALinha]:= FormatFloat('#,###,###,###,##0',VprDValorVendaAmostra.Quantidade);
+  GValorVenda.Cells[2,GValorVenda.ALinha]:= FormatFloat('#,###,###,###,##0.000',VprDValorVendaAmostra.ValVenda);
+  GValorVenda.Cells[3,GValorVenda.ALinha]:= IntToStr(VprDValorVendaAmostra.CodTabela);
+  GValorVenda.Cells[4,GValorVenda.ALinha]:= VprDValorVendaAmostra.NomTabela;
+  GValorVenda.Cells[5,GValorVenda.ALinha]:= FormatFloat('#,##0.00',VprDValorVendaAmostra.PerLucro);
+  GValorVenda.Cells[6,GValorVenda.ALinha]:= FormatFloat('#,##0.00',VprDValorVendaAmostra.PerComissao);
+  GValorVenda.Cells[7,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDAmostra.CustoMateriaPrima);
+  GValorVenda.Cells[8,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDAmostra.CustoProcessos);
+  GValorVenda.Cells[9,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDAmostra.CustoProduto);
+  GValorVenda.Cells[10,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDValorVendaAmostra.CustoComImposto);
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GValorVendaDadosValidos(Sender: TObject; var VpaValidos: Boolean);
+begin
+  VpaValidos:= True;
+  if DeletaChars(GValorVenda.Cells[5,GValorVenda.ALinha],'0') = '' then
+  begin
+    aviso('PERCENTUAL LUCRO INVÁIDO!!!'#13'O percentual de lucro deve ser preenchida.');
+    VpaValidos:= False;
+    GValorVenda.Col:= 5;
+  end;
+  if VpaValidos then
+  begin
+    VprDValorVendaAmostra.PerLucro := StrToFloat(DeletaChars(DeletaChars(GValorVenda.Cells[5,GValorVenda.ALinha],'.'),'%'))
+  end;
+  if VpaValidos then
+  begin
+    FunAmostra.CalculaValorVendaUnitario(VprDAmostra,VprDValorVendaAmostra);
+    GValorVenda.Cells[2,GValorVenda.ALinha]:= FormatFloat('#,###,###,###,##0.000',VprDValorVendaAmostra.ValVenda);
+  end;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GValorVendaMudouLinha(Sender: TObject; VpaLinhaAtual, VpaLinhaAnterior: Integer);
+begin
+  if VprDAmostra.ValoresVenda.Count > 0 then
+  begin
+    VprDValorVendaAmostra := TRBDValorVendaAmostra(VprDAmostra.ValoresVenda.Items[VpaLinhaAtual-1]);
+  end;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GPrecoClienteCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
+begin
+  VprDPrecoCliente := TRBDPrecoClienteAmostra(VprDAmostra.PrecosClientes.Items[VpaLinha-1]);
+  GPrecoCliente.Cells[1,GPrecoCliente.ALinha]:= FormatFloat('#,###,###,###,##0',VprDPrecoCliente.QtdVenda);
+  GPrecoCliente.Cells[2,GPrecoCliente.ALinha]:= FormatFloat('#,###,###,###,##0.000',VprDPrecoCliente.ValVenda);
+  GPrecoCliente.Cells[3,GPrecoCliente.ALinha]:= IntToStr(VprDPrecoCliente.CodTabela);
+  GPrecoCliente.Cells[4,GPrecoCliente.ALinha]:= VprDPrecoCliente.NomTabela;
+  GPrecoCliente.Cells[5,GPrecoCliente.ALinha]:= FormatFloat('#,##0.00',VprDPrecoCliente.PerLucro);
+  GPrecoCliente.Cells[6,GPrecoCliente.ALinha]:= FormatFloat('#,##0.00',VprDPrecoCliente.PerComissao);
+  GPrecoCliente.Cells[7,GPrecoCliente.ALinha]:= IntToStr(VprDPrecoCliente.CodCliente);
+  GPrecoCliente.Cells[8,GPrecoCliente.ALinha]:= VprDPrecoCliente.NomCliente;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GQuantidadeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
+begin
+  VprDQuantidadeAmostra  := TRBDQuantidadeAmostra(VprDAmostra.Quantidades.Items[VpaLinha-1]);
+  GQuantidade.Cells[1,GQuantidade.ALinha]:= FormatFloat('#,###,###,###0',VprDQuantidadeAmostra.Quantidade);
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GQuantidadeDadosValidos(Sender: TObject; var VpaValidos: Boolean);
+begin
+  VpaValidos:= True;
+  if DeletaChars(GQuantidade.Cells[1,GQuantidade.ALinha],'0') = '' then
+  begin
+    aviso('INFORME A QUANTIDADE!!!'#13'A quantidade deve ser preenchida.');
+    VpaValidos:= False;
+    GQuantidade.Col:= 1;
+  end;
+  if VpaValidos then
+  begin
+    VprDQuantidadeAmostra.Quantidade:= StrToFloat(DeletaChars(GQuantidade.Cells[1,GQuantidade.ALinha],'.'))
+  end;
+  if VpaValidos then
+  begin
+    FunAmostra.CalculaValorVendaUnitario(VprDAmostra);
+    GValorVenda.CarregaGrade;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GQuantidadeGetEditMask(Sender: TObject; ACol, ARow: Integer; var Value: string);
+begin
+  case ACol of
+    1 : Value:= '0000000;0; ';
+  end;
+end;
+
+procedure TFAmostraConsumo.GQuantidadeMudouLinha(Sender: TObject; VpaLinhaAtual, VpaLinhaAnterior: Integer);
+begin
+  if VprDAmostra.Quantidades.Count > 0 then
+  begin
+    VprDQuantidadeAmostra:= TRBDQuantidadeAmostra(VprDAmostra.Quantidades.Items[VpaLinhaAtual-1]);
+  end;
+end;
+
+procedure TFAmostraConsumo.GQuantidadeNovaLinha(Sender: TObject);
+begin
+  VprDQuantidadeAmostra:= VprDAmostra.addQuantidade;
 end;
 
 {******************************************************************************}
@@ -406,6 +553,16 @@ begin
   else
     VprDConsumoAmostra.CodMaquina := 0;
   VprDConsumoAmostra.DesObservacao:= Grade.Cells[27,Grade.ALinha];
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.CarComissaoLucroPadrao;
+var
+  VpfPerLucro, VpfPerComissao : Double;
+begin
+  FunAmostra.CarPerLucroComissaoCoeficienteCusto(Varia.CodCoeficienteCustoPadrao,VpfPerLucro,VpfPerComissao);
+  EPerLucro.AValor := VpfPerLucro;
+  EPerComissao.AValor := VpfPerComissao;
 end;
 
 {******************************************************************************}
@@ -622,6 +779,12 @@ begin
   GServicos.CarregaGrade;
   GServicoFixo.ADados := VprDAmostra.ServicoFixo;
   GServicoFixo.CarregaGrade;
+  GQuantidade.ADados := VprDAmostra.Quantidades;
+  GQuantidade.CarregaGrade;
+  GValorVenda.ADados := VprDAmostra.ValoresVenda;
+  GValorVenda.CarregaGrade;
+  GPrecoCliente.ADados := VprDAmostra.PrecosClientes;
+  GPrecoCliente.CarregaGrade;
   VprCorAmostraAnterior := ECorKit.AInteiro;
 end;
 
@@ -823,6 +986,21 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFAmostraConsumo.EValSugeridoEnter(Sender: TObject);
+begin
+  VprValSugerido := EValSugerido.AValor;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.EValSugeridoExit(Sender: TObject);
+begin
+  if VprValSugerido <> EValSugerido.AValor then
+  begin
+    FunAmostra.CalculaValorVendaPeloValorSugerido(VprDAmostra,EValSugerido.AValor);
+  end;
+end;
+
+{******************************************************************************}
 function TFAmostraConsumo.ConsumosAmostra(VpaDAmostra: TRBDAmostra): Boolean;
 begin
   VprDAmostra:= VpaDAmostra;
@@ -888,6 +1066,18 @@ begin
   end;
 end;
 
+procedure TFAmostraConsumo.BitBtn1Click(Sender: TObject);
+begin
+  VprDPrecoCliente := VprDAmostra.addPrecoCliente;
+  VprDPrecoCliente.CodTabela := VprDValorVendaAmostra.CodTabela;
+  VprDPrecoCliente.NomTabela := VprDValorVendaAmostra.NomTabela;
+  VprDPrecoCliente.QtdVenda := VprDValorVendaAmostra.Quantidade;
+  VprDPrecoCliente.CodCliente := VprDAmostra.CodProspect;
+  VprDPrecoCliente.NomCliente := FunClientes.RNomCliente(VprDAmostra.CodProspect);
+  VprDPrecoCliente.PerLucro := VprDValorVendaAmostra.PerLucro;
+
+end;
+
 {******************************************************************************}
 procedure TFAmostraConsumo.GradeEnter(Sender: TObject);
 begin
@@ -929,6 +1119,54 @@ begin
   end
   else
     VprDConsumoAmostra.CodMaquina := 0;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.EPerComissaoEnter(Sender: TObject);
+begin
+  VprPerComissao := EPerComissao.AValor;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.EPerComissaoExit(Sender: TObject);
+var
+  VpfLaco : Integer;
+  VpfDValorVenda : TRBDValorVendaAmostra;
+begin
+  if VprPerComissao <> EPerComissao.AValor then
+  begin
+    for VpfLaco := 0 to VprDAmostra.ValoresVenda.Count - 1 do
+    begin
+      VpfDValorVenda := TRBDValorVendaAmostra(VprDAmostra.ValoresVenda.Items[VpfLaco]);
+      VpfDValorVenda.PerComissao := EPerComissao.AValor;
+      FunAmostra.CalculaValorVendaUnitario(VprDAmostra,VpfDValorVenda);
+    end;
+  end;
+  GValorVenda.CarregaGrade;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.EPerLucroEnter(Sender: TObject);
+begin
+  VprPerLucro := EPerLucro.AValor;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.EPerLucroExit(Sender: TObject);
+var
+  VpfLaco : Integer;
+  VpfDValorVenda : TRBDValorVendaAmostra;
+begin
+  if VprPerLucro <> EPerLucro.AValor then
+  begin
+    for VpfLaco := 0 to VprDAmostra.ValoresVenda.Count - 1 do
+    begin
+      VpfDValorVenda := TRBDValorVendaAmostra(VprDAmostra.ValoresVenda.Items[VpfLaco]);
+      VpfDValorVenda.PerLucro := EPerLucro.AValor;
+      FunAmostra.CalculaValorVendaUnitario(VprDAmostra,VpfDValorVenda);
+    end;
+  end;
+  GValorVenda.CarregaGrade;
 end;
 
 {******************************************************************************}

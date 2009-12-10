@@ -216,7 +216,6 @@ uses
   AProdutoEtiquetadoComEstoque in 'AProdutoEtiquetadoComEstoque.pas' {FProdutoEtiquetadoComEstoque},
   AContasAReceber in '..\mfinanceiro\AContasAReceber.pas' {FContasaReceber},
   ANovoContasaReceber in '..\mfinanceiro\ANovoContasaReceber.pas' {FNovoContasAReceber},
-  AImprimeCR in '..\mfinanceiro\AImprimeCR.pas' {FImprimeCR},
   agraficoscontasareceber in '..\mfinanceiro\agraficoscontasareceber.pas' {FGraficosCR},
   AGraficosContasaPagar in '..\mfinanceiro\AGraficosContasaPagar.pas' {FGraficosCP},
   AMovComissoes in '..\mfinanceiro\AMovComissoes.pas' {FMovComissoes},
