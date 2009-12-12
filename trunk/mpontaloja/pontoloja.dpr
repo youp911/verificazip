@@ -314,7 +314,9 @@ uses
   UnNFe in '..\mfaturamento\UnNFe.pas',
   AGraficoComprativoAno in 'AGraficoComprativoAno.pas' {FGraficoComparativoAno},
   AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
-  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos};
+  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos},
+  ANovaRepresentada in 'ANovaRepresentada.pas' {FNovaRepresentada},
+  ARepresentada in 'ARepresentada.pas' {FRepresentada};
 
 {$R *.RES}
 

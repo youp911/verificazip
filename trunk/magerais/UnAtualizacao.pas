@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1546;
+  CT_VersaoBanco = 1547;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1128,6 +1128,28 @@ begin
         VpfErro := '1546';
         ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD I_COE_PAD NUMBER(10) NULL');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1546');
+      end;
+      if VpaNumAtualizacao < 1547 Then
+      begin
+        VpfErro := '1547';
+        ExecutaComandoSql(Aux,'CREATE TABLE REPRESENTADA ('+
+                              ' CODREPRESENTADA NUMBER(10,0) NOT NULL, '+
+                              ' NOMREPRESENTADA VARCHAR2(50) NULL, '+
+                              ' NOMFANTASIA VARCHAR2(50) NULL,'+
+                              ' DESENDERECO VARCHAR2(50) NULL,'+
+                              ' DESBAIRRO VARCHAR2(30) NULL,'+
+                              ' DESCEP VARCHAR2(9) NULL,'+
+                              ' DESCOMPLEMENTO VARCHAR2(50) NULL,'+
+                              ' NUMENDERECO NUMBER(10) NULL,'+
+                              ' DESCIDADE VARCHAR2(40) NULL,'+
+                              ' DESUF CHAR(2) NULL, '+
+                              ' DESFONE VARCHAR2(20) NULL,'+
+                              ' DESFAX VARCHAR2(20) NULL,'+
+                              ' DESCNPJ VARCHAR2(18) NULL,'+
+                              ' DESINSCRICAOESTADUAL VARCHAR2(20),'+
+                              ' DESEMAIL VARCHAR2(100) NULL,'+
+                              ' PRIMARY KEY(CODREPRESENTADA))');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1547');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

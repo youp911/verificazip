@@ -1488,7 +1488,7 @@ begin
       VpadImpressao.IndImprimeAsterisco := true;
   end;
 
-  if VpadImpressao.IndFolhaemBranco then
+  if (VpadImpressao.IndFolhaemBranco) and (varia.CNPJFilial <> CNPJ_BLOCONORTE) then
   begin
     vpaDoc.Add('');
     VpadImpressao.NumLinhaAtual := VpaProximoItem.PosVertical;

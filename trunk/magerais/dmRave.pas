@@ -828,13 +828,13 @@ begin
   RvSystem1.SystemPrinter.Title := 'Eficácia - Extrato locação '+IntToStr(VpaSeqLeitura);
   Rave.projectfile := varia.PathRelatorios+'\Contrato\XX_ExtratoLocacao.rav';
   Rave.clearParams;
-  RvSystem1.defaultDest := rdPrinter;
+  RvSystem1.defaultDest := rdPreview;
 
   Sistema.CarDFilial(VprDFilial,VpaCodFilial);
   FunRave.EnviaParametrosFilial(Rave,VprDFilial);
   AdicionaSqlAbreTabela(Principal,'Select  LEI.CODFILIAL, LEI.SEQLEITURA, LEI.DATLEITURA, LEI.VALTOTALDESCONTO, LEI.QTDCOPIA, '+
                                   ' LEI.QTDDEFEITO, LEI.QTDEXCEDENTE, LEI.QTDCOPIACOLOR, LEI.QTDFRANQUIACOLOR, '+
-                                  ' LEI.QTDEXCEDENTECOLOR, '+
+                                  ' LEI.QTDEXCEDENTECOLOR, LEI.VALEXECESSOFRANQUIA, LEI.VALEXECESSOFRANQUIACOLOR, '+
                                   ' CLI.I_COD_CLI, CLI.C_NOM_CLI,  CLI.C_NOM_FAN, CLI.C_END_CLI, CLI.I_NUM_END, '+
                                   ' CLI.C_COM_END, CLI.C_BAI_CLI, CLI.C_CEP_CLI, CLI.C_CID_CLI, CLI.C_EST_CLI, CLI.C_CGC_CLI, '+
                                   ' CLI.C_INS_CLI, CLI.C_FO1_CLI, CLI.C_FON_FAX, CLI.C_END_ELE , '+

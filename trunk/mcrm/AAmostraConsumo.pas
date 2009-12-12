@@ -1073,7 +1073,7 @@ begin
   VprDPrecoCliente.NomTabela := VprDValorVendaAmostra.NomTabela;
   VprDPrecoCliente.QtdVenda := VprDValorVendaAmostra.Quantidade;
   VprDPrecoCliente.CodCliente := VprDAmostra.CodProspect;
-  VprDPrecoCliente.NomCliente := FunClientes.RNomCliente(VprDAmostra.CodProspect);
+//  VprDPrecoCliente.NomCliente := FunClientes.RNomCliente(VprDAmostra.CodProspect);
   VprDPrecoCliente.PerLucro := VprDValorVendaAmostra.PerLucro;
 
 end;

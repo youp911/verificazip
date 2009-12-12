@@ -77,7 +77,7 @@ type
 implementation
 
 uses constMsg, constantes, funSql, funstring, fundata, funnumeros, AItensNatureza,
-      FunObjeto, ANovoProdutoPro;
+      FunObjeto, ANovoProdutoPro, unsistema;
 
 
 {#############################################################################
@@ -942,6 +942,7 @@ begin
       VpfDadoCP.CodCondicaoPagamento := VpaDNotaFor.CodCondicaoPagamento;
       VpfDadoCP.PerDescontoAcrescimo := 0;
       VpfDadoCP.IndMostrarParcelas := true;
+      VpfDadoCP.ValParcela := VpaDNotaFor.ValTotal / Sistema.RQtdParcelasCondicaoPagamento(VpaDNotaFor.CodCondicaoPagamento);
       VpfDadoCP.DesTipFormaPagamento := VpaDNotaFor.TipFormaPagamento;
       VpfDadoCP.IndBaixarConta := FunContasAPagar.FlagBaixarContaFormaPagamento(VpaDNotaFor.CodFormaPagamento);
       result := FunContasAPagar.CriaContaPagar( VpfDadoCP,nil);

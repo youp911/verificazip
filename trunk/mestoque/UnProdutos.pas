@@ -1059,6 +1059,7 @@ end;
 procedure TFuncoesProduto.CarDOperacaoEstoque(VpaDOperacao : TRBDOperacaoEstoque;VpaCodOperacao: Integer);
 begin
   LocalizaOperacaoEstoque(AUX, VpaCodOperacao);
+  VpaDOperacao.CodOperacao := VpaCodOperacao;
   VpaDOperacao.NomOperacao := Aux.FieldByName('C_NOM_OPE').AsString;
   VpaDOperacao.DesTipo_E_S := Aux.FieldByName('C_TIP_OPE').AsString;
   VpaDOperacao.DesFuncao := Aux.FieldByName('C_FUN_OPE').AsString;

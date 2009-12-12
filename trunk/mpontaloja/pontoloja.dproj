@@ -593,9 +593,6 @@
 			<DCCReference Include="..\mfinanceiro\ANovoContasaReceber.pas">
 				<Form>FNovoContasAReceber</Form>
 			</DCCReference>
-			<DCCReference Include="..\mfinanceiro\AImprimeCR.pas">
-				<Form>FImprimeCR</Form>
-			</DCCReference>
 			<DCCReference Include="..\mfinanceiro\agraficoscontasareceber.pas">
 				<Form>FGraficosCR</Form>
 			</DCCReference>
@@ -867,6 +864,12 @@
 			</DCCReference>
 			<DCCReference Include="..\mestoque\AGeraFracaoOPProdutos.pas">
 				<Form>FGeraFracaoOPProdutos</Form>
+			</DCCReference>
+			<DCCReference Include="ANovaRepresentada.pas">
+				<Form>FNovaRepresentada</Form>
+			</DCCReference>
+			<DCCReference Include="ARepresentada.pas">
+				<Form>FRepresentada</Form>
 			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>

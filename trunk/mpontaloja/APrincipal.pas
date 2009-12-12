@@ -214,6 +214,8 @@ type
     N15: TMenuItem;
     ConsultaProdutosCliente1: TMenuItem;
     ComparativoAnoCliente1: TMenuItem;
+    N39: TMenuItem;
+    Representada1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -288,7 +290,7 @@ uses Constantes, UnRegistro, funsql,FunSistema, UnClientes, UnCrystal,
   AAniversariantes, ANovoLembrete, AManutencaoEmail,
   AClientesPerdidosVendedor, UnZebra, ADesativaEmailDuplicado, AFaixaEtaria,
   AMarcas, AEntradaMetro, Unprospect, UnCaixa, AConsultaProdutoNumeroSerie,
-  ACondicaoPagamento, UnOrdemProducao, AGraficoComprativoAno;
+  ACondicaoPagamento, UnOrdemProducao, AGraficoComprativoAno, ARepresentada;
 
 
 
@@ -689,6 +691,11 @@ begin
              FCondicaoPagamento := TFCondicaoPagamento.CriarSDI(self,'',true);
              FCondicaoPagamento.showmodal;
              FCondicaoPagamento.free;
+           end;
+    2800 : begin
+             FRepresentada := TFRepresentada.CriarSDI(self,'',true);
+             FRepresentada.ShowModal;
+             FRepresentada.free;
            end;
     2900 : begin
              // ------ Cadastro de Paises ------ //

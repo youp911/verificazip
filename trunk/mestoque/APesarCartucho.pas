@@ -64,6 +64,9 @@ type
     procedure EChipSelect(Sender: TObject);
   private
     { Private declarations }
+    VprSeqPo,
+    VprSeqCilindro,
+    VprSeqChip : INteger;
     FunArgox : TRBFuncoesArgox;
     FunArgox2 : TRBFuncoesArgox;
     VprDProduto : TRBDProduto;
@@ -134,8 +137,13 @@ end;
 {******************************************************************************}
 procedure TFPesarCartucho.CarDClasse;
 begin
+  VprDCartucho.free;
+  VprDCartucho := TRBDPesoCartucho.cria;
   VprDCartucho.SeqCartucho := ESequencial.AsInteger;
   VprDCartucho.SeqProduto := VprDProduto.SeqProduto;
+  VprDCartucho.SeqPo := VprSeqPo;
+  VprDCartucho.SeqCilindro := VprSeqCilindro;
+  VprDCartucho.SeqChip := VprSeqChip;
   VprDCartucho.CodUsuario := varia.CodigoUsuario;
   VprDCartucho.CodCelula := ECelulaTrabalho.AInteiro;
   VprDCartucho.DatPeso :=now;
@@ -160,9 +168,9 @@ var
   VpfResultado : String;
 begin
   VpfResultado := '';
+  CarDClasse;
   if not VpaReimprimir then
   begin
-    CarDClasse;
     VpfREsultado := FunProdutos.GravaPesoCartucho(VprDCartucho,VprDProduto );
   end;
   if VpfResultado = '' then
@@ -258,27 +266,27 @@ end;
 procedure TFPesarCartucho.EPoRetorno(Retorno1, Retorno2: String);
 begin
   if Retorno1 <> '' then
-    VprDCartucho.SeqPo := StrToInt(Retorno1)
+    VprSeqPo := StrToInt(Retorno1)
   else
-    VprDCartucho.SeqPo := 0;
+    VprSeqPo := 0;
 end;
 
 {******************************************************************************}
 procedure TFPesarCartucho.ECilindroRetorno(Retorno1, Retorno2: String);
 begin
   if Retorno1 <> '' then
-    VprDCartucho.SeqCilindro := StrToInt(Retorno1)
+    VprSeqCilindro := StrToInt(Retorno1)
   else
-    VprDCartucho.SeqCilindro := 0;
+    VprSeqCilindro := 0;
 end;
 
 {******************************************************************************}
 procedure TFPesarCartucho.EChipRetorno(Retorno1, Retorno2: String);
 begin
   if Retorno1 <> '' then
-    VprDCartucho.SeqChip := StrToInt(Retorno1)
+    VprSeqChip := StrToInt(Retorno1)
   else
-    VprDCartucho.SeqChip := 0;
+    VprSeqChip := 0;
 end;
 
 {******************************************************************************}

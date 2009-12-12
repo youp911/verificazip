@@ -238,6 +238,7 @@ end;
 function TFlocalizaProduto.DadosProdutosValidos: Boolean;
 begin
   result := true;
+  exit;
   if config.EmiteNFe or config.EmiteSped then
   begin
     if CadProdutosC_CLA_FIS.AsString = '' then

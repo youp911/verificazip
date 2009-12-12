@@ -2937,7 +2937,8 @@ begin
 //              exit;
             end;
       end;
-      VpfEmailHTML.Body.Text := RetiraAcentuacaoHTML(VpfEmailHTML.Body.Text);
+      VpfEmailHTML.Body.Text := RetiraAcentuacao(VpfEmailHTML.Body.Text);
+//      VpfEmailHTML.Body.Text := RetiraAcentuacaoHTML(VpfEmailHTML.Body.Text);
 //      VpfEmailHTML.Body.SaveToFile('c:\proposta.html');
       if VpaDProposta.DesEmailSetor <> '' then
       begin
