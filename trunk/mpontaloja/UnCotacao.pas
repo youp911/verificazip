@@ -106,6 +106,7 @@ type TFuncoesCotacao = class(TLocalizaCotacao)
     procedure CarDtipoCotacao(VpaDTipoCotacao : TRBDTipoCotacao;VpaCodTipoCotacao : Integer);
     procedure CarComposeCombinacao(VpaDProCotacao : TRBDOrcProduto);
     procedure CarPrecosProdutosRevenda(VpaDCotacao : TRBDOrcamento);
+    procedure CarServicoExecutadonaObsdaCotacao(VpaDCotacao : TRBDOrcamento;VpaDChamado : TRBDChamado);
     function RProdutoCotacao(VpaDCotacao : TRBDOrcamento;VpaSeqProduto,VpaCodCor,VpaCodTamanho : Integer;VpaValUnitario : Double):TRBDOrcProduto;
     function RServicoCotacao(VpaDCotacao : TRBDOrcamento; VpaCodServico : Integer): TRBDOrcServico;
     function RSeqNotaFiscalCotacao(VpaCodFilial,VpaLanOrcamento : Integer):Integer;
@@ -1885,7 +1886,6 @@ begin
     ValDesconto := Orcamento.FieldByName('N_VLR_DES').AsFloat;
     TipFrete := Orcamento.FieldByName('I_TIP_FRE').AsInteger;
     ValTotalComDesconto := Orcamento.FieldByName('N_VLR_TTD').AsFloat;
-    CodOperacaoEstoque := Orcamento.FieldByName('I_COD_OPE').AsInteger;
     TipGrafica := Orcamento.FieldByName('I_TIP_GRA').AsInteger;
     ValTaxaEntrega := Orcamento.FieldByName('N_VAL_TAX').AsFloat;
     DesServico := Orcamento.FieldByName('C_DES_SER').AsString;
@@ -1910,6 +1910,7 @@ begin
     end;
   end;
   CarDTipoOrcamento(VpaDOrcamento);
+  VpaDOrcamento.CodOperacaoEstoque := Orcamento.FieldByName('I_COD_OPE').AsInteger;
   CarDOrcamentoProduto(VpaDOrcamento);
   CarDOrcamentoServico(VpaDOrcamento);
 
@@ -2004,6 +2005,19 @@ begin
     else
       VpfDProduto.ValUnitario := VpfDProduto.ValUnitarioOriginal;
     VpfDProduto.ValTotal := VpfDProduto.ValUnitario * VpfDProduto.ValUnitario;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFuncoesCotacao.CarServicoExecutadonaObsdaCotacao(VpaDCotacao: TRBDOrcamento;VpaDChamado : TRBDChamado);
+var
+  VpfLaco : Integer;
+  VpfDProdutoChamado : TRBDChamadoProduto;
+begin
+  for Vpflaco := 0 to VpaDChamado.Produtos.Count - 1 do
+  begin
+    VpfDProdutoChamado := TRBDChamadoProduto(VpaDChamado.Produtos.Items[VpfLaco]);
+    VpaDCotacao.DesObservacao.add(VpfDProdutoChamado.DesServicoExecutado);
   end;
 end;
 
@@ -3504,6 +3518,8 @@ begin
     begin
       VpfDCotacaoNova := TRBDOrcamento.cria;
       CopiaDCotacao(VpaDCotacao,VpfDCotacaoNova,false);
+      VpfDCotacaoNova.DatOrcamento := VpaDCotacao.DatOrcamento;
+      VpfDCotacaoNova.HorOrcamento := VpaDCotacao.HorOrcamento;
       VpfDCotacaoNova.CodEstagio := varia.EstagioAguardandoEntrega;
       VpfDCotacaoNova.DesObservacao.Text := VpfDCotacaoNova.DesObservacao.Text+' Entrega Parcial do pedido '+IntToStr(VpaDCotacao.LanOrcamento);
 

@@ -71,7 +71,8 @@ type
     destructor Destroy; override;
     procedure CarDTransportadora(VpaDTransportadora : TRBDTransportadora;VpaCodTransportadora : Integer);
     procedure CarDNotaFiscal(VpaDNota : TRBDNotaFiscal;VpaCodFilial : Integer = 0;VpaSeqNota : Integer = 0);
-    procedure CarDNaturezaOperacao(VpaDNota : TRBDNotaFiscal);
+    procedure CarDNaturezaOperacao(VpaDNota : TRBDNotaFiscal);overload;
+    procedure CarDNaturezaOperacao(VpaDNatureza : TRBDNaturezaOperacao;VpaCodNatureza : String;VpaSeqItemNatureza : Integer);overload;
     function RSeqMovNotaFiscalDisponivel(VpaCodFilial,VpaSeqNota : Integer) : Integer;
     Function RetornaProximoCodigoNota(SerieNota : String):Integer;
     function RTextoClassificacaoFiscal(VpaDNota : TRBDNotaFiscal): String;
@@ -80,6 +81,7 @@ type
     function RPlanoContasMovNatureza(VpaCodNatureza : String;VpaSeqMovimento :Integer;VpaRevendaEdson : Boolean):String;
     function RValorComissao(VpaDNotaFiscal : TRBDNotaFiscal;VpaTipComissao : Integer;VpaPerComissao, VpaPerComissaoPreposto : Double):Double;
     function RValNotasClientePeriodo(VpaDatInicio,VpaDatFim : TDateTime;VpaCodCliente : Integer):Double;
+    function RCSTICMSProduto(VpaDCliente : TRBDCliente;VpaDProduto : TRBDProduto;VpaDNatureza : TRBDNaturezaOperacao) : string;
     function VerificaExisteProdutoNota(SeqPro, SeqNot : integer) : Boolean;
     function VerificaExisteProduto(CodProduto : string; var seqpro : integer) : Boolean;
     function VerificaExisteCondicaoPgto( CodCondicao : integer) : Boolean;
@@ -453,6 +455,29 @@ begin
   VpaDTransportadora.UF := Aux.fieldbyname('C_EST_TRA').AsString;
   VpaDTransportadora.InscricaoEstadual := Aux.fieldbyname('C_INS_TRA').AsString;
   Aux.Close;
+end;
+
+{******************************************************************************}
+procedure TFuncoesNotaFiscal.CarDNaturezaOperacao(VpaDNatureza: TRBDNaturezaOperacao; VpaCodNatureza: String; VpaSeqItemNatureza: Integer);
+begin
+  AdicionaSQLAbreTabela(Tabela,'Select NAT.I_COD_OPE, NAT.C_CLA_PLA, NAT.C_GER_FIN, NAT.C_CAL_ICM, NAT.C_BAI_EST, '+
+                               ' NAT.C_CAL_PIS, NAT.C_CAL_COF, '+
+                               ' OPE.C_NOM_OPE , OPE.C_TIP_OPE, OPE.C_FUN_OPE  '+
+                               ' from MOVNATUREZA NAT, CADOPERACAOESTOQUE OPE '+
+                               ' Where NAT.C_COD_NAT = '''+ VpaCodNatureza+''''+
+                               ' and NAT.I_SEQ_MOV = ' + IntToStr(VpaSeqItemNatureza)+
+                               ' AND '+SQLTextoRightJoin('NAT.I_COD_OPE','OPE.I_COD_OPE'));
+  VpaDNatureza.CodOperacaoEstoque := Tabela.FieldByName('I_COD_OPE').AsInteger;
+  VpaDNatureza.NomOperacaoEstoque := Tabela.FieldByName('C_NOM_OPE').AsString;
+  VpaDNatureza.TipOperacaoEstoque := Tabela.FieldByName('C_TIP_OPE').AsString;
+  VpaDNatureza.FuncaoOperacaoEstoque := Tabela.FieldByName('C_FUN_OPE').AsString;
+  VpaDNatureza.CodPlanoContas := Tabela.FieldByName('C_CLA_PLA').AsString;
+  VpaDNatureza.IndFinanceiro := (Tabela.FieldByName('c_ger_fin').AsString = 'S');
+  VpaDNatureza.IndCalcularICMS := (Tabela.FieldByName('C_CAL_ICM').AsString = 'S');
+  VpaDNatureza.IndBaixarEstoque := (Tabela.FieldByName('C_BAI_EST').AsString = 'S');
+  VpaDNatureza.IndCalcularPIS := (Tabela.FieldByName('C_CAL_PIS').AsString = 'S');
+  VpaDNatureza.IndCalcularCOFINS := (Tabela.FieldByName('C_CAL_COF').AsString = 'S');
+  Tabela.Close;
 end;
 
 {******************************************************************************}
@@ -1566,6 +1591,24 @@ begin
   Tabela.close;
 end;
 
+{***************************************************************************** }
+function TFuncoesNotaFiscal.RCSTICMSProduto(VpaDCliente : TRBDCliente; VpaDProduto: TRBDProduto; VpaDNatureza: TRBDNaturezaOperacao): string;
+begin
+  result := IntToStr(VpaDProduto.NumOrigemProduto);
+  if VpaDNatureza.IndCalcularICMS then
+  begin
+    if VpaDProduto.PerReducaoICMS <> 0 then
+      result :=result +'20'
+    else
+      if not VpaDCliente.IndDestacarICMSNota  then
+        result := result + '51'
+      else
+        result := result + '00';
+  end
+  else
+    result := result + '41';
+end;
+
 {***** retorna o codigo da condicao de pagamento ***************************** }
 function TFuncoesNotaFiscal.RetornaCondPagamento(CodCondPagamento: Integer): string;
 begin
@@ -1641,7 +1684,7 @@ begin
     Cadastro.FieldByName('I_ORD_FIS').AsInteger := VpfDProdutoNota.NumOrdemClaFiscal;
     Cadastro.FieldByName('C_COD_PRO').AsString := VpfDProdutoNota.CodProduto;
     Cadastro.FieldByName('C_DES_COR').AsString := VpfDProdutoNota.DesCor;
-    Cadastro.FieldByName('N_VLR_IPI').AsFloat := VpfDProdutoNota.ValTotal;
+    Cadastro.FieldByName('N_VLR_IPI').AsFloat := VpfDProdutoNota.ValIpi;
     Cadastro.FieldByName('D_ULT_ALT').AsDateTime := date;
     Cadastro.FieldByName('I_COD_COR').AsInteger := VpfDProdutoNota.CodCor;
     Cadastro.FieldByName('C_PRO_REF').AsString := VpfDProdutoNota.DesRefCliente;

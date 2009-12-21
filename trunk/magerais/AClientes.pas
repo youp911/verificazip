@@ -141,6 +141,7 @@ type
     procedure ImprimirEnvelopeEntrega1Click(Sender: TObject);
     procedure CadClientesAfterScroll(DataSet: TDataSet);
     procedure MExcluirRamoAtividadeClick(Sender: TObject);
+    procedure PanelColor3Click(Sender: TObject);
   private
     VprOrdem,
     VprNomCliente,
@@ -560,6 +561,12 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFClientes.PanelColor3Click(Sender: TObject);
+begin
+  CadClientes.SaveToFile('c:\cliente.xml',dfXML);
+  AVISO('salvo');
+end;
+
 procedure TFClientes.ProcessarFaturamentoPosterior1Click(Sender: TObject);
 var
   Vpflabel : TLabel;

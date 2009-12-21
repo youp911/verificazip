@@ -47,6 +47,7 @@ Type
       CodCor: Integer;
       CodProduto,
       NomProduto,
+      DesReferenciaFornecedor,
       DesTecnica,
       NomCor,
       DesUM: String;
@@ -828,6 +829,24 @@ Type
 end;
 
 Type
+  TRBDCombinacaoCadarcoTear = class
+    public
+      CodCombinacao,
+      SeqProdutoFioTrama,
+      SeqProdutoFioAjuda,
+      CodCorFioTrama,
+      CodCorFioAjuda : Integer;
+      CodProdutoFioTrama,
+      CodProdutoFioAjuda,
+      NomProdutoFioTrama,
+      NomProdutoFioAjuda,
+      NomCorFioTrama,
+      NomCorFioAjuda : String;
+      constructor cria;
+      destructor destroy;override;
+  end;
+
+Type
   TRBDCombinacao = class
     public
       CodCombinacao,
@@ -1011,7 +1030,8 @@ Type
       IndCracha,
       IndProdutoRetornavel,
       DesRendimento: String;
-      IndMonitorarEstoque : Boolean;
+      IndMonitorarEstoque,
+      IndAgruparCorteBalancim : Boolean;
       DatCadastro : TDateTime;
 
     // Copiadoras
@@ -1066,6 +1086,7 @@ Type
 
     // Listas
       Combinacoes,
+      CombinacoesCadarcoTear,
       ConsumosMP,
       Estagios,
       Fornecedores,
@@ -1075,6 +1096,7 @@ Type
       constructor Cria;
       destructor Destroy; override;
       function AddCombinacao: TRBDCombinacao;
+      function AddCombinacaoCadarcoTear : TRBDCombinacaoCadarcoTear;
       function AddConsumoMP: TRBDConsumoMP;
       function AddEstagio: TRBDEstagioProduto;
       function AddFornecedor: TRBDProdutoFornecedor;
@@ -1100,7 +1122,8 @@ Type
       QtdEntretela,
       QtdTermocolante,
       CodBastidor,
-      QtdPecasBastidor : Integer;
+      QtdPecasBastidor,
+      PosFaca : Integer;
       CodProduto,
       DesUm,
       DesObservacao,
@@ -1112,6 +1135,9 @@ Type
       NomBastidor : String;
       LarMolde,
       AltMolde,
+      AltEnfesto,
+      LarEnfesto,
+      QtdEnfesto,
       QtdProduto,
       QtdPecasemMetro,
       ValIndiceMetro : Double;
@@ -3375,6 +3401,7 @@ constructor TRBDProduto.cria;
 begin
   inherited create;
   Combinacoes := TList.Create;
+  CombinacoesCadarcoTear := TList.create;
   ConsumosMP := TList.Create;
   Estagios := TList.create;
   Fornecedores:= TList.Create;
@@ -3388,6 +3415,7 @@ end;
 destructor TRBDProduto.destroy;
 begin
   FreeTObjectsList(Combinacoes);
+  FreeTObjectsList(CombinacoesCadarcoTear);
   FreeTObjectsList(ConsumosMP);
   FreeTObjectsList(Estagios);
   FreeTObjectsList(Fornecedores);
@@ -3402,6 +3430,7 @@ begin
   TabelaPreco.free;
   FigurasComposicao.Free;
   DInstalacaoCorTear.Free;
+  CombinacoesCadarcoTear.free;
   inherited destroy;
 end;
 
@@ -3410,6 +3439,13 @@ function TRBDProduto.AddCombinacao:TRBDCombinacao;
 begin
   Result := TRBDCombinacao.cria;
   Combinacoes.add(result);
+end;
+
+{******************************************************************************}
+function TRBDProduto.AddCombinacaoCadarcoTear: TRBDCombinacaoCadarcoTear;
+begin
+  result := TRBDCombinacaoCadarcoTear.cria;
+  CombinacoesCadarcoTear.add(Result);
 end;
 
 {******************************************************************************}
@@ -3944,5 +3980,23 @@ begin
   inherited;
 end;
 { TRBDPrecoClienteAmostra }
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Dados do preco do cliente da amostra
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDCombinacaoCadarcoTear.cria;
+begin
+  inherited;
+end;
+
+{******************************************************************************}
+destructor TRBDCombinacaoCadarcoTear.destroy;
+begin
+
+  inherited;
+end;
+{ TRBDCombinacaoCadarcoTear }
 
 end.

@@ -96,6 +96,7 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     procedure CarDOrdemCorteItem(VpaDOrdemProducao : TRBDordemProducao);
     procedure CarComposeFracaoParaConsumoProduto(VpaDProduto : TRBDProduto;VpaDFracaoOP : TRBDFracaoOrdemProducao);
     procedure CarDConsumoFracao(VpaDFracao : TRBDFracaoOrdemProducao);
+    procedure CarLarAltEnfestoOrdemCorte(VpaDConsumo : TRBDConsumoMP;VpaDOrdemCorteItem :TRBDOrdemCorteItem;VpaDOrdemProducao : TRBDordemProducao);
     function AtualizaDatasOP(VpaDColetaOP : TRBDColetaOP) : String;
     function AtualizaDColetadosOP(VpaDColetaOP : TRBDColetaOP ) : String;
     function AtualizaDFracoesEnviadasFaccionista(VpaDFracaoFaccionista : TRBDFracaoFaccionista):String;
@@ -1201,6 +1202,10 @@ begin
       VpfDCorteItem.DesObservacao := VpfDConsumo.DesObservacoes;
       VpfDCorteItem.LarMolde := VpfDConsumo.LarguraMolde;
       VpfDCorteItem.AltMolde := VpfDConsumo.AlturaMolde;
+      if VpfDConsumo.CodFaca <> 0 then
+      begin
+        CarLarAltEnfestoOrdemCorte(VpfDConsumo,VpfDCorteItem,VpaDOrdemProducao);
+      end;
       VpfDCorteItem.QtdProduto := VpfDConsumo.QtdProduto;
       VpfDCorteItem.AltProduto := VpfDConsumo.AltProduto;
       VpfDCorteItem.QtdPecasemMetro := VpfDConsumo.PecasMT;
@@ -1412,6 +1417,10 @@ begin
     OrdCadastro.FieldByname('ALTMOLDE').AsFloat := VpfDCorteItem.AltMolde;
     OrdCadastro.FieldByname('ALTPRODUTO').AsFloat := VpfDCorteItem.AltProduto;
     OrdCadastro.FieldByname('QTDPRODUTO').AsFloat := VpfDCorteItem.QtdProduto;
+    OrdCadastro.FieldByname('ALTENFESTO').AsFloat := VpfDCorteItem.AltEnfesto;
+    OrdCadastro.FieldByname('LARENFESTO').AsFloat := VpfDCorteItem.LarEnfesto;
+    OrdCadastro.FieldByname('QTDENFESTO').AsFloat := VpfDCorteItem.QtdEnfesto;
+    OrdCadastro.FieldByname('POSFACA').AsFloat := VpfDCorteItem.PosFaca;
     OrdCadastro.FieldByname('QTDPECAEMMETRO').AsFloat := VpfDCorteItem.QtdPecasemMetro;
     OrdCadastro.FieldByname('VALINDICEMETRO').AsFloat := VpfDCorteItem.ValIndiceMetro;
     if VpfDCorteItem.SeqEntretela <> 0 then
@@ -2166,6 +2175,10 @@ begin
     VpfDOrdemCorteItem.LarMolde := OrdTabela.FieldByName('LARMOLDE').AsFloat;
     VpfDOrdemCorteItem.AltMolde := OrdTabela.FieldByName('ALTMOLDE').AsFloat;
     VpfDOrdemCorteItem.QtdProduto := OrdTabela.FieldByName('QTDPRODUTO').AsFloat;
+    VpfDOrdemCorteItem.LarEnfesto := OrdTabela.FieldByName('LARENFESTO').AsFloat;
+    VpfDOrdemCorteItem.AltEnfesto := OrdTabela.FieldByName('LARENFESTO').AsFloat;
+    VpfDOrdemCorteItem.QtdEnfesto := OrdTabela.FieldByName('QTDENFESTO').AsFloat;
+    VpfDOrdemCorteItem.PosFaca := OrdTabela.FieldByName('POSFACA').AsInteger;
     VpfDOrdemCorteItem.QtdPecasemMetro := OrdTabela.FieldByName('QTDPECAEMMETRO').AsFloat;
     VpfDOrdemCorteItem.ValIndiceMetro := OrdTabela.FieldByName('VALINDICEMETRO').AsFloat;
     OrdTabela.next;
@@ -4268,6 +4281,70 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFuncoesOrdemProducao.CarLarAltEnfestoOrdemCorte(VpaDConsumo: TRBDConsumoMP; VpaDOrdemCorteItem: TRBDOrdemCorteItem;VpaDOrdemProducao : TRBDordemProducao);
+Var
+  VpfQtdEnfestoMesaBalancim, VpfAlturaFaca, VpfLarguraFaca, VpfAlturaMesa, VpfLarguraMesa : Double;
+  VpfQtdLargura, VpfQtdAltura : Integer;
+  VpfDProduto : TRBDProduto;
+begin
+  VpfDProduto := TRBDProduto.Cria;
+  FunProdutos.CarDProduto(VpfDProduto,Varia.CodigoEmpresa,VpaDOrdemProducao.CodEmpresafilial,VpaDConsumo.SeqProduto);
+  if VpfDProduto.IndAgruparCorteBalancim then
+  begin
+    if VpaDConsumo.SeqProdutoTermoColante <> 0 then
+    begin
+      VpfLarguraMesa := Varia.LarMesaPrensa;
+      VpfAlturaMesa := Varia.AltMesaPrensa;
+    end
+    else
+    begin
+      VpfLarguraMesa := Varia.LarMesaBalancim;
+      VpfAlturaMesa := Varia.AltMesaBalancim;
+    end;
+    if not config.ConverterMTeCMparaMM then
+    begin
+      VpfAlturaFaca := VpaDConsumo.faca.AltFaca *10;
+      VpfLarguraFaca := VpaDConsumo.Faca.LarFaca *10;
+    end
+    else
+    begin
+      VpfAlturaFaca := VpaDConsumo.faca.AltFaca;
+      VpfLarguraFaca := VpaDConsumo.Faca.LarFaca;
+    end;
+    VpfQtdLargura := RetornaInteiro(VpfLarguraMesa / VpfLarguraFaca);
+    VpfQtdAltura := RetornaInteiro(VpfAlturaMesa / VpfAlturaFaca);
+    VpfQtdEnfestoMesaBalancim := VpfQtdLargura * VpfQtdAltura;
+    VpfQtdLargura := RetornaInteiro(VpfAlturaMesa / VpfLarguraFaca);
+    VpfQtdAltura := RetornaInteiro(VpfLarguraMesa / VpfAlturaFaca);
+    if VpfQtdEnfestoMesaBalancim > (VpfQtdLargura * VpfQtdAltura) then
+    begin
+      VpfQtdLargura := RetornaInteiro(VpfLarguraMesa / VpfLarguraFaca);
+      VpfQtdAltura := RetornaInteiro(VpfAlturaMesa / VpfAlturaFaca);
+      VpfQtdEnfestoMesaBalancim := VpfQtdLargura * VpfQtdAltura;
+      VpaDOrdemCorteItem.LarEnfesto := VpfLarguraFaca *(VpfQtdLargura);
+      VpaDOrdemCorteItem.AltEnfesto := VpfAlturaFaca *(VpfQtdAltura);
+      VpaDOrdemCorteItem.PosFaca := 1;
+    end
+    else
+    begin
+      VpfQtdEnfestoMesaBalancim := VpfQtdLargura * VpfQtdAltura;
+      VpaDOrdemCorteItem.LarEnfesto := VpfAlturaFaca *(VpfQtdLargura);
+      VpaDOrdemCorteItem.AltEnfesto := VpfLarguraFaca *(VpfQtdAltura);
+      VpaDOrdemCorteItem.PosFaca := 2;
+    end;
+  end
+  else
+  begin
+    VpaDOrdemCorteItem.LarEnfesto := VpfLarguraFaca;
+    VpaDOrdemCorteItem.AltEnfesto := VpfAlturaFaca;
+    VpfQtdEnfestoMesaBalancim := 1;
+    VpaDOrdemCorteItem.PosFaca := 1;
+  end;
+
+  VpaDOrdemCorteItem.QtdEnfesto := ((VpaDOrdemProducao.QtdProduto * VpaDConsumo.QtdProduto) / VpfQtdEnfestoMesaBalancim) / VpaDConsumo.Faca.QtdProvas;
+end;
+
+{******************************************************************************}
 procedure TRBFuncoesOrdemProducao.CarGerarOP(VpaCotacoes, VpaProdutos : TList);
 var
   VpfLacoCotacao,VpfLacoProduto : Integer;
@@ -6306,21 +6383,24 @@ begin
     for VpfLacoConsumo := 0 to vpfDFracao.Consumo.Count - 1 do
     begin
       VpfDConsumoFracao := TRBDConsumoOrdemProducao(vpfDFracao.Consumo.Items[VpfLacoConsumo]);
-      if VpfDConsumoFracao.QtdaReservar = 0 then
+      if not VpfDConsumoFracao.IndOrigemCorte then
       begin
-        FunProdutos.CarDEstoque1(VpfDProduto,VpaDOP.CodEmpresafilial,VpfDConsumoFracao.SeqProduto,VpfDConsumoFracao.CodCor);
-        VpfQtdConsumo := FunProdutos.CalculaQdadePadrao(VpfDConsumoFracao.UM,VpfDConsumoFracao.UMOriginal,VpfDConsumoFracao.QtdABaixar,IntToStr(VpfDConsumoFracao.SeqProduto));
-        if VpfDProduto.QtdRealEstoque >= VpfQtdConsumo then
-          VpfDConsumoFracao.QtdAReservar := VpfDConsumoFracao.QtdABaixar
-        else
-          if VpfDProduto.QtdRealEstoque > 0 then
-          begin
-            VpfDConsumoFracao.QtdAReservar := FunProdutos.CalculaQdadePadrao(VpfDConsumoFracao.UMOriginal,VpfDConsumoFracao.UM,VpfDProduto.QtdRealEstoque ,IntToStr(VpfDConsumoFracao.SeqProduto));
-          end;
-        if VpfDConsumoFracao.QtdAReservar > 0 then
-          FunProdutos.BaixaQtdAReservarProduto(VpaDOP.CodEmpresafilial,VpfDConsumoFracao.SeqProduto,VpfDConsumoFracao.CodCor,0,
-                                         VpfDConsumoFracao.QtdAReservar,VpfDConsumoFracao.UM,VpfDConsumoFracao.UMOriginal,
-                                         'E');
+        if VpfDConsumoFracao.QtdaReservar = 0 then
+        begin
+          FunProdutos.CarDEstoque1(VpfDProduto,VpaDOP.CodEmpresafilial,VpfDConsumoFracao.SeqProduto,VpfDConsumoFracao.CodCor);
+          VpfQtdConsumo := FunProdutos.CalculaQdadePadrao(VpfDConsumoFracao.UM,VpfDConsumoFracao.UMOriginal,VpfDConsumoFracao.QtdABaixar,IntToStr(VpfDConsumoFracao.SeqProduto));
+          if VpfDProduto.QtdRealEstoque >= VpfQtdConsumo then
+            VpfDConsumoFracao.QtdAReservar := VpfDConsumoFracao.QtdABaixar
+          else
+            if VpfDProduto.QtdRealEstoque > 0 then
+            begin
+              VpfDConsumoFracao.QtdAReservar := FunProdutos.CalculaQdadePadrao(VpfDConsumoFracao.UMOriginal,VpfDConsumoFracao.UM,VpfDProduto.QtdRealEstoque ,IntToStr(VpfDConsumoFracao.SeqProduto));
+            end;
+          if VpfDConsumoFracao.QtdAReservar > 0 then
+            FunProdutos.BaixaQtdAReservarProduto(VpaDOP.CodEmpresafilial,VpfDConsumoFracao.SeqProduto,VpfDConsumoFracao.CodCor,0,
+                                           VpfDConsumoFracao.QtdAReservar,VpfDConsumoFracao.UM,VpfDConsumoFracao.UMOriginal,
+                                           'E');
+        end;
       end;
     end;
   end;

@@ -228,6 +228,7 @@ type
     function GeraComissaoNegativa(VpaDNotaFor : TRBDNotaFiscalFor):string;
     function CondicaoPagamentoDuplicada(VpaCondicoesPagamento : TList):Boolean;
     function ExcluiCondicaoPagamento(VpaCodCondicaoPagamento : Integer):String;
+    function RValChequesNaoCompesadosContaCaixa(VpaNumConta : String):Double;
 //    procedure CarPlanoContas(
   end;
 
@@ -547,6 +548,27 @@ begin
     Result := Aux.FieldByname('N_VLR_FRM').AsFloat;
     Aux.close;
   end;
+end;
+
+{******************************************************************************}
+function TFuncoesContasAReceber.RValChequesNaoCompesadosContaCaixa(VpaNumConta: String): Double;
+begin
+  result := 0;
+  AdicionaSQLAbreTabela(Aux,'select sum(VALCHEQUE)VALOR , TIPCHEQUE '+
+                            ' from CHEQUE '+
+                            ' Where NUMCONTACAIXA = '''+VpaNumConta+''''+
+                            ' AND DATDEVOLUCAO IS NULL '+
+                            ' AND DATCOMPENSACAO IS NULL '+
+                            ' GROUP BY TIPCHEQUE');
+  while not Aux.Eof do
+  begin
+    if Aux.FieldByName('TIPCHEQUE').AsString = 'C' then
+      result := result + Aux.FieldByName('VALOR').AsFloat
+    else
+      result := result - Aux.FieldByName('VALOR').AsFloat;
+    Aux.next;
+  end;
+  Aux.close;
 end;
 
 {******************************************************************************}
@@ -1609,13 +1631,16 @@ begin
         result := BaixaParcelaAutomatica(VpaDNovaCR);
         if result = '' then
         begin
-          VpaDNovaCR.ValUtilizadoCredito := 0;
-          FunClientes.CarCreditoCliente(VpaDNovaCR.CodCliente,VpfCreditoCliente,true,'C');
-          if ClientePossuiCredito(VpfCreditoCliente) then
+          if config.ControlarDebitoeCreditoCliente then
           begin
-            if confirmacao('CLIENTE POSSUI CRÉDITO!!!'#13'Esse cliente possui um crédito de "'+ FormatFloat('R$ #,###,###,##0.00',RValTotalCredito(VpfCreditoCliente))+
-                           '".Deseja utilizar o credito para quitar essa conta? ') then
-              result := BaixaParcelacomCreditodoCliente(VpaDNovaCR,VpfCreditoCliente);
+            VpaDNovaCR.ValUtilizadoCredito := 0;
+            FunClientes.CarCreditoCliente(VpaDNovaCR.CodCliente,VpfCreditoCliente,true,'C');
+            if ClientePossuiCredito(VpfCreditoCliente) then
+            begin
+              if confirmacao('CLIENTE POSSUI CRÉDITO!!!'#13'Esse cliente possui um crédito de "'+ FormatFloat('R$ #,###,###,##0.00',RValTotalCredito(VpfCreditoCliente))+
+                             '".Deseja utilizar o credito para quitar essa conta? ') then
+                result := BaixaParcelacomCreditodoCliente(VpaDNovaCR,VpfCreditoCliente);
+            end;
           end;
         end;
       end;
@@ -1981,42 +2006,47 @@ begin
   -No credito quem que informar qual a conta caixa que gerou esse credito, para quando excluir o credito no cadastro de clientes tem que adicionar esse valor no caixa novamente;}
 
   result := '';
-  VpfDBaixa := TRBDBaixaCR.Cria;
-  VpfDBaixa.CodFormaPagamento := Varia.FormaPagamentoCreditoCliente;
-  VpfDBaixa.NumContaCaixa := varia.CaixaPadrao;
-  VpfDBaixa.DatPagamento := date;
-  VpfValCredito := RValTotalCredito(VpaCredito);
-  //carrega as parcelas que serao pagas
-  for VpfLaco := 0 to VpaDNovaCR.Parcelas.Count - 1 do
+  if varia.FormaPagamentoCreditoCliente = 0  then
+    result := 'FORMA DE PAGAMENTO CREDITO CLIENTE NÃO PREENCHIDA!!!'#13'É necessário preencher nas configurações financeiras a forma de pagamento de credito do cliente.';
+  if result = ''  then
   begin
-    VpfDParcelaBaixa := VpfDBaixa.AddParcela;
-    CarDParcelaBaixa(VpfDParcelaBaixa,VpaDNovaCR.CodEmpFil,VpaDNovaCR.LanReceber,TRBDMovContasCR(VpaDNovaCR.Parcelas.Items[VpfLaco]).NumParcela);
-    VpfValCredito := VpfValCredito - VpfDParcelaBaixa.ValParcela;
-    if VpfValCredito <= 0 then
-      break;
-  end;
-  if VpfValCredito >= 0 then
-  begin
-    VpfDBaixa.ValorPago := VpaDNovaCR.ValTotal;
-    VpaDNovaCR.ValSaldoCreditoCliente := VpfValCredito;
-  end
-  else
-  begin
-    VpfDBaixa.ValorPago := RValTotalCredito(VpaCredito);
-    VpaDNovaCR.ValSaldoCreditoCliente := 0;
-  end;
-  VpaDNovaCR.ValUtilizadoCredito := VpfDBaixa.ValorPago;
-  //baixa o contas a receber;
-  result := VerificaSeGeraParcial(VpfDBaixa,VpfDBaixa.ValorPago,false);
-  if result = '' then
-  begin
-    VpfDBaixa.IndBaixaUtilizandoOCreditodoCliente := true;
-    result := BaixaContasAReceber(VpfDBaixa);
-  end;
-  //exclui o valor do credito do cliente;
-  if result = '' then
-  begin
-    result := FunClientes.DiminuiCredito(VpfDParcelaBaixa.CodCliente,VpfDBaixa.ValorPago);
+    VpfDBaixa := TRBDBaixaCR.Cria;
+    VpfDBaixa.CodFormaPagamento := Varia.FormaPagamentoCreditoCliente;
+    VpfDBaixa.NumContaCaixa := varia.CaixaPadrao;
+    VpfDBaixa.DatPagamento := date;
+    VpfValCredito := RValTotalCredito(VpaCredito);
+    //carrega as parcelas que serao pagas
+    for VpfLaco := 0 to VpaDNovaCR.Parcelas.Count - 1 do
+    begin
+      VpfDParcelaBaixa := VpfDBaixa.AddParcela;
+      CarDParcelaBaixa(VpfDParcelaBaixa,VpaDNovaCR.CodEmpFil,VpaDNovaCR.LanReceber,TRBDMovContasCR(VpaDNovaCR.Parcelas.Items[VpfLaco]).NumParcela);
+      VpfValCredito := VpfValCredito - VpfDParcelaBaixa.ValParcela;
+      if VpfValCredito <= 0 then
+        break;
+    end;
+    if VpfValCredito >= 0 then
+    begin
+      VpfDBaixa.ValorPago := VpaDNovaCR.ValTotal;
+      VpaDNovaCR.ValSaldoCreditoCliente := VpfValCredito;
+    end
+    else
+    begin
+      VpfDBaixa.ValorPago := RValTotalCredito(VpaCredito);
+      VpaDNovaCR.ValSaldoCreditoCliente := 0;
+    end;
+    VpaDNovaCR.ValUtilizadoCredito := VpfDBaixa.ValorPago;
+    //baixa o contas a receber;
+    result := VerificaSeGeraParcial(VpfDBaixa,VpfDBaixa.ValorPago,false);
+    if result = '' then
+    begin
+      VpfDBaixa.IndBaixaUtilizandoOCreditodoCliente := true;
+      result := BaixaContasAReceber(VpfDBaixa);
+    end;
+    //exclui o valor do credito do cliente;
+    if result = '' then
+    begin
+      result := FunClientes.DiminuiCredito(VpfDParcelaBaixa.CodCliente,VpfDBaixa.ValorPago);
+    end;
   end;
 end;
 
@@ -2053,14 +2083,17 @@ begin
       Result := GravaDChequeCR(VpaDBaixa);
     if result = ''  then
     begin
-      VpfValTotalParcelas := RValTotalParcelasBaixa(VpaDBaixa);
-      if VpaDBaixa.ValorPago > VpfValTotalParcelas   then
+      if config.ControlarDebitoeCreditoCliente then
       begin
-        if confirmacao('VALOR PAGO A MAIOR!!!'#13'Está sendo pago um valor de "'+FormatFloat('R$ #,###,###,###,##0.00',VpaDBaixa.ValorPago - RValTotalParcelasBaixa(VpaDBaixa))+
-                       '" a mais do que o valor da(s) parcela(s). Deseja gerar esse valor de crédito para o cliente?') then
+        VpfValTotalParcelas := RValTotalParcelasBaixa(VpaDBaixa);
+        if VpaDBaixa.ValorPago > VpfValTotalParcelas   then
         begin
-          result := FunClientes.AdicionaCredito(VpfDParcela.CodCliente,VpaDBaixa.ValorPago - VpfValTotalParcelas,'C','Referente valor pago a maior das parcelas "'+RNumParcelas(VpaDBaixa)+'"');
-          VpaDBaixa.ValParaGerardeCredito := VpaDBaixa.ValorPago - VpfValTotalParcelas;
+          if confirmacao('VALOR PAGO A MAIOR!!!'#13'Está sendo pago um valor de "'+FormatFloat('R$ #,###,###,###,##0.00',VpaDBaixa.ValorPago - RValTotalParcelasBaixa(VpaDBaixa))+
+                         '" a mais do que o valor da(s) parcela(s). Deseja gerar esse valor de crédito para o cliente?') then
+          begin
+            result := FunClientes.AdicionaCredito(VpfDParcela.CodCliente,VpaDBaixa.ValorPago - VpfValTotalParcelas,'C','Referente valor pago a maior das parcelas "'+RNumParcelas(VpaDBaixa)+'"');
+            VpaDBaixa.ValParaGerardeCredito := VpaDBaixa.ValorPago - VpfValTotalParcelas;
+          end;
         end;
       end;
     end;

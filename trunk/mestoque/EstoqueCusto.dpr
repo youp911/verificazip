@@ -341,7 +341,8 @@ uses
   ATipoMateriaPrima in '..\mcrm\ATipoMateriaPrima.pas' {FTipoMateriaPrima},
   AGeraFracaoOPProdutos in 'AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos},
   ABaixaOrdemCorte in 'ABaixaOrdemCorte.pas' {FBaixaOrdemCorte},
-  AOrdemCortePendente in 'AOrdemCortePendente.pas' {FOrdemCortePendente};
+  AOrdemCortePendente in 'AOrdemCortePendente.pas' {FOrdemCortePendente},
+  AImprimeEtiquetaPrateleira in 'AImprimeEtiquetaPrateleira.pas' {FImprimeEtiquetaPrateleira};
 
 {$R *.RES}
 

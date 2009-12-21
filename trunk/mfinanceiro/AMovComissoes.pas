@@ -87,6 +87,8 @@ type
     Label11: TLabel;
     Label12: TLabel;
     SpeedButton2: TSpeedButton;
+    EDuplicata: TEditColor;
+    Label13: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
@@ -262,6 +264,8 @@ begin
     VpaSelect.Add(' and MOV.C_IND_CAD = ''N''');
   if ECliente.AInteiro <> 0  then
     VpaSelect.Add(' and CAR.I_COD_CLI = '+ECliente.Text);
+  if EDuplicata.Text <> '' then
+    VpaSelect.Add(' and MOV.C_NRO_DUP = '''+EDuplicata.Text+'''');
 end;
 
 {******************************************************************************}

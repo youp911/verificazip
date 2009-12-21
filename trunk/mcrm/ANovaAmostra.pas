@@ -393,7 +393,7 @@ end;
 {******************************************************************************}
 procedure TFNovaAmostra.BConsumoClick(Sender: TObject);
 begin
-  VprDAmostra.CodAmostra := AmostraCODAMOSTRA.AsInteger;
+  FunAmostra.CarDAmostra(VprDAmostra,AmostraCODAMOSTRA.AsInteger);
   FAmostraConsumo := TFAmostraConsumo.CriarSDI(self,'',FPrincipal.VerificaPermisao('FAmostraConsumo'));
   FAmostraConsumo.ConsumosAmostra(VprDAmostra);
   FAmostraConsumo.free;

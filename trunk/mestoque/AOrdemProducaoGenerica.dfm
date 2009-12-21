@@ -39,7 +39,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       Top = 1
       Width = 819
       Height = 323
-      ActivePage = PFracionada
+      ActivePage = PImpressao
       Align = alClient
       TabOrder = 0
       OnChange = PageControl1Change

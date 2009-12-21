@@ -1640,7 +1640,9 @@ Type
       CodPlanoContas : String;
       IndFinanceiro,
       IndBaixarEstoque,
-      IndCalcularICMS : Boolean;
+      IndCalcularICMS,
+      IndCalcularPis,
+      IndCalcularCofins : Boolean;
       constructor cria;
       destructor destroy;override;
 end;

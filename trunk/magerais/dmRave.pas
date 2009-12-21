@@ -444,7 +444,8 @@ begin
                              ' from  MOVSERVICOORCAMENTO MOV, CADSERVICO SER '+
                              ' WHERE MOV.I_EMP_FIL = '+ IntToStr(VpaCodFilial)+
                              ' AND MOV.I_LAN_ORC = '+IntToStr(VpaNumPedido)+
-                             ' AND MOV.I_COD_SER = SER.I_COD_SER');
+                             ' AND MOV.I_COD_SER = SER.I_COD_SER'+
+                             ' and SER.I_COD_EMP = '+IntToStr(Varia.CodigoEmpresa));
   AdicionaSqlAbreTabela(Item3,'SELECT MOV.C_NRO_DUP, MOV.N_VLR_PAR, MOV.D_DAT_VEN, MOV.C_NRO_AGE, MOV.C_NRO_CON, '+
                               ' FRM.I_COD_FRM, FRM.C_NOM_FRM, '+
                               ' BAN.I_COD_BAN, BAN.C_NOM_BAN, '+
@@ -912,9 +913,11 @@ begin
                                   ' AND CAD.I_SEQ_NOT = '+IntToSTr(VpaSEqNOta));
   AdicionaSqlAbreTabela(Item,'Select MOV.C_COD_PRO,  MOV.C_COD_CST, MOV.C_COD_UNI, MOV.N_QTD_PRO, MOV.N_VLR_PRO, MOV.N_TOT_PRO, MOV.N_PER_ICM, '+
                              ' MOV.N_PER_IPI, MOV.N_VLR_IPI, '+
-                             ' PRO.C_NOM_PRO '+
-                             ' FROM MOVNOTASFISCAIS MOV, CADPRODUTOS PRO '+
+                             ' PRO.C_NOM_PRO, '+
+                             ' COR.COD_COR, COR.NOM_COR '+
+                             ' FROM MOVNOTASFISCAIS MOV, CADPRODUTOS PRO, COR '+
                              ' Where MOV.I_SEQ_PRO = PRO.I_SEQ_PRO '+
+                             ' AND '+SQLTextoRightJoin('MOV.I_COD_COR','COR.COD_COR')+
                              ' AND MOV.I_EMP_FIL = '+IntToStr(VpaCodFilial)+
                              ' AND MOV.I_SEQ_NOT = '+IntToSTr(VpaSEqNOta)+
                              ' order by MOV.I_SEQ_MOV');
@@ -1171,7 +1174,7 @@ begin
                                   ' MAQ.NOMMAQ, '+
                                   ' OCI.CODMAQUINA, OCI.CODFACA, OCI.DESOBSERVACAO, OCI.LARMOLDE, OCI.ALTMOLDE, OCI.QTDPRODUTO, '+
                                   ' OCI.SEQTERMOCOLANTE, OCI.SEQENTRETELA, OCI.QTDTERMOCOLANTE, OCI.QTDENTRETELA, '+
-                                  ' OCI.CODBASTIDOR, OCI.QTDPECASBASTIDOR, '+
+                                  ' OCI.CODBASTIDOR, OCI.QTDPECASBASTIDOR, OCI.LARENFESTO, OCI.ALTENFESTO, OCI.QTDENFESTO, OCI.POSFACA,'+
                                   ' ORD.EMPFIL, ORD.SEQORD, ORD.DATEMI, ORD.DATENP, ORD.CODPRO, ORD.CODCOM, ORD.DESOBS, '+
                                   ' ORD.UNMPED, ORD.QTDORP, ORD.QTDFRA '+
                                   ' from ORDEMCORTEITEM OCI, ORDEMPRODUCAOCORPO ORD, BASTIDOR BAS,  CADCLIENTES CLI, CADPRODUTOS PRO, CADPRODUTOS MAP, CADPRODUTOS ENT, '+

@@ -473,6 +473,7 @@ begin
   VpfDProduto.CodUnidade :=  'PC';
   VpfDProduto.CodClassificacao :=RCodClassificacaoProdutoPrincipal(VpfDProduto.CodProduto);
   VpfDProduto.IndProdutoAtivo := true;
+  VpfDProduto.NumDestinoProduto := 4;
   Result := FunProdutos.GravaDProduto(VpfDProduto);
   if result = '' then
   begin
@@ -530,6 +531,7 @@ begin
     VpaDProduto.NomProduto := VpaDProduto.CodProduto;
   AtualizaStatus('Cadastrando Produto "'+VpaDProduto.NomProduto+'"');
 
+  VpaDProduto.NumDestinoProduto := 5;
   VpaDProduto.CodMoeda := Varia.MoedaBase;
   VpaDProduto.CodUnidade :=  'PC';
   if VpaDProduto.CodClassificacao = '' then
@@ -670,6 +672,7 @@ begin
       VpfDProduto.CodClassificacao :='60';
   VpfDProduto.CodProduto := FunProdutos.ProximoCodigoProduto(VpfDProduto.CodClassificacao,length(Varia.MascaraPro));
   VpaNomeProduto := SubstituiStr(VpaNomeProduto,#8364,'C');
+  VpfDProduto.NumDestinoProduto := 1;
   VpfDProduto.NomProduto := VpaNomeProduto;
   VpfDProduto.CodMoeda := Varia.MoedaBase;
   if ContaLetra(VpaDimensoes,'X') = 0 then // Refil Aco colocar o comprimento;

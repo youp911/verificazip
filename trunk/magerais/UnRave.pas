@@ -138,6 +138,7 @@ type
       VprNiveis : TList;
       procedure DefineTabelaProdutosPorClassificacao(VpaObjeto : TObject);
       procedure DefineTabelaProdutosComDefeito(VpaObjeto : TObject);
+      procedure DefineTabelaResumoCaixas(VpaObjeto : TObject);
       procedure DefineTabelaProdutosVendidoseTrocados(VpaObjeto : TObject);
       procedure DefineTabelaEstoqueProdutos(VpaObjeto : TObject);
       procedure DefineTabelaQtdMinimas(VpaObjeto : TObject);
@@ -165,6 +166,7 @@ type
       procedure ImprimeCabecalhoTabelaPreco;
       procedure ImprimeCabecalhoProdutocomDefeito;
       procedure ImprimeCabecalhoTotalTipoPedidoXCusto;
+      procedure ImprimeCabecalhoResumoCaixas;
       procedure ImprimeCabecalhoProdutosVendidoseTrocados;
       procedure ImprimeCabecalhoQtdMinima;
       procedure ImprimeCabecalhoAnaliseFaturamento;
@@ -188,6 +190,7 @@ type
       procedure ImprimeRelCustoProjetoContasAPagar;
       procedure ImprimeRelTabelaPreco(VpaObjeto : TObject);
       procedure ImprimeRelProdutosComDefeito(VpaObjeto : TObject);
+      procedure ImprimeRelResumoCaixas(VpaObjeto : TObject);
 
       procedure InicializaVendaCliente(VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente);
       function RMesVenda(VpaDVenda : TRBDVendaCliente;VpaMes, VpaAno : Integer) : TRBDVendaClienteMes;
@@ -237,6 +240,7 @@ type
       procedure ImprimeContasAPagarPorPlanoContasSinteticoMes(VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho : String);
       procedure ImprimeTotalTipoCotacaoXCusto(VpaCodFilial, VpaCodCliente, VpaCodVendedor, VpaCodTipoCotacao : Integer;VpaCaminho, VpaNomFilial, VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String;VpaDAtInicio, VpaDatFim : TDAteTime);
       procedure ImprimeProdutosVendidosComDefeito(VpaCodFilial,VpaCodCliente,VpaCodVendedor: Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor, VpaCodClassificao, VpaNomClassificacao : String;VpaPDF : Boolean);
+      procedure ImprimeResumosCaixas(VpaCaminho : String;VpaPDF : Boolean);
   end;
 implementation
 
@@ -592,6 +596,21 @@ begin
      SetTab(NA,pjRight,2.1,0,Boxlinenone,0); //Val Unitario
      SetTab(NA,pjRight,2.5,0,Boxlinenone,0); //Valor total
      SaveTabs(2);
+   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaResumoCaixas(VpaObjeto: TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1,pjLeft,3.5,0.1,Boxlinenone,0); //Banco
+     SetTab(NA,pjRight,2.4,0.4,Boxlinenone,0); //Conta
+     SetTab(NA,pjLeft,5,0.4,Boxlinenone,0); //Correntista
+     SetTab(NA,pjRight,2.7,0,Boxlinenone,0); //Saldo Conta
+     SetTab(NA,pjRight,2.7,0,Boxlinenone,0); //Val Cheques
+     SetTab(NA,pjRight,2.7,0,Boxlinenone,0); //Saldo Real
+     SaveTabs(1);
    end;
 end;
 
@@ -1507,6 +1526,23 @@ begin
       PrintTab('Qtd Faltante');
       PrintTab('Val Unit');
       PrintTab('Val Total');
+      Bold := false;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoResumoCaixas;
+begin
+    with RVSystem.BaseReport do
+    begin
+      RestoreTabs(1);
+      bold := true;
+      PrintTab('Banco');
+      PrintTab('Conta');
+      PrintTab('  Correntista');
+      PrintTab('Saldo Conta');
+      PrintTab('Valor Cheques');
+      PrintTab('Saldo Real');
       Bold := false;
   end;
 end;
@@ -2633,6 +2669,57 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeRelResumoCaixas(VpaObjeto: TObject);
+VAR
+  VpfSaldoTotal, VpfTotalCheques, VpfValCheque: Double;
+  VpfZebrado : Boolean;
+begin
+  VpfSaldoTotal := 0;
+  VpfTotalCheques := 0;
+  with RVSystem.BaseReport do begin
+    RestoreTabs(1);
+    NewLine;
+    while not Tabela.Eof  do
+    begin
+      if VpfZebrado then
+      begin
+        SetBrush(ShadeToColor(clSilver,20),bsSolid,nil);
+        FillRect(CreateRect(MarginLeft-0.1,YPos+LineHeight-1+0.3,PageWidth-0.3,YPos+0.1));
+      end;
+      VpfZebrado := not VpfZebrado;
+      PrintTab(Tabela.FieldByName('I_COD_BAN').AsString+'-'+Tabela.FieldByName('C_NOM_BAN').AsString);
+      PrintTab(Tabela.FieldByName('C_NRO_CON').AsString);
+      PrintTab('  '+Tabela.FieldByName('C_NOM_CRR').AsString);
+      PrintTab(FormatFloat('#,###,###,##0.00',Tabela.FieldByName('N_SAL_ATU').AsFloat));
+      VpfValCheque := FunContasAReceber.RValChequesNaoCompesadosContaCaixa(Tabela.FieldByName('C_NRO_CON').AsString);
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfValCheque));
+      PrintTab(FormatFloat('#,###,###,##0.00',Tabela.FieldByName('N_SAL_ATU').AsFloat+VpfValCheque));
+
+      NewLine;
+      If LinesLeft<=1 Then
+        NewPage;
+      VpfSaldoTotal := VpfSaldoTotal + Tabela.FieldByName('N_SAL_ATU').AsFloat;
+      VpfTotalCheques := VpfTotalCheques +VpfValCheque;
+      Tabela.next;
+    end;
+
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    PrintTab('');
+    PrintTab('');
+    bold := true;
+    PrintTab('Total Geral');
+    bold := true;
+    PrintTab(FormatFloat(varia.MascaraQtd,VpfSaldoTotal));
+    PrintTab(FormatFloat(varia.MascaraQtd,VpfTotalCheques));
+    PrintTab(FormatFloat(varia.MascaraQtd,VpfSaldoTotal + VpfTotalCheques));
+    bold := false;
+  end;
+  Tabela.Close;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeRelTabelaPreco(VpaObjeto: TObject);
 var
   VpfProdutoAtual, VpaTamanhoAtual,VpaCorAtual : Integer;
@@ -2792,6 +2879,7 @@ begin
   end;
   Tabela.Close;
 end;
+
 
 {******************************************************************************}
 procedure TRBFunRave.ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
@@ -3212,6 +3300,7 @@ begin
       14 : ImprimeCabecalhoPorPlanoContasSintetico;
       17 : ImprimeCabecalhoPorPlanoContasSinteticoporMes;
       18 : ImprimeCabecalhoTotalTipoPedidoXCusto;
+      20 : ImprimeCabecalhoResumoCaixas;
      end;
    end;
 end;
@@ -4128,5 +4217,34 @@ begin
   ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeResumosCaixas(VpaCaminho : String;VpaPDF: Boolean);
+begin
+  RvSystem.Tag := 20;
+  FreeTObjectsList(VprNiveis);
+  LimpaSQlTabela(Tabela);
+  AdicionaSqlAbretabela(Tabela,'select CON.C_NRO_CON, CON.I_COD_BAN, CON.C_NOM_CRR, CON.C_NRO_AGE, CON.C_TIP_CON, CON.N_SAL_ATU, '+
+                           ' BAN.C_NOM_BAN '+
+                           ' from CADCONTAS CON, CADBANCOS BAN '+
+                           ' WHERE CON.C_IND_ATI = ''T'''+
+                           ' AND CON.I_COD_BAN = BAN.I_COD_BAN '+
+                           ' ORDER BY I_COD_BAN, C_NOM_CRR');
+
+  rvSystem.onBeforePrint := DefineTabelaResumoCaixas;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelResumoCaixas;
+
+  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Resumo Caixas';
+  VprCabecalhoEsquerdo.Clear;
+
+  VprCabecalhoDireito.Clear;
+
+  ConfiguraRelatorioPDF;
+  RvSystem.execute;
+end;
+
 
 end.

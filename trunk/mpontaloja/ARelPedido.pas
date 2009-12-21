@@ -689,7 +689,10 @@ begin
               dtRave.ImprimeAgenda(ECodUsuario.AInteiro,VprCaminhoRelatorio,LNomUsuario.caption, CDataIni.Date,CdataFim.Date)
           else
             if (VPRNOMRELATORIO = 'VENCIMENTO DOS CONTRATOS') then
-              dtRave.ImprimeVencimentoContratos(CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio);
+              dtRave.ImprimeVencimentoContratos(CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio)
+          else
+            if (VPRNOMRELATORIO = 'RESUMO CAIXAS')then
+              FunRave.ImprimeResumosCaixas(VprCaminhoRelatorio,VpfPdf);
   dtRave.free;
 end;
 

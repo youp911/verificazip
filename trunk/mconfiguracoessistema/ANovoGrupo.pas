@@ -235,6 +235,14 @@ type
     CadGruposC_EST_CAC: TWideStringField;
     DBCheckBox68: TDBCheckBox;
     CadGruposC_EST_RES: TWideStringField;
+    CadGruposC_EST_CPR: TWideStringField;
+    DBCheckBox69: TDBCheckBox;
+    PanelColor5: TPanelColor;
+    PanelColor6: TPanelColor;
+    PanelColor7: TPanelColor;
+    PanelColor8: TPanelColor;
+    PanelColor9: TPanelColor;
+    PanelColor10: TPanelColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadGruposAfterInsert(DataSet: TDataSet);

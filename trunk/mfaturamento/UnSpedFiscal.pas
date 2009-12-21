@@ -2,7 +2,7 @@ Unit UnSpedFiscal;
 
 Interface
 
-Uses Classes, DBTables, UnDados,SysUtils, Unsistema, comCtrls, Unclientes, Tabela,SqlExpr;
+Uses Classes, DBTables, UnDados,SysUtils, Unsistema, comCtrls, Unclientes, Tabela,SqlExpr, UnDadosProduto;
 
 //classe localiza
 Type TRBLocalizaSpedFiscal = class
@@ -27,11 +27,14 @@ Type TRBFuncoesSpedFiscal = class(TRBLocalizaSpedFiscal)
     procedure LocalizaNotasFiscaisSaidaRegC100(VpaTabela : TSQL;VpaDSped : TRBDSpedFiscal);
     procedure LocalizaNotasFiscaisEntradaRegC100(VpaTabela : TSQL;VpaDSped : TRBDSpedFiscal);
     procedure LocalizaProdutosNotafiscalSaidaRegC170(VpaTabela : TSQL;VpaCodFilial, VpaSeqNota : Integer);
+    function RBaseCalculoICMSRegitroC170Saida(VpaValTotProdutos : Double;VpaDNatureza : TRBDNaturezaOperacao) : double;
+    function RAliquotaICMSRegitroC170Saida(VpaPerICMS : Double;VpaDNatureza : TRBDNaturezaOperacao) : double;
+    function RValICMSRegitroC170Saida(VpaValTotProdutos,VpaPerICMS : Double;VpaDNatureza : TRBDNaturezaOperacao) : double;
     function DadosValidos(VpaDSped : TRBDSpedFiscal) : string;
     procedure DadosValidosParticipantesREG0150(VpaDSped : TRBDSpedFiscal);
     procedure DadosValidosTransportadorasREG0150(VpaDSped : TRBDSpedFiscal);
     procedure DadosValidosProdutosREG0200(VpaDSped : TRBDSpedFiscal);
-    procedure CarDRegistroC190Saida(VpaTabela : TSQL;VpaDSped : TRBDSpedFiscal;VpaCodCFOP :String);
+    procedure CarDRegistroC190Saida(VpaTabela : TSQL;VpaDSped : TRBDSpedFiscal;VpaDNatureza : TRBDNaturezaOperacao;VpaCodCFOP, VpaCodCST :String);
     procedure GeraBloco0Registro0000(VpaDSped : TRBDSpedFiscal);
     procedure GeraBloco0Registro0001(VpaDSped : TRBDSpedFiscal);
     procedure GeraBloco0Registro0005(VpaDSped : TRBDSpedFiscal);
@@ -48,7 +51,7 @@ Type TRBFuncoesSpedFiscal = class(TRBLocalizaSpedFiscal)
     procedure GeraBlocoCRegistroC140Saida(VpaCodFilial,VpaSeqNota : Integer;VpadSped : TRBDSpedFiscal);
     procedure GeraBlocoCRegistroC141Saida(VpaCodFilial,VpaLanReceber : Integer;VpadSped : TRBDSpedFiscal);
     procedure GeraBlocoCRegistroC160Saida(VpaTabela : TSql;VpadSped : TRBDSpedFiscal);
-    procedure GeraBlocoCRegistroC170Saida(VpaCodFilial,VpaSeqNota : Integer;VpaCodCFOP : String;VpaSeqNatureza : Integer;VpadSped : TRBDSpedFiscal);
+    procedure GeraBlocoCRegistroC170Saida(VpaCodFilial,VpaSeqNota, VpaCodCliente : Integer;VpaCodCFOP : String;VpaSeqNatureza : Integer;VpadSped : TRBDSpedFiscal);
     procedure GeraBlocoCRegistroC190(VpaDSped : TRBDSpedFiscal);
     procedure GeraBlocoCRegistroC990(VpaDSped : TRBDSpedFiscal);
     procedure GeraBlocoDRegistroD001(VpaDSped : TRBDSpedFiscal);
@@ -76,7 +79,7 @@ end;
 
 implementation
 
-Uses FunSql, Constantes, funString, funvalida, UnNotafiscal, FunObjeto;
+Uses FunSql, Constantes, funString, funvalida, UnNotafiscal, FunObjeto, UnProdutos;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                               eventos da classe TRBLocalizaSpedFiscal
@@ -100,13 +103,14 @@ begin
 end;
 
 {********************************* cria a classe ********************************}
-procedure TRBFuncoesSpedFiscal.CarDRegistroC190Saida(VpaTabela: TSQL; VpaDSped: TRBDSpedFiscal;VpaCodCFOP :String);
+procedure TRBFuncoesSpedFiscal.CarDRegistroC190Saida(VpaTabela: TSQL; VpaDSped: TRBDSpedFiscal;VpaDNatureza : TRBDNaturezaOperacao; VpaCodCFOP, VpaCodCST :String);
 Var
   VpfDRegistroC190 :TRBDSpedfiscalRegistroC190;
 begin
-  VpfDRegistroC190 := VpaDSped.RRegistroC190(VpaTabela.FieldByName('C_COD_CST').AsString,StrToInt(VpaCodCFOP),VpaTabela.FieldByName('N_PER_ICM').AsFloat);
+  VpfDRegistroC190 := VpaDSped.RRegistroC190(VpaCodCST,StrToInt(VpaCodCFOP),VpaTabela.FieldByName('N_PER_ICM').AsFloat);
   VpfDRegistroC190.ValOperacao := VpfDRegistroC190.ValOperacao + VpaTabela.FieldByName('N_TOT_PRO').AsFloat;
-  VpfDRegistroC190.ValBaseCalculoICMS := VpfDRegistroC190.ValBaseCalculoICMS + VpaTabela.FieldByName('N_TOT_PRO').AsFloat;
+  if VpaDNatureza.IndCalcularICMS  then
+    VpfDRegistroC190.ValBaseCalculoICMS := VpfDRegistroC190.ValBaseCalculoICMS + VpaTabela.FieldByName('N_TOT_PRO').AsFloat;
   VpfDRegistroC190.ValICMS := VpfDRegistroC190.ValICMS + VpaTabela.FieldByName('N_TOT_PRO').AsFloat *(VpaTabela.FieldByName('N_PER_ICM').AsFloat/100);
   VpfDRegistroC190.ValBaseCalculoICMSSubstituica := 0;
   VpfDRegistroC190.ValICMSSubstituicao := 0;
@@ -194,7 +198,10 @@ begin
   while not Tabela.eof do
   begin
     if Tabela.FieldByName('C_CLA_FIS').AsString = '' then
-      VpaDSped.Incosistencias.add('PRODUTO INVÁLIDO "'+Tabela.FieldByName('C_COD_PRO').AsString+'-'+Tabela.FieldByName('C_NOM_PRO').AsString+'" - Falta o codigo NCM/Classificação fiscal');
+      VpaDSped.Incosistencias.add('PRODUTO INVÁLIDO "'+Tabela.FieldByName('C_COD_PRO').AsString+'-'+Tabela.FieldByName('C_NOM_PRO').AsString+'" - Falta o codigo NCM/Classificação fiscal')
+    else
+      if length(Deletachars(Tabela.FieldByName('C_CLA_FIS').AsString,'.')) <> 8 then
+        VpaDSped.Incosistencias.add('PRODUTO INVÁLIDO "'+Tabela.FieldByName('C_COD_PRO').AsString+'-'+Tabela.FieldByName('C_NOM_PRO').AsString+'" - O tamanho do codigo NCM/Classificação fiscal é diferente de 8 caracteres');
     Tabela.next;
   end;
   Tabela.close;
@@ -292,7 +299,7 @@ begin
   //01 REG
   '0005|'+
   //02 FANTASIA
-  VpaDSped.DFilial.NomFantasia+'|'+
+  DeletaEspacoDE(VpaDSped.DFilial.NomFantasia)+'|'+
   //03 CEP
   AdicionaCharE('0',DeletaChars(VpaDSped.DFilial.DesCep,'-'),8)+ '|'+
   //04 END
@@ -371,7 +378,7 @@ begin
     //05 CNPJ
     DeletaChars(DeletaChars(DeletaChars(Tabela.FieldByName('C_CGC_CLI').AsString,'.'),'-'),'/') +'|'+
     //06 CPF
-    DeletaChars(DeletaChars(Tabela.FieldByName('C_CPF_CLI').AsString,'.'),'-') +'|';
+    DeletaEspaco(DeletaChars(DeletaChars(Tabela.FieldByName('C_CPF_CLI').AsString,'.'),'-')) +'|';
     //07 IE
     if DeletaEspaco(Tabela.FieldByName('C_INS_CLI').AsString) <> 'ISENTO' then
       VpfLinha := VpfLinha + DeletaEspacoDE(DeletaChars(DeletaChars(DeletaChars(Tabela.FieldByName('C_INS_CLI').AsString,'.'),'-'),'/')) +'|'
@@ -497,8 +504,8 @@ begin
     Tabela.FieldByName('C_COD_UNI').AsString+'|'+
     //07 TIPO_ITEM
     AdicionaCharE('0',Tabela.FieldByName('I_DES_PRO').AsString,2)+'|'+
-    //08 UNID_INV
-    Tabela.FieldByName('C_CLA_FIS').AsString+'|'+
+    //08 CODIGO NCM
+    DeletaChars(Tabela.FieldByName('C_CLA_FIS').AsString,'.')+'|'+
     //09 EX_IPI
     '|'+
     //10 COD_GEN - SAO OS 2 PRIMEIROS CARACTERES DO CODIGO NCM
@@ -726,7 +733,7 @@ begin
       GeraBlocoCRegistroC140Saida(Tabela.FieldByName('I_EMP_FIL').AsInteger,Tabela.FieldByName('I_SEQ_NOT').AsInteger,VpaDSped);
       GeraBlocoCRegistroC160Saida(Tabela,VpaDSped);
     end;
-    GeraBlocoCRegistroC170Saida(Tabela.FieldByName('I_EMP_FIL').AsInteger,Tabela.FieldByName('I_SEQ_NOT').AsInteger,Tabela.FieldByName('C_COD_NAT').AsString,Tabela.FieldByName('I_ITE_NAT').AsInteger,VpaDSped);
+    GeraBlocoCRegistroC170Saida(Tabela.FieldByName('I_EMP_FIL').AsInteger,Tabela.FieldByName('I_SEQ_NOT').AsInteger,Tabela.FieldByName('I_COD_CLI').AsInteger,Tabela.FieldByName('C_COD_NAT').AsString,Tabela.FieldByName('I_ITE_NAT').AsInteger,VpaDSped);
     GeraBlocoCRegistroC190(VpaDSped);
 
     Tabela.next;
@@ -758,9 +765,13 @@ begin
     else
       VpfLinha := VpfLinha +'1|'; //saida;
     //03 IND_EMIT
-    VpfLinha := VpfLinha + '0|'+
+    VpfLinha := VpfLinha + '0|';
     //04 COD_PART
-    Tabela.FieldByName('I_COD_CLI').AsString+'|'+
+    if Tabela.FieldByName('C_NOT_CAN').AsString = 'S' then
+      vpfLinha := VpfLinha +'|'
+    else
+      vpfLinha := VpfLinha + Tabela.FieldByName('I_COD_CLI').AsString+'|';
+    VpfLinha := vpflinha +
     //05 COD_MOD
     AdicionaCharE('0',IntToStr(VpaDSped.CodModeloDocumento),2)+'|';
     //06 COD_SIT
@@ -771,83 +782,92 @@ begin
     // 07 SER
     VpfLinha := VpfLinha + Tabela.FieldByName('C_SER_NOT').AsString+ '|'+
     //08 NUM_DOC
-    Tabela.FieldByName('I_NRO_NOT').AsString+'|'+
-    //09 CHV_NFE
-    Tabela.FieldByName('C_CHA_NFE').AsString+'|'+
-    //10 DT_DOC
-    FormatDateTime('DDMMYYYY', Tabela.FieldByName('D_DAT_EMI').AsDatetime)+'|'+
-    //11 DT_SAI
-    FormatDateTime('DDMMYYYY', Tabela.FieldByName('D_DAT_SAI').AsDatetime)+'|'+
-    //12 VL_DOC
-    FormatFloat('0.00',Tabela.FieldByName('N_TOT_NOT').AsFloat)+'|';
-    //13 IND_PGTO
-    if Tabela.FieldByName('C_GER_FIN').AsString = 'S' then
+    Tabela.FieldByName('I_NRO_NOT').AsString+'|';
+    if Tabela.FieldByName('C_NOT_CAN').AsString = 'S' then
+      VpfLinha := VpfLinha + AdicionaCharD('|','',21)
+    else
     begin
-      if VpfIndPagamentoAVista then
-        VpfLinha := VpfLinha + '0|'
+      VpfLinha := VpfLinha +
+      //09 CHV_NFE
+      Tabela.FieldByName('C_CHA_NFE').AsString+'|'+
+      //10 DT_DOC
+      FormatDateTime('DDMMYYYY', Tabela.FieldByName('D_DAT_EMI').AsDatetime)+'|'+
+      //11 DT_SAI
+      FormatDateTime('DDMMYYYY', Tabela.FieldByName('D_DAT_SAI').AsDatetime)+'|'+
+      //12 VL_DOC
+      FormatFloat('0.00',Tabela.FieldByName('N_TOT_NOT').AsFloat)+'|';
+      //13 IND_PGTO
+      if Tabela.FieldByName('C_GER_FIN').AsString = 'S' then
+      begin
+        if VpfIndPagamentoAVista then
+          VpfLinha := VpfLinha + '0|'
+        else
+          VpfLinha := VpfLinha + '1|';
+      end
       else
-        VpfLinha := VpfLinha + '1|';
-    end
-    else
-      VpfLinha := VpfLinha + '9|';
-    //14 VL_DESC
-    if (Tabela.FieldByName('N_PER_DES').AsFloat > 0) then
-      VpfLinha := VpfLinha + FormatFloat('0.00',((Tabela.FieldByName('N_TOT_PRO').AsFloat+Tabela.FieldByName('N_TOT_SER').AsFloat)*Tabela.FieldByName('N_PER_DES').AsFloat)/100)+'|'
-    else
-      if (Tabela.FieldByName('N_VLR_DES').AsFloat > 0) then
-        VpfLinha := VpfLinha + FormatFloat('0.00',Tabela.FieldByName('N_VLR_DES').AsFloat)+'|'
+        VpfLinha := VpfLinha + '9|';
+      //14 VL_DESC
+      if (Tabela.FieldByName('N_PER_DES').AsFloat > 0) then
+        VpfLinha := VpfLinha + FormatFloat('0.00',((Tabela.FieldByName('N_TOT_PRO').AsFloat+Tabela.FieldByName('N_TOT_SER').AsFloat)*Tabela.FieldByName('N_PER_DES').AsFloat)/100)+'|'
       else
-        VpfLinha := VpfLinha +'0,00|';
-    //15 VL_ABAT_NT
-    VpfLinha := VpfLinha+ '0,00|'+
-    //16 VL_MERC
-    FormatFloat('0.00',Tabela.FieldByName('N_TOT_PRO').AsFloat+Tabela.FieldByName('N_TOT_SER').AsFloat)+'|';
-    //17 IND_FRT
-    if Tabela.FieldByName('N_VLR_FRE').AsFloat > 0 then
-      vpfLinha := VpfLinha +Tabela.FieldByName('I_TIP_FRE').AsString+ '|'
-    else
-      vpfLinha := VpfLinha +'9|';
-    //18 VL_FRT
-    VpfLinha := VpfLinha+ FormatFloat('0.00',Tabela.FieldByName('N_VLR_FRE').AsFloat)+'|'+
-    //19 VL_SEG
-    FormatFloat('0.00',Tabela.FieldByName('N_VLR_SEG').AsFloat)+'|';
-    //20 VL_OUT_DA
-    if (Tabela.FieldByName('N_PER_DES').AsFloat < 0) then
-      VpfLinha := VpfLinha + FormatFloat('0.00',(((Tabela.FieldByName('N_TOT_PRO').AsFloat+Tabela.FieldByName('N_TOT_SER').AsFloat)*(Tabela.FieldByName('N_PER_DES').AsFloat*-1))/100)+Tabela.FieldByName('N_OUT_DES').AsFloat)+'|'
-    else
-      if (Tabela.FieldByName('N_VLR_DES').AsFloat < 0) then
-        VpfLinha := VpfLinha + FormatFloat('0.00',(Tabela.FieldByName('N_VLR_DES').AsFloat*-1)+Tabela.FieldByName('N_OUT_DES').AsFloat)+'|'
+        if (Tabela.FieldByName('N_VLR_DES').AsFloat > 0) then
+          VpfLinha := VpfLinha + FormatFloat('0.00',Tabela.FieldByName('N_VLR_DES').AsFloat)+'|'
+        else
+          VpfLinha := VpfLinha +'0,00|';
+      //15 VL_ABAT_NT
+      VpfLinha := VpfLinha+ '0,00|'+
+      //16 VL_MERC
+      FormatFloat('0.00',Tabela.FieldByName('N_TOT_PRO').AsFloat+Tabela.FieldByName('N_TOT_SER').AsFloat)+'|';
+      //17 IND_FRT
+      if Tabela.FieldByName('N_VLR_FRE').AsFloat > 0 then
+        vpfLinha := VpfLinha +Tabela.FieldByName('I_TIP_FRE').AsString+ '|'
       else
-        VpfLinha :=VpfLinha + FormatFloat('0.00',Tabela.FieldByName('N_OUT_DES').AsFloat)+'|';
-    //21 VL_BC_ICMS
-    VpfLinha := VpfLinha + FormatFloat('0.00',Tabela.FieldByName('N_BAS_CAL').AsFloat)+'|'+
-    //22 VL_ICMS
-    FormatFloat('0.00',Tabela.FieldByName('N_VLR_ICM').AsFloat)+'|'+
-    //23 VL_BC_ICMS_ST
-    FormatFloat('0.00',Tabela.FieldByName('N_BAS_SUB').AsFloat)+'|'+
-    //24 VL_ICMS_ST
-    FormatFloat('0.00',Tabela.FieldByName('N_VLR_SUB').AsFloat)+'|'+
-    //25 VL_IPI
-    FormatFloat('0.00',Tabela.FieldByName('N_TOT_IPI').AsFloat)+'|'+
-    //26 VL_PIS
-    FormatFloat('0.00',0)+'|'+
-    //27 VL_COFINS
-    FormatFloat('0.00',0)+'|'+
-    //28 VL_PIS_ST
-    FormatFloat('0.00',0)+'|'+
-    //29 VL_COFINS_ST
-    FormatFloat('0.00',0)+'|';
+        vpfLinha := VpfLinha +'9|';
+      //18 VL_FRT
+      VpfLinha := VpfLinha+ FormatFloat('0.00',Tabela.FieldByName('N_VLR_FRE').AsFloat)+'|'+
+      //19 VL_SEG
+      FormatFloat('0.00',Tabela.FieldByName('N_VLR_SEG').AsFloat)+'|';
+      //20 VL_OUT_DA
+      if (Tabela.FieldByName('N_PER_DES').AsFloat < 0) then
+        VpfLinha := VpfLinha + FormatFloat('0.00',(((Tabela.FieldByName('N_TOT_PRO').AsFloat+Tabela.FieldByName('N_TOT_SER').AsFloat)*(Tabela.FieldByName('N_PER_DES').AsFloat*-1))/100)+Tabela.FieldByName('N_OUT_DES').AsFloat)+'|'
+      else
+        if (Tabela.FieldByName('N_VLR_DES').AsFloat < 0) then
+          VpfLinha := VpfLinha + FormatFloat('0.00',(Tabela.FieldByName('N_VLR_DES').AsFloat*-1)+Tabela.FieldByName('N_OUT_DES').AsFloat)+'|'
+        else
+          VpfLinha :=VpfLinha + FormatFloat('0.00',Tabela.FieldByName('N_OUT_DES').AsFloat)+'|';
+      //21 VL_BC_ICMS
+      VpfLinha := VpfLinha + FormatFloat('0.00',Tabela.FieldByName('N_BAS_CAL').AsFloat)+'|'+
+      //22 VL_ICMS
+      FormatFloat('0.00',Tabela.FieldByName('N_VLR_ICM').AsFloat)+'|'+
+      //23 VL_BC_ICMS_ST
+      FormatFloat('0.00',Tabela.FieldByName('N_BAS_SUB').AsFloat)+'|'+
+      //24 VL_ICMS_ST
+      FormatFloat('0.00',Tabela.FieldByName('N_VLR_SUB').AsFloat)+'|'+
+      //25 VL_IPI
+      FormatFloat('0.00',Tabela.FieldByName('N_TOT_IPI').AsFloat)+'|'+
+      //26 VL_PIS
+      FormatFloat('0.00',0)+'|'+
+      //27 VL_COFINS
+      FormatFloat('0.00',0)+'|'+
+      //28 VL_PIS_ST
+      FormatFloat('0.00',0)+'|'+
+      //29 VL_COFINS_ST
+      FormatFloat('0.00',0)+'|';
+    end;
 
     VpaDSped.Arquivo.add(VpfLinha);
     Inc(VpaDSped.QtdLinhasBlocoC);
     Inc(VpaDSped.QtdLinhasRegistroC100);
-    if VpaDSped.CodModeloDocumento = 1 then
+    if Tabela.FieldByName('C_NOT_CAN').AsString = 'N' then
     begin
-      GeraBlocoCRegistroC140Saida(Tabela.FieldByName('I_EMP_FIL').AsInteger,Tabela.FieldByName('I_SEQ_NOT').AsInteger,VpaDSped);
-      GeraBlocoCRegistroC160Saida(Tabela,VpaDSped);
+      if VpaDSped.CodModeloDocumento = 1 then
+      begin
+        GeraBlocoCRegistroC140Saida(Tabela.FieldByName('I_EMP_FIL').AsInteger,Tabela.FieldByName('I_SEQ_NOT').AsInteger,VpaDSped);
+        GeraBlocoCRegistroC160Saida(Tabela,VpaDSped);
+      end;
+      GeraBlocoCRegistroC170Saida(Tabela.FieldByName('I_EMP_FIL').AsInteger,Tabela.FieldByName('I_SEQ_NOT').AsInteger,Tabela.FieldByName('I_COD_CLI').AsInteger,Tabela.FieldByName('C_COD_NAT').AsString,Tabela.FieldByName('I_ITE_NAT').AsInteger,VpaDSped);
+      GeraBlocoCRegistroC190(VpaDSped);
     end;
-    GeraBlocoCRegistroC170Saida(Tabela.FieldByName('I_EMP_FIL').AsInteger,Tabela.FieldByName('I_SEQ_NOT').AsInteger,Tabela.FieldByName('C_COD_NAT').AsString,Tabela.FieldByName('I_ITE_NAT').AsInteger,VpaDSped);
-    GeraBlocoCRegistroC190(VpaDSped);
 
     Tabela.next;
   end;
@@ -954,14 +974,25 @@ begin
 end;
 
 {********************************************************************************}
-procedure TRBFuncoesSpedFiscal.GeraBlocoCRegistroC170Saida(VpaCodFilial, VpaSeqNota: Integer; VpaCodCFOP : String;VpaSeqNatureza : Integer; VpadSped: TRBDSpedFiscal);
+procedure TRBFuncoesSpedFiscal.GeraBlocoCRegistroC170Saida(VpaCodFilial, VpaSeqNota, VpaCodCliente: Integer; VpaCodCFOP : String;VpaSeqNatureza : Integer; VpadSped: TRBDSpedFiscal);
 Var
-  VpfLinha : String;
+  VpfLinha, VpfCodCST : String;
+  VpfDProduto : TRBDProduto;
+  VpfDNatureza : TRBDNaturezaOperacao;
+  VpfDCliente : TRBDCliente;
 begin
   FreeTObjectsList(VpadSped.RegistroC190);
+  VpfDNatureza :=  TRBDNaturezaOperacao.cria;
+  FunNotaFiscal.CarDNaturezaOperacao(VpfDNatureza,VpaCodCFOP,VpaSeqNatureza);
+  VpfDCliente := TRBDCliente.cria;
+  VpfDCliente.CodCliente := VpaCodCliente;
+  FunClientes.CarDCliente(VpfDCliente);
   LocalizaProdutosNotafiscalSaidaRegC170(Tabela2,VpaCodFilial,VpaSeqNota);
   while not Tabela2.eof do
   begin
+    VpfDProduto := TRBDProduto.cria;
+    FunProdutos.CarDProduto(VpfDProduto,varia.codigoempresa,Tabela2.FieldByName('I_EMP_FIL').AsInteger,Tabela2.FieldByName('I_SEQ_PRO').AsInteger);
+    VpfCodCST := FunNotaFiscal.RCSTICMSProduto(VpfDCliente,VpfDProduto,VpfDNatureza);
     VpfLinha :=
     //01 REG
     '|C170|'+
@@ -982,17 +1013,17 @@ begin
     //09 IND MOV
      '0|'+
     //10 CST_ICMS
-    AdicionaCharE('0',Tabela2.FieldByName('C_COD_CST').AsString,3)+'|'+
+    AdicionaCharD('0',VpfCodCST,3)+'|'+
     //11 CFOP
     VpaCodCFOP+'|'+
     //12 COD NAT
     VpaCodCFOP+ IntToStr(VpaSeqNatureza)+'|'+
     //13 VL BC ICMS
-    FormatFloat('0.00',Tabela2.FieldByName('N_TOT_PRO').AsFloat)+ '|'+
+    FormatFloat('0.00',RBaseCalculoICMSRegitroC170Saida(Tabela2.FieldByName('N_TOT_PRO').AsFloat,VpfDNatureza))+ '|'+
     //14 ALIQ ICMS
-    FormatFloat('0.00',Tabela2.FieldByName('N_PER_ICM').AsFloat)+ '|'+
+    FormatFloat('0.00',RAliquotaICMSRegitroC170Saida(Tabela2.FieldByName('N_PER_ICM').AsFloat,VpfDNatureza))+ '|'+
     //15 VL ICMS
-    FormatFloat('0.00',(Tabela2.FieldByName('N_TOT_PRO').AsFloat * Tabela2.FieldByName('N_PER_ICM').AsFloat)/100)+ '|'+
+    FormatFloat('0.00',RValICMSRegitroC170Saida(Tabela2.FieldByName('N_TOT_PRO').AsFloat,Tabela2.FieldByName('N_PER_ICM').AsFloat,VpfDNatureza))+ '|'+
     //16 VL BC ICMS ST
     FormatFloat('0.00',0)+ '|'+
     //17 ALIQ ICMS ST
@@ -1002,9 +1033,9 @@ begin
     //19 IND APUR
     '0|'+
     //20 CST IPI
-    '00|'+
+    varia.CSTIPI+ '|'+
     //21 COD ENQ
-    '000|'+
+    '|'+
     //22 VL BC IPI
     FormatFloat('0.00',Tabela2.FieldByName('N_TOT_PRO').AsFloat)+ '|'+
     //23 ALIQ IPI
@@ -1041,9 +1072,12 @@ begin
     VpadSped.Arquivo.Add(VpfLinha);
     inc(VpadSped.QtdLinhasBlocoC);
     Inc(VpaDSped.QtdLinhasRegistroC170);
-    CarDRegistroC190Saida(Tabela2,VpadSped,VpaCodCFOP);
+    CarDRegistroC190Saida(Tabela2,VpadSped,VpfDNatureza,VpaCodCFOP,VpfCodCST);
     tabela2.next;
+    VpfDProduto.free;
   end;
+  VpfDNatureza.Free;
+  VpfDCliente.free;
   Tabela2.Close;
 end;
 
@@ -1281,12 +1315,14 @@ begin
                                ' WHERE EXISTS (SELECT * FROM CADNOTAFISCAIS CAD ' +
                                ' WHERE CAD.C_COD_NAT = MOV.C_COD_NAT '+
                                ' AND CAD.I_ITE_NAT = MOV.I_SEQ_MOV '+
+                               ' and CAD.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ')'+
                                ' OR EXISTS (SELECT * FROM CADNOTAFISCAISFOR CAF ' +
                                ' WHERE CAF.C_COD_NAT = MOV.C_COD_NAT '+
                                ' AND CAF.I_SEQ_NAT = MOV.I_SEQ_MOV '+
-                               ' AND CAF.C_SER_NOT <> ''-1'''+
+                               ' AND CAF.C_MOD_DOC IS NOT NULL '+
+                               ' and CAF.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                SQLTextoDataEntreAAAAMMDD('CAF.D_DAT_REC',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ')'+
                                ' ORDER BY C_COD_NAT, I_SEQ_MOV ');
@@ -1305,6 +1341,8 @@ begin
                                ' from MOVNATUREZA NAT, CADNOTAFISCAIS CAD, CADCONDICOESPAGTO PAG, CADTRANSPORTADORAS TRA '+
                                ' Where CAD.C_COD_NAT = NAT.C_COD_NAT '+
                                ' AND CAD.I_ITE_NAT = NAT.I_SEQ_MOV '+
+                               ' and CAD.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
+                               ' and CAD.C_MOD_DOC IS NOT NULL '+
                                SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ' AND '+SQLTextoRightJoin('CAD.I_COD_PAG','PAG.I_COD_PAG')+
                                ' AND '+SQLTextoRightJoin('CAD.I_COD_TRA','TRA.I_COD_TRA'));
@@ -1323,6 +1361,7 @@ begin
                                ' from MOVNATUREZA NAT, CADNOTAFISCAIS CAD, CADCONDICOESPAGTO PAG, CADTRANSPORTADORAS TRA '+
                                ' Where CAD.C_COD_NAT = NAT.C_COD_NAT '+
                                ' AND CAD.I_ITE_NAT = NAT.I_SEQ_MOV '+
+                               ' and CAD.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ' AND '+SQLTextoRightJoin('CAD.I_COD_PAG','PAG.I_COD_PAG')+
                                ' AND '+SQLTextoRightJoin('CAD.I_COD_TRA','TRA.I_COD_TRA'));
@@ -1338,11 +1377,13 @@ begin
                                ' WHERE EXISTS (SELECT * FROM CADNOTAFISCAIS CAD '+
                                ' WHERE CAD.I_COD_CLI = CLI.I_COD_CLI '+
                                SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
+                               ' and CAD.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                '  ) '+
                                ' or EXISTS(SELECT * FROM CADNOTAFISCAISFOR CAF '+
                                ' WHERE CAF.I_COD_CLI = CLI.I_COD_CLI '+
                                ' AND CAF.C_SER_NOT <> ''-1'''+
                                SQLTextoDataEntreAAAAMMDD('CAF.D_DAT_REC',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
+                               ' and CAF.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                '  ) ');
 end;
 
@@ -1369,11 +1410,13 @@ begin
                                ' AND CAD.I_SEQ_NOT = MOV.I_SEQ_NOT '+
                                SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO'+
+                               ' and CAD.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                '  )'+
                                ' OR EXISTS (SELECT * FROM CADNOTAFISCAISFOR CAF, MOVNOTASFISCAISFOR MOF '+
                                ' WHERE CAF.I_EMP_FIL = MOF.I_EMP_FIL '+
                                ' AND CAF.I_SEQ_NOT = MOF.I_SEQ_NOT '+
-                               ' AND CAF.C_SER_NOT <> ''-1'''+
+                               ' AND CAF.C_MOD_DOC IS NOT NULL'+
+                               ' and CAF.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                SQLTextoDataEntreAAAAMMDD('CAF.D_DAT_REC',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ' AND MOF.I_SEQ_PRO = PRO.I_SEQ_PRO'+
                                ' )');
@@ -1388,11 +1431,13 @@ begin
                                ' FROM CADTRANSPORTADORAS TRA '+
                                ' WHERE EXISTS (SELECT * FROM CADNOTAFISCAIS CAD '+
                                ' WHERE CAD.I_COD_TRA = TRA.I_COD_TRA '+
+                               ' and CAD.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                '  ) '+
                                ' or EXISTS (SELECT * FROM CADNOTAFISCAISFOR CAF '+
                                ' WHERE CAF.I_COD_TRA = TRA.I_COD_TRA '+
-                               ' AND CAF.C_SER_NOT <> ''-1'''+
+                               ' and CAF.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
+                               ' AND CAF.C_MOD_DOC IS NOT NULL '+
                                SQLTextoDataEntreAAAAMMDD('CAF.D_DAT_REC',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ')');
 end;
@@ -1407,6 +1452,7 @@ begin
                                ' AND CAD.I_SEQ_NOT = MOV.I_SEQ_NOT '+
                                SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ' AND MOV.C_COD_UNI = UNI.C_COD_UNI'+
+                               ' and CAD.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                '  )'+
                                ' or exists(SELECT * FROM CADNOTAFISCAIS CAD, MOVNOTASFISCAIS MOV, CADPRODUTOS PRO '+
                                ' WHERE CAD.I_EMP_FIL = MOV.I_EMP_FIL '+
@@ -1414,22 +1460,52 @@ begin
                                SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_EMI',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO '+
                                ' AND PRO.C_COD_UNI = UNI.C_COD_UNI'+
-                               '  )'+
+                               ' and CAD.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
+                              '  )'+
                                ' OR EXISTS (SELECT * FROM CADNOTAFISCAISFOR CAF, MOVNOTASFISCAISFOR MOF '+
                                ' WHERE CAF.I_EMP_FIL = MOF.I_EMP_FIL '+
                                ' AND CAF.I_SEQ_NOT = MOF.I_SEQ_NOT '+
-                               ' AND CAF.C_SER_NOT <> ''-1'''+
+                               ' AND CAF.C_MOD_DOC IS NOT NULL '+
                                SQLTextoDataEntreAAAAMMDD('CAF.D_DAT_REC',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ' AND MOF.C_COD_UNI = UNI.C_COD_UNI'+
+                               ' and CAF.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                '  )'+
                                ' or exists(SELECT * FROM CADNOTAFISCAISFOR CAF, MOVNOTASFISCAISFOR MOF, CADPRODUTOS PRO '+
                                ' WHERE CAF.I_EMP_FIL = MOF.I_EMP_FIL '+
                                ' AND CAF.I_SEQ_NOT = MOF.I_SEQ_NOT '+
-                               ' AND CAF.C_SER_NOT <> ''-1'''+
+                               ' AND CAF.C_MOD_DOC IS NOT NULL '+
                                SQLTextoDataEntreAAAAMMDD('CAF.D_DAT_REC',VpaDSped.DatInicio,VpaDSped.DatFinal,true)+
                                ' AND MOF.I_SEQ_PRO = PRO.I_SEQ_PRO '+
                                ' AND PRO.C_COD_UNI = UNI.C_COD_UNI'+
+                               ' and CAF.I_EMP_FIL = '+IntToStr(VpaDSped.CodFilial)+
                                '  )' );
+end;
+
+{********************************************************************************}
+function TRBFuncoesSpedFiscal.RAliquotaICMSRegitroC170Saida(VpaPerICMS: Double; VpaDNatureza: TRBDNaturezaOperacao): double;
+begin
+  if VpaDNatureza.IndCalcularICMS then
+    result := VpaPerICMS
+  else
+    result := 0;
+end;
+
+{********************************************************************************}
+function TRBFuncoesSpedFiscal.RBaseCalculoICMSRegitroC170Saida(VpaValTotProdutos: Double; VpaDNatureza: TRBDNaturezaOperacao): double;
+begin
+  if VpaDNatureza.IndCalcularICMS then
+    result := VpaValTotProdutos
+  else
+    result := 0;
+end;
+
+{********************************************************************************}
+function TRBFuncoesSpedFiscal.RValICMSRegitroC170Saida(VpaValTotProdutos, VpaPerICMS: Double; VpaDNatureza: TRBDNaturezaOperacao): double;
+begin
+  if VpaDNatureza.IndCalcularICMS then
+    result := (VpaValTotProdutos * VpaPerICMS)/100
+  else
+    result := 0;
 end;
 
 {********************************************************************************}

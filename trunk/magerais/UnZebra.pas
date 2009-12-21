@@ -31,7 +31,7 @@ Type
     procedure FechaImpressao;
     function ImprimeEtiquetaProduto33X22(VpaEtiquetas : TList) : Integer;
     function ImprimeEtiquetaProduto33X57(VpaEtiquetas : TList) : Integer;
-
+    procedure ImprimeEtiquetaPrateleira33X22(VpaPrateleiras : TStringList);
 end;
 
 
@@ -188,6 +188,34 @@ end;
 
 
 {******************************************************************************}
+procedure TRBFuncoesZebra.ImprimeEtiquetaPrateleira33X22(VpaPrateleiras: TStringList);
+Var
+  VpfLaco, VpfQtdEtiqueta, VpfPosicaoX : Integer;
+begin
+  VpfQtdEtiqueta := -1;
+  for VpfLaco := 0 to VpaPrateleiras.Count - 1 do
+  begin
+    inc(VpfQtdEtiqueta);
+    VpfPosicaoX := VpfQtdEtiqueta * 265;
+    if Length(VpaPrateleiras.Strings[VpfLaco]) = 1 then
+      ImprimeTexto(VpfPosicaoX+55,0,0,4,8,8,false,VpaPrateleiras.Strings[VpfLaco])
+    else
+      if Length(VpaPrateleiras.Strings[VpfLaco]) = 2 then
+        ImprimeTexto(VpfPosicaoX+50,20,0,3,8,8,false,VpaPrateleiras.Strings[VpfLaco])
+      else
+        if Length(VpaPrateleiras.Strings[VpfLaco]) > 2 then
+          ImprimeTexto(VpfPosicaoX+30,50,0,4,5,5,false,VpaPrateleiras.Strings[VpfLaco]);
+    if VpfQtdEtiqueta >= 2 then
+    begin
+      FechaImpressao;
+      VpfQtdEtiqueta := -1;
+    end;
+  end;
+  if (VpaPrateleiras.Count mod 3) <> 0 then
+    FechaImpressao;
+end;
+
+{******************************************************************************}
 function TRBFuncoesZebra.ImprimeEtiquetaProduto33X22(VpaEtiquetas : TList) : Integer;
 var
   VpfPosicaoX : Integer;
@@ -210,17 +238,17 @@ begin
            break;
         inc(VpfQtdEtiquetasImpressas);
         VpfPosicaoX := VpfColuna * 265;
-        ImprimeTexto(VpfPosicaoX+30,0,0,1,2,2,false,copy(VpfDEtiqueta.Produto.CodProduto, 1,12));
+        ImprimeTexto(VpfPosicaoX+40,10,0,1,2,2,false,copy(VpfDEtiqueta.Produto.CodProduto, 1,12));
         if Length(VpfDEtiqueta.Produto.CodProduto) > 12 then
-          ImprimeTexto(VpfPosicaoX+35,25,0,1,2,2,false,copy(VpfDEtiqueta.Produto.CodProduto, 13,12));
-        ImprimeTexto(VpfPosicaoX+30,50,0,1,1,1,false,copy(VpfDEtiqueta.Produto.NomProduto,1,25));
+          ImprimeTexto(VpfPosicaoX+45,35,0,1,2,2,false,copy(VpfDEtiqueta.Produto.CodProduto, 13,12));
+        ImprimeTexto(VpfPosicaoX+40,60,0,1,1,1,false,copy(VpfDEtiqueta.Produto.NomProduto,1,25));
         if Length(VpfDEtiqueta.Produto.NomProduto) > 26 then
-          ImprimeTexto(VpfPosicaoX+30,75,0,1,1,1,false,copy(VpfDEtiqueta.Produto.NomProduto,26,26));
-        ImprimeTexto(VpfPosicaoX+180,100,0,1,1,1,false,'NF:'+IntTostr(VpfDEtiqueta.NumPedido));
-        ImprimeTexto(VpfPosicaoX+180,115,0,1,1,1,false,FormatDateTime('DD/MM/YY',date));
-        ImprimeTexto(VpfPosicaoX+180,130,0,1,1,1,false,'Localiz.:');
-        ImprimeTexto(VpfPosicaoX+180,145,0,1,2,2,false,VpfDEtiqueta.Produto.PraProduto);
-        ImprimeCodigoBarras(VpfPosicaoX+35,90,0,'2',2,4,40,true,AdicionaCharE('0',FloatToStr(VpfDEtiqueta.Produto.SeqProduto),8));
+          ImprimeTexto(VpfPosicaoX+40,85,0,1,1,1,false,copy(VpfDEtiqueta.Produto.NomProduto,26,26));
+        ImprimeTexto(VpfPosicaoX+190,110,0,1,1,1,false,'NF:'+IntTostr(VpfDEtiqueta.NumPedido));
+        ImprimeTexto(VpfPosicaoX+190,125,0,1,1,1,false,FormatDateTime('DD/MM/YY',date));
+        ImprimeTexto(VpfPosicaoX+190,140,0,1,1,1,false,'Localiz.:');
+        ImprimeTexto(VpfPosicaoX+190,155,0,1,2,2,false,VpfDEtiqueta.Produto.PraProduto);
+        ImprimeCodigoBarras(VpfPosicaoX+45,100,0,'2',2,4,40,true,AdicionaCharE('0',FloatToStr(VpfDEtiqueta.Produto.SeqProduto),8));
       end;
       if VpfColuna >= 2 then
       begin

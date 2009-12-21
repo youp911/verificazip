@@ -575,6 +575,7 @@ begin
         GProdutos.Cells[1,GProdutos.ALinha] := CodProduto;
         GProdutos.Cells[2,GProdutos.ALinha] := NomProduto;
         GProdutos.Cells[7,GProdutos.ALinha] := UM;
+        VprDProCotacao.ValTotal := VprDProCotacao.ValUnitario * VprDProCotacao.QtdProduto;
         CalculaValorTotalProduto;
         CarFoto;
         if config.EstoquePorTamanho then
@@ -628,6 +629,7 @@ begin
           GProdutos.Cells[1,GProdutos.ALinha] := VprDProCotacao.CodProduto;
           GProdutos.Cells[2,GProdutos.ALinha] := VprDProCotacao.NomProduto;
           GProdutos.Cells[7,GProdutos.ALinha] := VprDProCotacao.UM;
+          VprDProCotacao.ValTotal := VprDProCotacao.ValUnitario * VprDProCotacao.QtdProduto;
           ReferenciaProduto;
           CalculaValorTotalProduto;
           CarFoto;
@@ -2260,6 +2262,12 @@ begin
     GServicos.CarregaGrade;
   end;
   AdicionaProdutosChamado(VpaDChamado);
+  if config.CopiaoServicoExecutadoParaAObsdaCotacao then
+  begin
+    FunCotacao.CarServicoExecutadonaObsdaCotacao(VprDCotacao,VpaDChamado);
+    EObservacoes.Lines := VprDCotacao.DesObservacao;
+  end;
+
   CalculaValorTotal;
 end;
 
@@ -2711,20 +2719,24 @@ begin
               GProdutos.col := 7;
               abort;
             end;
-        8,9,11 :
+        8 :
              begin
                if GProdutos.Cells[8,GProdutos.ALinha] <> '' then
                  VprDProCotacao.QtdProduto := StrToFloat(DeletaChars(GProdutos.Cells[8,GProdutos.ALinha],'.'))
                else
                  VprDProCotacao.QtdProduto := 0;
-               if GProdutos.Cells[9,GProdutos.ALinha] <> '' then
-                 VprDProCotacao.ValUnitario := StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'))
+               VprDProCotacao.ValTotal := VprDProCotacao.ValUnitario * VprDProCotacao.QtdProduto;
+               CalculaValorTotalProduto;
+             end;
+        9 :
+             begin
+               if (DeletaChars(DeletaChars(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'),','),'0') <> '')then
+               begin
+                 VprDProCotacao.ValUnitario := StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'));
+                 VprDProCotacao.ValTotal := VprDProCotacao.ValUnitario * VprDProCotacao.QtdProduto;
+               end
                else
                  VprDProCotacao.ValUnitario := 0;
-               if GProdutos.Cells[11,GProdutos.ALinha] <> '' then
-                 VprDProCotacao.PerDesconto := StrToFloat(DeletaChars(GProdutos.Cells[11,GProdutos.ALinha],'.'))
-               else
-                 VprDProCotacao.PerDesconto := 0;
                CalculaValorTotalProduto;
              end;
        10 : begin
@@ -2741,6 +2753,14 @@ begin
                 end;
               end;
             end;
+        11 :
+             begin
+               if GProdutos.Cells[11,GProdutos.ALinha] <> '' then
+                 VprDProCotacao.PerDesconto := StrToFloat(DeletaChars(GProdutos.Cells[11,GProdutos.ALinha],'.'))
+               else
+                 VprDProCotacao.PerDesconto := 0;
+               CalculaValorTotalProduto;
+             end;
        12 : if not config.NumeroSerieProduto then
             begin
               if (GProdutos.Cells[12,GProdutos.ALinha] <> '') and (GProdutos.Cells[1,GProdutos.ALinha] ='') then

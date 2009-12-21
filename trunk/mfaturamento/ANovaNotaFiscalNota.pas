@@ -346,6 +346,7 @@ type
      VprDTransportadora : TRBDTransportadora;
      FunOrdemProducao : TRBFuncoesOrdemProducao;
      FunImprimeBoleto : TImpressaoBoleto;
+     VprDNatureza : TRBDNaturezaOperacao;
      VprAcao,
      VprNotaAutomatica  : Boolean;
 
@@ -474,6 +475,7 @@ begin
   FunImprimeBoleto := TImpressaoBoleto.cria(Fprincipal.BaseDados);
   VprDCliente := TRBDCliente.cria;
   VprDTransportadora := TRBDTransportadora.Create;
+  VprDNatureza := TRBDNaturezaOperacao.cria;
   VprDContasaReceber := TRBDContasCR.cria;
   UnImp := TFuncoesImpressao.criar(self, FPrincipal.BaseDados);
   // permite ou nao alterar o numero da nota fiscal
@@ -504,6 +506,7 @@ begin
   CADBOLETO.close;
   FunImprimeBoleto.free;
   VprDContasaReceber.free;
+  VprDNatureza.Free;
   Aux.Close;
   action := cafree;
 end;
@@ -949,6 +952,8 @@ end;
 
 {******************************************************************************}
 function TFNovaNotaFiscalNota.ExisteProduto : Boolean;
+Var
+  VpfDProduto : TRBDProduto;
 begin
   if (GProdutos.Cells[1,GProdutos.ALinha] <> '') then
   begin
@@ -960,8 +965,11 @@ begin
       result := FunNotaFiscal.ExisteProduto(GProdutos.Cells[1,GProdutos.ALinha],VprDNota,VprDProdutoNota);
       if result then
       begin
+        VpfDProduto := TRBDProduto.Cria;
+        FunProdutos.CarDProduto(VpfDProduto,varia.CodigoEmpresa,Varia.CodigoEmpFil,VprDProdutoNota.SeqProduto);
         VprDProdutoNota.UnidadeParentes.free;
         VprDProdutoNota.UnidadeParentes := ValidaUnidade.UnidadesParentes(VprDProdutoNota.UMOriginal);
+        VprDProdutoNota.CodCST := FunNotaFiscal.RCSTICMSProduto(VprDCliente,VpfDProduto,VprDNatureza);
         VprProdutoAnterior := VprDProdutoNota.CodProduto;
         if VprDProdutoNota.IndReducaoICMS then
           GProdutos.Cells[13,GProdutos.ALinha] := FormatFloat('0.00%',(VprDNota.ValICMSPadrao * VprDProdutoNota.PerReducaoICMS)/100);
@@ -970,11 +978,14 @@ begin
         GProdutos.Cells[2,GProdutos.ALinha] := VprDProdutoNota.NomProduto;
         GProdutos.Cells[7,GProdutos.ALinha] := VprDProdutoNota.UM;
         GProdutos.Cells[5,GProdutos.ALinha] := VprDProdutoNota.CodClassificacaoFiscal;
+        GProdutos.Cells[6,GProdutos.ALinha] := VprDProdutoNota.CodCST;
+
         ReferenciaProduto;
         CalculaValorTotalProduto;
         if VprDNota.IndBaixarEstoque then
           if FUnProdutos.TextoPossuiEstoque(1, VprDProdutoNota.QtdEstoque,' kit ') then
             FUnProdutos.TextoQdadeMinimaPedido( VprDProdutoNota.QtdMinima,VprDProdutoNota.QtdPedido, 1);
+        VpfDProduto.free;
       end;
     end;
   end
@@ -1036,6 +1047,8 @@ end;
 
 {******************************************************************************}
 function  TFNovaNotaFiscalNota.LocalizaProduto : Boolean;
+Var
+  VpfDProduto : TRBDProduto;
 begin
   FlocalizaProduto := TFlocalizaProduto.criarSDI(Application,'',FPrincipal.VerificaPermisao('FlocalizaProduto'));
   Result := FlocalizaProduto.LocalizaProduto(VprDProdutoNota,ECodCliente.Ainteiro); //localiza o produto
@@ -1047,9 +1060,13 @@ begin
       VprDProdutoNota.UnidadeParentes.free;
       VprDProdutoNota.UnidadeParentes := ValidaUnidade.UnidadesParentes(UMOriginal);
       VprProdutoAnterior := CodProduto;
+      VpfDProduto := TRBDProduto.Cria;
+      FunProdutos.CarDProduto(VpfDProduto,varia.CodigoEmpresa,Varia.CodigoEmpFil,VprDProdutoNota.SeqProduto);
+      VprDProdutoNota.CodCST := FunNotaFiscal.RCSTICMSProduto(VprDCliente,VpfDProduto,VprDNatureza);
       GProdutos.Cells[1,GProdutos.ALinha] := CodProduto;
       GProdutos.Cells[2,GProdutos.ALinha] := NomProduto;
       GProdutos.Cells[5,GProdutos.ALinha] := CodClassificacaoFiscal;
+      GProdutos.Cells[6,GProdutos.ALinha] := CodCST;
       GProdutos.Cells[7,GProdutos.ALinha] := UM;
       if VprDProdutoNota.IndReducaoICMS then
         GProdutos.Cells[13,GProdutos.ALinha] := FormatFloat('0.00%',(VprDNota.ValICMSPadrao * VprDProdutoNota.PerReducaoICMS)/100);
@@ -1403,10 +1420,16 @@ end;
 
 {******************************************************************************}
 procedure TFNovaNotaFiscalNota.AdicionaItemProduto(VpaDProdutoNota : TRBDNotaFiscalProduto);
+Var
+  VpfDProduto : TRBDProduto;
 begin
   FunNotaFiscal.ExisteProduto('',VprDNota,VpaDProdutoNota);
   VprDProdutoNota.UnidadeParentes.free;
   VprDProdutoNota.UnidadeParentes := ValidaUnidade.UnidadesParentes(VprDProdutoNota.UMOriginal);
+  VpfDProduto := TRBDProduto.Cria;
+  FunProdutos.CarDProduto(VpfDProduto,varia.CodigoEmpresa,Varia.CodigoEmpFil,VprDProdutoNota.SeqProduto);
+  VprDProdutoNota.CodCST := FunNotaFiscal.RCSTICMSProduto(VprDCliente,VpfDProduto,VprDNatureza);
+  VpfDProduto.free;
 end;
 
 {******************************************************************************}
@@ -1481,6 +1504,7 @@ begin
     VprDNota.CodNatureza := MovNatureza.fieldbyName('C_COD_NAT').AsString;
     VprDNota.SeqItemNatureza := MovNatureza.fieldbyName('i_seq_mov').AsInteger;
     FunNotaFiscal.CarDNaturezaOperacao(VprDNota);
+    FunNotaFiscal.CarDNaturezaOperacao(VprDNatureza,VprDNota.CodNatureza,VprDNota.SeqItemNatureza);
 
     MontaObservacao;
     if VprOperacao in [ocInsercao,ocEdicao] then

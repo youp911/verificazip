@@ -347,12 +347,16 @@ begin
     AdicionaSQLAbreTabela(Tabela,'Select ORI.SEQITEM, ORI.SEQPRODUTO, ORI.CODCOR, ORI.DESUM, ORI.QTDPRODUTO, '+
                                ' ORI.QTDCOMPRADA, ORI.PERIPI, '+
                                ' PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_COD_UNI UMORIGINAL, PRO.L_DES_TEC,  '+
-                               ' COR.NOM_COR '+
-                               ' from ORCAMENTOCOMPRAFORNECEDORITEM ORI, CADPRODUTOS PRO, COR '+
+                               ' COR.NOM_COR, '+
+                               ' PRF.DESREFERENCIA '+
+                               ' from ORCAMENTOCOMPRAFORNECEDORITEM ORI, CADPRODUTOS PRO, COR, PRODUTOFORNECEDOR PRF '+
                                ' Where ORI.CODFILIAL = '+IntToStr(VpaDOrcamento.CodFilial)+
                                ' and ORI.SEQORCAMENTO = '+IntToStr(VpaDOrcamento.SeqOrcamento)+
                                ' and ORI.CODCLIENTE = '+IntToStr(VpfDProFornecedor.CodFornecedor)+
                                ' AND ORI.SEQPRODUTO = PRO.I_SEQ_PRO'+
+                               ' AND '+SQLTextoRightJoin('ORI.SEQPRODUTO','PRF.SEQPRODUTO')+
+                               ' AND '+SQLTextoRightJoin('ORI.CODCLIENTE','PRF.CODCLIENTE')+
+                               ' AND '+SQLTextoRightJoin(SQLTextoIsNull('ORI.CODCOR','0'),'PRF.CODCOR')+
                                ' AND '+SQLTextoRightJoin('ORI.CODCOR','COR.COD_COR')+
                                ' ORDER BY ORI.CODFILIAL,SEQORCAMENTO,SEQITEM');
     While not Tabela.eof do
@@ -373,6 +377,7 @@ begin
       VpfDProOrcamento.QtdSolicitada := Tabela.FieldByName('QTDPRODUTO').AsFloat;
       VpfDProOrcamento.QtdComprado := Tabela.FieldByName('QTDCOMPRADA').AsFloat;
       VpfDProOrcamento.PerIPI := Tabela.FieldByName('PERIPI').AsFloat;
+      VpfDProOrcamento.DesReferenciaFornecedor := Tabela.FieldByName('DESREFERENCIA').AsString;
       Tabela.next;
     end;
     Tabela.close;
@@ -542,7 +547,7 @@ begin
   begin
     VpfDItem := TRBDOrcamentoCompraProduto(VpaDOrcFornecedor.ProdutosAdicionados.Items[VpfLaco]);
     VpaTexto.add('</tr><tr>');
-    VpaTexto.add('        <td width="10%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+{VpfDItem.DesReferenciaFornecedor +}'</td>');
+    VpaTexto.add('        <td width="10%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+VpfDItem.DesReferenciaFornecedor+ '</td>');
     if VpfDItem.DesTecnica <> '' then
       VpaTexto.add('      <td width="30%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.CodProduto+'-'+VpfDItem.DesTecnica+'</td>')
     else

@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1547;
+  CT_VersaoBanco = 1557;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1150,6 +1150,78 @@ begin
                               ' DESEMAIL VARCHAR2(100) NULL,'+
                               ' PRIMARY KEY(CODREPRESENTADA))');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1547');
+      end;
+      if VpaNumAtualizacao < 1548 Then
+      begin
+        VpfErro := '1548';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_FINANCEIRO ADD C_DEB_CRE CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CFG_FINANCEIRO SET C_DEB_CRE = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1548');
+      end;
+      if VpaNumAtualizacao < 1549 Then
+      begin
+        VpfErro := '1549';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD(I_LAR_BAL NUMBER(10) NULL, '+
+                              ' I_ALT_BAL NUMBER(10) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1549');
+      end;
+      if VpaNumAtualizacao < 1550 Then
+      begin
+        VpfErro := '1550';
+        ExecutaComandoSql(Aux,'ALTER TABLE ORDEMCORTEITEM ADD(LARENFESTO NUMBER(10) NULL, '+
+                              ' ALTENFESTO NUMBER(10) NULL, '+
+                              ' QTDENFESTO NUMBER(10,2) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1550');
+      end;
+      if VpaNumAtualizacao < 1551 Then
+      begin
+        VpfErro := '1551';
+        ExecutaComandoSql(Aux,'ALTER TABLE ORDEMCORTEITEM ADD(POSFACA NUMBER(1) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1551');
+      end;
+      if VpaNumAtualizacao < 1552 Then
+      begin
+        VpfErro := '1552';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADPRODUTOS ADD(C_AGR_BAL CHAR(1) NULL)');
+        ExecutaComandoSql(Aux,'Update CADPRODUTOS set C_AGR_BAL = ''N''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1552');
+      end;
+      if VpaNumAtualizacao < 1553 Then
+      begin
+        VpfErro := '1553';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD(I_LAR_PRE NUMBER(10) NULL, '+
+                              ' I_ALT_PRE NUMBER(10) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1553');
+      end;
+      if VpaNumAtualizacao < 1554 Then
+      begin
+        VpfErro := '1554';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_PRODUTO ADD(C_IND_CAT CHAR(1) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_PRODUTO set C_IND_CAT = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1554');
+      end;
+      if VpaNumAtualizacao < 1555 Then
+      begin
+        VpfErro := '1555';
+        ExecutaComandoSql(Aux,'ALTER TABLE COMBINACAO ADD (SEQPRODUTOFIOTRAMA NUMBER(10) NULL,'+
+                              ' SEQPRODUTOFIOAJUDA NUMBER(10) NULL,'+
+                              ' CODCORFIOTRAMA NUMBER(10) NULL,'+
+                              ' CODCORFIOAJUDA NUMBER(10) NULL)' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1555');
+      end;
+      if VpaNumAtualizacao < 1556 Then
+      begin
+        VpfErro := '1556';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD(C_CHA_SEC CHAR(1)NULL)' );
+        ExecutaComandoSql(Aux,'UPDATE CFG_GERAL SET C_CHA_SEC = ''F''' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1556');
+      end;
+      if VpaNumAtualizacao < 1557 Then
+      begin
+        VpfErro := '1557';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADGRUPOS ADD(C_EST_CPR CHAR(1)NULL)' );
+        ExecutaComandoSql(Aux,'UPDATE CADGRUPOS SET C_EST_CPR = ''T''' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1557');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

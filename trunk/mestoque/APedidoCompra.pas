@@ -123,6 +123,7 @@ type
     N5: TMenuItem;
     ConsultaSolicitaoCompra1: TMenuItem;
     PRODUTOPEDIDOC_COD_PRO: TWideStringField;
+    PEDIDOCOMPRACORPOCODCONDICAOPAGAMENTO: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -309,7 +310,7 @@ begin
   PEDIDOCOMPRACORPO.SQL.Clear;
   PEDIDOCOMPRACORPO.SQL.Add('SELECT'+
                             ' PCC.CODCLIENTE, PCC.CODFORMAPAGAMENTO, PCC.SEQPEDIDO, PCC.DATPEDIDO, PCC.DATPREVISTA, PCC.DATENTREGA,'+
-                            ' PCC.DATRENEGOCIADO, '+
+                            ' PCC.DATRENEGOCIADO, PCC.CODCONDICAOPAGAMENTO, '+
                             ' CLI.C_NOM_CLI, PCC.VALTOTAL, CPA.C_NOM_PAG,'+
                             ' PCC.CODFILIAL, PCC.DATAPROVACAO,'+
                             ' EST.NOMEST, PCC.CODESTAGIO, PCC.DATPAGAMENTOANTECIPADO,'+
@@ -647,6 +648,7 @@ begin
   VpfDNota:= TRBDNotaFiscalFor.cria;
   VpfDNota.CodFornecedor:= PEDIDOCOMPRACORPOCODCLIENTE.AsInteger;
   VpfDNota.CodFormaPagamento:= PEDIDOCOMPRACORPOCODFORMAPAGAMENTO.AsInteger;
+  VpfDNota.CodCondicaoPagamento :=  PEDIDOCOMPRACORPOCODCONDICAOPAGAMENTO.AsInteger;
   FunNotaFor.PreencheProdutosNotaPedido(VpfListaPedidos,VpfDNota);
   FNovaNotaFiscaisFor:= TFNovaNotaFiscaisFor.CriarSDI(Application,'',True);
   if FNovaNotaFiscaisFor.NovaNotaPedido(VpfDNota) then

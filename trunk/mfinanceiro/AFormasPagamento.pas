@@ -62,6 +62,7 @@ type
     procedure DBGridColor1Ordem(Ordem: String);
     procedure CadFormasPagamentoAfterCancel(DataSet: TDataSet);
     procedure DBKeyViolation1Change(Sender: TObject);
+    procedure PanelColor2Click(Sender: TObject);
   private
     procedure ConfiguraConsulta( acao : Boolean);
   public
@@ -83,6 +84,10 @@ procedure TFFormasPagamento.FormCreate(Sender: TObject);
 begin
    CadFormasPagamento.open;  {  abre tabelas }
    IniciallizaCheckBox([DBCheckBox1, CGaveta], 'S', 'N');
+end;
+
+procedure TFFormasPagamento.PanelColor2Click(Sender: TObject);
+begin
 end;
 
 { ******************* Quando o formulario e fechado ************************** }

@@ -80,7 +80,7 @@ type
     puESImprimirEtiquetaProduto, puCRSomenteProspectDoVendedor, puESPedidoCompra, puESOrcamentoCompra,puESSolicitacaoCompra,
     puSomenteClientesdoVendedor,puFIBloquearClientes, puVendedorAlteraContrato, puPLImprimirPedidoDuasVezes, puPLImprimirValoresRelatorioPedidosPendentes,
     puESPlanoCorte,puCRSomenteCadastraProspect,puESColetaQtdProduzidoOP,puESReprocessarProdutividade, puESAcertoEstoque,
-    puESMenuGerencial, puESRegerarProjeto,puSomenteCondicoesPgtoAutorizadas, puESCadastrarCelulaTrabalho, puESReservaEstoque);
+    puESMenuGerencial, puESRegerarProjeto,puSomenteCondicoesPgtoAutorizadas, puESCadastrarCelulaTrabalho, puESReservaEstoque, puESConsultaProduto);
 
   TRBDPermisaoUsuario = set of TRBDOpcoesPermisaoUsuario;
   TRBDTipoValorComissao = (vcTotalNota,vcTotalProdutos);
@@ -340,6 +340,7 @@ type
       CodIBGEMunicipio : Integer;
       PerfilSped : String;
       TipoAtividadeSped : integer;
+      CSTIPI : String;
 
       //nfe
       CertificadoNFE,
@@ -429,6 +430,10 @@ type
       TipoOrdemProducao : TRBDTipoOrdemProducao;
       CodClienteOP : Integer;
       AcrescimoCMEnfesto : Double;
+      LarMesaBalancim,
+      LarMesaPrensa,
+      AltMesaBalancim,
+      AltMesaPrensa : Integer;
 
       //Compras
       CodFilialFaturamentoCompras : Integer;
@@ -494,6 +499,7 @@ type
     PermiteItemNFEntradaDuplicado : Boolean; // Permite duplicat item de da Nota Fiscal de entrada duplicado
     CadastroEtiqueta,             //No cadastro dos produto mostra os dados técnicos da etiqueta.
     CadastroCadarco,
+    CadastroCadarcoFita,
     MostrarAcessoriosnoProduto  : Boolean;   //No cadastro dos produtos mostra os dados técnicos do cadarço.
     EstoquePorCor,                //Se controla o estoque dos produtos pela cor
     EstoquePorTamanho,
@@ -557,6 +563,7 @@ type
     AdicionarRemessaAoImprimirBoleto: Boolean; // adicionar a nota fiscal no arquivo de remessa ao imprimir o boleto bancario
     EmailCobrancaPelaDataCobranca : Boolean;
     ControlarProjeto : Boolean;
+    ControlarDebitoeCreditoCliente : Boolean;
 
     //-----------------------Cotacao
     ExcluirFinanceiroCotacaoQuandoGeraNota : Boolean;
@@ -654,6 +661,7 @@ type
 
     //---------------------Chamados
     EnviaChamadoEmailTecnico : Boolean;
+    CopiaoServicoExecutadoParaAObsdaCotacao : Boolean;
 
     //---------------------Ordem de produção
     AdicionarQtdIdealEstoquenaOP : Boolean;
@@ -945,6 +953,8 @@ begin
    VpaDPermissao := VpaDPermissao + [puESCadastrarCelulaTrabalho];
   if TipoCheck(VarAux.FieldByName('C_EST_RES').AsString) then
    VpaDPermissao := VpaDPermissao + [puESReservaEstoque];
+  if TipoCheck(VarAux.FieldByName('C_EST_CPR').AsString) then
+   VpaDPermissao := VpaDPermissao + [puESConsultaProduto];
 
   config.UtilizarPercentualConsulta := TipoCheck(VarAux.fieldByName('C_IND_PER').AsString);
   config.ResponsavelLeituraLocacao := TipoCheck(VarAux.fieldByName('C_RES_LEL').AsString);
@@ -1176,6 +1186,7 @@ begin
         DatSNGPC := VpfTabela.fieldByName('D_DAT_SNG').AsDateTime;;
         PerCreditoICMSSimples := VpfTabela.fieldByName('N_PER_CSS').AsFloat;
         CodCNAE := VpfTabela.fieldByName('C_COD_CNA').AsString;
+        CSTIPI := VpfTabela.fieldByName('C_CST_IPI').AsString;
 
         //FINANCEIRO
         ContaBancaria := VpfTabela.fieldByName('C_CON_BAN').AsString;
@@ -1391,6 +1402,10 @@ begin
        CodDesenvolvedorRequisicaoAmostra := VpfTabela.FieldByName('I_COD_DEA').AsInteger;
        CodCoeficienteCustoPadrao := VpfTabela.FieldByName('I_COE_PAD').AsInteger;
        DesObservacaoBoleto := VpfTabela.FieldByName('C_OBS_BOL').AsString;
+       LarMesaBalancim := VpfTabela.FieldByName('I_LAR_BAL').AsInteger;
+       AltMesaBalancim := VpfTabela.FieldByName('I_ALT_BAL').AsInteger;
+       LarMesaPrensa := VpfTabela.FieldByName('I_LAR_PRE').AsInteger;
+       AltMesaPrensa := VpfTabela.FieldByName('I_ALT_PRE').AsInteger;
     end;
 
     with Config do   // boolean
@@ -1403,6 +1418,7 @@ begin
       ExigirCNPJeCEPCotacaoPadrao := TipoCheck(VpfTabela.fieldByName('C_COT_ECC').AsString);
       EnviaCotacaoEmailTransportadora := TipoCheck(VpfTabela.fieldByName('C_COT_EEE').AsString);
       EnviaChamadoEmailTecnico := TipoCheck(VpfTabela.fieldByName('C_CHA_EET').AsString);
+      CopiaoServicoExecutadoParaAObsdaCotacao := TipoCheck(VpfTabela.fieldByName('C_CHA_SEC').AsString);
       EnviarEmailFaturamentoMensal := TipoCheck(VpfTabela.fieldByName('C_CON_EMA').AsString);
       NoFaturamentoMensalCondPagamentoCliente := TipoCheck(VpfTabela.fieldByName('C_CON_CPC').AsString);
       EmitirNotaFaturamentoMensal := TipoCheck(VpfTabela.fieldByName('C_CON_NOT').AsString);
@@ -1536,6 +1552,7 @@ begin
         PermiteItemNFEntradaDuplicado := TipoCheck(VpfTabela.fieldByName('C_Ent_Rep').AsString);
         CadastroEtiqueta := TipoCheck(VpfTabela.fieldByName('C_IND_ETI').AsString);
         CadastroCadarco := TipoCheck(VpfTabela.fieldByName('C_IND_CAR').AsString);
+        CadastroCadarcoFita :=TipoCheck(VpfTabela.fieldByName('C_IND_CAT').AsString);
         MostrarAcessoriosnoProduto := TipoCheck(VpfTabela.fieldByName('C_IND_ACE').AsString);
         EstoquePorCor := TipoCheck(VpfTabela.fieldByName('C_EST_COR').AsString);
         EstoquePorTamanho := TipoCheck(VpfTabela.fieldByName('C_EST_TAM').AsString);
@@ -1647,6 +1664,7 @@ begin
         AdicionarRemessaAoImprimirBoleto:= TipoCheck(VpfTabela.fieldByName('C_IMB_AAR').AsString);
         EmailCobrancaPelaDataCobranca := TipoCheck(VpfTabela.fieldByName('C_EMA_DCO').AsString);
         ControlarProjeto := TipoCheck(VpfTabela.fieldByName('C_CON_PRO').AsString);
+        ControlarDebitoeCreditoCliente := TipoCheck(VpfTabela.fieldByName('C_DEB_CRE').AsString);
       end;
     end;
 

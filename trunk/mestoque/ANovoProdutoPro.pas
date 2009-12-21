@@ -357,6 +357,10 @@ type
     EditColor6: TEditColor;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
+    CAgruparBalancim: TCheckBox;
+    GCombinacaoCadarco: TRBStringGridColor;
+    ECorFioTrama: TRBEditLocaliza;
+    ECorFioAjuda: TRBEditLocaliza;
 
     procedure PaginasChange(Sender: TObject);
     procedure PaginasChanging(Sender: TObject; var AllowChange: Boolean);
@@ -502,6 +506,16 @@ type
     procedure GDPCGetCellColor(Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
     procedure GDPCClick(Sender: TObject);
     procedure EQtdLinInstalacaoExit(Sender: TObject);
+    procedure GCombinacaoCadarcoCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
+    procedure GCombinacaoCadarcoDadosValidos(Sender: TObject; var VpaValidos: Boolean);
+    procedure GAcessoriosClick(Sender: TObject);
+    procedure ECorFioTramaRetorno(VpaColunas: TRBColunasLocaliza);
+    procedure ECorFioAjudaRetorno(VpaColunas: TRBColunasLocaliza);
+    procedure GCombinacaoCadarcoGetEditMask(Sender: TObject; ACol, ARow: Integer; var Value: string);
+    procedure GCombinacaoCadarcoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure GCombinacaoCadarcoMudouLinha(Sender: TObject; VpaLinhaAtual, VpaLinhaAnterior: Integer);
+    procedure GCombinacaoCadarcoNovaLinha(Sender: TObject);
+    procedure GCombinacaoCadarcoSelectCell(Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
   private
     VprCodClassificacao,
     VprCodClassificacaoAnterior : String;
@@ -525,6 +539,7 @@ type
     VprRepeticoesInstalacao,
     VprListaImpressoras: TList;
     VprDProImpressora: TRBDProdutoImpressora;
+    VprDCombinacaoCadarco : TRBDCombinacaoCadarcoTear;
 
     // Verificar permissões e configurações ao criar uma nova página
     procedure ConfiguraPermissaoUsuario;
@@ -542,8 +557,12 @@ type
     function ExisteCliente: Boolean;
     function ExisteEstagio(VpaCodEstagio: String): Boolean;
     function ExisteImpressora: Boolean;
+    function ExisteProdutoFioTrama : Boolean;
+    function ExisteProdutoFioAjuda : Boolean;
     function ImpressoraDuplicada: Boolean;
     function LocalizaImpressora: Boolean;
+    function LocalizaProdutoFioTrama : Boolean;
+    function LocalizaProdutoFioAjuda : Boolean;
 
     procedure CriaClasses;
     procedure InicializaClasseProduto;
@@ -570,6 +589,7 @@ type
     procedure PosDadosFornecedores;
     procedure PosDadosAcessorios;
     procedure PosDadosTabelaPreco;
+    procedure PosDadosInstalacaoTear;
 
     procedure CarDClasseGerais;
     procedure CarDClasseCadarco;
@@ -579,6 +599,7 @@ type
     procedure CarDClasseCartucho;
 
     procedure CarDFornecedoresClasse;
+    procedure CarDCombinacaoCadarcoTear;
     procedure CarDEstagio;
     procedure CarDCombinacao;
     procedure CarDFigura;
@@ -801,6 +822,8 @@ begin
   ConfiguracoesCartuchos;
   ConfiguracoesEstagios;
   ConfiguracoesFornecedores;
+  PCadarcoFita.TabVisible :=  config.CadastroCadarcoFita;
+  PInstalacaoTear.TabVisible := Config.CadastroCadarcoFita;
 end;
 
 {******************************************************************************}
@@ -945,6 +968,16 @@ begin
   GPreco.Cells[15,0] := 'Moeda';
   GPreco.Cells[16,0] := 'Qtd Minima';
   GPreco.Cells[17,0] := 'Qtd Pedido';
+
+  GCombinacaoCadarco.Cells[1,0] := 'Combinação';
+  GCombinacaoCadarco.Cells[2,0] := 'Código';
+  GCombinacaoCadarco.Cells[3,0] := 'Fio Trama';
+  GCombinacaoCadarco.Cells[4,0] := 'Código';
+  GCombinacaoCadarco.Cells[5,0] := 'Cor';
+  GCombinacaoCadarco.Cells[6,0] := 'Código';
+  GCombinacaoCadarco.Cells[7,0] := 'Fio Ajuda';
+  GCombinacaoCadarco.Cells[8,0] := 'Código';
+  GCombinacaoCadarco.Cells[9,0] := 'Cor';
 end;
 
 {******************************************************************************}
@@ -990,6 +1023,7 @@ begin
   GFornecedores.ADados:= VprDProduto.Fornecedores;
   GAcessorios.ADados := VprDProduto.Acessorios;
   GPreco.ADados := VprDProduto.TabelaPreco;
+  GCombinacaoCadarco.ADados := VprDProduto.CombinacoesCadarcoTear;
 end;
 
 {******************************************************************************}
@@ -1586,7 +1620,10 @@ begin
                       PosDadosAcessorios
                     else
                       if Paginas.ActivePage = PTabelaPreco then
-                        PosDadosTabelaPreco;
+                        PosDadosTabelaPreco
+                      else
+                        if Paginas.ActivePage = PInstalacaoTear then
+                          PosDadosInstalacaoTear;
 end;
 
 {******************************************************************************}
@@ -1667,6 +1704,12 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.PosDadosInstalacaoTear;
+begin
+  GCombinacaoCadarco.CarregaGrade;
+end;
+
+{******************************************************************************}
 procedure TFNovoProdutoPro.PosDadosCadarco;
 begin
   ETipMaquina.AInteiro:= VprDProduto.CodMaquina;
@@ -1743,6 +1786,7 @@ begin
   CImprimeTabelaPreco.Checked:= VprDProduto.IndImprimeNaTabelaPreco = 'S';
   CCracha.Checked:= VprDProduto.IndCracha = 'S';
   CProdutoRetornavel.Checked:= VprDProduto.IndProdutoRetornavel = 'S';
+  CAgruparBalancim.Checked := VprDProduto.IndAgruparCorteBalancim;
   CMonitorarEstoque.Checked := VprDProduto.IndMonitorarEstoque;
   ERendimento.Text:= VprDProduto.DesRendimento;
   EDatCadastro.Text := FormatDateTime('DD/MM/YYYY',VprDProduto.DatCadastro);
@@ -2020,6 +2064,7 @@ begin
   else
     VprDProduto.CmpProduto:= EMetCadarco.AInteiro;
   VprDProduto.IndMonitorarEstoque := CMonitorarEstoque.Checked;
+  VprDProduto.IndAgruparCorteBalancim := CAgruparBalancim.Checked;
 end;
 
 {******************************************************************************}
@@ -2356,6 +2401,40 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.ECorFioAjudaRetorno(VpaColunas: TRBColunasLocaliza);
+begin
+  if VpaColunas.items[0].AValorRetorno <> '' then
+  begin
+    VprDCombinacaoCadarco.CodCorFioAjuda := StrToINt(VpaColunas.items[0].AValorRetorno);
+    VprDCombinacaoCadarco.NomCorFioAjuda := VpaColunas.items[1].AValorRetorno;
+    GCombinacaoCadarco.Cells[8,GCombinacaoCadarco.ALinha] := VpaColunas.items[0].AValorRetorno;
+    GCombinacaoCadarco.Cells[9,GCombinacaoCadarco.ALinha] := VpaColunas.items[1].AValorRetorno;
+  end
+  else
+  begin
+    VprDCombinacaoCadarco.CodCorFioAjuda := 0;
+    VprDCombinacaoCadarco.NomCorFioAjuda := '';
+  end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.ECorFioTramaRetorno(VpaColunas: TRBColunasLocaliza);
+begin
+  if VpaColunas.items[0].AValorRetorno <> '' then
+  begin
+    VprDCombinacaoCadarco.CodCorFioTrama := StrToINt(VpaColunas.items[0].AValorRetorno);
+    VprDCombinacaoCadarco.NomCorFioTrama := VpaColunas.items[1].AValorRetorno;
+    GCombinacaoCadarco.Cells[4,GCombinacaoCadarco.ALinha] := VpaColunas.items[0].AValorRetorno;
+    GCombinacaoCadarco.Cells[5,GCombinacaoCadarco.ALinha] := VpaColunas.items[1].AValorRetorno;
+  end
+  else
+  begin
+    VprDCombinacaoCadarco.CodCorFioTrama := 0;
+    VprDCombinacaoCadarco.NomCorFioTrama := '';
+  end;
+end;
+
+{******************************************************************************}
 procedure TFNovoProdutoPro.ECorPrecoRetorno(VpaColunas: TRBColunasLocaliza);
 begin
   if VprOperacao in [ocInsercao,ocEdicao] then
@@ -2626,6 +2705,145 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.GCombinacaoCadarcoCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
+begin
+  VprDCombinacaoCadarco := TRBDCombinacaoCadarcoTear(VprDProduto.CombinacoesCadarcoTear.Items[VpaLinha-1]);
+
+  if VprDCombinacaoCadarco.CodCombinacao <> 0 then
+    GCombinacaoCadarco.Cells[1,VpaLinha]:= IntToStr(VprDCombinacaoCadarco.CodCombinacao)
+  else
+    GCombinacaoCadarco.Cells[1,VpaLinha]:= '';
+  GCombinacaoCadarco.Cells[2,VpaLinha]:= VprDCombinacaoCadarco.CodProdutoFioTrama;
+  GCombinacaoCadarco.Cells[3,VpaLinha]:= VprDCombinacaoCadarco.NomProdutoFioTrama;
+  if VprDCombinacaoCadarco.CodCorFioTrama <> 0 then
+    GCombinacaoCadarco.Cells[4,VpaLinha]:= IntToStr(VprDCombinacaoCadarco.CodCorFioTrama)
+  else
+    GCombinacaoCadarco.Cells[4,VpaLinha]:= '';
+  GCombinacaoCadarco.Cells[5,VpaLinha]:= VprDCombinacaoCadarco.NomCorFioTrama;
+  GCombinacaoCadarco.Cells[6,VpaLinha]:= VprDCombinacaoCadarco.CodProdutoFioAjuda;
+  GCombinacaoCadarco.Cells[7,VpaLinha]:= VprDCombinacaoCadarco.NomProdutoFioAjuda;
+  if VprDCombinacaoCadarco.CodCorFioAjuda <> 0 then
+    GCombinacaoCadarco.Cells[8,VpaLinha]:= IntToStr(VprDCombinacaoCadarco.CodCorFioAjuda)
+  else
+    GCombinacaoCadarco.Cells[8,VpaLinha]:= '';
+  GCombinacaoCadarco.Cells[9,VpaLinha]:= VprDCombinacaoCadarco.NomCorFioAjuda;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.GCombinacaoCadarcoDadosValidos(Sender: TObject; var VpaValidos: Boolean);
+begin
+  VpaValidos:= True;
+  if GCombinacaoCadarco.Cells[1,GCombinacaoCadarco.ALinha] = '' then
+  begin
+    aviso('COMBINAÇÃO NÃO PREENCHIDA!!!'#13'É necessário digitar o código do combinação.');
+    GCombinacaoCadarco.col := 1;
+  end
+  else
+    if not ExisteProdutoFioTrama then
+    begin
+      Aviso('CÓDIGO DO PRODUTO FIO TRAMA NÃO PREENCHIDO!'#13'É necessário preencher o código do produto fio trama.');
+      VpaValidos:= False;
+      GCombinacaoCadarco.Col:= 2;
+    end
+    else
+      if not ECorFioTrama.AExisteCodigo(GCombinacaoCadarco.Cells[4,GCombinacaoCadarco.ALinha]) then
+      begin
+        Aviso('CÓDIGO DA COR DO FIO DE TRAMA NÃO PREENCHIDO!'#13'É necessário preencher o código da cor do fio de trama.');
+        VpaValidos:= False;
+        GFornecedores.Col:= 4;
+      end
+      else
+        if not ExisteProdutoFioAjuda then
+        begin
+          Aviso('CÓDIGO DO PRODUTO FIO AJUDA NÃO PREENCHIDO!'#13'É necessário preencher o código do produto fio ajuda.');
+          VpaValidos:= False;
+          GCombinacaoCadarco.Col:= 6;
+        end
+        else
+          if not ECorFioAjuda.AExisteCodigo(GCombinacaoCadarco.Cells[8,GCombinacaoCadarco.ALinha]) then
+          begin
+            Aviso('CÓDIGO DA COR DO FIO DE AJUDA NÃO PREENCHIDO!'#13'É necessário preencher o código da cor do fio de ajuda.');
+            VpaValidos:= False;
+            GFornecedores.Col:= 8;
+          end;
+  if VpaValidos then
+    CarDCombinacaoCadarcoTear;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.GCombinacaoCadarcoGetEditMask(Sender: TObject; ACol, ARow: Integer; var Value: string);
+begin
+  case ACol of
+    1 : Value:= '000;0; ';
+    4, 8 : Value:= '0000000;0; ';
+  end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.GCombinacaoCadarcoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    114: begin
+           case GCombinacaoCadarco.Col of
+             2: LocalizaProdutoFioTrama;
+             4: ECorFioTrama .AAbreLocalizacao;
+             6: LocalizaProdutoFioAjuda;
+             8: ECorFioAjuda.AAbreLocalizacao;
+           end;
+         end;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.GCombinacaoCadarcoMudouLinha(Sender: TObject; VpaLinhaAtual, VpaLinhaAnterior: Integer);
+begin
+  if VprDProduto.CombinacoesCadarcoTear.Count > 0 then
+    VprDCombinacaoCadarco:= TRBDCombinacaoCadarcoTear(VprDProduto.CombinacoesCadarcoTear.Items[VpaLinhaAtual-1]);
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.GCombinacaoCadarcoNovaLinha(Sender: TObject);
+begin
+  VprDCombinacaoCadarco := VprDProduto.AddCombinacaoCadarcoTear;
+  VprDCombinacaoCadarco.CodCombinacao := VprDProduto.CombinacoesCadarcoTear.Count;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.GCombinacaoCadarcoSelectCell(Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
+begin
+  if GCombinacaoCadarco.AEstadoGrade in [egInsercao,EgEdicao] then
+    if GCombinacaoCadarco.AColuna <> ACol then
+    begin
+      case GCombinacaoCadarco.AColuna of
+        2 :if not ExisteProdutoFioTrama then
+             if not LocalizaProdutoFioTrama then
+             begin
+               GCombinacaoCadarco.Cells[2,GCombinacaoCadarco.ALinha] := '';
+               GCombinacaoCadarco.Col := 2;
+             end;
+        4 :if not ECorFioTrama.AExisteCodigo(GCombinacaoCadarco.Cells[4,GCombinacaoCadarco.ALinha]) then
+             if not ECorFioTrama.AAbreLocalizacao then
+             begin
+               GCombinacaoCadarco.Cells[4,GCombinacaoCadarco.ALinha] := '';
+               GCombinacaoCadarco.Col := 4;
+             end;
+        6 :if not ExisteProdutoFioAjuda then
+             if not LocalizaProdutoFioAjuda then
+             begin
+               GCombinacaoCadarco.Cells[6,GCombinacaoCadarco.ALinha] := '';
+               GCombinacaoCadarco.Col := 6;
+             end;
+        8 :if not ECorFioAjuda.AExisteCodigo(GCombinacaoCadarco.Cells[8,GCombinacaoCadarco.ALinha]) then
+             if not ECorFioAjuda.AAbreLocalizacao then
+             begin
+               GCombinacaoCadarco.Cells[8,GCombinacaoCadarco.ALinha] := '';
+               GCombinacaoCadarco.Col := 8;
+             end;
+      end;
+    end;
+end;
+
+{******************************************************************************}
 procedure TFNovoProdutoPro.GCombinacaoCarregaItemGrade(Sender: TObject;
   VpaLinha: Integer);
 begin
@@ -2699,6 +2917,15 @@ begin
     VprDCombinacao.EspulaUrdumeFigura := StrToInt(GCombinacao.Cells[11,GCombinacao.ALinha])
   else
     VprDCombinacao.EspulaUrdumeFigura := 0;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.CarDCombinacaoCadarcoTear;
+begin
+  if GCombinacaoCadarco.Cells[1,GCombinacaoCadarco.ALinha] <> '' then
+    VprDCombinacaoCadarco.CodCombinacao := StrToInt(DeletaChars(GCombinacaoCadarco.Cells[1,GCombinacaoCadarco.ALinha],'.'))
+  else
+    VprDCombinacaoCadarco.CodCombinacao := 0;
 end;
 
 {******************************************************************************}
@@ -3055,6 +3282,42 @@ begin
 end;
 
 {******************************************************************************}
+function TFNovoProdutoPro.ExisteProdutoFioAjuda: Boolean;
+var
+  VpfTemp : string;
+begin
+  if (GCombinacaoCadarco.Cells[6,GCombinacaoCadarco.ALinha] <> '') then
+  begin
+    result := FunProdutos.ExisteProduto(GCombinacaoCadarco.Cells[6,GCombinacaoCadarco.ALinha],VprDCombinacaoCadarco.SeqProdutoFioAjuda, VprDCombinacaoCadarco.NomProdutoFioAjuda,VpfTemp);
+    if result then
+    begin
+      VprDCombinacaoCadarco.CodProdutoFioAjuda := GCombinacaoCadarco.Cells[6,GCombinacaoCadarco.ALinha];
+      GCombinacaoCadarco.Cells[7,GCombinacaoCadarco.ALinha] := VprDCombinacaoCadarco.NomProdutoFioAjuda;
+    end;
+  end
+  else
+    result := false;
+end;
+
+{******************************************************************************}
+function TFNovoProdutoPro.ExisteProdutoFioTrama: Boolean;
+var
+  VpfTemp : string;
+begin
+  if (GCombinacaoCadarco.Cells[2,GCombinacaoCadarco.ALinha] <> '') then
+  begin
+    result := FunProdutos.ExisteProduto(GCombinacaoCadarco.Cells[2,GCombinacaoCadarco.ALinha],VprDCombinacaoCadarco.SeqProdutoFioTrama, VprDCombinacaoCadarco.NomProdutoFioTrama,VpfTemp);
+    if result then
+    begin
+      VprDCombinacaoCadarco.CodProdutoFioTrama := GCombinacaoCadarco.Cells[2,GCombinacaoCadarco.ALinha];
+      GCombinacaoCadarco.Cells[3,GCombinacaoCadarco.ALinha] := VprDCombinacaoCadarco.NomProdutoFioTrama;
+    end;
+  end
+  else
+    result := false;
+end;
+
+{******************************************************************************}
 function TFNovoProdutoPro.ImpressoraDuplicada: Boolean;
 var
   VpfLacoExterno, vpfLacoInterno : Integer;
@@ -3086,6 +3349,36 @@ begin
   begin
     GImpressoras.Cells[1,GImpressoras.ALinha] := VprDProImpressora.CodProduto;
     GImpressoras.Cells[2,GImpressoras.ALinha] := VprDProImpressora.NomProduto;
+  end;
+end;
+
+{******************************************************************************}
+function TFNovoProdutoPro.LocalizaProdutoFioAjuda: Boolean;
+var
+  VpfTemp, VpfTemp1 : string;
+begin
+  FlocalizaProduto := TFlocalizaProduto.criarSDI(Application,'',FPrincipal.VerificaPermisao('FlocalizaProduto'));
+  Result := FlocalizaProduto.LocalizaProduto(VprDCombinacaoCadarco.SeqProdutoFioAjuda,VprDCombinacaoCadarco.CodProdutoFioAjuda,VprDCombinacaoCadarco.NomProdutoFioAjuda,VpfTemp,vpfTemp1); //localiza o produto
+  FlocalizaProduto.free; // destroi a classe;
+  if result then  // se o usuario nao cancelou a consulta
+  begin
+    GCombinacaoCadarco.Cells[6,GCombinacaoCadarco.ALinha] := VprDCombinacaoCadarco.CodProdutoFioAjuda;
+    GCombinacaoCadarco.Cells[7,GCombinacaoCadarco.ALinha] := VprDCombinacaoCadarco.NomProdutoFioAjuda;
+  end;
+end;
+
+{******************************************************************************}
+function TFNovoProdutoPro.LocalizaProdutoFioTrama: Boolean;
+var
+  VpfTemp, VpfTemp1 : string;
+begin
+  FlocalizaProduto := TFlocalizaProduto.criarSDI(Application,'',FPrincipal.VerificaPermisao('FlocalizaProduto'));
+  Result := FlocalizaProduto.LocalizaProduto(VprDCombinacaoCadarco.SeqProdutoFioTrama,VprDCombinacaoCadarco.CodProdutoFioTrama,VprDCombinacaoCadarco.NomProdutoFioTrama,VpfTemp,vpfTemp1); //localiza o produto
+  FlocalizaProduto.free; // destroi a classe;
+  if result then  // se o usuario nao cancelou a consulta
+  begin
+    GCombinacaoCadarco.Cells[2,GCombinacaoCadarco.ALinha] := VprDCombinacaoCadarco.CodProdutoFioTrama;
+    GCombinacaoCadarco.Cells[3,GCombinacaoCadarco.ALinha] := VprDCombinacaoCadarco.NomProdutoFioTrama;
   end;
 end;
 
@@ -3608,6 +3901,11 @@ begin
   else
     GAcessorios.Cells[1,VpaLinha] := '';
   GAcessorios.Cells[2,VpaLinha] := VprDProAcessorio.NomAcessorio;
+end;
+
+procedure TFNovoProdutoPro.GAcessoriosClick(Sender: TObject);
+begin
+
 end;
 
 {******************************************************************************}

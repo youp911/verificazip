@@ -1073,9 +1073,12 @@ begin
   VprDPrecoCliente.NomTabela := VprDValorVendaAmostra.NomTabela;
   VprDPrecoCliente.QtdVenda := VprDValorVendaAmostra.Quantidade;
   VprDPrecoCliente.CodCliente := VprDAmostra.CodProspect;
-//  VprDPrecoCliente.NomCliente := FunClientes.RNomCliente(VprDAmostra.CodProspect);
+  VprDPrecoCliente.NomCliente := FunClientes.RNomCliente(IntToStr(VprDAmostra.CodProspect));
   VprDPrecoCliente.PerLucro := VprDValorVendaAmostra.PerLucro;
-
+  VprDPrecoCliente.PerComissao := VprDValorVendaAmostra.PerComissao;
+  VprDPrecoCliente.ValVenda := VprDValorVendaAmostra.ValVenda;
+  VprDPrecoCliente.QtdVenda := VprDValorVendaAmostra.Quantidade;
+  GPrecoCliente.CarregaGrade;
 end;
 
 {******************************************************************************}

@@ -293,6 +293,8 @@ type
     procedure ConverteNomesProdutosSemAcento;
     procedure AdicionaTodasTabelasdePreco(VpaDProduto : TRBDProduto);
     function AdicionaRepeticaoInstalacaoTear(VpaDProduto : TRBDProduto; VpaColunaInicial, VpaColunaFinal,VpaQtdRepeticao : Integer) : String;
+    procedure ImprimeEtiquetaPrateleira(VpaEstante, VpaPrateleiraInicial, VpaPrateleiraFinal : String;VpaNumeroInicial, VpaNumeroFinal : Integer);
+
  end;
 Var
   FunProdutos : TFuncoesProduto;
@@ -300,7 +302,7 @@ Var
 implementation
 
 uses constMsg, constantes, funSql, funstring, fundata, funnumeros, FunObjeto, UnOrdemProducao,
-     FunValida, unContasAreceber ;
+     FunValida, unContasAreceber , UnZebra;
 
 
 {#############################################################################
@@ -4078,7 +4080,7 @@ begin
                             ' CAD.I_TAB_PED, CAD.I_QTD_CTA, CAD.C_CAR_TEX,'+
                             ' CAD.D_DAT_CAD, CAD.I_COD_COM, CAD.C_IND_MON, '+
                             ' CAD.I_ORI_PRO, CAD.N_CAP_LIQ, CAD.C_KIT_PRO,  '+
-                            ' CAD.I_DES_PRO '+
+                            ' CAD.I_DES_PRO, CAD.C_AGR_BAL '+
                             ' FROM CADPRODUTOS CAD'+
                             ' WHERE CAD.I_SEQ_PRO = '+IntToStr(vpadproduto.Seqproduto));
 
@@ -4149,6 +4151,7 @@ begin
   VpaDProduto.DesRendimento:= Tabela.FieldByName('C_REN_PRO').AsString;
   VpaDProduto.DatCadastro := Tabela.FieldByName('D_DAT_CAD').AsDateTime;
   VpaDProduto.IndMonitorarEstoque:= Tabela.FieldByName('C_IND_MON').AsString = 'S';
+  VpaDProduto.IndAgruparCorteBalancim := Tabela.FieldByName('C_AGR_BAL').AsString = 'S';
 
 // Copiadora
   VpaDProduto.IndCopiadora:= Tabela.FieldByName('C_IND_COP').AsString;
@@ -4392,6 +4395,10 @@ begin
     ProCadastro.FieldByName('C_IND_MON').AsString:= 'S'
   else
     ProCadastro.FieldByName('C_IND_MON').AsString:= 'N';
+  if VpaDProduto.IndAgruparCorteBalancim then
+    ProCadastro.FieldByName('C_AGR_BAL').AsString:= 'S'
+  else
+    ProCadastro.FieldByName('C_AGR_BAL').AsString:= 'N';
   ProCadastro.FieldByName('N_CAP_LIQ').AsFloat := VpaDProduto.CapLiquida;
 
 
@@ -6092,6 +6099,32 @@ begin
   end;
   Tabela.close;
   ProCadastro.close;
+end;
+
+{******************************************************************************}
+procedure TFuncoesProduto.ImprimeEtiquetaPrateleira(VpaEstante, VpaPrateleiraInicial, VpaPrateleiraFinal: String; VpaNumeroInicial,VpaNumeroFinal: Integer);
+var
+  VpfEtiquetaPrateleira : TStringList;
+  VpfLacoPrateleira, VpfLacoNumero : Integer;
+  VpfFunZebra : TRBFuncoesZebra;
+begin
+  VpfEtiquetaPrateleira := TStringList.create;
+  VpfEtiquetaPrateleira.add(VpaEstante);
+  for VpfLacoPrateleira := ord(VpaPrateleiraINicial[1]) to ord(vpaPrateleiraFinal[1]) do
+  begin
+    VpfEtiquetaPrateleira.add(VpaEstante+char(VpfLacoPrateleira));
+    for VpfLacoNumero := VpaNumeroInicial to VpaNumeroFinal do
+    begin
+      VpfEtiquetaPrateleira.add(char(VpfLacoPrateleira)+AdicionaCharE('0',IntToStr(VpfLacoNumero),2));
+    end;
+  end;
+  if varia.ModeloEtiquetaNotaEntrada in [6] then
+  begin
+    VpfFunZebra := TRBFuncoesZebra.cria(varia.PortaComunicacaoImpTermica,176,lzEPL);
+    VpfFunZebra.ImprimeEtiquetaPrateleira33X22(VpfEtiquetaPrateleira);
+    VpfFunZebra.Free;
+  end;
+  VpfEtiquetaPrateleira.free;
 end;
 
 {******************************************************************************}

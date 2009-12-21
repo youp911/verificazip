@@ -365,7 +365,7 @@ begin
           VpfDItemCaixa.CodUsuario := varia.CodigoUsuario;
           VpfDItemCaixa.SeqCheque := VpfDCheque.SeqCheque;
           if (VpfDCheque.TipCheque = 'C') and
-             (VpaOrigemEstorno = oeContasAReceber) then
+             (VpaOrigemEstorno in [oeContasAReceber,oeConsultaCheque]) then
           begin
             VpfDItemCaixa.DesDebitoCredito := 'D';
             VpfDItemCaixa.DesLancamento := 'Extorno do Cheque recebido '+IntToStr(VpfDCheque.NumCheque);

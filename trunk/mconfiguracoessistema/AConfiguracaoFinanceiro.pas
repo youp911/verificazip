@@ -190,6 +190,8 @@ type
     CFGI_TIP_VCO: TFMTBCDField;
     CFGC_CON_PRO: TWideStringField;
     DBCheckBox9: TDBCheckBox;
+    DBCheckBox10: TDBCheckBox;
+    CFGC_DEB_CRE: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

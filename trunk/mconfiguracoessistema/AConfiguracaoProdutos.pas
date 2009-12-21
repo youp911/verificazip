@@ -366,6 +366,8 @@ type
     SpeedButton42: TSpeedButton;
     Label97: TLabel;
     CFGI_ORC_LOC: TFMTBCDField;
+    DBCheckBox17: TDBCheckBox;
+    CFGC_IND_CAT: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

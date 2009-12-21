@@ -218,6 +218,8 @@ type
     BaixarOrdemCorte1: TMenuItem;
     CortePendente1: TMenuItem;
     N45: TMenuItem;
+    N46: TMenuItem;
+    ImprimeEtiquetaPrateleira1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -288,7 +290,7 @@ uses Constantes, UnRegistro, funsql,
   ADesenhosPendentes, AOrcamentoCompras, ANovoOrcamentoCompra,
   AConsultaLogSeparacaoConsumo, APrecoPendente, AAmostrasPendentes,
   AExcluiProdutoDuplicado, APendenciasCompras, AAgendamentos, AFiguraGRF,
-  AComposicoes, UnOrdemProducao, AEmbalagem, AMotivoParada, ABaixaOrdemCorte, AOrdemCortePendente;
+  AComposicoes, UnOrdemProducao, AEmbalagem, AMotivoParada, ABaixaOrdemCorte, AOrdemCortePendente, AImprimeEtiquetaPrateleira;
 
 {$R *.DFM}
 
@@ -335,9 +337,10 @@ procedure TFPrincipal.ConfiguraPermissaoUsuario;
 begin
   Varia.EscondeMenus(Menu,false);
   AlterarVisibleDet([MRelatorios],true);
+  AlterarVisibleDet([Ferramentas1,ImprimeEtiquetaPrateleira1],true);
   FunImpressaoRel.CarregarMenuRel(mrEstoque,MRelatorios);
 
-  AlterarVisibleDet([BMFClientes,BMFProdutos,BMFConsultaProduto,BMFEntradaMercadoria,BMFEstornoEntrada, BMFEstoqueAtual,BMFEstoqueProdutos,BMFMovimentosEstoque],false);
+  AlterarVisibleDet([BMFClientes,BMFProdutos,BMFConsultaProduto,BMFEntradaMercadoria,BMFEstornoEntrada, BMFEstoqueAtual,BMFEstoqueProdutos,BMFMovimentosEstoque,BMFAcertoEstoque,BMFReservaEstoque],false);
 
 
   if (puAdministrador in varia.PermissoesUsuario) or (puESCompleto in varia.PermissoesUsuario) then
@@ -392,7 +395,8 @@ begin
       AlterarVisibleDet([MGerencial,MDesenhosPendentes,MFichasTecnicasPendentes,n38,MAmostrasPendentes,MCustoPendente,MPendenciasdeCompras],true);
     if (puESCadastrarCelulaTrabalho in varia.PermissoesUsuario) then
       AlterarVisibleDet([MCadastro,MCelulaTrabalho],true);
-
+    if (puESConsultaProduto in varia.PermissoesUsuario) then
+      AlterarVisibleDet([MProdutos,MFLocalizaProduto],true);
   end;
 
   if not (config.ManutencaoImpressoras) then
@@ -976,6 +980,11 @@ begin
     12500: begin
              FunProdutos.ConverteNomesProdutosSemAcento;
              aviso('Conversão do produto realizada com sucesso.');
+           end;
+    12600: begin
+             FImprimeEtiquetaPrateleira := TFImprimeEtiquetaPrateleira.criarSDI(self,'',true);
+             FImprimeEtiquetaPrateleira.ShowModal;
+             FImprimeEtiquetaPrateleira.free;
            end;
     13100: begin
              FNovaFracaoFaccionista := TFNovaFracaoFaccionista.CriarSDI(self,'',FPrincipal.VerificaPermisao('FNovaFracaoFaccionista'));

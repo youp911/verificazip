@@ -175,7 +175,6 @@ uses
   UnProposta in '..\mcrm\UnProposta.pas',
   ANovaProposta in '..\mcrm\ANovaProposta.pas' {FNovaProposta},
   ANovoProspect in '..\mcrm\ANovoProspect.pas' {FNovoProspect},
-  APropostas in '..\mcrm\APropostas.pas' {FPropostas},
   AProspects in '..\mcrm\AProspects.pas' {FProspects},
   ANovaAgendaProspect in '..\mcrm\ANovaAgendaProspect.pas' {FNovaAgendaProspect},
   ANovoTelemarketingProspect in '..\mcrm\ANovoTelemarketingProspect.pas' {FNovoTelemarketingProspect},
@@ -202,7 +201,6 @@ uses
   AContasAReceber in '..\mfinanceiro\AContasAReceber.pas' {FContasaReceber},
   ANovoContasaReceber in '..\mfinanceiro\ANovoContasaReceber.pas' {FNovoContasAReceber},
   agraficoscontasareceber in '..\mfinanceiro\agraficoscontasareceber.pas' {FGraficosCR},
-  AImprimeCR in '..\mfinanceiro\AImprimeCR.pas' {FImprimeCR},
   AManutencaoCR in '..\mfinanceiro\AManutencaoCR.pas' {FManutencaoCR},
   ABaixaContasAReceberOO in '..\mfinanceiro\ABaixaContasAReceberOO.pas' {FBaixaContasaReceberOO},
   AChequesOO in '..\mfinanceiro\AChequesOO.pas' {FChequesOO},
@@ -238,7 +236,12 @@ uses
   dmRave in '..\magerais\dmRave.pas' {dtRave: TDSServerModule},
   AComposicoes in '..\mestoque\AComposicoes.pas' {FComposicoes},
   ANovaComposicao in '..\mestoque\ANovaComposicao.pas' {FNovaComposicao},
-  UnNFe in '..\mfaturamento\UnNFe.pas';
+  UnNFe in '..\mfaturamento\UnNFe.pas',
+  ACondicaoPagamento in '..\mpontaloja\ACondicaoPagamento.pas' {FCondicaoPagamento},
+  ANovaCondicaoPagamento in '..\mpontaloja\ANovaCondicaoPagamento.pas' {FNovaCondicaoPagamento},
+  UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
+  AGeraFracaoOPProdutos in '..\mestoque\AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos},
+  AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos};
 
 {$R *.RES}
 

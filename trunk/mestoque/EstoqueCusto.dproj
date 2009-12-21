@@ -943,6 +943,9 @@
 			<DCCReference Include="AOrdemCortePendente.pas">
 				<Form>FOrdemCortePendente</Form>
 			</DCCReference>
+			<DCCReference Include="AImprimeEtiquetaPrateleira.pas">
+				<Form>FImprimeEtiquetaPrateleira</Form>
+			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
