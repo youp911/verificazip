@@ -16,7 +16,6 @@ uses
   AImprimeCP in 'AImprimeCP.pas' {FImprimeCP},
   AGraficosContasaPagar in 'AGraficosContasaPagar.pas' {FGraficosCP},
   AMovComissoes in 'AMovComissoes.pas' {FMovComissoes},
-  ACondicoesPgtos in 'ACondicoesPgtos.pas' {FCondicoesPagamentos},
   AContasAReceber in 'AContasAReceber.pas' {FContasaReceber},
   ANovoContasaReceber in 'ANovoContasaReceber.pas' {FNovoContasAReceber},
   AGraficosContasaReceber in 'AGraficosContasaReceber.pas' {FGraficosCR},

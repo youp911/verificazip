@@ -589,9 +589,12 @@ begin
   if vpfResultado <> '' then
     aviso(VpfResultado)
   else
+  begin
     if VprOperacao = ocInsercao then
       if Config.EnviaChamadoEmailTecnico then
          BEmailTecnico.Click;
+    ENumChamado.AInteiro := VprDChamado.NumChamado;
+  end;
   sistema.SalvaTabelasAbertas;
 end;
 

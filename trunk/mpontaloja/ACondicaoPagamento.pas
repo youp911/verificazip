@@ -25,6 +25,17 @@ type
     DataCadCondicoesPagto: TDataSource;
     BitBtn1: TBitBtn;
     BExcluir: TBitBtn;
+    MovCondicao: TSQL;
+    MovCondicaoI_COD_PAG: TFMTBCDField;
+    MovCondicaoI_NRO_PAR: TFMTBCDField;
+    MovCondicaoI_NUM_DIA: TFMTBCDField;
+    MovCondicaoI_DIA_FIX: TFMTBCDField;
+    MovCondicaoD_DAT_FIX: TSQLTimeStampField;
+    MovCondicaoN_PER_PAG: TFMTBCDField;
+    MovCondicaoN_PER_COM: TFMTBCDField;
+    DataMovCondicao: TDataSource;
+    GridIndice1: TGridIndice;
+    PanelColor3: TPanelColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -34,6 +45,7 @@ type
       Shift: TShiftState);
     procedure BitBtn1Click(Sender: TObject);
     procedure BExcluirClick(Sender: TObject);
+    procedure CadCondicoesPagtoAfterScroll(DataSet: TDataSet);
   private
     { Private declarations }
     VprOrdem : String;
@@ -93,6 +105,15 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFCondicaoPagamento.CadCondicoesPagtoAfterScroll(DataSet: TDataSet);
+begin
+  AdicionaSQLAbreTabela(MovCondicao,'select I_COD_PAG, I_NRO_PAR, I_NUM_DIA, I_DIA_FIX, D_DAT_FIX, N_PER_PAG, N_PER_COM '+
+                                    ' from MOVCONDICAOPAGTO '+
+                                    ' Where I_COD_PAG = '+IntToStr(CadCondicoesPagtoI_COD_PAG.AsInteger)+
+                                    ' order by I_NRO_PAR');
+end;
+
+{******************************************************************************}
 procedure TFCondicaoPagamento.EDescricaoExit(Sender: TObject);
 begin
   AtualizaConsulta;
@@ -119,6 +140,7 @@ end;
 {******************************************************************************}
 procedure TFCondicaoPagamento.AtualizaConsulta;
 begin
+  MovCondicao.Close;
   CadCondicoesPagto.close;
   CadCondicoesPagto.sql.clear;
   AdicionaSqlTabela(CadCondicoesPagto,'select PAG.I_COD_PAG, PAG.C_NOM_PAG, PAG.I_QTD_PAR, PAG.I_DIA_CAR, '+

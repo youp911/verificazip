@@ -893,10 +893,10 @@ implementation
 
 uses APrincipal, AClientes, AProfissoes, ASituacoesClientes, funsql,
   AConsultaRuas, ACadCidades, Funstring, ARegiaoVenda, ANovoVendedor,
-  AFormasPagamento, ARamoAtividade, ACondicoesPgtos, FunObjeto,
+  AFormasPagamento, ARamoAtividade, FunObjeto,
   ANovaTransportadora, ANovoTecnico, UnClientes,
   ANovoConcorrente, Fundata, AMeioDivulgacao, ALocalizaProdutos, FunArquivos,
-  AHorarioTrabalho, AFaixaEtaria, AMarcas, APlanoConta;
+  AHorarioTrabalho, AFaixaEtaria, AMarcas, APlanoConta, ACondicaoPagamento;
 
 {$R *.DFM}
 
@@ -1571,9 +1571,9 @@ end;
 {******************************************************************************}
 procedure TFNovoCliente.ECondicaoPagamentoCadastrar(Sender: TObject);
 begin
-  FCondicoesPagamentos := TFCondicoesPagamentos.CriarSDI(application , '', FPrincipal.VerificaPermisao('FCondicoesPagamentos'));
-  FCondicoesPagamentos.ShowModal;
-  FCondicoesPagamentos.free;
+  FCondicaoPagamento := TFCondicaoPagamento.CriarSDI(application , '', FPrincipal.VerificaPermisao('FCondicaoPagamento'));
+  FCondicaoPagamento.ShowModal;
+  FCondicaoPagamento.free;
 end;
 
 procedure TFNovoCliente.ECondicaoPagamentoSelect(Sender: TObject);

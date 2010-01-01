@@ -187,7 +187,7 @@ implementation
 uses
 
   FunIni, fundata, FunValida, ConstMsg, FunObjeto, Constantes, UnRegistro,
-  AAlterarFilialUso, Abertura, ACondicoesPgtos, AFormasPagamento,
+  AAlterarFilialUso, Abertura,  AFormasPagamento,
   AEventos, AProfissoes, ASituacoesClientes, AClientes,
   ABancos, AContas,
   ANovoContasaPagar, ADespesas, AContasAPagar, AManutencaoCP,
@@ -208,7 +208,7 @@ uses
   ABaixaCotacaoPaga, AMotivoInadimplencia, AIndicadorInadimplencia,
   AEmailContasAReceber, APrazoMedio, ACentroCusto, AClientesBloqueados,
   AGraficoAnaliseFaturamento, AConsultacheques, UnVersoes, AChequesOO,
-  AFluxoCaixa, ADER, unCaixa, AProjetos, AReorganizaPlanoContas;
+  AFluxoCaixa, ADER, unCaixa, AProjetos, AReorganizaPlanoContas, ACondicaoPagamento;
 
 {$R *.DFM}
 
@@ -502,8 +502,9 @@ begin
            end;
     4110 : begin
              // ------ Cadastro de Condições de Pagamento ------ //
-             FCondicoesPagamentos := TFCondicoesPagamentos.CriarSDI(Application,'',VerificaPermisao('FCondicoesPagamentos'));
-             FCondicoesPagamentos.ShowModal;
+             FCondicaoPagamento := TFCondicaoPagamento.CriarSDI(Application,'',VerificaPermisao('FCondicaoPagamento'));
+             FCondicaoPagamento.ShowModal;
+             FCondicaoPagamento.free;
            end;
     4120 : begin
              // ------ Cadastra formas de pagamento ------ //

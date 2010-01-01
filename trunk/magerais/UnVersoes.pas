@@ -10,7 +10,7 @@ Const
   VersaoFaturamento = '2.537';
   VersaoPontoLoja = '3.393';
   VersaoConfiguracaoSistema = '2.278';
-  VersaoChamadoTecnico = '2.431';
+  VersaoChamadoTecnico = '2.432';
   VersaoAgenda = '1.06';
   VersaoCRM = '2.704';
   VersaoCaixa = '0.44';

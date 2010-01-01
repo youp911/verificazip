@@ -157,7 +157,7 @@ uses Constantes, UnRegistro, funsql,FunSistema, UnClientes, UnCrystal,
   AAlteraEstagioCotacao, AMostraPlanenamentoOP, AChamadosTecnicos,
   AAlteraEstagioChamado, AEstagioProducao, ATipoChamado,
   APerguntaPesquisaSatisfacao, APesquisaSatisfacaoChamado, UnVersoes,
-  ANovoTeleMarketing, ATeleMarketings, ATarefas;
+  ANovoTeleMarketing, ATeleMarketings, ATarefas, UnCaixa;
 
 
 
@@ -279,6 +279,7 @@ begin
   FunClientes.free;
   FunECF.free;
   FunContasaReceber.free;
+  FunCaixa.free;
   FunProspect.free;
   Action := CaFree;
 end;
@@ -293,6 +294,7 @@ begin
   FunClientes := TRBFuncoesClientes.cria(BaseDados);
   FunEcf := TRBFuncoesECF.cria(BarraStatus,BaseDados);
   FunContasAReceber := TFuncoesContasAREceber.cria(BaseDAdos);
+  FunCaixa := TRBFuncoesCaixa.Cria(BaseDados);
   FunProspect := TRBFuncoesProspect.cria(BaseDados);
  // configuracoes do usuario
  UnPri.ConfigUsu(varia.CodigoUsuario, CorFoco, CorForm, CorPainelGra, Self );

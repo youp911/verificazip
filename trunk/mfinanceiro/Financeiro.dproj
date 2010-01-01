@@ -75,9 +75,6 @@
 			<DCCReference Include="AMovComissoes.pas">
 				<Form>FMovComissoes</Form>
 			</DCCReference>
-			<DCCReference Include="ACondicoesPgtos.pas">
-				<Form>FCondicoesPagamentos</Form>
-			</DCCReference>
 			<DCCReference Include="AContasAReceber.pas">
 				<Form>FContasaReceber</Form>
 			</DCCReference>

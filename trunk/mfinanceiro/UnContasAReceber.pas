@@ -616,7 +616,7 @@ begin
   if aux.FieldByName('ULTIMO').AsString = '' then
     result := ''
   else
-    result := AdicionaCharE('0',IntToStr(aux.FieldByName('ULTIMO').AsInteger +1),VpaNumPlanoContas);
+    result := AdicionaCharE('0',FloatToStr(aux.FieldByName('ULTIMO').AsInteger +1),VpaNumPlanoContas);
   Aux.close;
 end;
 

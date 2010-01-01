@@ -124,7 +124,7 @@ var
 implementation
 
 uses ABancos,  ConstMsg,  FunData,   APrincipal, funString, ANovoCliente,
-   funsql, APlanoConta, FunObjeto, ACondicoesPgtos,
+   funsql, APlanoConta, FunObjeto,
   AFormasPagamento, ACondicaoPagamento;
 
 {$R *.DFM}
