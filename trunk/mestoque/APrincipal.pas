@@ -220,6 +220,7 @@ type
     N45: TMenuItem;
     N46: TMenuItem;
     ImprimeEtiquetaPrateleira1: TMenuItem;
+    BitBtn1: TBitBtn;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
