@@ -115,6 +115,7 @@ type
     procedure ImprimeAgenda(VpaCodUsuario : Integer;VpaCaminho, VpaNomUsuario : String;VpaDatInicio,VpaDatFim : TDateTime);
     procedure ImprimeVencimentoContratos(VpaDatInicio,VpaDatFim : TDatetime;VpaCaminho : String);
     procedure ImprimeDuplicata(VpaCodFilial,VpaLanReceber, VpaNumParcela : integer;vpaVisualizar : Boolean);
+    procedure ImprimeColetaOP(VpaCodFilial,VpaSeqOrdem,VpaSeqColeta : Integer;VpaVisualizar : Boolean);
   end;
 
 
@@ -1337,6 +1338,7 @@ begin
   Rave.Execute;
 end;
 
+{******************************************************************************}
 procedure TdtRave.ImprimeConsistenciadeEstoque(VpaCodFilial, VpaSeProduto : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaCaminhoRelatorio,VpaNomFilial,VpaNomProduto : String;VpaIndSomenteMonitorados : Boolean);
 begin
   Rave.close;
@@ -2715,6 +2717,36 @@ begin
   Sistema.CarDFilial(VprDFilial,VpaCodFilial);
   FunRave.EnviaParametrosFilial(Rave,VprDFilial);
   Rave.SetParam('VALEXTENSO',Extenso(Principal.FieldByName('N_VLR_PAR').AsFloat,'reais','real'));
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeColetaOP(VpaCodFilial, VpaSeqOrdem, VpaSeqColeta: Integer; VpaVisualizar: Boolean);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Coleta OP';
+  Rave.projectfile := varia.PathRelatorios+'\Ordem Producao\xx_ColetaOP.rav';
+  if VpaVisualizar then
+    RvSystem1.defaultDest := rdPreview
+  else
+    RvSystem1.defaultDest := rdPrinter;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select OP.SEQORD, OP.CODPRO, OP.ORDCLI, OP.NUMPED,  OP.CODMAQ, OP.UNMPED, '+
+                              ' OP.DATENP, OP.TIPPED, '+
+                              ' PRO.CODEME, PRO.INDCAL, PRO.INDENG, PRO.I_LRG_PRO, PRO.I_CMP_PRO, '+
+                              ' COP.INDFIN, COP.INDREP, COP.QTDTOT, '+
+                              ' CIT.METCOL, CIT.NROFIT, CIT.CODCOM, CIT.CODMAN '+
+                              ' from  COLETAOPCORPO COP, ORDEMPRODUCAOCORPO OP, CADPRODUTOS PRO,  COLETAOPITEM CIT '+
+                              ' WHERE COP.EMPFIL = OP.EMPFIL '+
+                              ' AND COP.SEQORD = OP.SEQORD '+
+                              ' AND COP.EMPFIL = CIT.EMPFIL '+
+                              ' AND COP.SEQORD = CIT.SEQORD '+
+                              ' AND COP.SEQCOL = CIT.SEQCOL '+
+                              ' AND OP.SEQPRO = PRO.I_SEQ_PRO '+
+                              ' AND COP.EMPFIL =  '+ IntToStr(VpaCodFilial)+
+                              ' AND COP.SEQORD =  '+ IntTostr(VpaSeqOrdem)+
+                              ' AND COP.SEQCOL = '+IntToStr(VpaSeqColeta));
   Rave.Execute;
 end;
 

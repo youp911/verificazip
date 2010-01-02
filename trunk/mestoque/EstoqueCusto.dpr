@@ -121,7 +121,6 @@ uses
   AMotivoReprogramacao in 'AMotivoReprogramacao.pas' {FMotivoReprogramacao},
   ANovaRevisaoExterna in 'ANovaRevisaoExterna.pas' {FNovaRevisaoExterna},
   ARevisaoExterna in 'ARevisaoExterna.pas' {FRevisaoExterna},
-  ACondicoesPgtos in '..\mfinanceiro\ACondicoesPgtos.pas' {FCondicoesPagamentos},
   ANovaNotaFiscalNota in '..\mfaturamento\ANovaNotaFiscalNota.pas' {FNovaNotaFiscalNota},
   AMostraObservacaoCliente in '..\mpontaloja\AMostraObservacaoCliente.pas' {FMostraObservacaoCliente},
   ATipoCorte in 'ATipoCorte.pas' {FTipoCorte},

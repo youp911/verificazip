@@ -71,8 +71,7 @@ var
 
 implementation
 
-uses APrincipal,Constantes, FunSql, FunData, ConstMsg, ANovaRevisaoExterna,
-  AImpOrdemProducao;
+uses APrincipal,Constantes, FunSql, FunData, ConstMsg, ANovaRevisaoExterna, dmRave;
 
 {$R *.DFM}
 
@@ -223,9 +222,9 @@ end;
 {******************************************************************************}
 procedure TFAdicionaColetaOPRomaneio.BImprimirClick(Sender: TObject);
 begin
-  FImpOrdemProducao := TFImpOrdemProducao.create(application);
-  FImpOrdemProducao.ImprimeColeaOP(ColetaOPCorpoEMPFIL.AsString,ColetaOPCorpoSEQORD.AsString,ColetaOPCorpoSEQCOL.AsString,CVisualizar.Checked);
-  FImpOrdemProducao.free;
+  dtRave := TdtRave.Create(self);
+  dtRave.ImprimeColetaOP(ColetaOPCorpoEMPFIL.AsInteger,ColetaOPCorpoSEQORD.AsInteger,ColetaOPCorpoSEQCOL.AsInteger,CVisualizar.Checked);
+  dtRave.free;
 end;
 
 Initialization

@@ -153,6 +153,7 @@ type
       procedure DefineTabelaTabelaPreco(VpaObjeto : TObject);
       procedure DefineTabelaTotalAmostraporVendedor(VpaObjeto : TObject);
       procedure DefineTabelaTotalTipoCotacaoXCusto(VpaObjeto : TObject);
+      procedure DefineTabelaRomaneioEtikArt(VpaObjeto : TObject);
       procedure ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
       procedure SalvaTabelaProdutosPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
       procedure SalvaTabelaPrecoPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
@@ -167,6 +168,7 @@ type
       procedure ImprimeCabecalhoProdutocomDefeito;
       procedure ImprimeCabecalhoTotalTipoPedidoXCusto;
       procedure ImprimeCabecalhoResumoCaixas;
+      procedure ImprimeCabecalhoRomaneioEtikArt;
       procedure ImprimeCabecalhoProdutosVendidoseTrocados;
       procedure ImprimeCabecalhoQtdMinima;
       procedure ImprimeCabecalhoAnaliseFaturamento;
@@ -213,7 +215,7 @@ type
       procedure ImprimeRelCustoProjeto(VpaObjeto : TObject);
       procedure ImprimeRelTotalAmostrasVendedor(VpaObjeto : TObject);
       procedure ImprimeRelTotalTipoCotacaoXCusto(VpaObjeto : TObject);
-
+      procedure ImprimeRelRomaneioEtikArt(VpaObjeto : TObject);
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
     public
@@ -241,10 +243,11 @@ type
       procedure ImprimeTotalTipoCotacaoXCusto(VpaCodFilial, VpaCodCliente, VpaCodVendedor, VpaCodTipoCotacao : Integer;VpaCaminho, VpaNomFilial, VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao : String;VpaDAtInicio, VpaDatFim : TDAteTime);
       procedure ImprimeProdutosVendidosComDefeito(VpaCodFilial,VpaCodCliente,VpaCodVendedor: Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor, VpaCodClassificao, VpaNomClassificacao : String;VpaPDF : Boolean);
       procedure ImprimeResumosCaixas(VpaCaminho : String;VpaPDF : Boolean);
+      procedure ImprimeRomaneioEtikArt(VpaCodFilial, VpaSeqRomaneio : Integer;VpaVisualizar : Boolean);
   end;
 implementation
 
-Uses FunSql, constantes, funObjeto, funString, FunData, UnContasAReceber;
+Uses FunSql, constantes, funObjeto, funString, FunData, UnContasAReceber, FunNumeros;
 
 { TRBDVendaClienteMes }
 
@@ -611,6 +614,29 @@ begin
      SetTab(NA,pjRight,2.7,0,Boxlinenone,0); //Val Cheques
      SetTab(NA,pjRight,2.7,0,Boxlinenone,0); //Saldo Real
      SaveTabs(1);
+   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaRomaneioEtikArt(VpaObjeto: TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1.0,pjcenter,1.8,0.5,BOXLINEALL,0); //nro Pedido
+     SetTab(NA,pjCenter,2.5,0.5,BOXLINEALL,0); //codigo Produto
+     SetTab(NA,pjCenter,3.5,0.5,BOXLINEALL,0); //manequim
+     SetTab(NA,pjcenter,2.3,0.5,BOXLINEALL,0); //Combinacoes
+     SetTab(NA,pjCenter,1.5,0.5,BOXLINEALL,0); //fitas
+     SetTab(NA,pjright,1.8,0.5,BOXLINEALL,0); //Metros fita
+     SetTab(NA,pjright,2,0.5,BOXLINEALL,0); //total KM
+     SetTab(NA,pjright,2.3,0.5,BOXLINEALL,0); //Val Unitario
+     SetTab(NA,pjright,2.3,0.5,BOXLINEALL,0); //Val total
+     SetTab(NA,pjleft,8,0.5,BOXLINEALL,0); //Descricao
+     SaveTabs(1);
+     clearTabs;
+     SetTab(12.5,pjLeft,2,0.1,BOXLINEALL,0); //icms
+     SetTab(NA,pjRight,1.9,0.5,BOXLINEALL,0); //Val icms
+     SaveTabs(2);
    end;
 end;
 
@@ -1543,6 +1569,27 @@ begin
       PrintTab('Saldo Conta');
       PrintTab('Valor Cheques');
       PrintTab('Saldo Real');
+      Bold := false;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoRomaneioEtikArt;
+begin
+    with RVSystem.BaseReport do
+    begin
+      RestoreTabs(1);
+      bold := true;
+      PrintTab('Nr. Pedido');
+      PrintTab('Cod Produto');
+      PrintTab('Manequim');
+      PrintTab('Combinações');
+      PrintTab('Fitas');
+      PrintTab('Mts Fita ');
+      PrintTab('Total KM ');
+      PrintTab('Val Unitário ');
+      PrintTab('Valor Total ');
+      PrintTab(' Descrição');
       Bold := false;
   end;
 end;
@@ -2720,6 +2767,133 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeRelRomaneioEtikArt(VpaObjeto: TObject);
+var
+  VpfValUnitario, VpfTotalKM, VpfTotalGeralKM, VpfValTotalGeral, VpfMetFita : Double;
+  VpfCodCombinacao, VpfNumFitas, VpfNumPedido, VpfNumFitasPedido, VpfSeqOrdemProducao : Integer;
+  VpfSegundaCombinacao : Boolean;
+  VpfCombinacoes, VpfManequins, VpfCodProduto, VpfNomProduto : String;
+begin
+  VpfValTotalGeral := 0;
+  VpfTotalGeralKM := 0;
+  with RVSystem.BaseReport do begin
+    RestoreTabs(1);
+    NewLine;
+    while not Tabela.eof do
+    begin
+      if (VpfNumPedido  <> Tabela.FieldByName('NUMPED').AsInteger) or
+         ( VpfCodCombinacao <> Tabela.FieldByName('CODCOM').AsInteger) or
+         (VpfNumFitasPedido <> Tabela.FieldByName('NROFIT').AsInteger ) or
+         (VpfSeqOrdemProducao <> Tabela.FieldByName('SEQORD').AsInteger) then
+      begin
+        if VpfSeqOrdemProducao <> 0 then
+        begin
+          PrintTab(IntToStr(VpfNumPedido));
+          PrintTab(VpfCodProduto);
+          if length(VpfManequins) >= 30 then
+             PrintTab('Vários')
+          else
+             PrintTab(copy(VpfManequins,1,length(VpfManequins)-2));
+          PrintTab(copy(VpfCombinacoes,1,length(VpfCombinacoes)-2));
+          PrintTab(IntToStr(VpfNumFitas));
+          PrintTab(FormatFloat('###,###,##0.00',VpfMetFita)+' ');
+          PrintTab(FormatFloat(varia.mascaraqtd,VpfTotalKm)+' ');
+          PrintTab(FormatFloat('###,###,##0.00',VpfValUnitario)+' ');
+          PrintTab(FormatFloat('###,###,##0.00',ArredondaDecimais(VpfTotalKm,3) * VpfValUnitario)+' ');
+          PrintTab(' '+VpfNomProduto);
+          VpfValTotalGeral := VpfValTotalGeral +(ArredondaDecimais(VpfTotalKm,4) * VpfValUnitario);
+          VpfTotalGeralKM := VpfTotalGeralKM + VpfTotalKm;
+          NewLine;
+          If LinesLeft<=1 Then
+            NewPage;
+        end;
+        VpfCombinacoes := '';
+        VpfManequins :='';
+        VpfCodCombinacao := 0;
+        VpfNumFitas := 0;
+        VpfMetFita := 0;
+        VpfTotalKm := 0;
+        VpfSegundaCombinacao := false;
+        VpfCodProduto := Tabela.FieldByName('CODPRO').AsString;
+        VpfNomProduto := Tabela.FieldByName('C_NOM_PRO').AsString;
+        VpfNumPedido := Tabela.FieldByName('NUMPED').AsInteger;
+        VpfNumFitasPedido := Tabela.FieldByName('NROFIT').AsInteger;
+        VpfSeqOrdemProducao := Tabela.FieldByName('SEQORD').AsInteger;
+      end;
+
+      VpfValUnitario := Tabela.FieldByName('VALUNI').AsFloat;
+      VpfTotalKm := VpfTotalKm + (Tabela.FieldByName('METCOL').AsFloat * Tabela.FieldByName('NROFIT').AsInteger) /1000;
+      if (Tabela.FieldByName('TIPTEA').AsInteger in [0,1]) then
+      begin
+        if ((VpfCodCombinacao = Tabela.FieldByName('CODCOM').AsInteger) or
+           (VpfCodCombinacao = 0)) and not(VpfSegundaCombinacao) then
+          VpfMetFita := VpfMetFita + Tabela.FieldByName('METCOL').AsFloat;
+      end
+      else
+        VpfMetFita := VpfMetFita + Tabela.FieldByName('METCOL').AsFloat; //tear H sempre soma os metros porque as combinações não rodam paralelamente
+
+      if VpfCodCombinacao <> Tabela.FieldByName('CODCOM').AsInteger then
+      begin
+        if VpfCodCombinacao <> 0 then
+          VpfSegundaCombinacao := true;
+        VpfCodCombinacao := Tabela.FieldByName('CODCOM').AsInteger;
+        if Tabela.FieldByName('TIPTEA').AsInteger in [0,1] then //tear convencional
+          VpfNumFitas := VpfNumFitas + Tabela.FieldByName('NROFIT').AsInteger
+        else
+          VpfNumFitas := Tabela.FieldByName('NROFIT').AsInteger; //tear H não soma o número de fitas porque as combinações não correm paralelamente.
+        VpfCombinacoes := VpfCombinacoes + Tabela.FieldByName('CODCOM').AsString + ', ';
+      end;
+
+      if Tabela.FieldByName('CODMAN').AsString <> '' then
+        VpfManequins := VpfManequins + Tabela.FieldByName('CODMAN').AsString+ ', ';
+
+      Tabela.next;
+    end;
+    if VpfSeqOrdemProducao <> 0 then
+    begin
+      PrintTab(IntToStr(VpfNumPedido));
+      PrintTab(VpfCodProduto);
+      if length(VpfManequins) >= 30 then
+         PrintTab('Vários')
+      else
+         PrintTab(copy(VpfManequins,1,length(VpfManequins)-2));
+      PrintTab(copy(VpfCombinacoes,1,length(VpfCombinacoes)-2));
+      PrintTab(IntToStr(VpfNumFitas));
+      PrintTab(FormatFloat('###,###,##0.00',VpfMetFita)+' ');
+      PrintTab(FormatFloat(varia.mascaraqtd,VpfTotalKm)+' ');
+      PrintTab(FormatFloat('###,###,##0.00',VpfValUnitario)+' ');
+      PrintTab(FormatFloat('###,###,##0.00',ArredondaDecimais(VpfTotalKm,3) * VpfValUnitario)+' ');
+      PrintTab(' '+VpfNomProduto);
+      VpfValTotalGeral := VpfValTotalGeral +(ArredondaDecimais(VpfTotalKm,4) * VpfValUnitario);
+      VpfTotalGeralKM := VpfTotalGeralKM + VpfTotalKm;
+      NewLine;
+      If LinesLeft<=1 Then
+        NewPage;
+    end;
+    Bold := true;
+    PrintTab('');
+    PrintTab('');
+    PrintTab('TOTAL');
+    PrintTab('');
+    PrintTab('');
+    PrintTab('');
+    PrintTab(FormatFloat('###,###,##0.00',VpfTotalGeralKm)+' ');
+    PrintTab('');
+    PrintTab(FormatFloat('###,###,##0.00',vpfValTotalGeral)+' ');
+    PrintTab('');
+    NewLine;
+    NewLine;
+    If LinesLeft<=1 Then
+      NewPage;
+    RestoreTabs(2);
+    PrintTab('ICMS');
+    PrintTab(FormatFloat('###,###,##0.00',vpfValTotalGeral*0.17)+' ');
+    bold := false;
+  end;
+
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeRelTabelaPreco(VpaObjeto: TObject);
 var
   VpfProdutoAtual, VpaTamanhoAtual,VpaCorAtual : Integer;
@@ -3301,6 +3475,7 @@ begin
       17 : ImprimeCabecalhoPorPlanoContasSinteticoporMes;
       18 : ImprimeCabecalhoTotalTipoPedidoXCusto;
       20 : ImprimeCabecalhoResumoCaixas;
+      21 : ImprimeCabecalhoRomaneioEtikArt;
      end;
    end;
 end;
@@ -4239,6 +4414,42 @@ begin
   VprCaminhoRelatorio := VpaCaminho;
   VprNomeRelatorio := 'Resumo Caixas';
   VprCabecalhoEsquerdo.Clear;
+
+  VprCabecalhoDireito.Clear;
+
+  ConfiguraRelatorioPDF;
+  RvSystem.execute;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRomaneioEtikArt(VpaCodFilial, VpaSeqRomaneio: Integer; VpaVisualizar: Boolean);
+begin
+  RvSystem.Tag := 21;
+  RvSystem.SystemPrinter.Orientation := poLandScape;
+  FreeTObjectsList(VprNiveis);
+  LimpaSQlTabela(Tabela);
+  AdicionaSqlAbretabela(Tabela,'select PRO.C_NOM_PRO, ' +
+                               ' OP.NUMPED, OP.CODPRO, OP.VALUNI, OP.TIPTEA, OP.SEQORD, '+
+                               ' OPI.CODCOM, OPI.CODMAN, OPI.NROFIT, OPI.METCOL, (OPI.METCOL * OPI.NROFIT) / 1000 TOTALKM '+
+                               ' from ORDEMPRODUCAOCORPO OP, COLETAOPITEM opi, CADPRODUTOS PRO, ROMANEIOITEM RIT '+
+                               ' WHERE OPI.EMPFIL = OP.EMPFIL '+
+                               ' AND OPI.SEQORD = OP.SEQORD '+
+                               ' AND OP.SEQPRO = PRO.I_SEQ_PRO '+
+                               ' AND RIT.EMPFIL = OPI.EMPFIL '+
+                               ' AND RIT.SEQORD = OPI.SEQORD '+
+                               ' AND RIT.SEQCOL = OPI.SEQCOL '+
+                               ' AND RIT.EMPFIL = '+IntToStr(VpaCodFilial)+
+                               ' and rit.SEQROM = '+IntToStr(VpaSeqRomaneio)+
+                               ' order by OP.NUMPED, OPI.CODCOM, OPI.CODMAN');
+
+  rvSystem.onBeforePrint := DefineTabelaRomaneioEtikArt;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelRomaneioEtikArt;
+
+  VprNomeRelatorio := 'Romaneio de Faturamento';
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Romaneio : ' + inttoStr(VpaSeqRomaneio));
 
   VprCabecalhoDireito.Clear;
 

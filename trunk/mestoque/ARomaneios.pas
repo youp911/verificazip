@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Db, DBTables, Grids, DBGrids, Tabela, DBKeyViolation, Componentes1,
   ExtCtrls, PainelGradiente, StdCtrls, ComCtrls, Buttons, UnOrdemProducao,
-  Mask, numericos, DBClient;
+  Mask, numericos, DBClient, UnRave;
 
 type
   TFRomaneios = class(TFormularioPermissao)
@@ -68,6 +68,7 @@ type
   private
     { Private declarations }
     FunOrdemProducao : TRBFuncoesOrdemProducao;
+    FunRave : TRBFunRave;
     procedure AtualizaConsulta;
     procedure AtualizaConsultaItem;
   public
@@ -90,6 +91,7 @@ procedure TFRomaneios.FormCreate(Sender: TObject);
 begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
+  FunRave := TRBFunRave.cria(FPrincipal.BaseDados);
   ESituacaoNota.ItemIndex := 0;
   ESituacaoImpressao.ItemIndex := 2;
   EDatInicio.DateTime := DATE;
@@ -103,6 +105,7 @@ procedure TFRomaneios.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   { fecha tabelas }
   { chamar a rotina de atualização de menus }
+  FunRave.free;
   FunOrdemProducao.free;
   Action := CaFree;
 end;
@@ -186,9 +189,11 @@ end;
 {******************************************************************************}
 procedure TFRomaneios.BImprimirClick(Sender: TObject);
 begin
-  FImpOrdemProducao := TFImpOrdemProducao.create(self);
+  FunRave.ImprimeRomaneioEtikArt(RomaneioCorpoEMPFIL.AsInteger,RomaneioCorpoSEQROM.AsInteger,true);
+
+{  FImpOrdemProducao := TFImpOrdemProducao.create(self);
   FImpOrdemProducao.ImprimeRomaneioFaturamento(RomaneioCorpoDATINI.AsDateTime,RomaneioCorpoEMPFIL.AsString,RomaneioCorpoSEQROM.AsString);
-  FImpOrdemProducao.free;
+  FImpOrdemProducao.free;}
   FunOrdemProducao.SetaRomaneioImpresso(RomaneioCorpoEMPFIL.AsString,RomaneioCorpoSEQROM.AsString);
   AtualizaConsulta;
 end;

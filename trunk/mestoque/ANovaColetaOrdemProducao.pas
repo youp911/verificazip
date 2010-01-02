@@ -98,7 +98,7 @@ var
 
 implementation
 
-uses APrincipal, Constantes, ConstMsg, FunObjeto, AImpOrdemProducao;
+uses APrincipal, Constantes, ConstMsg, FunObjeto, dmRave;
 
 {$R *.DFM}
 
@@ -412,9 +412,9 @@ end;
 {******************************************************************************}
 procedure TFNovaColetaOrdemProducao.BImprimirClick(Sender: TObject);
 begin
-  FImpOrdemProducao := TFImpOrdemProducao.create(application);
-  FImpOrdemProducao.ImprimeColeaOP(IntToStr(VprDColetaOP.CodEmpresafilial),Inttostr(VprDColetaOP.SeqOrdemProducao),IntToStr(VprDColetaOP.SeqColeta),CVisualizar.Checked);
-  FImpOrdemProducao.free;
+  dtRave := TdtRave.Create(self);
+  dtRave.ImprimeColetaOP(VprDColetaOP.CodEmpresafilial,VprDColetaOP.SeqOrdemProducao,VprDColetaOP.SeqColeta,CVisualizar.Checked);
+  dtRave.free;
 end;
 
 {******************************************************************************}

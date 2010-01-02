@@ -111,49 +111,10 @@ type
     QRAsBarcode3: TQRAsBarcode;
     QRAsBarcode4: TQRAsBarcode;
     QRAsBarcode5: TQRAsBarcode;
-    R002ColetaOP: TQuickRepNovo;
-    PageHeaderBand1: TQRBand;
-    DetailBand2: TQRBand;
-    QRDBText1: TQRDBText;
-    QRLabel22: TQRLabel;
-    QRDBText2: TQRDBText;
-    QRLabel24: TQRLabel;
-    QRLabel27: TQRLabel;
-    QRDBText3: TQRDBText;
-    QRLabel52: TQRLabel;
-    QRDBText4: TQRDBText;
-    QRShape1: TQRShape;
-    QRLabel53: TQRLabel;
-    QRLabel54: TQRLabel;
-    QRDBText6: TQRDBText;
     ColetaOP: TSQL;
-    QRDBText7: TQRDBText;
-    QRDBText8: TQRDBText;
-    QRDBText9: TQRDBText;
-    QRDBText10: TQRDBText;
-    QRLabel55: TQRLabel;
-    QRLabel56: TQRLabel;
-    QRLabel57: TQRLabel;
-    QRLabel58: TQRLabel;
-    PageFooterBand1: TQRBand;
-    QRLabel59: TQRLabel;
-    QRDBText11: TQRDBText;
-    QRDBText12: TQRDBText;
-    QRLabel60: TQRLabel;
-    QRDBText13: TQRDBText;
-    QRLabel61: TQRLabel;
-    QRDBText14: TQRDBText;
-    QRLabel62: TQRLabel;
-    QRShape6: TQRShape;
-    QRShape5: TQRShape;
-    QRShape23: TQRShape;
-    QRLabel63: TQRLabel;
-    QRDBText15: TQRDBText;
     QRLabel64: TQRLabel;
     L001Pente: TQRLabel;
     QRAsBarcode6: TQRAsBarcode;
-    QRLabel66: TQRLabel;
-    QRDBText23: TQRDBText;
     Rel004RomaneioFaturamento: TQuickRepNovo;
     QRBand1: TQRBand;
     QRShape47: TQRShape;
@@ -215,7 +176,6 @@ type
     QRShape73: TQRShape;
     QRLabel78: TQRLabel;
     L004Icms: TQRLabel;
-    L002Emenda: TQRLabel;
     Aux: TSQL;
     Rel003OpCadarco: TQuickRepNovo;
     OPCadarco: TSQL;
@@ -301,19 +261,11 @@ type
     QRLabel102: TQRLabel;
     L001TipoCorte: TQRLabel;
     L001Engrenagem: TQRLabel;
-    QRLabel103: TQRLabel;
-    QRDBText18: TQRDBText;
     SummaryBand3: TQRBand;
     Q001MetrosCombinacaoTearH: TQRMemo;
     QRShape77: TQRShape;
-    QRLabel104: TQRLabel;
-    L002TipoPedido: TQRLabel;
     QRLabel105: TQRLabel;
     L001Prateleira: TQRLabel;
-    QRLabel106: TQRLabel;
-    QRLabel107: TQRLabel;
-    QRDBText26: TQRDBText;
-    QRDBText35: TQRDBText;
     QRLabel108: TQRLabel;
     L001BatProduto: TQRLabel;
     QRLabel110: TQRLabel;
@@ -331,8 +283,6 @@ type
     procedure SummaryBand1AfterPrint(Sender: TQRCustomBand;
       BandPrinted: Boolean);
     procedure SummaryBand1BeforePrint(Sender: TQRCustomBand;
-      var PrintBand: Boolean);
-    procedure PageHeaderBand1BeforePrint(Sender: TQRCustomBand;
       var PrintBand: Boolean);
     procedure TitleBand1BeforePrint(Sender: TQRCustomBand;
       var PrintBand: Boolean);
@@ -368,7 +318,6 @@ type
   public
     { Public declarations }
     procedure ImprimeOP(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta;VpaVisualizar : Boolean);
-    procedure ImprimeColeaOP(VpaEmpfil, VpaSeqOrdem, VpaSeqColeta : String;VpaVisualizar : Boolean);
     procedure ImprimeRomaneioFaturamento(VpaDatRomaneio : TDateTime; VpaEmpFil, VpaSeqRomaneio : String);
     procedure ImprimeOPEspulaCadarco(VpaEmpFil,VpaSeqOrdem : String);
   end;
@@ -757,17 +706,6 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFImpOrdemProducao.ImprimeColeaOP(VpaEmpfil, VpaSeqOrdem, VpaSeqColeta : String;VpaVisualizar : Boolean);
-begin
-  R002ColetaOP.ReportTitle := 'Impressão da coleta "'+VpaSeqColeta+ '" da OP "'+VpaSeqOrdem+'".';
-  PosicionaColetaOP(VpaEmpfil,VpaSeqOrdem,VpaSeqColeta);
-  if VpaVisualizar then
-    R002ColetaOP.Preview
-  else
-    R002ColetaOP.Print;
-end;
-
-{******************************************************************************}
 procedure TFImpOrdemProducao.ImprimeRomaneioFaturamento(VpaDatRomaneio : TDateTime;VpaEmpFil, VpaSeqRomaneio : String);
 begin
   VprCombinacoes := '';
@@ -915,21 +853,6 @@ begin
   L004Icms.Caption := FormatFloat('###,###,##0.00',(VprValTotal *17)/100);
 end;
 
-{******************************************************************************}
-procedure TFImpOrdemProducao.PageHeaderBand1BeforePrint(
-  Sender: TQRCustomBand; var PrintBand: Boolean);
-begin
-  L002Emenda.Caption := RNomEmenda(ColetaOP.FieldByName('CODEME').AsString );
-  case ColetaOP.FieldByName('TIPPED').AsInteger of
-    0 : L002TipoPedido.Caption := 'Amostra';
-    1 : L002TipoPedido.Caption := 'Venda';
-    2 : L002TipoPedido.Caption := 'Reprogramação Faturar';
-    3 : L002TipoPedido.Caption := 'Reprogramação NÃO Faturar';
-    4 : L002TipoPedido.Caption := 'Pedido de Estoque';
-  else
-    L002TipoPedido.Caption := '';
-  end;
-end;
 
 procedure TFImpOrdemProducao.TitleBand1BeforePrint(Sender: TQRCustomBand;
   var PrintBand: Boolean);
