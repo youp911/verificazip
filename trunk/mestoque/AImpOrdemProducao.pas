@@ -103,79 +103,8 @@ type
     L001Observacao: TQRMemo;
     L001UMPedido: TQRLabel;
     QRLabel23: TQRLabel;
-    Q001CodBarra: TQRAsBarcode;
-    QuickRepNovo1: TQuickRepNovo;
-    DetailBand1: TQRBand;
-    QRAsBarcode1: TQRAsBarcode;
-    QRAsBarcode2: TQRAsBarcode;
-    QRAsBarcode3: TQRAsBarcode;
-    QRAsBarcode4: TQRAsBarcode;
-    QRAsBarcode5: TQRAsBarcode;
-    ColetaOP: TSQL;
     QRLabel64: TQRLabel;
     L001Pente: TQRLabel;
-    QRAsBarcode6: TQRAsBarcode;
-    Rel004RomaneioFaturamento: TQuickRepNovo;
-    QRBand1: TQRBand;
-    QRShape47: TQRShape;
-    QRLabel77: TQRLabel;
-    L004DatColeta: TQRLabel;
-    QRShape48: TQRShape;
-    QRLabel79: TQRLabel;
-    QRLabel80: TQRLabel;
-    QRLabel81: TQRLabel;
-    QRLabel82: TQRLabel;
-    QRLabel83: TQRLabel;
-    QRLabel84: TQRLabel;
-    QRLabel85: TQRLabel;
-    QRLabel86: TQRLabel;
-    QRLabel87: TQRLabel;
-    QRLabel88: TQRLabel;
-    QRShape49: TQRShape;
-    QRShape50: TQRShape;
-    QRShape51: TQRShape;
-    QRShape52: TQRShape;
-    QRShape53: TQRShape;
-    QRShape54: TQRShape;
-    QRShape55: TQRShape;
-    QRShape56: TQRShape;
-    QRShape57: TQRShape;
-    QRBand2: TQRBand;
-    QRShape58: TQRShape;
-    QRDBText29: TQRDBText;
-    QRDBText30: TQRDBText;
-    QRShape59: TQRShape;
-    QRShape60: TQRShape;
-    QRShape61: TQRShape;
-    QRShape62: TQRShape;
-    QRShape63: TQRShape;
-    QRShape64: TQRShape;
-    QRShape65: TQRShape;
-    QRShape66: TQRShape;
-    QRShape67: TQRShape;
-    QRShape68: TQRShape;
-    QRBand3: TQRBand;
-    QRShape69: TQRShape;
-    QRSysData3: TQRSysData;
-    QRSysData4: TQRSysData;
-    QRDBText31: TQRDBText;
-    RomaneioFaturamento: TSQL;
-    QRDBText32: TQRDBText;
-    L004Combinacoes: TQRLabel;
-    L004Manequins: TQRLabel;
-    SummaryBand1: TQRBand;
-    L004NumFitas: TQRLabel;
-    L004MetFita: TQRLabel;
-    L004TotKm: TQRLabel;
-    L004ValTotal: TQRLabel;
-    QRShape70: TQRShape;
-    QRShape71: TQRShape;
-    L004TotalGeralKM: TQRLabel;
-    L004ValTotalGeral: TQRLabel;
-    QRShape72: TQRShape;
-    QRShape73: TQRShape;
-    QRLabel78: TQRLabel;
-    L004Icms: TQRLabel;
     Aux: TSQL;
     Rel003OpCadarco: TQuickRepNovo;
     OPCadarco: TSQL;
@@ -255,7 +184,6 @@ type
     L001Reprogramacao: TQRLabel;
     L001BatidasTear: TQRLabel;
     QRLabel101: TQRLabel;
-    L004SeqRomaneio: TQRLabel;
     QRLabel100: TQRLabel;
     L001ProdutoNovo: TQRLabel;
     QRLabel102: TQRLabel;
@@ -278,12 +206,8 @@ type
       var PrintBand: Boolean);
     procedure L003DetalhesBeforePrint(Sender: TQRCustomBand;
       var PrintBand: Boolean);
-    procedure QRBand2BeforePrint(Sender: TQRCustomBand;
-      var PrintBand: Boolean);
     procedure SummaryBand1AfterPrint(Sender: TQRCustomBand;
       BandPrinted: Boolean);
-    procedure SummaryBand1BeforePrint(Sender: TQRCustomBand;
-      var PrintBand: Boolean);
     procedure TitleBand1BeforePrint(Sender: TQRCustomBand;
       var PrintBand: Boolean);
     procedure SummaryBand3BeforePrint(Sender: TQRCustomBand;
@@ -312,13 +236,10 @@ type
     procedure CarCombinacoesOPConvencional(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta);
     procedure CarMetrosCombinacaoOPH(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta);
     procedure CarDRelatorio(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta);
-    procedure PosicionaColetaOP(VpaEmpfil, VpaSeqOrdem, VpaSeqColeta : String);
-    procedure PosRomaneiFaturamento(VpaEmpFil, VpaSeqRomaneio : String);
     procedure PosOPCadarco(VpaEmpFil,VpaSeqOrdem : String);
   public
     { Public declarations }
     procedure ImprimeOP(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta;VpaVisualizar : Boolean);
-    procedure ImprimeRomaneioFaturamento(VpaDatRomaneio : TDateTime; VpaEmpFil, VpaSeqRomaneio : String);
     procedure ImprimeOPEspulaCadarco(VpaEmpFil,VpaSeqOrdem : String);
   end;
 
@@ -364,17 +285,12 @@ begin
   with VpaDOrdemProducao do
   begin
     L001Op.Caption := IntToStr(SeqOrdem);
-    Q001CodBarra.Text := IntToStr(SeqOrdem);
+//d5    Q001CodBarra.Text := IntToStr(SeqOrdem);
     L001OpCliente.Caption := IntToStr(NroOPCliente);
     L001Pedido.Caption := IntToStr(NumPedido);
     L001Data.Caption := FormatDateTime('DD/MM/YYYY',DatEmissao);
     L001Programador.Caption := Sistema.RNomUsuario(VpaDOrdemProducao.CodProgramador);
     L001DatEntrega.Caption := FormatDateTime('DD/MM/YYYY',DatEntregaPrevista);
-{   foi tirado o campo cliente para colocar 2 campos de data de entrega.
-    if CodCliente <> 0 then
-      L001Cliente.Caption := IntToStr(CodCliente) +' - '+ FunCliente.RNomCliente(IntToStr(CodCliente))
-    else
-      L001Cliente.Caption := '';}
     L001Maquina.Caption := IntToStr(CodMaquina) +' - ' +FunOrdem.RNomeMaquina(IntToStr(CodMaquina));
     L001Fitas.Caption := IntToStr(QtdFita);
     L001MetrosTotal.Caption := FloattoStr(TotMetros);
@@ -438,44 +354,6 @@ begin
     CarCombinacoesOPH(VpaDOrdemProducao);
     CarManequinsOPConvencional(VpaDOrdemProducao);
   end;
-end;
-
-{******************************************************************************}
-procedure TFImpOrdemProducao.PosicionaColetaOP(VpaEmpfil, VpaSeqOrdem, VpaSeqColeta : String);
-begin
-  AdicionaSQLAbreTabela(ColetaOP,'select OP.SEQORD, OP.CODPRO, OP.ORDCLI, OP.NUMPED,  OP.CODMAQ, OP.UNMPED,'+
-                                 ' OP.DATENP, OP.TIPPED, '+ 
-                                 ' PRO.CODEME, PRO.INDCAL, PRO.INDENG, PRO.I_LRG_PRO, PRO.I_CMP_PRO, '+
-                                 ' COP.INDFIN, COP.INDREP, COP.QTDTOT,'+
-                                 ' CIT.METCOL, CIT.NROFIT, CIT.CODCOM, CIT.CODMAN '+
-                                 ' from  COLETAOPCORPO COP, ORDEMPRODUCAOCORPO OP, CADPRODUTOS PRO,  COLETAOPITEM CIT '+
-                                 ' WHERE COP.EMPFIL = OP.EMPFIL '+
-                                 ' AND COP.SEQORD = OP.SEQORD '+
-                                 ' AND COP.EMPFIL = CIT.EMPFIL '+
-                                 ' AND COP.SEQORD = CIT.SEQORD '+
-                                 ' AND COP.SEQCOL = CIT.SEQCOL '+
-                                 ' AND OP.SEQPRO = PRO.I_SEQ_PRO '+
-                                 ' AND COP.EMPFIL = ' + VpaEmpfil +
-                                 ' AND COP.SEQORD = '+ VpaSeqOrdem +
-                                 ' AND COP.SEQCOL = '+ VpaSeqColeta);
-end;
-
-{******************************************************************************}
-procedure TFImpOrdemProducao.PosRomaneiFaturamento(VpaEmpFil, VpaSeqRomaneio : String);
-begin
-  AdicionaSQLAbreTabela(RomaneioFaturamento,'select PRO.C_NOM_PRO, ' +
-                                       ' OP.NUMPED, OP.CODPRO, OP.VALUNI, OP.TIPTEA, OP.SEQORD, '+
-                                       ' OPI.CODCOM, OPI.CODMAN, OPI.NROFIT, OPI.METCOL, (OPI.METCOL * OPI.NROFIT) / 1000 TOTALKM '+
-                                       ' from ORDEMPRODUCAOCORPO OP, COLETAOPITEM opi, CADPRODUTOS PRO, ROMANEIOITEM RIT '+
-                                       ' WHERE OPI.EMPFIL = OP.EMPFIL '+
-                                       ' AND OPI.SEQORD = OP.SEQORD '+
-                                       ' AND OP.SEQPRO = PRO.I_SEQ_PRO '+
-                                       ' AND RIT.EMPFIL = OPI.EMPFIL '+
-                                       ' AND RIT.SEQORD = OPI.SEQORD '+
-                                       ' AND RIT.SEQCOL = OPI.SEQCOL '+
-                                       ' AND RIT.EMPFIL = '+VpaEmpFil+
-                                       ' and rit.SEQROM = '+VpaSeqRomaneio+
-                                       ' order by OP.NUMPED, OPI.CODCOM, OPI.CODMAN');
 end;
 
 {******************************************************************************}
@@ -706,24 +584,6 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFImpOrdemProducao.ImprimeRomaneioFaturamento(VpaDatRomaneio : TDateTime;VpaEmpFil, VpaSeqRomaneio : String);
-begin
-  VprCombinacoes := '';
-  VprManequins :='';
-  VprCodCombinacao := 0;
-  VprTotalKm := 0;
-  VprMetFita := 0;
-  VprNumFitas := 0;
-  VprValTotal := 0;
-  VprTotalGeralKM := 0;
-  VprSegundaCombinacao := false;
-  L004DatColeta.Caption := 'Data : '+FormatDateTime('DD/MM/YYYY',VpaDatRomaneio);
-  L004SeqRomaneio.Caption := 'Romaneio : '+ VpaSeqRomaneio;
-  PosRomaneiFaturamento(VpaEmpFil, VpaSeqRomaneio);
-  Rel004RomaneioFaturamento.Preview
-end;
-
-{******************************************************************************}
 procedure TFImpOrdemProducao.ImprimeOPEspulaCadarco(VpaEmpFil,VpaSeqOrdem : String);
 begin
   PosOPCadarco(VpaEmpFil,VpaSeqOrdem);
@@ -761,75 +621,6 @@ begin
       L003TipFio.Caption := '';
 end;
 
-{******************************************************************************}
-procedure TFImpOrdemProducao.QRBand2BeforePrint(Sender: TQRCustomBand;
-  var PrintBand: Boolean);
-var
-  VpfNumPedido, VpfSeqOrdemProducao : Integer;
-  VpfValUnitario : Double;
-  VpfNumFitasPedido : Integer;
-begin
-  VpfValUnitario := RomaneioFaturamento.FieldByName('VALUNI').AsFloat;
-  VprTotalKm := VprTotalKm + (RomaneioFaturamento.FieldByName('METCOL').AsFloat * RomaneioFaturamento.FieldByName('NROFIT').AsInteger) /1000;
-  if (RomaneioFaturamento.FieldByName('TIPTEA').AsInteger in [0,1]) then
-  begin
-    if ((VprCodCombinacao = RomaneioFaturamento.FieldByName('CODCOM').AsInteger) or
-       (VprCodCombinacao = 0)) and not(VprSegundaCombinacao) then
-      VprMetFita := VprMetFita + RomaneioFaturamento.FieldByName('METCOL').AsFloat;
-  end
-  else
-    VprMetFita := VprMetFita + RomaneioFaturamento.FieldByName('METCOL').AsFloat; //tear H sempre soma os metros porque as combinações não rodam paralelamente
-
-  if VprCodCombinacao <> RomaneioFaturamento.FieldByName('CODCOM').AsInteger then
-  begin
-    if VprCodCombinacao <> 0 then
-      VprSegundaCombinacao := true;
-    VprCodCombinacao := RomaneioFaturamento.FieldByName('CODCOM').AsInteger;
-    if RomaneioFaturamento.FieldByName('TIPTEA').AsInteger in [0,1] then //tear convencional
-      VprNumFitas := VprNumFitas + RomaneioFaturamento.FieldByName('NROFIT').AsInteger
-    else
-      VprNumFitas := RomaneioFaturamento.FieldByName('NROFIT').AsInteger; //tear H não soma o número de fitas porque as combinações não correm paralelamente.
-    VprCombinacoes := VprCombinacoes + RomaneioFaturamento.FieldByName('CODCOM').AsString + ', ';
-  end;
-
-  if RomaneioFaturamento.FieldByName('CODMAN').AsString <> '' then
-    VprManequins := VprManequins + RomaneioFaturamento.FieldByName('CODMAN').AsString+ ', ';
-
-  VpfNumPedido := RomaneioFaturamento.FieldByName('NUMPED').AsInteger;
-  VpfNumFitasPedido := RomaneioFaturamento.FieldByName('NROFIT').AsInteger;
-  VpfSeqOrdemProducao := RomaneioFaturamento.FieldByName('SEQORD').AsInteger;
-  RomaneioFaturamento.Next;
-
-  if (VpfNumPedido  <> RomaneioFaturamento.FieldByName('NUMPED').AsInteger) or
-     ( VprCodCombinacao <> RomaneioFaturamento.FieldByName('CODCOM').AsInteger) or
-     (VpfNumFitasPedido <> RomaneioFaturamento.FieldByName('NROFIT').AsInteger ) or
-     (VpfSeqOrdemProducao <> RomaneioFaturamento.FieldByName('SEQORD').AsInteger) or (RomaneioFaturamento.Eof) then
-  begin
-   PrintBand := true;
-   L004Combinacoes.Caption := copy(VprCombinacoes,1,length(VprCombinacoes)-2);
-   if length(VprManequins) >= 30 then
-     L004Manequins.Caption := 'Vários'
-   else
-     L004Manequins.Caption := copy(VprManequins,1,length(VprManequins)-2);
-   L004NumFitas.Caption := IntToStr(VprNumFitas);
-   L004MetFita.Caption := FormatFloat('###,###,##0.00',VprMetFita);
-   L004TotKm.Caption := FormatFloat(varia.mascaraqtd,VprTotalKm);
-   L004ValTotal.Caption := FormatFloat('###,###,##0.00',ArredondaDecimais(VprTotalKm,3) * VpfValUnitario);
-   VprValTotal := VprValTotal +(ArredondaDecimais(VprTotalKm,4) * VpfValUnitario);
-   VprTotalGeralKM := VprTotalGeralKM + VprTotalKm;
-   VprCombinacoes := '';
-   VprManequins :='';
-   VprCodCombinacao := 0;
-   VprNumFitas := 0;
-   VprMetFita := 0;
-   VprTotalKm := 0;
-   VprSegundaCombinacao := false;
-  end
-  else
-    PrintBand := false;
-  if not RomaneioFaturamento.eof then
-    RomaneioFaturamento.prior;
-end;
 
 {******************************************************************************}
 procedure TFImpOrdemProducao.SummaryBand1AfterPrint(Sender: TQRCustomBand;
@@ -842,15 +633,6 @@ begin
   VprCodCombinacao := 0;
   VprValTotal := 0;
   VprTotalGeralKM := 0;
-end;
-
-{******************************************************************************}
-procedure TFImpOrdemProducao.SummaryBand1BeforePrint(Sender: TQRCustomBand;
-  var PrintBand: Boolean);
-begin
-  L004TotalGeralKM.Caption := FormatFloat('###,##0.00',VprTotalGeralKM);
-  L004ValTotalGeral.Caption := FormatFloat('###,###,##0.00',VprValTotal);
-  L004Icms.Caption := FormatFloat('###,###,##0.00',(VprValTotal *17)/100);
 end;
 
 

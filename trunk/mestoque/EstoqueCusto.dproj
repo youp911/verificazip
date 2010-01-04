@@ -20,6 +20,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_UsePackage>vcl;rtl;vclx;vclactnband;dbrtl;vcldb;vcldbx;bdertl;dsnap;dsnapcon;TeeUI;TeeDB;Tee;adortl;vclib;ibxpress;IndyCore;IndySystem;IndyProtocols;xmlrtl;inet;intrawebdb_100_120;Intraweb_100_120;VclSmp;vclie;websnap;webdsnap;inetdbbde;inetdbxpress;soaprtl;vclribbon;dbexpress;DbxCommonDriver;DataSnapIndy10ServerTransport;DataSnapProviderClient;DataSnapServer;DbxClientDriver;DBXInterBaseDriver;DBXMySQLDriver;dbxcds;DBXSybaseASEDriver;DBXSybaseASADriver;DBXOracleDriver;DBXMSSQLDriver;DBXInformixDriver;DBXDb2Driver;Basico;BasicoDB;Linkdfm;PRBGeradores;QR5Run_RAD6;Gerador;Rave76VCL</DCC_UsePackage>
 			<DCC_ExeOutput>..\minstalacao\</DCC_ExeOutput>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_DependencyCheckOutputName>..\minstalacao\EstoqueCusto.exe</DCC_DependencyCheckOutputName>
@@ -338,9 +339,6 @@
 			</DCCReference>
 			<DCCReference Include="ARevisaoExterna.pas">
 				<Form>FRevisaoExterna</Form>
-			</DCCReference>
-			<DCCReference Include="..\mfinanceiro\ACondicoesPgtos.pas">
-				<Form>FCondicoesPagamentos</Form>
 			</DCCReference>
 			<DCCReference Include="..\mfaturamento\ANovaNotaFiscalNota.pas">
 				<Form>FNovaNotaFiscalNota</Form>
@@ -1004,9 +1002,6 @@
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<Excluded_Packages>
-						<Excluded_Packages Name="$(BDS)\bin\dclwebsnap120.bpl">CodeGear WebSnap Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDS)\bin\dclnet120.bpl">CodeGear Internet Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDS)\bin\dclsoap120.bpl">CodeGear SOAP Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDS)\bin\dcloffice2k120.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDS)\bin\dclofficexp120.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>

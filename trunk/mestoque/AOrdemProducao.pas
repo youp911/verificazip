@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   StdCtrls, Buttons, Grids, DBGrids, Tabela, DBKeyViolation, Componentes1,
   ExtCtrls, PainelGradiente, ComCtrls, Localizacao, Db, DBTables, UnDados, UnOrdemProducao,
-  Mask, numericos, UnDadosProduto, DBClient;
+  Mask, numericos, UnDadosProduto, DBClient, UnRave;
 
 type
   TFOrdemProducao = class(TFormularioPermissao)
@@ -94,6 +94,7 @@ type
     VprSeqProduto : Integer;
     VprDOrdem : TRBDOrdemProducaoEtiqueta;
     FunOrdem : TRBFuncoesOrdemProducao;
+    FunRave : TRBFunRave;
     procedure AtualizaConsulta(VpaPosicionar : Boolean);
   public
     { Public declarations }
@@ -115,6 +116,7 @@ procedure TFOrdemProducao.FormCreate(Sender: TObject);
 begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
+  FunRave := TRBFunRave.cria(fPrincipal.BaseDados);
   VprOrdem := ' order by ORD.SEQORD ';
   EDatInicio.DateTime := PrimeiroDiaMes(date);
   EDatFim.DateTime := UltimoDiaMes(date);
@@ -132,6 +134,7 @@ begin
   { chamar a rotina de atualização de menus }
   VprDOrdem.free;
   FunOrdem.free;
+  FunRave.Free;
   Action := CaFree;
 end;
 
@@ -266,12 +269,16 @@ end;
 {******************************************************************************}
 procedure TFOrdemProducao.BImpOPClick(Sender: TObject);
 begin
-  FImpOrdemProducao := TFImpOrdemProducao.Create(Application);
   VprDOrdem.CodEmpresafilial := OrdemProducaoEMPFIL.AsInteger;
   VprDOrdem.SeqOrdem := OrdemProducaoSEQORD.AsInteger;
   FunOrdem.CarDOrdemProducao(VprDOrdem);
+
+{  FImpOrdemProducao := TFImpOrdemProducao.Create(Application);
   FImpOrdemProducao.ImprimeOP(VprDOrdem,true);
-  FImpOrdemProducao.Free;
+  FImpOrdemProducao.Free;}
+
+  FunRave.ImprimeOrdemProducaoEtikArt(VprDOrdem,true);
+
 end;
 
 {******************************************************************************}

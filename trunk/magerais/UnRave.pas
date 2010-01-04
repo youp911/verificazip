@@ -5,7 +5,7 @@ unit UnRave;
 interface
 Uses SQLExpr, RpRave, UnDados, SysUtils, RpDefine, RpBase, RpSystem,RPDevice,
      Classes, forms, Graphics, unprodutos, UnClassificacao, UnAmostra, RpRenderPDF,
-     unDadosProduto, windows;
+     unDadosProduto, windows, rpBars, UnSistema, UnordemProducao;
 
 
 Type
@@ -134,6 +134,7 @@ type
       VprDatFim : TDateTime;
       VprAgruparPorEstado,
       VprTodosProdutos : Boolean;
+      VprDOPEtikArt : TRBDOrdemProducaoEtiqueta;
       FunClassificacao : TFuncoesClassificacao;
       VprNiveis : TList;
       procedure DefineTabelaProdutosPorClassificacao(VpaObjeto : TObject);
@@ -154,6 +155,7 @@ type
       procedure DefineTabelaTotalAmostraporVendedor(VpaObjeto : TObject);
       procedure DefineTabelaTotalTipoCotacaoXCusto(VpaObjeto : TObject);
       procedure DefineTabelaRomaneioEtikArt(VpaObjeto : TObject);
+      procedure DefineTabelaOPEtikArt(VpaObjeto : TObject);
       procedure ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
       procedure SalvaTabelaProdutosPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
       procedure SalvaTabelaPrecoPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
@@ -202,6 +204,12 @@ type
       procedure CarValoresContasAPagar(VpaPlanoContas : String; VpaDatInicio,VpaDatFim : TDateTime;Var VpaValPago : Double;Var VpaValtotal : Double);
       procedure CarValorTrocasProdutos(VpaDProduto : TRBDProdutoRave; VpaDatInicio,VpaDatFim : TDateTime;VpaSeqProduto :Integer);
       function RValCustoCotacao(VpaCodFilial,VpaLanOrcamento : Integer) : Double;
+      function REspula(VpaNumEspulas : Integer) : String;
+      procedure RMetrosFitaManequim(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta;VpaLacoInicio,VpaLacoFim : Integer);
+      procedure CarCombinacoesOPConvencional(VpaDOPEtikArt : TRBDOrdemProducaoEtiqueta;VpaDProduto : TRBDProduto);
+      procedure CarCombinacoesOPH(VpaDOPEtikArt : TRBDOrdemProducaoEtiqueta;VpaDProduto : TRBDProduto);
+      procedure CarManequinsOPConvencional(VpaDOPEtikArt : TRBDOrdemProducaoEtiqueta;VpaDProduto : TRBDProduto);
+      procedure CarMetrosCombinacaoOPH(VpaDOPEtikArt : TRBDOrdemProducaoEtiqueta;VpaDProduto : TRBDProduto);
 
       procedure ConfiguraRelatorioPDF;
       procedure ImprimeRelEstoqueMinimo(VpaObjeto : TObject);
@@ -216,6 +224,7 @@ type
       procedure ImprimeRelTotalAmostrasVendedor(VpaObjeto : TObject);
       procedure ImprimeRelTotalTipoCotacaoXCusto(VpaObjeto : TObject);
       procedure ImprimeRelRomaneioEtikArt(VpaObjeto : TObject);
+      procedure ImprimeRelOPEtikArt(VpaObjeto : TObject);
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
     public
@@ -244,6 +253,7 @@ type
       procedure ImprimeProdutosVendidosComDefeito(VpaCodFilial,VpaCodCliente,VpaCodVendedor: Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor, VpaCodClassificao, VpaNomClassificacao : String;VpaPDF : Boolean);
       procedure ImprimeResumosCaixas(VpaCaminho : String;VpaPDF : Boolean);
       procedure ImprimeRomaneioEtikArt(VpaCodFilial, VpaSeqRomaneio : Integer;VpaVisualizar : Boolean);
+      procedure ImprimeOrdemProducaoEtikArt(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta;VpaVisualizar : Boolean);
   end;
 implementation
 
@@ -884,6 +894,62 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.DefineTabelaOPEtikArt(VpaObjeto: TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(0.5,pjright,2.1,0.5,BoxlineNONE,0);
+     SetTab(NA,pjleft,3.3,0.5,BoxlineNONE,0);
+     SetTab(NA,pjright,2.2,0.5,BoxlineNONE,0);
+     SetTab(NA,pjleft,1.9,0.5,BoxlineNONE,0);
+     SaveTabs(1);
+     clearTabs;
+     SetTab(0.5,pjright,2.1,0.5,BoxlineNONE,0);
+     SetTab(NA,pjleft,1.5,0.5,BoxlineNONE,0);
+     SetTab(NA,pjright,1.5,0.5,BoxlineNONE,0);
+     SetTab(NA,pjleft,1.5,0.5,BoxlineNONE,0);
+     SetTab(NA,pjright,2.0,0.5,BoxlineNONE,0);
+     SetTab(NA,pjleft,0.9,0.5,BoxlineNONE,0);
+     SaveTabs(2);
+     clearTabs;
+     SetTab(0.5,pjright,2.1,0.5,BoxlineNONE,0);
+     SetTab(NA,pjleft,7.4,0.5,BoxlineNONE,0);
+     SaveTabs(3);
+     clearTabs;
+     SetTab(0.5,pjcenter,9.5,0.5,BoxlineNONE,0);
+     SaveTabs(4);
+     clearTabs;
+     SetTab(0.5,pjCenter,0.7,0.5,BoxlineNONE,0);//combinacao
+     SetTab(NA,pjcenter,0.7,0.5,BoxlineNONE,0); //fitas
+     SetTab(NA,pjleft,3.6,0.5,BoxlineNONE,0);//cor
+     SetTab(NA,pjleft,2.5,0.5,BoxlineNONE,0);//titulo
+     SetTab(NA,pjright,2.0,0.5,BoxlineNONE,0);//fundo
+     SaveTabs(5);
+     clearTabs;
+     SetTab(0.5,pjCenter,0.7,0.5,BoxlineNONE,0);//combinacao
+     SetTab(NA,pjcenter,0.7,0.5,BoxlineNONE,0); //fitas
+     SetTab(NA,pjleft,2.6,0.5,BoxlineNONE,0);//cor
+     SetTab(NA,pjleft,2.0,0.5,BoxlineNONE,0);//titulo
+     SetTab(NA,pjright,1.5,0.5,BoxlineNONE,0);//fundo
+     SetTab(NA,pjright,2.0,0.5,BoxlineNONE,0);//Qtd Peças
+     SaveTabs(6);
+     clearTabs;
+     SetTab(0.5,pjcenter,1.9,0.5,BoxlineNONE,0);//combinacao
+     SetTab(NA,pjcenter,1.9,0.5,BoxlineNONE,0); //fitas
+     SetTab(NA,pjcenter,1.9,0.5,BoxlineNONE,0); //fitas
+     SetTab(NA,pjcenter,1.9,0.5,BoxlineNONE,0); //fitas
+     SetTab(NA,pjcenter,1.9,0.5,BoxlineNONE,0); //fitas
+     SaveTabs(7);
+     clearTabs;
+     SetTab(0.5,pjCenter,0.7,0.5,BoxlineNONE,0);//combinacao
+     SetTab(NA,pjcenter,1.2,0.5,BoxlineNONE,0); //manequim
+     SetTab(NA,pjright,3,0.5,BoxlineNONE,0);//metros por fita;
+     SetTab(NA,pjright,2.5,0.5,BoxlineNONE,0);//Qtd Fitas
+     SaveTabs(8);
+   end;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
 var
   VpfQtdProduto,VpfQtdGeral, VpfValGeral : Double;
@@ -1378,10 +1444,6 @@ begin
       begin
         SetBrush(ShadeToColor(clBlack,20),bsSolid,nil);
         FillRect(CreateRect(MarginLeft-0.1,YPos+LineHeight-1+0.3,PageWidth-0.3,YPos+0.1));
-{        Canvas.Pen.Width := 7;
-        Canvas.Pen.Color := clBlack;
-        MoveTo(MarginLeft,YPos+0.1);
-        LineTo(PageWidth-MarginRight,YPos+0.1);}
       end;
       VpfDClassificacao.QtdProduto := VpfDClassificacao.QtdProduto + VpfQtdProduto;
       VpfDClassificacao.ValTotal := VpfDClassificacao.ValTotal + VpfValTotal;
@@ -2017,6 +2079,15 @@ begin
 end;
 
 {******************************************************************************}
+function TRBFunRave.REspula(VpaNumEspulas: Integer): String;
+begin
+  if VpaNumEspulas > 1 then
+    result := ' X '+IntToStr(VpaNumEspulas)
+  else
+    result := '';
+end;
+
+{******************************************************************************}
 function TRBFunRave.RTamanhoProduto(VpaDCor: TRBDCorProdutoRave; VpaCodTamanho: Integer): TRBDTamanhoProdutoRave;
 var
   VpfLacoTamanho : Integer;
@@ -2064,6 +2135,183 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.CarCombinacoesOPConvencional(VpaDOPEtikArt: TRBDOrdemProducaoEtiqueta; VpaDProduto: TRBDProduto);
+var
+  VpfDCombinacao : TRBDCombinacao;
+  vpfDCombinacaoFigura : TRBDCombinacaoFigura;
+  VpfDOrdemItem : TRBDOrdemProducaoItem;
+  VpfLaco, VpfLacoFigura, VpfCodCombAnt,VpfQtdEtiquetas : Integer;
+begin
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(5);
+    VpfCodCombAnt := 0;
+    VpfQtdEtiquetas := 0;
+    PrintTab('CB');
+    PrintTab('Fts');
+    PrintTab('Cor ');
+    PrintTab('Título');
+    PrintTab('Fundo');
+    newline;
+    for VpfLaco := 0 to VpaDOPEtikArt.Items.Count - 1 do
+    begin
+      VpfDOrdemItem := TRBDOrdemProducaoItem(VpaDOPEtikArt.Items.Items[VpfLaco]);
+      if VpfDOrdemItem.CodCombinacao <> VpfCodCombAnt then
+      begin
+        if VpfLaco <> 0 then
+        begin
+          PrintTab('');
+          PrintTab('');
+          PrintTab('   QTD = '+IntToStr(VpfQtdEtiquetas));
+          newline;
+          If LinesLeft<=1 Then
+            NewPage;
+          VpfQtdEtiquetas := 0;
+        end;
+        VpfDCombinacao := FunProdutos.RCombinacao(VpaDProduto,VpfDOrdemItem.CodCombinacao);
+        //urdume
+        PrintTab(IntToStr(VpfDCombinacao.CodCombinacao));
+        PrintTab(IntToStr(VpfDOrdemItem.QtdFitas));
+        PrintTab(VpfDCombinacao.CorFundo1+ ' URDUME ');
+        PrintTab(VpfDCombinacao.TituloFundo1+REspula(VpfDCombinacao.Espula1));
+        PrintTab(IntToStr(VpfDCombinacao.CorCartela));
+        newline;
+        If LinesLeft<=1 Then
+           NewPage;
+          //URDUME FIGURA
+        IF VpfDCombinacao.CorUrdumeFigura <> '' then
+        begin
+          PrintTab('');
+          PrintTab('');
+          PrintTab(VpfDCombinacao.CorUrdumeFigura+' URDUMEFI ');
+          PrintTab(VpfDCombinacao.TituloFundoFigura+REspula(VpfDCombinacao.EspulaUrdumeFigura));
+          PrintTab('');
+          newline;
+          If LinesLeft<=1 Then
+            NewPage;
+        end;
+        //trama
+        PrintTab('');
+        PrintTab('');
+        PrintTab(VpfDCombinacao.CorFundo2);
+        PrintTab(VpfDCombinacao.TituloFundo2+REspula(VpfDCombinacao.Espula2));
+        PrintTab('');
+        newline;
+        If LinesLeft<=1 Then
+          NewPage;
+        for VpfLacoFigura := 0 to VpfDCombinacao.Figuras.Count - 1 do
+        begin
+          vpfDCombinacaoFigura := TRBDCombinacaoFigura(VpfDCombinacao.Figuras.Items[VpfLacoFigura]);
+          PrintTab('');
+          PrintTab('');
+          PrintTab(vpfDCombinacaoFigura.CodCor);
+          PrintTab(vpfDCombinacaoFigura.TitFio+REspula(vpfDCombinacaoFigura.NumEspula));
+          PrintTab('');
+          newline;
+          If LinesLeft<=1 Then
+            NewPage;
+        end;
+        VpfCodCombAnt := VpfDOrdemItem.CodCombinacao;
+      end;
+      VpfQtdEtiquetas := VpfQtdEtiquetas + VpfDOrdemItem.QtdEtiquetas;
+    end;
+    PrintTab('');
+    PrintTab('');
+    PrintTab('   QTD = '+IntToStr(VpfQtdEtiquetas));
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.CarCombinacoesOPH(VpaDOPEtikArt: TRBDOrdemProducaoEtiqueta;VpaDProduto: TRBDProduto);
+var
+  VpfDCombinacao : TRBDCombinacao;
+  vpfDCombinacaoFigura : TRBDCombinacaoFigura;
+  VpfDOrdemItem : TRBDOrdemProducaoItem;
+  VpfLaco, VpfLacoFigura, VpfCodCombAnt : Integer;
+  VpfQtdPecas : String;
+begin
+  VpfCodCombAnt := 0;
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(6);
+    PrintTab('CB');
+    PrintTab('Fts');
+    PrintTab('Cor ');
+    PrintTab('Título');
+    PrintTab('Fundo');
+    PrintTab('Qdade(PC)');
+    newline;
+
+    for VpfLaco := 0 to VpaDOPEtikArt.Items.Count - 1 do
+    begin
+      VpfDOrdemItem := TRBDOrdemProducaoItem(VpaDOPEtikArt.Items.Items[VpfLaco]);
+      if VpfDOrdemItem.CodCombinacao <> VpfCodCombAnt then
+      begin
+        if VpfLaco <> 0 then
+        begin
+          newline;
+          If LinesLeft<=1 Then
+            NewPage;
+        end;
+        VpfDCombinacao := FunProdutos.RCombinacao(VpaDProduto,VpfDOrdemItem.CodCombinacao);
+        if VpfDOrdemItem.CodManequim = '' then
+          VpfQtdPecas := FormatFloat('0',VpfDOrdemItem.MetrosFita)
+        else
+          VpfQtdPecas := '';
+        //urdume
+        PrintTab(IntToStr(VpfDCombinacao.CodCombinacao));
+        PrintTab(IntToStr(VpfDOrdemItem.QtdFitas));
+        PrintTab(VpfDCombinacao.CorFundo1+ ' URD ');
+        PrintTab(VpfDCombinacao.TituloFundo1+REspula(VpfDCombinacao.Espula1));
+        PrintTab(VpfQtdPecas);
+        newline;
+        If LinesLeft<=1 Then
+          NewPage;
+        //urdume figura
+        if VpfDCombinacao.CorUrdumeFigura <> '' then         //urdume Figura
+        begin
+          PrintTab('');
+          PrintTab('');
+          PrintTab(VpfDCombinacao.CorUrdumeFigura+ ' URD2 ');
+          PrintTab(VpfDCombinacao.TituloFundoFigura+REspula(VpfDCombinacao.EspulaUrdumeFigura));
+          PrintTab('');
+          newline;
+          If LinesLeft<=1 Then
+            NewPage;
+        end;
+        //trama
+        PrintTab('');
+        PrintTab('');
+        PrintTab(VpfDCombinacao.CorFundo2+ ' ');
+        PrintTab(VpfDCombinacao.TituloFundo2+REspula(VpfDCombinacao.Espula2));
+        PrintTab('');
+        newline;
+        If LinesLeft<=1 Then
+          NewPage;
+        for VpfLacoFigura := 0 to VpfDCombinacao.Figuras.Count - 1 do
+        begin
+          vpfDCombinacaoFigura := TRBDCombinacaoFigura(VpfDCombinacao.Figuras.Items[VpfLacoFigura]);
+          //figuras
+          PrintTab('');
+          PrintTab('');
+          PrintTab(vpfDCombinacaoFigura.CodCor +' ');
+          PrintTab(vpfDCombinacaoFigura.TitFio+REspula(vpfDCombinacaoFigura.NumEspula));
+          PrintTab('');
+          newline;
+          If LinesLeft<=1 Then
+            NewPage;
+          vpfDCombinacaoFigura := TRBDCombinacaoFigura(VpfDCombinacao.Figuras.Items[VpfLacoFigura]);
+        end;
+        VpfCodCombAnt := VpfDOrdemItem.CodCombinacao;
+      end;
+    end;
+  end;
+end;
+
+{******************************************************************************}
 function TRBFunRave.CarDNivel(VpaCodCompleto, VpaCodReduzido : String):TRBDClassificacaoRave;
 begin
   Result := TRBDClassificacaoRave.create;
@@ -2086,6 +2334,86 @@ begin
   Result.ValDuplicata :=0;
   Result.ValPrevisto :=0;
   result.IndNovo := true;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.CarManequinsOPConvencional(VpaDOPEtikArt: TRBDOrdemProducaoEtiqueta; VpaDProduto: TRBDProduto);
+var
+  VpfDOrdemItem : TRBDOrdemProducaoItem;
+  VpfLaco, VpfLacoInicio, VpfCodCombAnt, VpfQtdManequins : Integer;
+begin
+  VpfQtdManequins := 0;
+  VpfLacoInicio := 0;
+  VpfCodCombAnt := TRBDOrdemProducaoItem(VpaDOPEtikArt.Items.Items[0]).CodCombinacao ;
+  with RVSystem.BaseReport do
+  begin
+    newline;
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    restoretabs(7);
+    for VpfLaco := 0 to VpaDOPEtikArt.Items.Count - 1 do
+    begin
+      VpfDOrdemItem := TRBDOrdemProducaoItem(VpaDOPEtikArt.Items.Items[VpfLaco]) ;
+      if (VpfDOrdemItem.CodManequim = '') then
+        exit;
+
+      if (VpfQtdManequins > 4) or (VpfDOrdemItem.CodCombinacao <> VpfCodCombAnt) then
+      begin
+        newline;
+        VpfQtdManequins := 0;
+        RMetrosFitaManequim(VpaDOPEtikArt,VpfLacoInicio,VpfLaco-1);
+        newline;
+        If LinesLeft<=1 Then
+          NewPage;
+        VpfLacoInicio := VpfLaco;
+        if (VpfDOrdemItem.CodCombinacao <> VpfCodCombAnt) then
+          break;
+      end;
+      PrintTab(VpfDOrdemItem.CodManequim);
+      inc(VpfQtdManequins);
+    end;
+    if (Vpflaco >= VpaDOPEtikArt.Items.Count) then
+      dec(VpfLaco);
+    if VpfQtdManequins <> 0 then
+    begin
+        Newline;
+        RMetrosFitaManequim(VpaDOPEtikArt,VpfLacoInicio,vpflaco);
+        newline;
+        If LinesLeft<=1 Then
+          NewPage;
+    end;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.CarMetrosCombinacaoOPH(VpaDOPEtikArt: TRBDOrdemProducaoEtiqueta;VpaDProduto : TRBDProduto);
+var
+  VpfDOrdemItem : TRBDOrdemProducaoItem;
+  VpfLaco : Integer;
+begin
+  with RVSystem.BaseReport do
+  begin
+    NewPage;
+    SetFont('Arial',10);
+    RestoreTabs(8);
+    PrintTab('CB');
+    PrintTab('Manequim');
+    PrintTab('Metros por Fita');
+    PrintTab('Qtd Fitas');
+    newline;
+    for VpfLaco := 0 to VpaDOPEtikArt.Items.Count - 1 do
+    begin
+      VpfDOrdemItem := TRBDOrdemProducaoItem(VpaDOPEtikArt.Items.Items[VpfLaco]);
+      PrintTab(IntTosTr(VpfDOrdemItem.CodCombinacao));
+      PrintTab(VpfDOrdemItem.CodManequim);
+      PrintTab(FormatFloat('##,##0.00',(VpfDOrdemItem.MetrosFita * VpaDProduto.CmpProduto)/1000));
+      PrintTab(IntTostr(VpfDOrdemItem.QtdFitas));
+      newline;
+      If LinesLeft<=1 Then
+        NewPage;
+    end;
+  end;
 end;
 
 {******************************************************************************}
@@ -2211,6 +2539,19 @@ begin
           exit(VpfDVendaMes);
       end;
     end;
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.RMetrosFitaManequim(VpaDOrdemProducao: TRBDOrdemProducaoEtiqueta; VpaLacoInicio,VpaLacoFim: Integer);
+var
+  VpfLaco : Integer;
+begin
+  with RVSystem.BaseReport do
+  begin
+    for VpfLaco := VpaLacoInicio to VpaLacoFim do
+      printTab(FloatToStr(TRBDOrdemProducaoItem(VpaDOrdemProducao.Items.Items[VpfLaco]).MetrosFita));
+    newline;
   end;
 end;
 
@@ -2624,6 +2965,264 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeRelOPEtikArt(VpaObjeto: TObject);
+Var
+  VpfDProduto : TRBDProduto;
+  VpfPosicaoFinalLinha : Double;
+  VpfObservacoes : TStringList;
+  VpfLaco : Integer;
+begin
+  VpfDProduto := TRBDProduto.Cria;
+  FunProdutos.CarDProduto(VpfDProduto,varia.CodigoEmpresa,VprDOPEtikArt.CodEmpresafilial,VprDOPEtikArt.SeqProduto);
+  FunProdutos.CarDCombinacao(VpfDProduto);
+
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(1);
+    PrintTab('Número OP :');
+    PrintTab(' '+ intToStr(VprDOPEtikArt.SeqOrdem));
+    PrintTab('Pedido :');
+    PrintTab(' '+intToStr(VprDOPEtikArt.NumPedido));
+    newline;
+    PrintTab('OP Cliente :');
+    PrintTab(' '+intToStr(VprDOPEtikArt.NroOPCliente));
+    PrintTab('Entrega :');
+    PrintTab(' '+FormatDateTime('DD/MM/YYYY',VprDOPEtikArt.DatEntregaPrevista));
+    newline;
+    PrintTab('Data :');
+    PrintTab(' '+FormatDateTime('DD/MM/YYYY',VprDOPEtikArt.DatEmissao));
+    PrintTab('Programad :');
+    PrintTab(' '+Sistema.RNomUsuario(VprDOPEtikArt.CodProgramador));
+    newline;
+    PrintTab('Faturar :');
+    if VprDOPEtikArt.TipPedido in [0,3] then
+      PrintTab(' N')
+    else
+      PrintTab(' S');
+    newline;
+    PrintTab('Tear :');
+    PrintTab(' '+IntToStr(VprDOPEtikArt.CodMaquina) +' - ' +FunOrdemProducao.RNomeMaquina(IntToStr(VprDOPEtikArt.CodMaquina)));
+    PrintTab('Fitas :');
+    PrintTab(' '+intTostr(VprDOPEtikArt.QtdFita));
+    newline;
+    PrintTab('Mts Total :');
+    PrintTab(' '+FloattoStr(VprDOPEtikArt.TotMetros));
+    PrintTab('Acréscimo :');
+    PrintTab(' '+IntToStr(VprDOPEtikArt.PerAcrescimo)+'%');
+    newline;
+    RestoreTabs(2);
+    PrintTab('Mts Fita :');
+    PrintTab(' '+FloattoStr(VprDOPEtikArt.MetFita));
+    PrintTab('Súmula :');
+    if VprDOPEtikArt.TipPedido = 0 then
+      PrintTab(' A'+IntToStr(VpfDProduto.CodSumula))
+    else
+      if VprDOPEtikArt.TipPedido = 1 then
+        PrintTab(' V'+IntToStr(VpfDProduto.CodSumula))
+      else
+        PrintTab(' '+IntToStr(VpfDProduto.CodSumula));
+    PrintTab('UM Pedido :');
+    PrintTab(' '+VprDOPEtikArt.UMPedido);
+    SetPen(clBlack,psDashDot,2,pmCopy);
+    moveto(0.5,YPos+0.1);
+    lineto(10.2,YPos+0.1);
+    newline;
+    RestoreTabs(3);
+    PrintTab('Produto :');
+    PrintTab(' '+VprDOPEtikArt.CodProduto+' - '+VpfDProduto.NomProduto);
+    newline;
+    RestoreTabs(2);
+    PrintTab('Largura :');
+    PrintTab(' '+IntToStr(VpfDProduto.LarProduto));
+    PrintTab('Comp. :');
+    PrintTab(' '+IntToStr(VpfDProduto.CmpProduto));
+    PrintTab('Comp. Fig :');
+    PrintTab(' '+IntToStr(VpfDProduto.CmpFigura));
+    newline;
+    RestoreTabs(1);
+    PrintTab('Tipo Fundo :');
+    if VpfDProduto.CodTipoFundo <> 0 then
+      PrintTab(' '+IntToStr(VpfDProduto.CodTipoFundo) +' - ' + FunProdutos.RNomeFundo(IntToStr(VpfDProduto.CodTipoFundo)))
+    else
+      PrintTab(' ');
+    PrintTab('Calandragem:');
+    PrintTab(' '+VpfDProduto.IndCalandragem);
+    newline;
+    PrintTab('Tp Emenda :');
+    if VpfDProduto.CodTipoEmenda <> 0 then
+      PrintTab(' '+IntToStr(VpfDProduto.CodTipoEmenda) + ' - '+ FunProdutos.RNomeTipoEmenda(IntToStr(VpfDProduto.CodTipoEmenda)))
+    else
+      PrintTab(' ');
+    PrintTab('Engomagem:');
+    PrintTab(' '+VpfDProduto.IndEngomagem);
+    newline;
+    RestoreTabs(2);
+    PrintTab('Pente :');
+    PrintTab(' '+VpfDProduto.Pente);
+    PrintTab('Bat P :');
+    PrintTab(' '+VpfDProduto.BatProduto);
+    PrintTab('Bat Tear :');
+    PrintTab(' '+VpfDProduto.NumBatidasTear);
+    newline;
+    RestoreTabs(1);
+    PrintTab('Tipo Corte :');
+    if VprDOPEtikArt.CodTipoCorte <> 0 then
+      PrintTab(' '+IntToStr(VprDOPEtikArt.CodTipoCorte)+ ' - '+FunProdutos.RNomeTipoCorte(VprDOPEtikArt.CodTipoCorte))
+    else
+      PrintTab(' ');
+    PrintTab('Prod Novo:');
+    PrintTab(' '+VprDOPEtikArt.IndProdutoNovo);
+    SetPen(clBlack,psSolid,2,pmCopy);
+    moveto(0.5,YPos+0.1);
+    lineto(10.2,YPos+0.1);
+    newline;
+    RestoreTabs(4);
+    PrintTab('NR Fios ' + VpfDProduto.NumFios);
+    moveto(0.5,YPos+0.1);
+    lineto(10.2,YPos+0.1);
+    newline;
+
+    if YPos > 14 then
+      VpfPosicaoFinalLinha := PageHeight - 1
+    else
+      VpfPosicaoFinalLinha := 14;
+    if VprDOPEtikArt.TipTear = 0 then
+    begin
+      CarCombinacoesOPConvencional(VprDOPEtikArt,VpfDProduto);
+      CarManequinsOPConvencional(VprDOPEtikArt,VpfDProduto);
+      PrintXY(2,VpfPosicaoFinalLinha-0.5,FloattoStr(VprDOPEtikArt.MetFita) + ' MTS');
+    end
+    else
+    begin
+      CarCombinacoesOPH(VprDOPEtikArt,VpfDProduto);
+      CarManequinsOPConvencional(VprDOPEtikArt,VpfDProduto);
+    end;
+
+    SetPen(clBlack,psSolid,3,pmCopy);
+    //quadrado grando do lado esquerdo
+    moveto(0.5,0.5);
+    lineto(10.2,0.5);
+    moveto(0.5,0.5);
+    lineto(0.5,VpfPosicaoFinalLinha);
+    moveto(10.2,0.5);
+    lineto(10.2,VpfPosicaoFinalLinha);
+    moveto(0.5,VpfPosicaoFinalLinha);
+    lineto(10.2,VpfPosicaoFinalLinha);
+    //quadrado grando do lado direito
+    moveto(10.5,0.5);
+    lineto(21,0.5);
+    moveto(10.5,0.5);
+    lineto(10.5,VpfPosicaoFinalLinha);
+    moveto(21,0.5);
+    lineto(21,VpfPosicaoFinalLinha);
+    moveto(10.5,VpfPosicaoFinalLinha);
+    lineto(21,VpfPosicaoFinalLinha);
+    //Linhas internas do quadrado
+    moveto(10.5,1.5);
+    lineto(21,1.5);
+    PrintXY(10.7,0.9,'Horas Produção :');
+    PrintXY(13.7,0.9,VprDOPEtikArt.HorProducao);
+    PrintXY(15.5,0.9,'Preço Unitário :');
+    PrintXY(19,0.9,FormatFloat('R$ ###,###,##0.00',VprDOPEtikArt.ValUnitario));
+    PrintXY(10.7,1.3,'Data Prevista Termino :');
+    PrintXY(17,1.3,'Unid :');
+    PrintXY(10.7,1.9,'ANOT');
+    PrintXY(12.7,1.9,'INICIO');
+    PrintXY(15,1.9,'FIM');
+    PrintXY(18.5,1.9,'C.Q.');
+    moveto(10.5,2.0);
+    lineto(21,2.0);
+    PrintXY(10.7,3.1,'Data');
+    moveto(10.5,3.15);
+    lineto(16.5,3.15);
+    moveto(11.8,1.5);
+    lineto(11.8,7);
+    moveto(14.3,1.5);
+    lineto(14.3,7);
+    moveto(16.5,1.5);
+    lineto(16.5,7);
+    PrintXY(10.7,3.7,'Horas');
+    moveto(10.5,3.75);
+    lineto(16.5,3.75);
+    PrintXY(10.7,4.2,'Rel. A');
+    moveto(10.5,4.25);
+    lineto(16.5,4.25);
+    PrintXY(10.7,4.7,'Rel. B');
+    moveto(10.5,4.75);
+    lineto(16.5,4.75);
+    PrintXY(10.7,5.3,'Rel. C');
+    moveto(10.5,5.35);
+    lineto(16.5,5.35);
+    PrintXY(10.7,5.8,'Rel. D');
+    moveto(10.5,5.85);
+    lineto(16.5,5.85);
+    PrintXY(10.7,6.4,'Engre');
+    PrintXY(12.7,6.3,VpfDProduto.Engrenagem);
+    moveto(10.5,7);
+    lineto(21,7);
+
+    PrintXY(18,3.7,'Aprovação');
+    PrintXY(17.5,4.5,'____/____/____');
+
+    PrintXY(18,5.5,'____:____hrs');
+    PrintXY(16.7,6.5,'Ass :');
+    moveto(10.5,7);
+    lineto(21,7);
+    PrintXY(10.7,7.4,'Data');
+    PrintXY(12.5,7.4,'Relogio');
+    PrintXY(14.5,7.4,'P. Tr');
+    moveto(10.5,7.45);
+    lineto(21,7.45);
+    PrintXY(14.5,7.9,'Nome');
+    moveto(10.5,7.95);
+    lineto(21,7.95);
+    PrintXY(14.5,8.5,'Batida');
+    moveto(10.5,8.55);
+    lineto(21,8.55);
+    PrintXY(14.5,9.1,'Comp');
+    moveto(10.5,9.15);
+    lineto(21,9.15);
+    PrintXY(14.5,9.7,'Oper');
+    moveto(10.5,9.75);
+    lineto(21,9.75);
+    PrintXY(14.5,10.3,'Disk');
+    moveto(10.5,10.35);
+    lineto(21,10.35);
+    PrintXY(14.5,10.9,'Obs');
+    VpfObservacoes := DivideString(VprDOPEtikArt.DesObservacoes,30);
+    for vpflaco:= 0 to VpfObservacoes.Count - 1 do
+      PrintXY(15.6,10.9+(0.5 *VpfLaco),VpfObservacoes.Strings[VpfLaco]);
+
+    PrintXY(12.1,13.9,'Prateleira');
+    PrintXY(14.4,13.9,VpfDProduto.PraProduto);
+    moveto(12,7);
+    lineto(12,14);
+    moveto(14.3,7);
+    lineto(14.3,14);
+    moveto(15.5,7);
+    lineto(15.5,14);
+    if VprDOPEtikArt.TipPedido = 4 then
+      PrintXY(6,VpfPosicaoFinalLinha-0.5,'PEDIDO DE ESTOQUE - NÃO PRODUZIR')
+    else
+      if VprDOPEtikArt.TipPedido > 1 then
+        PrintXY(6,VpfPosicaoFinalLinha-0.5,'Reprogramação');
+    With TRPBars2of5.Create(RVSystem.BaseReport) do
+    Begin
+     BarHeight  := 1;
+     BarWidth   := 0.05;
+     WideFactor := BarWidth;
+     Text := '*'+IntToStr(VprDOPEtikArt.SeqOrdem)+'*';
+     PrintXY(4.3,0.7);
+     Free;
+   end;
+
+    if VprDOPEtikArt.TipTear = 1 then
+      CarMetrosCombinacaoOPH(VprDOPEtikArt,VpfDProduto);
+  end;
+  VpfDProduto.Free;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeRelProdutosComDefeito(VpaObjeto: TObject);
 var
   VpfQtdProduto,VpfQtdGeral, VpfValGeral : Double;
@@ -2890,7 +3489,6 @@ begin
     PrintTab(FormatFloat('###,###,##0.00',vpfValTotalGeral*0.17)+' ');
     bold := false;
   end;
-
 end;
 
 {******************************************************************************}
@@ -4450,6 +5048,31 @@ begin
   VprNomeRelatorio := 'Romaneio de Faturamento';
   VprCabecalhoEsquerdo.Clear;
   VprCabecalhoEsquerdo.add('Romaneio : ' + inttoStr(VpaSeqRomaneio));
+
+  VprCabecalhoDireito.Clear;
+
+  ConfiguraRelatorioPDF;
+  RvSystem.execute;
+end;
+
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeOrdemProducaoEtikArt(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta; VpaVisualizar: Boolean);
+begin
+  RvSystem.Tag := 22;
+  VprDOPEtikArt := VpaDOrdemProducao;
+//  RvSystem.SystemPrinter.Orientation := poLandScape;
+  FreeTObjectsList(VprNiveis);
+  LimpaSQlTabela(Tabela);
+//  AdicionaSqlAbretabela(Tabela,'');
+
+  rvSystem.onBeforePrint := DefineTabelaOPEtikArt;
+//  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelOPEtikArt;
+
+  VprNomeRelatorio := 'Romaneio de Faturamento';
+  VprCabecalhoEsquerdo.Clear;
 
   VprCabecalhoDireito.Clear;
 
