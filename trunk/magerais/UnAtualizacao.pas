@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1557;
+  CT_VersaoBanco = 1558;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1222,6 +1222,13 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE CADGRUPOS ADD(C_EST_CPR CHAR(1)NULL)' );
         ExecutaComandoSql(Aux,'UPDATE CADGRUPOS SET C_EST_CPR = ''T''' );
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1557');
+      end;
+      if VpaNumAtualizacao < 1558 Then
+      begin
+        VpfErro := '1558';
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVCONTASARECEBER ADD(C_DUP_IMP CHAR(1)NULL)' );
+        ExecutaComandoSql(Aux,'UPDATE MOVCONTASARECEBER SET C_DUP_IMP = ''S''' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1558');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

@@ -165,17 +165,15 @@ uses Constantes, UnRegistro, funsql,
      AClientes, ACadPaises, ACadEstados, ACadCidades,
      AEventos, AProdutos, ATransportadoras, ANaturezas,
      AAdicionaProdFilial, AFormacaoPreco, ATabelaPreco, ACadIcmsEstado,
-     AManutencaoNotas,
-     ADemosntrativoFaturamento, ACondicoesPgtos,
-     AImprimeDuplicata,
-     AImprimeBoleto, AImprimeCarne, AMostraDuplicata, AMostraCheque,
+     AManutencaoNotas, ADemosntrativoFaturamento,
+     AImprimeDuplicata, AImprimeBoleto, AImprimeCarne, AMostraDuplicata, AMostraCheque,
      AMostraBoleto, AMostraCarne, AMostraNotaPromissoria, AMostraRecibo,
      AConsultaPrecosProdutos, ALocalizaServico, funsistema,
   AMostraEnvelope, AVendedores, ANovaCotacao, ABackup,
   UnProdutos,  ATipoFundo, UnContasaReceber,
   ANovaNotaFiscalNota, UnNotaFiscal, AGeraArquivosFiscais,
   AImportaMunicipios, AAliquotaFiscal, AVisualizaLogs,
-  AVisualizaEstatisticaConsulta, UnVersoes, AHigienizarCadastros, ASpedFiscal;
+  AVisualizaEstatisticaConsulta, UnVersoes, AHigienizarCadastros, ASpedFiscal, ACondicaoPagamento;
 
 {$R *.DFM}
 
@@ -420,8 +418,9 @@ begin
       1300 : Close;
       2050 : begin
                // ------ Cadastro de Condições de Pagamento ------ //
-               FCondicoesPagamentos := TFCondicoesPagamentos.CriarSDI(Application,'',VerificaPermisao('FCondicoesPagamentos'));
-               FCondicoesPagamentos.ShowModal;
+               FCondicaoPagamento := TFCondicaoPagamento.CriarSDI(Application,'',VerificaPermisao('FCondicaoPagamento'));
+               FCondicaoPagamento.ShowModal;
+               FCondicaoPagamento.free;
              end;
       2100 : begin
                // ------ Cadastra as Unidades ------ //

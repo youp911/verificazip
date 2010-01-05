@@ -53,7 +53,6 @@ uses
   ANovoServico in '..\MEstoque\ANovoServico.pas' {FNovoServico},
   UnComissoes in '..\MFinanceiro\UnComissoes.pas',
   UnContasAReceber in '..\MFinanceiro\UnContasAReceber.pas',
-  ACondicoesPgtos in '..\MFinanceiro\ACondicoesPgtos.pas' {FCondicoesPagamentos},
   UnServicos in '..\MEstoque\UnServicos.pas',
   UnMoedas in '..\MConfiguracoesSistema\UnMoedas.pas',
   AImprimeBoleto in '..\MFinanceiro\AImprimeBoleto.pas' {FImprimeBoleto},

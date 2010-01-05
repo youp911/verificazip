@@ -5,10 +5,10 @@ interface
 
 Const
   //VersaoSistema = '';
-  VersaoEstoque = '2.944';
-  VersaoFinanceiro ='2.570';
-  VersaoFaturamento = '2.537';
-  VersaoPontoLoja = '3.393';
+  VersaoEstoque = '2.945';
+  VersaoFinanceiro ='2.573';
+  VersaoFaturamento = '2.539';
+  VersaoPontoLoja = '3.394';
   VersaoConfiguracaoSistema = '2.278';
   VersaoChamadoTecnico = '2.432';
   VersaoAgenda = '1.06';

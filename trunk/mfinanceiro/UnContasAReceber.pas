@@ -142,6 +142,7 @@ type
     procedure SetaCobrancaExterna(VpaCodFilial, VpaLanReceber, VpaNroParcela : Integer;VpaDesObservacao : String);
     procedure SetaFundoPerdido(VpaCodfilial,VpaLanReceber, VpaNroParcela : Integer;VpaDesObservacao : String );
     procedure SetaBaixaEmCartorio(VpaCodfilial,VpaLanReceber, VpaNroParcela : Integer;VpaDesObservacao : String );
+    procedure SetaDuplicataImpressa(VpaCodfilial,VpaLanReceber, VpaNumParcela : Integer);
     procedure CarDParcelaBaixa(VpaDParcela : TRBDParcelaBaixaCR;VpaCodFilial,VpaLanReceber,VpaNumParcela : Integer);
     procedure CalculaValorTotalBaixa(VpaDBaixa : TRBDBaixaCR);
     procedure CalculaJuroseDescontoParcela(VpaDParcela : TRBDParcelaBaixaCR;VpaDatPagamento : TDateTime);overload;
@@ -781,6 +782,7 @@ begin
     CadContas.FieldByName('N_PER_ACR').AsFloat := 0;
     CadContas.FieldByName('N_PER_DES').AsFloat := VpfDParcela.PerDesconto;
     CadContas.FieldByName('I_FIL_PAG').AsInteger := VpaDNovaCR.CodEmpFil;
+    CadContas.FieldByName('C_DUP_IMP').AsString := 'N';
     CadContas.FieldByName('C_FUN_PER').AsString := 'N';
     CadContas.FieldByName('C_BAI_CAR').AsString := 'N';
     CadContas.FieldByName('C_IND_REM').AsString := 'N';
@@ -1856,6 +1858,7 @@ begin
     CadContas.FieldByName('C_IND_CAD').AsString := 'S'
   else
     CadContas.FieldByName('C_IND_CAD').AsString := 'N';
+  CadContas.FieldByName('C_DUP_IMP').AsString := 'N';
   CadContas.FieldByName('C_FUN_PER').AsString := 'N';
   CadContas.FieldByName('C_NRO_DOC').AsString := VpaDParcela.NroDocumento;
   CadContas.FieldByName('L_OBS_REC').AsString := VpaDParcela.DesObservacoes;
@@ -2160,6 +2163,7 @@ begin
     Cadastro.FieldByName('C_NRO_AGE').AsString := Cadastro2.FieldByName('C_NRO_AGE').AsString;
   Cadastro.FieldByName('C_NOS_NUM').AsString := RNossoNumero(VpaDParcelaOriginal.LanReceber,VpaDParcelaOriginal.NumParcelaParcial,Cadastro2.FieldByName('C_NRO_CON').AsString);
   Cadastro.FieldByName('C_FLA_PAR').AsString := 'S';
+  Cadastro.FieldByName('C_DUP_IMP').AsString := 'N';
   Cadastro.FieldByName('C_FUN_PER').AsString := 'N';
   Cadastro.FieldByName('C_BAI_CAR').AsString := 'N';
   Cadastro.FieldByName('I_COD_USU').AsInteger := Varia.CodigoUsuario;
@@ -2287,6 +2291,16 @@ begin
                         ' Where I_EMP_FIL = '+ IntToStr(VpaCodFilial)+
                         ' and I_LAN_REC = '+IntToStr(VpaLanReceber)+
                         ' and I_NRO_PAR = '+IntToStr(VpaNroParcela));
+end;
+
+{******************************************************************************}
+procedure TFuncoesContasAReceber.SetaDuplicataImpressa(VpaCodfilial, VpaLanReceber, VpaNumParcela: Integer);
+begin
+  ExecutaComandoSql(Aux,'UPDATE MOVCONTASARECEBER '+
+                        ' Set C_DUP_IMP = ''S''' +
+                        ' Where I_EMP_FIL = '+ IntToStr(VpaCodFilial)+
+                        ' and I_LAN_REC = '+IntToStr(VpaLanReceber)+
+                        ' and I_NRO_PAR = '+IntToStr(VpaNumParcela));
 end;
 
 {******************************************************************************}

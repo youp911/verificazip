@@ -15,31 +15,31 @@ uses
   ExtCtrls, StdCtrls, ComCtrls, DBTables, Db, DBCtrls, Grids, DBGrids,
   Buttons, Menus, formularios, PainelGradiente,
   Tabela, Componentes1, LabelCorMove, Localizacao, Mask,
-  numericos, DBKeyViolation,  ImgList, Spin;
+  numericos, DBKeyViolation,  ImgList, Spin, DBClient;
 
 type
   TFEstoqueProdutos = class(TFormularioPermissao)
-    CadClassificacao: TQuery;
+    CadClassificacao: TSQL;
     Imagens: TImageList;
-    CadProdutos: TQuery;
+    CadProdutos: TSQL;
     PainelGradiente1: TPainelGradiente;
     PanelColor4: TPanelColor;
     BitBtn1: TBitBtn;
     Localiza: TConsultaPadrao;
     BFechar: TBitBtn;
-    Aux: TQuery;
-    HistoricoProdutoVenda: TQuery;
+    Aux: TSQL;
+    HistoricoProdutoVenda: TSQL;
     DataHistoricoProdutoVenda: TDataSource;
-    MovEstoqueAtual: TQuery;
+    MovEstoqueAtual: TSQL;
     DataMovEstoqueAtual: TDataSource;
-    VendasMes: TQuery;
+    VendasMes: TSQL;
     DataVendasMes: TDataSource;
     BKit: TBitBtn;
-    HistoricoProdutoCompra: TQuery;
+    HistoricoProdutoCompra: TSQL;
     DataHistoricoProdutoCompra: TDataSource;
-    CompraMes: TQuery;
+    CompraMes: TSQL;
     DataCompraMes: TDataSource;
-    VendaCompra: TQuery;
+    VendaCompra: TSQL;
     DataVendaCompra: TDataSource;
     PanelColor3: TPanelColor;
     PanelColor2: TPanelColor;
@@ -164,6 +164,10 @@ type
     SInicioAno: TSpinEditColor;
     SFimMes: TSpinEditColor;
     SFimAno: TSpinEditColor;
+    PanelColor8: TPanelColor;
+    PanelColor9: TPanelColor;
+    PanelColor10: TPanelColor;
+    PanelColor11: TPanelColor;
     procedure FormCreate(Sender: TObject);
     procedure ArvoreExpanded(Sender: TObject; Node: TTreeNode);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -203,8 +207,8 @@ type
     procedure CompraProdutos( CodigoProduto, CodigoFilial, TipoItem : string );
     procedure VendaCompraProdutos( CodigoProduto, CodigoFilial, TipoItem : string );
     Procedure FiltraPaginaAtiva;
-    procedure alinha( Tabela : TQuery;  campos : array of integer; Pos : char );
-    procedure MascaraMoeda( Tabela : TQuery;  campos : array of string; Mascara : string );
+    procedure alinha( Tabela : TSQL;  campos : array of integer; Pos : char );
+    procedure MascaraMoeda( Tabela : TSQL;  campos : array of string; Mascara : string );
   public
     { Public declarations }
   end;
@@ -430,12 +434,12 @@ begin
                            ' pro.i_seq_pro, pro.c_cod_cla, pro.c_ati_pro, ' +
                            ' pro.c_cod_pro, pro.c_pat_fot, pro.c_nom_pro, moe.c_cif_moe, ' +
                            ' pro.c_kit_pro ' +
-                           ' from CadProdutos as pro '  );
+                           ' from CadProdutos pro '  );
 
        if CFilialSelecionada.Checked then
-          CadProdutos.sql.add(' ,MovQdadeProduto as mov ' );
+          CadProdutos.sql.add(' ,MovQdadeProduto  mov ' );
 
-       CadProdutos.sql.add(' , CadMoedas as moe ' +
+       CadProdutos.sql.add(' , CadMoedas moe ' +
                            ' where PRO.I_COD_EMP = ' + IntToStr(varia.CodigoEmpresa) +
                            ' and PRO.C_COD_CLA = ''' + codigo + '''');
 
@@ -452,7 +456,6 @@ begin
                              ' and mov.i_emp_fil = ' + IntTostr(TEmpresa(Empresa.Selected.Data).CodigoFilial) );
 
        CadProdutos.sql.add('  Order by C_COD_PRO');
-       Cadprodutos.Sql.SaveTofile('c:\Consulta.sql');
 
        CadProdutos.open;
        CadProdutos.First;
@@ -606,8 +609,8 @@ var
   codigo, select : string;
   somaNivel,nivelSelecao, laco : integer;
 begin
-  select :=' Select * from cadProdutos as pro ' +
-           ' ,MovQdadeProduto as mov ' +
+  select :=' Select * from cadProdutos  pro ' +
+           ' ,MovQdadeProduto  mov ' +
            ' where c_nom_pro like ''@%''';
 
    if AtiPro.Checked then
@@ -745,7 +748,7 @@ try
 end;
 
 {******************************************************************************}
-procedure TFEstoqueProdutos.alinha( Tabela : TQuery;  campos : array of integer; Pos : char );
+procedure TFEstoqueProdutos.alinha( Tabela : TSQL;  campos : array of integer; Pos : char );
 var
   laco : Integer;
 begin
@@ -757,7 +760,7 @@ begin
     end;
 end;
 
-procedure TFEstoqueProdutos.MascaraMoeda( Tabela : TQuery;  campos : array of string; Mascara : string );
+procedure TFEstoqueProdutos.MascaraMoeda( Tabela : TSQL;  campos : array of string; Mascara : string );
 var
   laco, laco1 : Integer;
 
@@ -912,9 +915,9 @@ begin
   end
   else
   begin
-    VpfCampos := ' sum( isnull(movpro.n_qtd_pro,0)) as somaproduto, ' +
-                 ' sum( movpro.n_qtd_pro * isnull(tab.n_vlr_ven * Moe1.n_vlr_dia ,0)) ' +
-                 ' valorvenda, sum( movpro.n_qtd_pro * isnull(movpro.n_vlr_com * Moe2.n_vlr_dia,0)) valorcompra ';
+    VpfCampos := ' sum( '+SQLTextoIsNull('movpro.n_qtd_pro','0')+') somaproduto, ' +
+                 ' sum( movpro.n_qtd_pro * ' +SQLTextoIsNull('tab.n_vlr_ven * Moe1.n_vlr_dia','0')+') ' +
+                 ' valorvenda, sum( movpro.n_qtd_pro * '+SQLTextoIsNull('movpro.n_vlr_com * Moe2.n_vlr_dia','0')+') valorcompra ';
     if TipoItem = 'PA' then
       vpfFiltro := ' PRO.I_SEQ_PRO = '+ CodigoProduto
     else
@@ -933,11 +936,11 @@ begin
   MovEstoqueAtual.Sql.Clear;
   MovEstoqueAtual.Sql.Add(' select ' +
                      VpfCampos +
-                     ' from  cadprodutos as pro, ' +
-                     ' movqdadeproduto as movpro, ' +
+                     ' from  cadprodutos pro, ' +
+                     ' movqdadeproduto movpro, ' +
                      ' MovTabelapreco tab, ' +
-                     ' cadMoedas as Moe1, ' +
-                     ' cadMoedas as Moe2  ' +
+                     ' cadMoedas Moe1, ' +
+                     ' cadMoedas Moe2  ' +
                      ' where ' +
                      vpfFiltro +
                      Atividade('Pro') +
@@ -989,7 +992,7 @@ begin
   else
     AdicionaSQLTabela(VendasMes,  ' select ' +
                                    VpaCampos +
-                                  ' from movsumarizaestoque as mov, cadprodutos as pro ' +
+                                  ' from movsumarizaestoque mov, cadprodutos pro ' +
                                   ' where ' +
                                   ' pro.c_cod_cla like ''' + CodigoProduto + '%'' ' +
                                   ' and pro.i_cod_emp = ' + IntTostr(varia.CodigoEmpresa) +
@@ -1032,7 +1035,7 @@ begin
   else
     AdicionaSQLTabela(CompraMes,  ' select ' +
                                    VpaCampos +
-                                  ' from movsumarizaestoque as mov, cadprodutos as pro ' +
+                                  ' from movsumarizaestoque mov, cadprodutos pro ' +
                                   ' where ' +
                                   ' pro.c_cod_cla like ''' + CodigoProduto + '%'' ' +
                                   ' and pro.i_cod_emp = ' + IntTostr(varia.CodigoEmpresa) +
@@ -1057,10 +1060,10 @@ var
 begin
   LimpaSQLTabela(VendaCompra);
   if TipoItem = 'PA' then
-    VpaClassificacaoProduto := ' from movsumarizaestoque as mov ' +
+    VpaClassificacaoProduto := ' from movsumarizaestoque mov ' +
                                ' where mov.i_seq_pro = ' +  CodigoProduto
   else
-    VpaClassificacaoProduto := ' from movsumarizaestoque as mov, cadprodutos as pro ' +
+    VpaClassificacaoProduto := ' from movsumarizaestoque mov, cadprodutos pro ' +
                                ' where pro.c_cod_cla like ''' +  CodigoProduto + '%''' +
                                ' and pro.i_cod_emp = ' + IntTostr(varia.CodigoEmpresa) +
                                ' and pro.i_seq_pro = mov.i_seq_pro ' ;
@@ -1068,16 +1071,16 @@ begin
 
   AdicionaSQLTabela(VendaCompra,' select ' +
                                 ' mov.i_mes_fec || ''/'' || mov.i_ano_fec  mes, ' +
-                                ' sum(isnull(n_qtd_ant,0)) EstoqueAnterior,' +
-                                ' sum(isnull(mov.n_qtd_pro,0)) estoqueAtual, '  +
-                                ' sum(isnull(mov.n_qtd_com_mes,0)) CompraMes,' +
-                                ' sum(isnull(mov.n_qtd_ven_mes,0)) vendaMes, ' +
-                                ' sum(isnull(mov.n_vlr_cmc,0)) ValorCompra, ' +
-                                ' sum(isnull(mov.n_vlr_cmv,0)) valorvenda,' +
-                                ' sum(isnull(mov.n_qtd_dev_ven,0)) DevVenda, ' +
-                                ' sum(isnull(mov.n_qtd_dev_com,0)) DevCompra, ' +
-                                ' sum(isnull(mov.n_qtd_out_sai,0) +isnull(n_qtd_tra_sai,0) ) OutrasSaida, ' +
-                                ' sum(isnull(mov.n_qtd_out_ent,0) +isnull(n_qtd_tra_ent,0) ) OutrasEntrada '+
+                                ' sum('+SQLTextoIsNull('n_qtd_ant','0')+') EstoqueAnterior,' +
+                                ' sum('+SQLTextoIsNull('mov.n_qtd_pro','0')+') estoqueAtual, '  +
+                                ' sum('+SQLTextoIsNull('mov.n_qtd_com_mes','0')+') CompraMes,' +
+                                ' sum('+SQLTextoIsNull('mov.n_qtd_ven_mes','0')+') vendaMes, ' +
+                                ' sum('+SQLTextoIsNull('mov.n_vlr_cmc','0')+') ValorCompra, ' +
+                                ' sum('+SQLTextoIsNull('mov.n_vlr_cmv','0')+') valorvenda,' +
+                                ' sum('+SQLTextoIsNull('mov.n_qtd_dev_ven','0')+') DevVenda, ' +
+                                ' sum('+SQLTextoIsNull('mov.n_qtd_dev_com','0')+') DevCompra, ' +
+                                ' sum('+SQLTextoIsNull('mov.n_qtd_out_sai','0')+' + '+ SQLTextoIsNull('n_qtd_tra_sai','0')+' ) OutrasSaida, ' +
+                                ' sum('+SQLTextoIsNull('mov.n_qtd_out_ent','0')+' + '+SQLTextoIsNull('n_qtd_tra_ent','0')+' ) OutrasEntrada '+
                                 VpaClassificacaoProduto +
                                 EmpresaFilial(CodigoFilial,'') +
                                 ' and  (( mov.i_mes_fec <= ' + IntToStr(SFimMes.Value) +

@@ -220,7 +220,6 @@ type
     N45: TMenuItem;
     N46: TMenuItem;
     ImprimeEtiquetaPrateleira1: TMenuItem;
-    BitBtn2: TBitBtn;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -821,6 +820,7 @@ begin
     5100 : begin
              FEstoqueProdutos := TFEstoqueProdutos.CriarSDI(Application,'',VerificaPermisao('FEstoqueProdutos'));
              FEstoqueProdutos.ShowModal;
+             FEstoqueProdutos.free;
            end;
     5200 : begin
              FEstoqueClassificacaoAtual := TFEstoqueClassificacaoAtual.CriarSDI(Application,'',VerificaPermisao('FEstoqueClassificacaoAtual'));

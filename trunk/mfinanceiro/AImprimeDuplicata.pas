@@ -106,6 +106,8 @@ type
     MovParcelasI_NUM_END: TFMTBCDField;
     MovParcelasC_COM_END: TWideStringField;
     Button1: TButton;
+    ESituacao: TComboBoxColor;
+    Label3: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -147,7 +149,7 @@ var
 implementation
 
 uses APrincipal, AMostraDuplicata, Funsistema, Constantes, UnCrystal,
-  FunSql, FunData, ConstMsg, FunString, FunNumeros, dmRave;
+  FunSql, FunData, ConstMsg, FunString, FunNumeros, dmRave, UnContasAReceber;
 
 {$R *.DFM}
 
@@ -169,6 +171,7 @@ begin
   ExecutaAfterScroll := True;
   DataParcela1.Date := PrimeiroDiaMes(Date);
   DataParcela2.Date := UltimoDiaMes(Date);
+  ESituacao.ItemIndex := 0;
   PosicionaContas;
 end;
 
@@ -225,7 +228,11 @@ begin
             InseriLinhaSQL(MovParcelas, 2, '');
         end;
   end;
-  InseriLinhaSQL(MovParcelas, 3, ' ');
+  case ESituacao.ItemIndex  of
+    0 : InseriLinhaSQL(MovParcelas, 3, 'AND CPM.C_DUP_IMP = ''N'' ');
+    1 : InseriLinhaSQL(MovParcelas, 3, 'AND CPM.C_DUP_IMP = ''S'' ');
+    2 : InseriLinhaSQL(MovParcelas, 3, '');
+  end;
   InseriLinhaSQL(MovParcelas, 4, SQLTextoDataEntreAAAAMMDD('CP.D_DAT_EMI', DataParcela1.Date, DataParcela2.Date, True));
   InseriLinhaSQL(MovParcelas, 5,' order by CPM.I_LAN_REC, CPM.I_NRO_PAR');
   AbreTabela(MovParcelas);
@@ -386,6 +393,7 @@ begin
       UnImpressao.FechaImpressao(Config.ImpPorta, 'C:\Imp.TXT');
     end;
   end;
+  FunContasAReceber.SetaDuplicataImpressa(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger);
 end;
 
 {***** IMPRIME OS CHEQUES A IMPRIMIR DIRETAMENTE - SEM VISUALIZAR *****}
@@ -404,6 +412,7 @@ begin
         UnImpressao.InicializaImpressao(CAD_DOCI_NRO_DOC.AsInteger, CAD_DOCI_SEQ_IMP.AsInteger);
         UnImpressao.ImprimeDuplicata(Dados);
         UnImpressao.FechaImpressao(Config.ImpPorta, 'C:\Imp.TXT');
+        FunContasAReceber.SetaDuplicataImpressa(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger);
         Next;
       end;
       EnableControls;
@@ -418,6 +427,7 @@ begin
   dtRave := TdtRave.Create(self);
   dtRave.ImprimeDuplicata(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger,VpaVisualizar);
   dtRave.free;
+  FunContasAReceber.SetaDuplicataImpressa(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger);
 end;
 
 {******************************************************************************}
