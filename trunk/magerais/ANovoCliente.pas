@@ -756,6 +756,8 @@ type
     PanelColor20: TPanelColor;
     PanelColor21: TPanelColor;
     DBCheckBox9: TDBCheckBox;
+    DBCheckBox10: TDBCheckBox;
+    CadClientesC_OPT_SIM: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadClientesAfterInsert(DataSet: TDataSet);
@@ -1052,6 +1054,7 @@ begin
   CadClientesC_IND_LOC.AsString := 'R';
   CadClientesC_TIP_LOC.AsString := 'C';
   CadClientesC_DES_ICM.AsString := 'S';
+  CadClientesC_OPT_SIM.AsString := 'N';
   if Varia.SituacaoPadraoCliente = 0 then
     aviso('SITUAÇÃO PADRÃO DO CLIENTE NÃO PREENCHIDA!!!'#13+
           'É necessário preencher nas configurações do sistema.')

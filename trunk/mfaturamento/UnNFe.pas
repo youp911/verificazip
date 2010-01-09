@@ -261,15 +261,26 @@ begin
       with Prod do
       begin
         nItem    := VpfLaco+1;
-        cProd    := VpfDProduto.CodProduto;
-        xProd    := VpfDProduto.NomProduto;
+        if config.AlturadoProdutonaGradedaCotacao and (VpfDProduto.AltProdutonaGrade <> 0) then
+        begin
+          cProd := VpfDProduto.CodProduto+'/'+DeletaChars(FloatToStr(VpfDProduto.AltProdutonaGrade),',');
+          xProd    := VpfDProduto.NomProduto+' Alt = '+FormatFloat('#,##0.00',VpfDProduto.AltProdutonaGrade);
+        end
+        else
+        begin
+          cProd := VpfDProduto.CodProduto;
+          xProd    := VpfDProduto.NomProduto;
+        end;
         if VpfDProduto.DesCor <> '' then
           xProd := xProd +' ('+IntToStr(VpfDProduto.CodCor)+'-'+ VpfDProduto.DesCor+')';
         if (config.numeroserieproduto) and (VpfDProduto.DesRefCliente <> '') then
           xProd := xProd +' - NS='+ VpfDProduto.DesRefCliente;
 
         NCM      := DeletaChars(DeletaChars(DeletaChars(VpfDProduto.CodClassificacaoFiscal,'.'),','),' ');
-        CFOP     := VpaDNota.CodNatureza;
+        if VpfDProduto.CodCFOP <> 0 then
+          CFOP     := IntToStr(VpfDProduto.CodCFOP)
+        else
+          CFOP     := VpaDNota.CodNatureza;
         uCom     := VpfDProduto.UM;
         qCom     := VpfDProduto.QtdProduto;
         vProd    := ArredondaDecimais(VpfDProduto.ValTotal,2);

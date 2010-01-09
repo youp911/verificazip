@@ -1689,6 +1689,12 @@ begin
     Cadastro.FieldByName('I_COD_COR').AsInteger := VpfDProdutoNota.CodCor;
     Cadastro.FieldByName('C_PRO_REF').AsString := VpfDProdutoNota.DesRefCliente;
     Cadastro.FieldByName('C_ORD_COM').AsString := VpfDProdutoNota.DesOrdemCompra;
+    if VpfDProdutoNota.AltProdutonaGrade <> 0 then
+      Cadastro.FieldByName('N_ALT_PRO').AsFloat := VpfDProdutoNota.AltProdutonaGrade
+    else
+      Cadastro.FieldByName('N_ALT_PRO').clear;
+    Cadastro.FieldByName('I_COD_CFO').AsInteger := VpfDProdutoNota.CodCFOP;
+
     if config.PermiteAlteraNomeProdutonaCotacao then
       Cadastro.FieldByName('C_NOM_PRO').AsString := VpfDProdutoNota.NomProduto;
     try
@@ -1754,7 +1760,7 @@ begin
                                   ' MNO.N_QTD_PRO, MNO.N_TOT_PRO, MNO.C_COD_UNI, MNO.I_ORD_FIS, '+
                                   ' MNO.C_DES_COR, MNO.I_SEQ_MOV, MNO.I_COD_COR, MNO.D_ULT_ALT, MNO.C_PRO_REF,'+
                                   ' MNO.C_COD_CST, MNO.N_PER_ICM, MNO.N_PER_IPI, MNO.N_VLR_IPI, '+
-                                  ' MNO.C_ORD_COM, '+
+                                  ' MNO.C_ORD_COM, MNO.N_ALT_PRO ALTURAPRODUTOGRADE, I_COD_CFO,'+
                                   ' PRO.C_NOM_PRO, PRO.N_PES_LIQ, PRO.N_PES_BRU,  PRO.I_ORI_PRO, '+
                                   ' PRO.C_COD_UNI UNIORIGINAL,PRO.N_RED_ICM, PRO.N_PER_COM, PRO.C_CLA_FIS, '+
                                   ' (QTD.N_QTD_PRO - QTD.N_QTD_RES) QTDREAL, '+
@@ -1794,6 +1800,7 @@ begin
     VpfDProdutoNota.UM := CadNotaFiscal.FieldByName('C_COD_UNI').AsString;
     VpfDProdutoNota.UMAnterior := CadNotaFiscal.FieldByName('C_COD_UNI').AsString;
     VpfDProdutoNota.UMOriginal := CadNotaFiscal.FieldByName('UNIORIGINAL').AsString;
+    VpfDProdutoNota.AltProdutonaGrade := CadNotaFiscal.FieldByName('ALTURAPRODUTOGRADE').AsFloat;
     VpfDProdutoNota.PerICMS := CadNotaFiscal.FieldByName('N_PER_ICM').AsFloat;
     VpfDProdutoNota.PerIPI := CadNotaFiscal.FieldByName('N_PER_IPI').AsFloat;
     VpfDProdutoNota.PerComissaoProduto := CadNotaFiscal.FieldByName('N_PER_COM').AsFloat;
@@ -1809,6 +1816,7 @@ begin
     VpfDProdutoNota.ValUnitario := CadNotaFiscal.FieldByName('N_VLR_PRO').AsFloat;
     VpfDProdutoNota.ValTotal := CadNotaFiscal.FieldByName('N_TOT_PRO').AsFloat;
     VpfDProdutoNota.IndReducaoICMS := (CadNotaFiscal.FieldByName('N_RED_ICM').AsFloat > 0);
+    VpfDProdutoNota.CodCFOP := CadNotaFiscal.FieldByName('I_COD_CFO').AsInteger;
     VpfDProdutoNota.IndBaixaEstoque := false;
     FunProdutos.CarValVendaeRevendaProduto(sistema.RTabelaPrecoFilial(VpaDNota.codfilial),VpfDProdutoNota.SeqProduto,VpfDProdutoNota.CodCor,
                                            0,VpaDNota.CodCliente,VpfDProdutoNota.ValUnitarioOriginal,VpfValRevenda);

@@ -8,7 +8,7 @@ uses
   ToolWin, ExtDlgs, Inifiles, constMsg, FunObjeto, Db, DBCtrls,
   Componentes1, PainelGradiente,UnImpressaoRelatorio, UnContasAPagar, UnNotaFiscal,
   DBTables, unVersoes,
-  UnPrincipal, Mask, Tabela, Dialogs, WideStrings, SqlExpr, DBXOracle;
+  UnPrincipal, Mask, Tabela, Dialogs, WideStrings, SqlExpr, DBXOracle, DBClient;
 
 const
   CampoPermissaoModulo = 'C_MOD_EST';
@@ -220,6 +220,7 @@ type
     N45: TMenuItem;
     N46: TMenuItem;
     ImprimeEtiquetaPrateleira1: TMenuItem;
+    SQL1: TSQL;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -330,6 +331,7 @@ begin
   Application.OnMessage := Abre;
   Application.OnShortCut := TeclaPressionada;
   Varia.VersaoSistema := VersaoEstoque;
+//  SQL1.SaveToFile('C:\Familia.XML',DFxml);
 end;
 
 {******************************************************************************}

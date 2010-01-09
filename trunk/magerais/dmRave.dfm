@@ -232,31 +232,41 @@ object dtRave: TdtRave
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
       
-        'Select MOV.C_COD_PRO,  MOV.C_COD_CST, MOV.C_COD_UNI, MOV.N_QTD_P' +
-        'RO, MOV.N_VLR_PRO, MOV.N_TOT_PRO, MOV.N_PER_ICM, '
-      ' MOV.N_PER_IPI, MOV.N_VLR_IPI, '
-      ' PRO.C_NOM_PRO,'
-      'COR.COD_COR, COR.NOM_COR'
-      ' FROM MOVNOTASFISCAIS MOV, CADPRODUTOS PRO, COR'
-      ' Where MOV.I_SEQ_PRO = PRO.I_SEQ_PRO '
-      'AND MOV.I_COD_COR = COR.COD_COR (+)'
-      ' AND MOV.I_EMP_FIL =11'
-      ' AND MOV.I_SEQ_NOT = 12'
-      ' order by MOV.I_SEQ_MOV')
+        'select  MOV.C_COD_PRO, MOV.N_QTD_PRO, MOV.C_COD_UNI, MOV.N_VLR_P' +
+        'RO, MOV.N_VLR_TOT, MOV.C_NOM_PRO PRODUTOCOTACAO, '
+      ' MOV.C_IND_BRI, MOV.N_SAL_BRI, MOV.C_DES_COR, '
+      
+        ' MOV.C_DES_COR CORCOTACAO, MOV.C_PRO_REF, MOV.N_PER_DES, MOV.C_O' +
+        'RD_COM, MOV.I_COD_TAM, MOV.N_ALT_PRO,'
+      ' COR.COD_COR, COR.NOM_COR, '
+      ' PRO.C_NOM_PRO, '
+      ' TAM.NOMTAMANHO '
+      ' from MOVORCAMENTOS MOV, CADPRODUTOS PRO, COR, TAMANHO TAM '
+      ' where MOV.I_EMP_FIL = 11'
+      ' AND MOV.I_LAN_ORC = 1'
+      ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO'
+      ' AND MOV.I_COD_COR = COR.COD_COR(+)'
+      ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+)'
+      ' ORDER BY MOV.I_SEQ_MOV')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
       
-        'Select MOV.C_COD_PRO,  MOV.C_COD_CST, MOV.C_COD_UNI, MOV.N_QTD_P' +
-        'RO, MOV.N_VLR_PRO, MOV.N_TOT_PRO, MOV.N_PER_ICM, '
-      ' MOV.N_PER_IPI, MOV.N_VLR_IPI, '
-      ' PRO.C_NOM_PRO,'
-      'COR.COD_COR, COR.NOM_COR'
-      ' FROM MOVNOTASFISCAIS MOV, CADPRODUTOS PRO, COR'
-      ' Where MOV.I_SEQ_PRO = PRO.I_SEQ_PRO '
-      'AND MOV.I_COD_COR = COR.COD_COR (+)'
-      ' AND MOV.I_EMP_FIL =11'
-      ' AND MOV.I_SEQ_NOT = 12'
-      ' order by MOV.I_SEQ_MOV')
+        'select  MOV.C_COD_PRO, MOV.N_QTD_PRO, MOV.C_COD_UNI, MOV.N_VLR_P' +
+        'RO, MOV.N_VLR_TOT, MOV.C_NOM_PRO PRODUTOCOTACAO, '
+      ' MOV.C_IND_BRI, MOV.N_SAL_BRI, MOV.C_DES_COR, '
+      
+        ' MOV.C_DES_COR CORCOTACAO, MOV.C_PRO_REF, MOV.N_PER_DES, MOV.C_O' +
+        'RD_COM, MOV.I_COD_TAM, MOV.N_ALT_PRO,'
+      ' COR.COD_COR, COR.NOM_COR, '
+      ' PRO.C_NOM_PRO, '
+      ' TAM.NOMTAMANHO '
+      ' from MOVORCAMENTOS MOV, CADPRODUTOS PRO, COR, TAMANHO TAM '
+      ' where MOV.I_EMP_FIL = 11'
+      ' AND MOV.I_LAN_ORC = 1'
+      ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO'
+      ' AND MOV.I_COD_COR = COR.COD_COR(+)'
+      ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+)'
+      ' ORDER BY MOV.I_SEQ_MOV')
     Left = 136
     Top = 8
   end

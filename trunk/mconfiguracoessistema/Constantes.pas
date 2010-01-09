@@ -606,6 +606,7 @@ type
     ControlarTrocasnaCotacao : Boolean;
     ImprimirPedidoPendentesPorPeriodo : Boolean;
     MostrarImagemProdutoNaTeladaCotacao : Boolean;
+    AlturadoProdutonaGradedaCotacao : Boolean;
 
     //-----------------------Caixa
     VariosCaixasDia : Boolean;  // true permite abrir vários caixas no mesmo dia (um de cada vez).
@@ -1178,8 +1179,6 @@ begin
         CPFResponsavelLegal := VpfTabela.FieldByName('C_CPF_RES').AsString;
         SiteFilial := VpfTabela.FieldByName('C_WWW_FIL').AsString;
         FoneFilial := VpfTabela.fieldByName('C_FON_FIL').AsString  ;
-        if VpfTabela.fieldByName('C_FAX_FIL').AsString <> '' then
-          FoneFilial :=  FoneFilial + '/'+VpfTabela.fieldByName('C_FAX_FIL').AsString  ;
         EMailFilial := VpfTabela.fieldByName('C_END_ELE').AsString;
         ISSQN := VpfTabela.fieldByName('N_PER_ISQ').AsFloat;
         TextoReducaoImposto := VpfTabela.fieldByName('C_TEX_RED').AsString;
@@ -1462,6 +1461,7 @@ begin
       ImprimirCodigoCorNaNota := TipoCheck( VpfTabela.fieldByName('C_NOF_ICO').AsString);
       CodigoAmostraGeradoPelaClassificacao := TipoCheck( VpfTabela.fieldByName('C_AMO_CAC').AsString);
       NaImportacaodoSolidWorkAMateriaPrimabuscarPeloCodigo := TipoCheck( VpfTabela.fieldByName('C_SOW_IMC').AsString);
+      AlturadoProdutonaGradedaCotacao := TipoCheck( VpfTabela.fieldByName('C_COT_APG').AsString);
     end;
   end;
 

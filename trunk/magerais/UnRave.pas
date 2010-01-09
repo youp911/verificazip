@@ -156,6 +156,7 @@ type
       procedure DefineTabelaTotalTipoCotacaoXCusto(VpaObjeto : TObject);
       procedure DefineTabelaRomaneioEtikArt(VpaObjeto : TObject);
       procedure DefineTabelaOPEtikArt(VpaObjeto : TObject);
+      procedure DefineTabelaRomaneioSeparacaoCotacao(VpaObjeto : TObject);
       procedure ImprimeProdutoPorClassificacao(VpaObjeto : TObject);
       procedure SalvaTabelaProdutosPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
       procedure SalvaTabelaPrecoPorCoreTamanho(VpaDProduto :TRBDProdutoRave);
@@ -225,6 +226,7 @@ type
       procedure ImprimeRelTotalTipoCotacaoXCusto(VpaObjeto : TObject);
       procedure ImprimeRelRomaneioEtikArt(VpaObjeto : TObject);
       procedure ImprimeRelOPEtikArt(VpaObjeto : TObject);
+      procedure ImprimeRelRomaneioSeparacaoCotacao(VpaObjeto : TObject);
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
     public
@@ -254,6 +256,7 @@ type
       procedure ImprimeResumosCaixas(VpaCaminho : String;VpaPDF : Boolean);
       procedure ImprimeRomaneioEtikArt(VpaCodFilial, VpaSeqRomaneio : Integer;VpaVisualizar : Boolean);
       procedure ImprimeOrdemProducaoEtikArt(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta;VpaVisualizar : Boolean);
+      procedure ImprimeRomaneioSeparacaoCotacao(VpaCotacoes : TList);
   end;
 implementation
 
@@ -647,6 +650,21 @@ begin
      SetTab(12.5,pjLeft,2,0.1,BOXLINEALL,0); //icms
      SetTab(NA,pjRight,1.9,0.5,BOXLINEALL,0); //Val icms
      SaveTabs(2);
+   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.DefineTabelaRomaneioSeparacaoCotacao(VpaObjeto: TObject);
+begin
+   with RVSystem.BaseReport do begin
+     clearTabs;
+     SetTab(1.0,pjLeft,2.5,0.5,BOXLINEALL,0);//codigo Produto
+     SetTab(NA,pjLeft,7,0.5,BOXLINEALL,0); //nomeProduto
+     SetTab(NA,pjLeft,1.5,0.5,BOXLINEALL,0); //Localição
+     SetTab(NA,pjCenter,1,0.5,BOXLINEALL,0); //UM
+     SetTab(NA,pjright,1.8,0.5,BOXLINEALL,0); //Quantidade
+     SetTab(NA,pjright,2,0.5,BOXLINEALL,0); //Altura
+     SaveTabs(1);
    end;
 end;
 
@@ -3090,7 +3108,9 @@ begin
     begin
       CarCombinacoesOPConvencional(VprDOPEtikArt,VpfDProduto);
       CarManequinsOPConvencional(VprDOPEtikArt,VpfDProduto);
+      FontSize := 14;
       PrintXY(2,VpfPosicaoFinalLinha-0.5,FloattoStr(VprDOPEtikArt.MetFita) + ' MTS');
+      FontSize := 10;
     end
     else
     begin
@@ -3489,6 +3509,17 @@ begin
     PrintTab(FormatFloat('###,###,##0.00',vpfValTotalGeral*0.17)+' ');
     bold := false;
   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRelRomaneioSeparacaoCotacao(VpaObjeto: TObject);
+
+begin
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(1);
+  end;
+
 end;
 
 {******************************************************************************}
@@ -5061,17 +5092,34 @@ procedure TRBFunRave.ImprimeOrdemProducaoEtikArt(VpaDOrdemProducao : TRBDOrdemPr
 begin
   RvSystem.Tag := 22;
   VprDOPEtikArt := VpaDOrdemProducao;
-//  RvSystem.SystemPrinter.Orientation := poLandScape;
   FreeTObjectsList(VprNiveis);
   LimpaSQlTabela(Tabela);
-//  AdicionaSqlAbretabela(Tabela,'');
 
   rvSystem.onBeforePrint := DefineTabelaOPEtikArt;
-//  rvSystem.onNewPage := ImprimeCabecalho;
   rvSystem.onPrintFooter := Imprimerodape;
   rvSystem.onPrint := ImprimeRelOPEtikArt;
 
   VprNomeRelatorio := 'Romaneio de Faturamento';
+  VprCabecalhoEsquerdo.Clear;
+
+  VprCabecalhoDireito.Clear;
+
+  ConfiguraRelatorioPDF;
+  RvSystem.execute;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRomaneioSeparacaoCotacao(VpaCotacoes: TList);
+begin
+  RvSystem.Tag := 23;
+  FreeTObjectsList(VprNiveis);
+
+  rvSystem.onBeforePrint := DefineTabelaRomaneioSeparacaoCotacao;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelRomaneioSeparacaoCotacao;
+
+  VprNomeRelatorio := 'Romaneio de Separação';
   VprCabecalhoEsquerdo.Clear;
 
   VprCabecalhoDireito.Clear;

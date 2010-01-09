@@ -93,7 +93,6 @@ type
     BMFNovaCotacao: TSpeedButton;
     BSaida: TSpeedButton;
     BMFConsultaPrecosProdutos: TSpeedButton;
-    SpeedButton6: TSpeedButton;
     MFBancos: TMenuItem;
     MVenda: TMenuItem;
     MFConsultaVendaPeriodo: TMenuItem;
@@ -467,7 +466,7 @@ procedure TFPrincipal.OrganizaBotoes;
 begin
  UnPri.OrganizaBotoes(0, [ BCascata, BLadoaLado, BNormal, BMFClientes, BMFProdutos,
                            BMFConsultaPrecosProdutos, BMFNovaNotaFiscal, BMFVendaECF,
-                           BMFNovaCotacao,BMFCotacoes,  Bsaida, SpeedButton6]);
+                           BMFNovaCotacao,BMFCotacoes,  Bsaida]);
 end;
 
 // -------------------- Altera o Caption da Jabela Proncipal ------------------ }

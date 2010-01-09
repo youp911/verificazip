@@ -94,7 +94,6 @@ uses
   ANovaCotacao in '..\mpontaloja\ANovaCotacao.pas' {FNovaCotacao},
   ANovoVendedor in '..\magerais\ANovoVendedor.pas' {FNovoVendedor},
   AVendedores in '..\magerais\AVendedores.pas' {FVendedores},
-  ACondicoesPgtos in '..\mfinanceiro\ACondicoesPgtos.pas' {FCondicoesPagamentos},
   AConsultaCondicaoPgto in '..\magerais\AConsultaCondicaoPgto.pas' {FConsultaCondicaoPgto},
   AFormasPagamento in '..\mfinanceiro\AFormasPagamento.pas' {FFormasPagamento},
   anovoservico in '..\mestoque\anovoservico.pas' {FNovoServico},

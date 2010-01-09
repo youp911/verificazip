@@ -611,6 +611,7 @@ begin
     VpaDProCotacao.NomProduto := CadProdutosC_NOM_PRO.AsString;
     VpaDProCotacao.UMOriginal := CadProdutosC_COD_UNI.AsString;
     VpaDProCotacao.UM := CadProdutosC_COD_UNI.AsString;
+    VpaDProCotacao.UMAnterior := CadProdutosC_COD_UNI.AsString;
     VpaDProCotacao.ValUnitarioOriginal := CadProdutosN_VLR_VEN.AsFloat;
     if VpaDCotacao.IndRevenda then
       VpaDProCotacao.ValUnitario := VpaDProCotacao.ValRevenda

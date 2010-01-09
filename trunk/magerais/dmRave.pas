@@ -91,7 +91,7 @@ type
     procedure ImprimeProdutosRetornadosComDefeito(VpaCodTEcnico : Integer; VpaCaminho, VpaNomTecnico : String;VpaDatInicio,VpaDatFim : TDateTime);
     procedure ImprimeConsistenciaReservaEstoque(VpaSeProduto : Integer; VpaCaminho, VpaNomProduto : String;VpaDatInicio,VpaDatFim : TDateTime);
     procedure ImprimeVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao, VpaCodTransportadora : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF,VpaNomTransportadora : String;VpaDatInicio,VpaDatFim : TDatetime);
-    procedure ImprimeTotalVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime);
+    procedure ImprimeTotalVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao, VpaCodTransportadora : Integer;VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaCidade, VpaUF, VpaNomTransportadora : String;VpaDatInicio,VpaDatFim : TDatetime);
     procedure ImprimeClientesPorVendedor(VpaCodVendedor,VpaCodSituacao : Integer;VpaCaminho, VpaNomVendedor,VpaNOmSituacao,VpaCidade,VpaEstado : String);
     procedure ImprimeTotalVendasCliente(VpaCodVendedor,VpaCodCondicaoPagamento,VpaCodTipoCotacao, VpaCodfilial : Integer;VpaCaminho, VpaNomVendedor,VpaNomCondicaoPagamento,VpaNomTipoCotacao,VpaNomfilial,VpaCidade, VpaUF : String;VpaDatInicio,VpaDatFim : TDatetime;VpaCurvaABC : Boolean);
     procedure ImprimeExtratoColetaFracaoOPProduto(VpaSeqProduto, VpaSeqEstagio : Integer;VpaNomProduto, VpaNomEstagio : String; VpaDatInicio, VpaDatFim : TDateTime);
@@ -428,7 +428,7 @@ begin
                                   ' and CAD.I_EMP_FIL = '+IntToStr(VpaCodFilial)+
                                   ' and CAD.I_LAN_ORC = ' +IntToStr(VpaNumPedido));
   AdicionaSqlAbreTabela(Item,'select  MOV.C_COD_PRO, MOV.N_QTD_PRO, MOV.C_COD_UNI, MOV.N_VLR_PRO, MOV.N_VLR_TOT, MOV.C_NOM_PRO PRODUTOCOTACAO, '+
-                             ' MOV.C_IND_BRI, MOV.N_SAL_BRI, MOV.C_DES_COR, '+
+                             ' MOV.C_IND_BRI, MOV.N_SAL_BRI, MOV.C_DES_COR, MOV.N_ALT_PRO, '+
                              ' MOV.C_DES_COR CORCOTACAO, MOV.C_PRO_REF, MOV.N_PER_DES, MOV.C_ORD_COM, MOV.I_COD_TAM, '+
                              ' COR.COD_COR, COR.NOM_COR, '+
                              ' PRO.C_NOM_PRO, '+
@@ -1920,7 +1920,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimeTotalVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao: Integer; VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento, VpaNomTipoCotacao, VpaCidade, VpaUF: String; VpaDatInicio, VpaDatFim: TDatetime);
+procedure TdtRave.ImprimeTotalVendasPorEstadoeCidade(VpaCodCliente, VpaCodCondicaoPagamento, VpaTipCotacao, VpaCodTransportadora : Integer; VpaCaminho, VpaNomCliente,VpaNomCondicaoPagamento, VpaNomTipoCotacao, VpaCidade, VpaUF, VpaNomTransportadora: String; VpaDatInicio, VpaDatFim: TDatetime);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Total Vendas por Estado e Cidade';
@@ -1956,6 +1956,10 @@ begin
   begin
     AdicionaSqlTabeLa(Principal,'AND CAD.I_TIP_ORC = '+InttoStr(VpaTipCotacao));
     Rave.SetParam('TIPOCOTACAO',VpaNomTipoCotacao);
+  end;
+  if VpaCodTransportadora <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CAD.I_COD_TRA = '+InttoStr(VpaCodTransportadora));
   end;
   AdicionaSQLTabela(Principal,SQLTextoDataEntreAAAAMMDD('CAD.D_DAT_ORC',VpaDatInicio,VpaDatFim,True));
   Rave.SetParam('PERIODO','Período de : '+FormatDateTime('DD/MM/YYYY',VpaDatInicio)+ ' até ' + FormatDateTime('DD/MM/YYYY',VpaDatFim));

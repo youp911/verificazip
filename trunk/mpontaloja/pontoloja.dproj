@@ -122,9 +122,6 @@
 			<DCCReference Include="..\MaGerais\AVendedores.pas">
 				<Form>FVendedores</Form>
 			</DCCReference>
-			<DCCReference Include="..\MFinanceiro\ACondicoesPgtos.pas">
-				<Form>FCondicoesPagamentos</Form>
-			</DCCReference>
 			<DCCReference Include="..\MEstoque\UnClassificacao.pas"/>
 			<DCCReference Include="ACotacao.pas">
 				<Form>FCotacao</Form>
@@ -896,7 +893,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">SisCorp RAFAEL MORRO 1 11</Parameters>
+						<Parameters Name="RunParams">sisCorp RAFAEL MORRO 1 11</Parameters>
 					</Parameters>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>

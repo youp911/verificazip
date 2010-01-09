@@ -246,6 +246,9 @@ type
     Label26: TLabel;
     Label16: TLabel;
     ECondicaoPagamento: TRBEditLocaliza;
+    MAdicionarRomaneioSeparacao: TMenuItem;
+    N9: TMenuItem;
+    ImprimirRomaneioSeparao1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FlagClick(Sender: TObject);
@@ -329,6 +332,8 @@ type
     procedure rvCadOrcamentoValidateRow(Connection: TRvCustomConnection;
       var ValidRow: Boolean);
     procedure MPedidosPendentesSemClienteMasterClick(Sender: TObject);
+    procedure MAdicionarRomaneioSeparacaoClick(Sender: TObject);
+    procedure ImprimirRomaneioSeparao1Click(Sender: TObject);
   private
     TeclaPressionada,
     VprPressionadoR,
@@ -338,6 +343,7 @@ type
     VprSeqProduto,
     VprQtdBaixas : Integer;
     VprValBaixas : Double;
+    VprCotacoesRomaneioSeparacao,
     VprCotacoesGerarNota : TList;
     VprDOrcamento : TRBDOrcamento;
     FunClassificacao : TFuncoesClassificacao;
@@ -411,6 +417,7 @@ begin
   MovOrcamentosN_QTD_PRO.DisplayFormat := varia.MAscaraQtd;
   VprGerandoNota := false;
   VprCotacoesGerarNota := TList.Create;
+  VprCotacoesRomaneioSeparacao := TList.Create;
   VprDOrcamento := TRBDOrcamento.cria;
   FunClassificacao:= TFuncoesClassificacao.criar(Self,FPrincipal.BaseDados);
   FunCotacao := TFuncoesCotacao.Cria(FPrincipal.BaseDados);
@@ -448,17 +455,19 @@ begin
   if VprCotacoesGerarNota.Count > 0 then
     FreeTObjectsList(VprCotacoesGerarNota);
   VprCotacoesGerarNota.free;
-   CadOrcamento.close;
-   MovOrcamentos.close;
-   Aux.close;
-   VprDOrcamento.free;
-   FunCotacao.free;
-   FunClassificacao.Free;
-   FunPro.free;
-   FunImpressao.free;
-   FunChamado.free;
-   FunRave.free;
-   Action := CaFree;
+  FreeTObjectsList(VprCotacoesRomaneioSeparacao);
+  VprCotacoesRomaneioSeparacao.Free;
+  CadOrcamento.close;
+  MovOrcamentos.close;
+  Aux.close;
+  VprDOrcamento.free;
+  FunCotacao.free;
+  FunClassificacao.Free;
+  FunPro.free;
+  FunImpressao.free;
+  FunChamado.free;
+  FunRave.free;
+  Action := CaFree;
 end;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
@@ -682,6 +691,17 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFCotacao.MAdicionarRomaneioSeparacaoClick(Sender: TObject);
+var
+  VpfDCotacao : TRBDOrcamento;
+begin
+  VpfDCotacao := TRBDOrcamento.cria;
+  FunCotacao.CarDOrcamento(VpfDCotacao,CadOrcamentoI_EMP_FIL.AsInteger,CadOrcamentoI_Lan_Orc.AsInteger);
+  VprCotacoesRomaneioSeparacao.Add(VpfDCotacao);
+  MAdicionarRomaneioSeparacao.Caption := 'Adicionar Romaneio Separação ('+IntToSTr(VprCotacoesRomaneioSeparacao.count)+')';
+end;
+
+{******************************************************************************}
 procedure TFCotacao.AgrupaCotacoes;
 var
   VpfDCotacao : TRBDOrcamento;
@@ -857,6 +877,15 @@ begin
   graficostrio.info.TituloFormulario := 'Gráfico de Cotações';
   graficostrio.info.TituloX := 'Vendedor';
   graficostrio.execute;
+end;
+
+{******************************************************************************}
+procedure TFCotacao.ImprimirRomaneioSeparao1Click(Sender: TObject);
+begin
+  FunRave.ImprimeRomaneioSeparacaoCotacao(VprCotacoesRomaneioSeparacao);
+  FreeTObjectsList(VprCotacoesRomaneioSeparacao);
+  MAdicionarRomaneioSeparacao.Caption := 'Adicionar Romaneio Separação';
+
 end;
 
 {*********************** grafico pela data ************************************}

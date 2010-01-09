@@ -619,7 +619,7 @@ begin
                                               dtRave.ImprimeVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,ETransportadora.AInteiro, VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text, LTransportadora.Caption, CDataIni.Date,CDataFim.Date)
                                             else
                                               if (VPRNOMRELATORIO = 'TOTAL VENDAS POR ESTADO E CIDADE') then
-                                                dtRave.ImprimeTotalVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date)
+                                                dtRave.ImprimeTotalVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,ETransportadora.AInteiro, VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text,LTransportadora.Caption, CDataIni.Date,CDataFim.Date)
                                               else
                                                 if (VPRNOMRELATORIO = 'CLIENTES POR VENDEDOR') then
                                                   dtRave.ImprimeClientesPorVendedor(EVendedor.AInteiro,ESituacaoCliente.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LSituacaoCliente.Caption,LCidade.CAPTION,EEstado.text)

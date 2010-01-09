@@ -686,7 +686,8 @@ Type TRBDNotaFiscalProduto = class
     CodCor,
     NumOrdemClaFiscal,
     QtdMesesGarantia,
-    NumOrigemProduto
+    NumOrigemProduto,
+    CodCFOP
                 :Integer;
     CodProduto,
     NomProduto,
@@ -714,7 +715,8 @@ Type TRBDNotaFiscalProduto = class
     ValUnitarioOriginal,
     ValTotal,
     PerComissaoProduto,
-    PerComissaoClassificacao
+    PerComissaoClassificacao,
+    AltProdutonaGrade
                  : Double;
     IndReducaoICMS,
     IndBaixaEstoque : Boolean;
@@ -1672,7 +1674,8 @@ Type
       ValTotal,
       RedICMS,
       PerComissao,
-      PerComissaoClassificacao
+      PerComissaoClassificacao,
+      AltProdutonaGrade
                    : Double;
       DatOrcamento,
       DatOpGerada : TDateTime;

@@ -505,6 +505,8 @@ type
     CFGI_ALT_PRE: TFMTBCDField;
     DBCheckBox46: TDBCheckBox;
     CFGC_CHA_SEC: TWideStringField;
+    CFGC_COT_APG: TWideStringField;
+    DBCheckBox47: TDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

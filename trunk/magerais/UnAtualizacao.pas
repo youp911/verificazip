@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1558;
+  CT_VersaoBanco = 1563;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1229,6 +1229,38 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE MOVCONTASARECEBER ADD(C_DUP_IMP CHAR(1)NULL)' );
         ExecutaComandoSql(Aux,'UPDATE MOVCONTASARECEBER SET C_DUP_IMP = ''S''' );
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1558');
+      end;
+      if VpaNumAtualizacao < 1559 Then
+      begin
+        VpfErro := '1559';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD(C_COT_APG CHAR(1)NULL)' );
+        ExecutaComandoSql(Aux,'UPDATE CFG_GERAL SET C_COT_APG = ''F''' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1559');
+      end;
+      if VpaNumAtualizacao < 1560 Then
+      begin
+        VpfErro := '1560';
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVORCAMENTOS ADD(N_ALT_PRO NUMBER(10,3)NULL)' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1560');
+      end;
+      if VpaNumAtualizacao < 1561 Then
+      begin
+        VpfErro := '1561';
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVNOTASFISCAIS ADD(N_ALT_PRO NUMBER(10,3)NULL)' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1561');
+      end;
+      if VpaNumAtualizacao < 1562 Then
+      begin
+        VpfErro := '1562';
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVNOTASFISCAIS ADD(I_COD_CFO NUMBER(10)NULL)' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1562');
+      end;
+      if VpaNumAtualizacao < 1563 Then
+      begin
+        VpfErro := '1563';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADCLIENTES ADD(C_OPT_SIM CHAR(1)NULL)' );
+        ExecutaComandoSql(Aux,'Update CADCLIENTES set C_OPT_SIM = ''N''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1563');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

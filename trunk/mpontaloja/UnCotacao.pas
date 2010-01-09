@@ -606,7 +606,7 @@ begin
                                   ' COT.I_SEQ_MOV, COT.I_COD_COR, COT.D_ULT_ALT, COT.C_PRO_REF,'+
                                   ' COT.I_COD_EMB, COT.C_DES_EMB,COT.N_QTD_DEV, COT.C_IND_FAT, '+
                                   ' COT.C_IND_BRI, COT.N_SAL_BRI, COT.C_NOM_PRO PRODUTOCOTACAO, '+
-                                  ' COT.D_DAT_ORC, '+
+                                  ' COT.D_DAT_ORC, COT.N_ALT_PRO ALTURAPRODUTOGRADE, '+
                                   ' COT.C_ORD_COM, COT.I_COD_TAM, COT.D_DAT_GOP, '+
                                   'PRO.C_NOM_PRO, PRO.N_PES_LIQ, PRO.N_PES_BRU, PRO.C_IND_RET, PRO.C_IND_CRA,  '+
                                   ' PRO.C_COD_UNI UNIORIGINAL, PRO.C_COD_CLA, PRO.N_PER_COM, I_IND_COV, PRO.I_MES_GAR, '+
@@ -659,6 +659,7 @@ begin
       QtdConferidoSalvo := Orcamento.FieldByName('N_QTD_CON').AsFloat;
       QtdProduto := Orcamento.FieldByName('N_QTD_PRO').AsFloat;
       QtdKit := Orcamento.FieldByName('I_IND_COV').AsInteger;
+      AltProdutonaGrade := Orcamento.FieldByName('ALTURAPRODUTOGRADE').AsFloat;
       PerDesconto := Orcamento.FieldByName('N_PER_DES').AsFloat;
       PerComissao := Orcamento.FieldByName('N_PER_COM').AsFloat;
       PerComissaoClassificacao := Orcamento.FieldByName('PERCOMISSAOCLASSIFICACAO').AsFloat;
@@ -3331,6 +3332,10 @@ begin
     else
       CotCadastro.FieldByName('N_QTD_CON').Clear;
 
+    if VpfDProCotacao.AltProdutonaGrade <> 0 then
+      CotCadastro.FieldByName('N_ALT_PRO').AsFloat := VpfDProCotacao.AltProdutonaGrade
+    else
+      CotCadastro.FieldByName('N_ALT_PRO').Clear;
     CotCadastro.FieldByName('N_VLR_TOT').AsFloat := VpfDProCotacao.ValTotal;
     CotCadastro.FieldByName('C_COD_UNI').AsString := upperCase(VpfDProCotacao.UM);
     CotCadastro.FieldByName('C_IMP_FOT').AsString := VpfDProCotacao.IndImpFoto;
