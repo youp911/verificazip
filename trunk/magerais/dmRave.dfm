@@ -232,41 +232,37 @@ object dtRave: TdtRave
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
       
-        'select  MOV.C_COD_PRO, MOV.N_QTD_PRO, MOV.C_COD_UNI, MOV.N_VLR_P' +
-        'RO, MOV.N_VLR_TOT, MOV.C_NOM_PRO PRODUTOCOTACAO, '
-      ' MOV.C_IND_BRI, MOV.N_SAL_BRI, MOV.C_DES_COR, '
+        'Select ITE.SEQITEM, ITE.CODPRODUTO, ITE.CODCOR, ITE.DESUM, ITE.N' +
+        'OMCOR NOMECORITEM, '
       
-        ' MOV.C_DES_COR CORCOTACAO, MOV.C_PRO_REF, MOV.N_PER_DES, MOV.C_O' +
-        'RD_COM, MOV.I_COD_TAM, MOV.N_ALT_PRO,'
-      ' COR.COD_COR, COR.NOM_COR, '
-      ' PRO.C_NOM_PRO, '
-      ' TAM.NOMTAMANHO '
-      ' from MOVORCAMENTOS MOV, CADPRODUTOS PRO, COR, TAMANHO TAM '
-      ' where MOV.I_EMP_FIL = 11'
-      ' AND MOV.I_LAN_ORC = 1'
-      ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO'
-      ' AND MOV.I_COD_COR = COR.COD_COR(+)'
-      ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+)'
-      ' ORDER BY MOV.I_SEQ_MOV')
+        '            ITE.NOMPRODUTO NOMEPRODUTOITE, ITE.QTDPRODUTO, ITE.V' +
+        'ALUNITARIO, ITE.VALTOTAL,'
+      '    ITE.NUMOPCAO, ITE.VALDESCONTO,'
+      '   PRO.C_NOM_PRO,'
+      '  COR.NOM_COR'
+      'FROM PROPOSTAPRODUTO ITE, CADPRODUTOS PRO, COR'
+      'Where ITE.SEQPRODUTO = PRO.I_SEQ_PRO'
+      'AND ITE.CODFILIAL = 11'
+      'AND ITE.SEQPROPOSTA = 6'
+      'AND ITE.CODCOR = COR.COD_COR(+)'
+      '')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
       
-        'select  MOV.C_COD_PRO, MOV.N_QTD_PRO, MOV.C_COD_UNI, MOV.N_VLR_P' +
-        'RO, MOV.N_VLR_TOT, MOV.C_NOM_PRO PRODUTOCOTACAO, '
-      ' MOV.C_IND_BRI, MOV.N_SAL_BRI, MOV.C_DES_COR, '
+        'Select ITE.SEQITEM, ITE.CODPRODUTO, ITE.CODCOR, ITE.DESUM, ITE.N' +
+        'OMCOR NOMECORITEM, '
       
-        ' MOV.C_DES_COR CORCOTACAO, MOV.C_PRO_REF, MOV.N_PER_DES, MOV.C_O' +
-        'RD_COM, MOV.I_COD_TAM, MOV.N_ALT_PRO,'
-      ' COR.COD_COR, COR.NOM_COR, '
-      ' PRO.C_NOM_PRO, '
-      ' TAM.NOMTAMANHO '
-      ' from MOVORCAMENTOS MOV, CADPRODUTOS PRO, COR, TAMANHO TAM '
-      ' where MOV.I_EMP_FIL = 11'
-      ' AND MOV.I_LAN_ORC = 1'
-      ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO'
-      ' AND MOV.I_COD_COR = COR.COD_COR(+)'
-      ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+)'
-      ' ORDER BY MOV.I_SEQ_MOV')
+        '            ITE.NOMPRODUTO NOMEPRODUTOITE, ITE.QTDPRODUTO, ITE.V' +
+        'ALUNITARIO, ITE.VALTOTAL,'
+      '    ITE.NUMOPCAO, ITE.VALDESCONTO,'
+      '   PRO.C_NOM_PRO,'
+      '  COR.NOM_COR'
+      'FROM PROPOSTAPRODUTO ITE, CADPRODUTOS PRO, COR'
+      'Where ITE.SEQPRODUTO = PRO.I_SEQ_PRO'
+      'AND ITE.CODFILIAL = 11'
+      'AND ITE.SEQPROPOSTA = 6'
+      'AND ITE.CODCOR = COR.COD_COR(+)'
+      '')
     Left = 136
     Top = 8
   end
@@ -284,36 +280,24 @@ object dtRave: TdtRave
     ASqlQuery.MaxBlobSize = -1
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
-      'SELECT CAD.I_EMP_FIL , CAD.I_LAN_ORC, '
       
-        '  MOV.I_COD_SER, '#39'SE'#39', MOV.N_QTD_SER, MOV.N_VLR_SER, MOV.N_VLR_T' +
-        'OT,'
-      '  SER.C_NOM_SER'
-      
-        'FROM CADORCAMENTOS CAD, MOVSERVICOORCAMENTO MOV, CADSERVICO SER,' +
-        ' CADCLIENTES CLI'
-      'Where CAD.I_EMP_FIL = MOV.I_EMP_FIL'
-      'AND CAD.I_LAN_ORC = MOV.I_LAN_ORC'
-      'AND CAD.I_COD_CLI = CLI.I_COD_CLI'
-      'AND MOV.I_COD_SER = SER.I_COD_SER'
-      ''
-      'ORDER BY CAD.I_EMP_FIL, CAD.I_LAN_ORC')
+        'Select ITE.SEQITEM, ITE.CODSERVICO, ITE.QTDSERVICO, ITE.VALUNITA' +
+        'RIO, ITE.VALTOTAL,'
+      '  SER.C_NOM_SER '
+      'from PROPOSTASERVICO ITE, CADSERVICO SER'
+      'Where ITE.CODEMPRESASERVICO = SER.I_COD_EMP'
+      'AND ITE.CODSERVICO = SER.I_COD_SER'
+      'ORDER BY ITE.SEQITEM')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
-      'SELECT CAD.I_EMP_FIL , CAD.I_LAN_ORC, '
       
-        '  MOV.I_COD_SER, '#39'SE'#39', MOV.N_QTD_SER, MOV.N_VLR_SER, MOV.N_VLR_T' +
-        'OT,'
-      '  SER.C_NOM_SER'
-      
-        'FROM CADORCAMENTOS CAD, MOVSERVICOORCAMENTO MOV, CADSERVICO SER,' +
-        ' CADCLIENTES CLI'
-      'Where CAD.I_EMP_FIL = MOV.I_EMP_FIL'
-      'AND CAD.I_LAN_ORC = MOV.I_LAN_ORC'
-      'AND CAD.I_COD_CLI = CLI.I_COD_CLI'
-      'AND MOV.I_COD_SER = SER.I_COD_SER'
-      ''
-      'ORDER BY CAD.I_EMP_FIL, CAD.I_LAN_ORC')
+        'Select ITE.SEQITEM, ITE.CODSERVICO, ITE.QTDSERVICO, ITE.VALUNITA' +
+        'RIO, ITE.VALTOTAL,'
+      '  SER.C_NOM_SER '
+      'from PROPOSTASERVICO ITE, CADSERVICO SER'
+      'Where ITE.CODEMPRESASERVICO = SER.I_COD_EMP'
+      'AND ITE.CODSERVICO = SER.I_COD_SER'
+      'ORDER BY ITE.SEQITEM')
     Left = 200
     Top = 8
   end

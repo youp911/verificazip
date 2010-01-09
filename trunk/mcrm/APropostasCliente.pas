@@ -158,7 +158,7 @@ implementation
 uses APrincipal, funSql, funData, Constmsg, ANovaProposta, constantes,
   ANovoTelemarketingProspect, AAlteraEstagioProposta, ANovaCotacao,
   ANovoTeleMarketing, ANovoChamadoTecnico, ANovaSolicitacaoCompra,
-  ASolicitacaoCompras;
+  ASolicitacaoCompras, dmRave;
 
 {$R *.DFM}
 
@@ -574,9 +574,10 @@ procedure TFPropostasCliente.BImprimirClick(Sender: TObject);
 begin
   if PropostaCODFILIAL.AsInteger <> 0 then
   begin
-    FunCrystal.ImprimeRelatorio(Varia.PathRelatorios + '\CRM\XX_Proposta.rpt',[PropostaCODFILIAL.AsString,PropostaSEQPROPOSTA.AsString]);
+    dtRave := TdtRave.Create(self);
+    dtRave.ImprimeProposta(PropostaCODFILIAL.AsInteger,PropostaSEQPROPOSTA.AsInteger,true);
+    dtRave.Free;
   end;
-
 end;
 
 {******************************************************************************}

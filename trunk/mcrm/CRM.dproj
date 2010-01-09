@@ -577,9 +577,6 @@
 			<DCCReference Include="..\mfinanceiro\ANovoContasaReceber.pas">
 				<Form>FNovoContasAReceber</Form>
 			</DCCReference>
-			<DCCReference Include="..\mfinanceiro\AImprimeCR.pas">
-				<Form>FImprimeCR</Form>
-			</DCCReference>
 			<DCCReference Include="..\mfinanceiro\AManutencaoCR.pas">
 				<Form>FManutencaoCR</Form>
 			</DCCReference>

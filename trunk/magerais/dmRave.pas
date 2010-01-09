@@ -2449,7 +2449,25 @@ begin
                                   ' AND '+SQLTextoRightJoin('PRP.CODTIPOPROPOSTA','TIP.CODTIPOPROPOSTA')+
                                   ' AND PRP.CODFILIAL = '+IntToStr(VpaCodFilial)+
                                   ' AND PRP.SEQPROPOSTA = '+IntToStr(VpaSeqProposta));
-  AdicionaSqlAbreTabela(Item,'');
+  AdicionaSqlAbreTabela(Item,'Select ITE.SEQITEM, ITE.CODPRODUTO, ITE.CODCOR, ITE.DESUM, ITE.NOMCOR NOMECORITEM, '+
+                             ' ITE.NOMPRODUTO NOMEPRODUTOITE, ITE.QTDPRODUTO, ITE.VALUNITARIO, ITE.VALTOTAL, '+
+                             ' ITE.NUMOPCAO, ITE.VALDESCONTO, '+
+                             ' PRO.C_NOM_PRO, '+
+                             ' COR.NOM_COR '+
+                             ' FROM PROPOSTAPRODUTO ITE, CADPRODUTOS PRO, COR '+
+                             ' Where ITE.SEQPRODUTO = PRO.I_SEQ_PRO '+
+                             ' AND ITE.CODFILIAL = ' +IntToStr(VpaCodFilial)+
+                             ' AND ITE.SEQPROPOSTA = '+IntToStr(VpaSeqProposta)+
+                             ' AND ' +SQLTextoRightJoin('ITE.CODCOR','COR.COD_COR')+
+                             ' ORDER BY  ITE.SEQITEM ');
+  AdicionaSqlAbreTabela(Item2,'Select ITE.SEQITEM, ITE.CODSERVICO, ITE.QTDSERVICO, ITE.VALUNITARIO, ITE.VALTOTAL, '+
+                              ' SER.C_NOM_SER '+
+                              ' from PROPOSTASERVICO ITE, CADSERVICO SER '+
+                              ' Where ITE.CODEMPRESASERVICO = SER.I_COD_EMP '+
+                              ' AND ITE.CODSERVICO = SER.I_COD_SER '+
+                              ' AND ITE.CODFILIAL = ' +IntToStr(VpaCodFilial)+
+                              ' AND ITE.SEQPROPOSTA = '+IntToStr(VpaSeqProposta)+
+                              ' ORDER BY ITE.SEQITEM ');
   Rave.Execute;
 end;
 
