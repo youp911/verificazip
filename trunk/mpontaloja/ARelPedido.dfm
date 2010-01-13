@@ -27,7 +27,7 @@ object FRelPedido: TFRelPedido
     Alignment = taLeftJustify
     Font.Charset = ANSI_CHARSET
     Font.Color = clWhite
-    Font.Height = -24
+    Font.Height = -27
     Font.Name = 'Times New Roman'
     Font.Style = [fsBold]
     ParentFont = False

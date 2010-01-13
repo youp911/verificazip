@@ -340,6 +340,7 @@ end;
 Type
   TRBDPrecoClienteAmostra = class
     public
+      SeqPreco,
       CodTabela,
       CodCliente : Integer;
       NomTabela,
@@ -397,6 +398,7 @@ Type TRBDConsumoAmostra = class
     SeqConsumo,
     CodCorAmostra,
     SeqProduto,
+    SeqEntretela,
     CodCor,
     CodFaca,
     CodMaquina,
@@ -404,7 +406,9 @@ Type TRBDConsumoAmostra = class
     NumSequencia,
     AltProduto : Integer;
     CodProduto,
+    CodEntretela,
     NomProduto,
+    NomEntretela,
     NomCor,
     NomTipoMateriaPrima,
     UMAnterior,

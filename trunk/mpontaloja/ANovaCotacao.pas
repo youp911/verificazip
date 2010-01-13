@@ -888,6 +888,19 @@ begin
     ECliente.clear;
     VprDCotacao.CodCliente := 0;
   end;
+  if result = '' then
+  begin
+    if varia.QtdMesesSemConsultaSerasa > 0  then
+    begin
+      if IncMes(VprDCliente.DatUltimaConsultaSerasa,Varia.QtdMesesSemConsultaSerasa) < date then
+      begin
+        result := 'CLIENTE JÁ ESTÁ A MAIS DE '+IntToStr(Varia.QtdMesesSemConsultaSerasa)+ ' MESES SEM CONSULTAR O SERASA!!!'#13'A última consulta realizada no Serasa foi em "'+FormatDateTime('DD/MM/YYYY',VpaDCliente.DatUltimaConsultaSerasa)+'", é necessário fazer uma nova consulta.';
+        ECliente.Clear;
+      end;
+
+    end;
+
+  end;
 end;
 
 {******************* carrega os dados do cliente ******************************}

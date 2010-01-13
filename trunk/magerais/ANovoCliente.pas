@@ -204,7 +204,7 @@ type
     Label60: TLabel;
     Label30: TLabel;
     Label5: TLabel;
-    Label29: TLabel;
+    LLimiteCreditoFisica: TLabel;
     Label6: TLabel;
     Label41: TLabel;
     Label31: TLabel;
@@ -290,9 +290,9 @@ type
     DBEditColor39: TDBEditColor;
     Label75: TLabel;
     DBEditNumerico1: TDBEditNumerico;
-    DBEditNumerico2: TDBEditNumerico;
-    DBEditNumerico3: TDBEditNumerico;
-    Label79: TLabel;
+    ELimiteCreditoFisica: TDBEditNumerico;
+    ELimiteCreditoJuridico: TDBEditNumerico;
+    LLimiteCreditoJuridico: TLabel;
     ECidade: TDBEditLocaliza;
     BCidade: TSpeedButton;
     BRua: TSpeedButton;
@@ -1066,7 +1066,8 @@ begin
   if Varia.CodVendedor <> 0 then
     CadClientesI_COD_VEN.AsInteger := Varia.CodVendedor
   else
-    AlterarEnabledDet([EVendedor,BVendedor],true);
+    if varia.CNPJFilial <> CNPJ_REELTEX then
+      AlterarEnabledDet([EVendedor,BVendedor],true);
   ECodigo.ReadOnly := False;
   DBEditLocaliza1.Limpa;
   DBEditLocaliza2.Limpa;
@@ -1269,6 +1270,8 @@ begin
   if not (puAdministrador in varia.PermissoesUsuario) then
   begin
     AlterarEnabledDet([EVendedor,BVendedor],config.PermitirAlterarVendedornaCotacao);
+    if not (puAlterarLimiteCredito in varia.PermissoesUsuario) then
+      AlterarEnabledDet([ELimiteCreditoFisica,ELimiteCreditoJuridico,LLimiteCreditoFisica,LLimiteCreditoJuridico],false);
   end;
   BDiretorio.Visible := Varia.PathCliente <> '';
 end;

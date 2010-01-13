@@ -1747,7 +1747,7 @@ begin
     While not Orcamento.Eof do
     begin
       if (Orcamento.FieldByName('I_COD_FRM').AsInteger = varia.FormaPagamentoBoleto) then
-        result :=   FunContasAReceber.AdicionaRemessa(Orcamento.FieldByName('I_EMP_FIL').AsInteger,Orcamento.FieldByName('I_LAN_REC').AsInteger,Orcamento.FieldByName('I_NRO_PAR').AsInteger,1);
+        result :=   FunContasAReceber.AdicionaRemessa(Orcamento.FieldByName('I_EMP_FIL').AsInteger,Orcamento.FieldByName('I_LAN_REC').AsInteger,Orcamento.FieldByName('I_NRO_PAR').AsInteger,1,'Remessa');
       if result <> '' then
         break;
       Orcamento.next;

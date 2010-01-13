@@ -513,6 +513,13 @@ begin
             else
               if (VPANOMRELATORIO = 'VENCIMENTO DOS CONTRATOS') then
                 AlterarVisibleDet([PPeriodo],true)
+            else
+              if (VPANOMRELATORIO = 'ANALISE CONTRATOS ANALITICO') then
+              begin
+                AlterarVisibleDet([PPeriodo,PTipoContrato,PCliente,PVendedor,PFundoPerdido],true);
+                CFundoPerdido.Caption := 'Somente contratos não cancelados';
+                CFundoPerdido.Checked := true;
+              end;
 end;
 
 
@@ -692,7 +699,10 @@ begin
               dtRave.ImprimeVencimentoContratos(CDataIni.Date,CdataFim.Date,VprCaminhoRelatorio)
           else
             if (VPRNOMRELATORIO = 'RESUMO CAIXAS')then
-              FunRave.ImprimeResumosCaixas(VprCaminhoRelatorio,VpfPdf);
+              FunRave.ImprimeResumosCaixas(VprCaminhoRelatorio,VpfPdf)
+          else
+            if (VPRNOMRELATORIO = 'ANALISE CONTRATOS ANALITICO')then
+              FunRave.ImprimeAnaliseContratosLocacaoAnalitica(ETipoCotacao.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,VprCaminhoRelatorio,LNomTipoContrato.Caption,LVendedor.Caption,LCliente.Caption,CDataIni.Date,CDataFim.Date,CFundoPerdido.Checked);
   dtRave.free;
 end;
 

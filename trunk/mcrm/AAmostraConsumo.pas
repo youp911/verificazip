@@ -439,6 +439,8 @@ begin
   else
     Grade.Cells[17,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodMaquina);
   Grade.Cells[18,Grade.ALinha]:= VprDConsumoAmostra.Maquina.NomMaquina;
+  Grade.Cells[19,Grade.ALinha]:= VprDConsumoAmostra.CodEntretela;
+  Grade.Cells[20,Grade.ALinha]:= VprDConsumoAmostra.NomEntretela;
   Grade.Cells[27,Grade.ALinha]:= VprDConsumoAmostra.DesObservacao;
   CarQtdPecaMetroGrade;
 end;
@@ -495,7 +497,14 @@ begin
                 VpaValidos := false;
                 aviso('MAQUINA NÃO CADASTRADA!!!!'#13'A maquina digitada não existe cadastrada.');
                 Grade.Col := 17;
-              end;
+              end
+              else
+                if not ExisteEntretela then
+                begin
+                  aviso('ENTRETELA NÃO CADASTRADA!!!!'#13'A entretela digitada não existe cadastrada.');
+                  VpaValidos:= False;
+                  Grade.Col:= 19;
+                end
 
   if VpaValidos then
   begin
@@ -1066,6 +1075,8 @@ begin
   end;
 end;
 
+
+{******************************************************************************}
 procedure TFAmostraConsumo.BitBtn1Click(Sender: TObject);
 begin
   VprDPrecoCliente := VprDAmostra.addPrecoCliente;

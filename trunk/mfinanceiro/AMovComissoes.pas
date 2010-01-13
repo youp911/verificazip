@@ -89,6 +89,7 @@ type
     SpeedButton2: TSpeedButton;
     EDuplicata: TEditColor;
     Label13: TLabel;
+    MovComissoesD_PAG_REC: TSQLTimeStampField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BitBtn1Click(Sender: TObject);
@@ -211,7 +212,7 @@ begin
   MovComissoes.Sql.Clear;
   MovComissoes.Sql.add(' Select MOC.I_EMP_FIL, MOC.I_COD_VEN, MOC.D_DAT_VEN, MOC.D_DAT_PAG, MOC.D_DAT_VAL, MOC.N_VLR_COM, ' +
                                 ' MOC.I_NRO_PAR, MOC.I_LAN_REC, CV.C_NOM_VEN, CAR.I_NRO_NOT, CAR.N_VLR_TOT, '+
-                                ' MOC.I_LAN_CON, ' +
+                                ' MOC.I_LAN_CON, MOC.D_PAG_REC, ' +
                                 ' MOC.N_PER_COM, MOC.L_OBS_COM, MOC.D_DAT_EMI, CAR.D_DAT_EMI,'+
                                 ' MOV.C_NRO_DUP, MOV.N_VLR_PAR, '+
                                 ' CLI.I_COD_CLI, CLI.C_NOM_CLI ' );
@@ -247,6 +248,7 @@ begin
     1 : VpaSelect.add(SQLTextoDataEntreAAAAMMDD('MOC.D_DAT_VAL', EDatInicio.DateTime, EDatFim.DateTime, true));
     2 : VpaSelect.add(SQLTextoDataEntreAAAAMMDD('MOC.D_DAT_PAG', EDatInicio.DateTime, EDatFim.DateTime, true));
     3 : VpaSelect.add(SQLTextoDataEntreAAAAMMDD('MOC.D_DAT_EMI', EDatInicio.DateTime, EDatFim.DateTime, true));
+    4 : VpaSelect.add(SQLTextoDataEntreAAAAMMDD('MOC.D_PAG_REC', EDatInicio.DateTime, EDatFim.DateTime, true));
   end;
 
   case CSituacaoComissao.ItemIndex of
@@ -341,6 +343,11 @@ begin
        begin
          CVencimento.ItemIndex := 1;
          VprOrdem := 'order by MOC.D_DAT_VAL';
+       end;
+     3 :
+       begin
+         CVencimento.ItemIndex := 4;
+         VprOrdem := 'order by MOC.D_REC_PAR';
        end;
    end;
    CSituacaoComissao.ItemIndex := 4;

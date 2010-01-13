@@ -14,7 +14,7 @@ uses
   Localizacao, Buttons, Db, DBTables, ComCtrls,  Grids,
   DBGrids, printers, Mask, numericos, Tabela, DBCtrls, DBKeyViolation,
   Geradores, UnNotaFiscal, UnEDi, FileCtrl, UnDadosProduto, FMTBcd, SqlExpr,
-  DBClient;
+  DBClient, UnNfe;
 
 type
   TFManutencaoNotas = class(TFormularioPermissao)
@@ -82,6 +82,7 @@ type
     NOTASC_PRO_NFE: TWideStringField;
     NOTASC_STA_NFE: TWideStringField;
     NOTASC_MOT_NFE: TWideStringField;
+    BInutilizar: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ENotasRetorno(Retorno1, Retorno2: String);
@@ -98,11 +99,13 @@ type
     procedure BEDIClick(Sender: TObject);
     procedure BitBtn4Click(Sender: TObject);
     procedure NotaGridOrdem(Ordem: String);
+    procedure BInutilizarClick(Sender: TObject);
   private
      VprOrdem : string;
      VprDNota : TRBDNotaFiscal;
      DevolucaoCupomNotaFiscal : Boolean;
      FunEDI : TRBFuncoesEDI;
+     FunNfe : TRBFuncoesNFe;
      procedure ConfiguraPermissaoUsuario;
      procedure PosicionaNota(VpaGuardarPosicao : Boolean = false);
      procedure AdicionaFiltros(VpaSelect : TStrings);
@@ -130,6 +133,7 @@ begin
   VprOrdem := '';
   PosicionaNota;
   FunEDI := TRBFuncoesEDI.cria;
+  FunNfe := TRBFuncoesNFe.cria(fPrincipal.BaseDados);
   ConfiguraPermissaoUsuario;
 end;
 
@@ -139,6 +143,7 @@ begin
   FechaTabela(Notas);
   FechaTabela(MovNatureza);
   FunEdi.free;
+  FunNFE.Free;
   Action := CaFree;
 end;
 
@@ -308,6 +313,14 @@ begin
   FunNotaFiscal.ExcluiNotaFiscal(VpfDNotaFiscal);
   PosicionaNota(True);
   T.Fecha;
+end;
+
+procedure TFManutencaoNotas.BInutilizarClick(Sender: TObject);
+var
+  vpfNumeroNota : String;
+begin
+  if Entrada('Nota a inutlizar','Numero Nota : ',vpfNumeroNota,false,PanelColor1.Color,EClientes.Color) then
+    FunNfe.InutilizaNumero(StrToInt(vpfNumeroNota));
 end;
 
 {******************* cancela a nota fiscal ************************************}

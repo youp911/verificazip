@@ -153,6 +153,7 @@ type
     N23: TMenuItem;
     Projeto1: TMenuItem;
     ReorganizaPlanoContas1: TMenuItem;
+    MetaFaturamento1: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -713,6 +714,11 @@ begin
   30300 : begin
             FGraficoAnaliseFaturamento := tFGraficoAnaliseFaturamento.CriarSDI(self,'',FPrincipal.VerificaPermisao('FGraficoAnaliseFaturamento'));
             FGraficoAnaliseFaturamento.GraficoReceberXPagar;
+            FGraficoAnaliseFaturamento.free;
+          end;
+  30400 : begin
+            FGraficoAnaliseFaturamento := tFGraficoAnaliseFaturamento.CriarSDI(self,'',FPrincipal.VerificaPermisao('FGraficoAnaliseFaturamento'));
+            FGraficoAnaliseFaturamento.GraficoMetaFaturamento;
             FGraficoAnaliseFaturamento.free;
           end;
   end;

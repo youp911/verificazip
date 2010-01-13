@@ -1630,7 +1630,7 @@ var
 begin
   if MovParcelasI_COD_FRM.AsInteger = varia.FormaPagamentoBoleto then
   begin
-    VpfResultado := FunContasAReceber.AdicionaRemessa(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger,1);
+    VpfResultado := FunContasAReceber.AdicionaRemessa(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger,1,'Remessa');
     if vpfresultado <> '' then
       aviso(VpfResultado)
     else
@@ -1736,7 +1736,7 @@ var
 begin
   if MovParcelasI_COD_FRM.AsInteger = varia.FormaPagamentoBoleto then
   begin
-    VpfResultado := FunContasAReceber.AdicionaRemessa(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger,9);
+    VpfResultado := FunContasAReceber.AdicionaRemessa(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger,9,'Pedido de Protesto');
     if VpfResultado = '' then
       VpfResultado := FunContasAReceber.AtualizaDataCartorio(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_REC.AsInteger,MovParcelasI_NRO_PAR.AsInteger);
 

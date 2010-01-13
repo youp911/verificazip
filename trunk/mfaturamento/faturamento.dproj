@@ -167,9 +167,6 @@
 			</DCCReference>
 			<DCCReference Include="..\MFinanceiro\UnComissoes.pas"/>
 			<DCCReference Include="..\MFinanceiro\UnContasAReceber.pas"/>
-			<DCCReference Include="..\MFinanceiro\ACondicoesPgtos.pas">
-				<Form>FCondicoesPagamentos</Form>
-			</DCCReference>
 			<DCCReference Include="..\MEstoque\UnServicos.pas"/>
 			<DCCReference Include="..\MConfiguracoesSistema\UnMoedas.pas"/>
 			<DCCReference Include="..\MFinanceiro\AImprimeBoleto.pas">

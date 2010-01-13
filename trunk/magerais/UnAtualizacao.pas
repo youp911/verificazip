@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1563;
+  CT_VersaoBanco = 1568;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1261,6 +1261,62 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE CADCLIENTES ADD(C_OPT_SIM CHAR(1)NULL)' );
         ExecutaComandoSql(Aux,'Update CADCLIENTES set C_OPT_SIM = ''N''');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1563');
+      end;
+      if VpaNumAtualizacao < 1564 Then
+      begin
+        VpfErro := '1564';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADGRUPOS ADD C_GER_ALC CHAR(1) NULL' );
+        ExecutaComandoSql(Aux,'Update CADGRUPOS set C_GER_ALC = ''T''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1564');
+      end;
+      if VpaNumAtualizacao < 1565 Then
+      begin
+        VpfErro := '1565';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD I_MES_SCS NUMBER(10,0) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1565');
+      end;
+      if VpaNumAtualizacao < 1566 Then
+      begin
+        VpfErro := '1566';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_PRODUTO ADD I_ORC_SLO NUMBER(10,0) NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1566');
+      end;
+      if VpaNumAtualizacao < 1567 Then
+      begin
+        VpfErro := '1567';
+        ExecutaComandoSql(Aux,'CREATE TABLE AMOSTRAPRECOCLIENTE ('+
+                              ' CODAMOSTRA NUMBER(10,0) NOT NULL, '+
+                              ' CODCORAMOSTRA NUMBER(10,0) NOT NULL, '+
+                              ' CODCLIENTE NUMBER(10,0) NOT NULL, '+
+                              ' CODCOEFICIENTE NUMBER(10,0) NOT NULL, '+
+                              ' SEQPRECO NUMBER(10,0) NOT NULL, '+
+                              ' QTDAMOSTRA NUMBER(15,3) NULL,'+
+                              ' VALVENDA NUMBER(15,3) NULL,'+
+                              ' PERLUCRO NUMBER(5,2) NULL,'+
+                              ' PERCOMISSAO NUMBER(5,2) NULL,'+
+                              ' PRIMARY KEY(CODAMOSTRA,CODCORAMOSTRA,CODCLIENTE,CODCOEFICIENTE,SEQPRECO))');
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRAPRECOCLIENTE add CONSTRAINT AMOSTRAPRECOCLIENTE '+
+                              ' FOREIGN KEY (CODAMOSTRA) '+
+                              '  REFERENCES AMOSTRA (CODAMOSTRA) ');
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRAPRECOCLIENTE add CONSTRAINT AMOSTRAPRECOCLIENTECLI '+
+                              ' FOREIGN KEY (CODCLIENTE) '+
+                              '  REFERENCES CADCLIENTES (I_COD_CLI) ');
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRAPRECOCLIENTE add CONSTRAINT AMOSTRAPRECOCLIENTECOE '+
+                              ' FOREIGN KEY (CODCOEFICIENTE) '+
+                              '  REFERENCES COEFICIENTECUSTO (CODCOEFICIENTE) ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1567');
+      end;
+      if VpaNumAtualizacao < 1568 Then
+      begin
+        VpfErro := '1568';
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVCOMISSOES ADD D_PAG_REC DATE NULL ');
+        ExecutaComandoSql(Aux,'Update MOVCOMISSOES COM '+
+                          ' SET D_PAG_REC = (SELECT D_DAT_PAG FROM MOVCONTASARECEBER MOV '+
+                          ' WHERE MOV.I_EMP_FIL = COM.I_EMP_FIL '+
+                          ' AND MOV.I_LAN_REC = COM.I_LAN_REC '+
+                          ' AND MOV.I_NRO_PAR = COM.I_NRO_PAR )'+
+                          ' WHERE D_DAT_VAL IS NOT NULL' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1568');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

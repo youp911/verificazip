@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Graficos, StdCtrls, Buttons, ExtCtrls, ComCtrls, Componentes1, Series,TeeProcs,TeEngine,
   PainelGradiente, Db, DBTables, Localizacao, Spin, UnContasAReceber, FMTBcd,
-  SqlExpr;
+  SqlExpr, Mask, numericos;
 
 type
   TFGraficoAnaliseFaturamento = class(TFormularioPermissao)
@@ -38,6 +38,9 @@ type
     LFilial: TLabel;
     EFilial: TEditLocaliza;
     BMostrarConta: TSpeedButton;
+    PMeta: TPanelColor;
+    EMeta: Tnumerico;
+    Label6: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BGerarClick(Sender: TObject);
@@ -64,6 +67,7 @@ type
     function RValCPEmitido(VpaData : Double) : Double;
     function RNomVendedor(VpaCodVendedor :String):String;
     procedure GeraGraficoFaturamento;
+    procedure GerarGraficoMetaFaturamento;
     procedure GeraGraficoVendedor;
     procedure GeraGraficoVendedorXRealizado;
     procedure GeraGraficoPedidosEmitidos;
@@ -78,6 +82,7 @@ type
     procedure GraficoPedidos;
     procedure GraficoReceberPorEmissao;
     procedure GraficoReceberXPagar;
+    procedure GraficoMetaFaturamento;
   end;
 
 var
@@ -126,7 +131,6 @@ end;
 {******************************************************************************}
 procedure TFGraficoAnaliseFaturamento.GeraGraficoFaturamento;
 var
-  VpfQtdMetros : Double;
   VpfData : String;
   VpfSerie : TBarSeries;
 begin
@@ -305,6 +309,69 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFGraficoAnaliseFaturamento.GerarGraficoMetaFaturamento;
+var
+  VpfData : String;
+  VpfSerie1, VpfSerie2 : TBarSeries;
+  VpfDia, VpfQtdDias : Integer;
+  VpfDataInicial, VpfDatafinal : TDateTime;
+  VpfValDiario, VpfValorFaturado, VpfValFaturadoAcumulado : Double;
+begin
+  Grafico.InicializaGrafico;
+  VpfSerie1 := TBarSeries.Create(Self);
+  Grafico.AGrafico.AddSeries(VpfSerie1);
+  VpfSerie1.Marks.Style := smsValue;
+  VpfSerie1.ColorEachPoint := false;
+  VpfSerie1.BarBrush.Color := clYellow;
+  VpfSerie1.Title := 'Metas';
+
+  VpfSerie2 := TBarSeries.Create(Self);
+  Grafico.AGrafico.AddSeries(VpfSerie2);
+  VpfSerie2.Marks.Style := smsValue;
+  VpfSerie2.ColorEachPoint := false;
+  VpfSerie2.BarBrush.Color := clYellow;
+  VpfSerie2.Title := 'Realizado';
+
+  PosContasAReceber(Tabela);
+  VpfDataInicial := PrimeiroDiaMes(date);
+  VpfDatafinal := UltimoDiaMes(date);
+  VpfValDiario := (EMeta.AValor - VpfValorFaturado) / (QdadeDiasUteis(VpfDataInicial,VpfDatafinal)+1);
+  VpfValorFaturado :=0;
+
+  for VpfDia :=  1 to dia(UltimoDiaMes(Date)) do
+  begin
+    if (DiaSemanaNumerico(MontaData(vpfDia,Mes(VpfDataInicial),Ano(VpfDataInicial)))  in  [1,7]) then
+      continue;
+    VpfValFaturadoAcumulado := 0;
+    if VpfDia <= Dia(date) then
+    begin
+      VpfQtdDias :=QdadeDiasUteis(MontaData(VpfDia,Mes(VpfDataInicial),Ano(VpfDataInicial)),VpfDatafinal)+1;
+      VpfValDiario := ((EMeta.AValor - VpfValorFaturado)) / VpfQtdDias;
+      while (Dia(Tabela.FieldByName('DATA1').AsDateTime) <= VpfDia)   and not Tabela.Eof do
+      begin
+        VpfValorFaturado := VpfValorFaturado + Tabela.FieldByName('VALOR').AsFloat;
+        VpfValFaturadoAcumulado := VpfValFaturadoAcumulado + Tabela.FieldByName('VALOR').AsFloat;
+        Tabela.Next;
+      end;
+    end
+    else
+      if VpfDia >= dia(date) then
+      begin
+        VpfValDiario := (EMeta.AValor - VpfValorFaturado) / (QdadeDiasUteis(date,VpfDatafinal)+1);
+      end;
+    Grafico.AGrafico.Series[1].Add(ArredondaDecimais(VpfValFaturadoAcumulado,2),FormatDateTime('DD/MM/YY',MontaData(VpfDia,Mes(VpfDataInicial),Ano(VpfDataInicial))));
+    Grafico.AGrafico.Series[0].Add(ArredondaDecimais(VpfValDiario,2),FormatDateTime('DD/MM/YY',MontaData(VpfDia,Mes(VpfDataInicial),Ano(VpfDataInicial))));
+  end;
+
+  Grafico.AInfo.TituloGrafico := 'Metas Faturamento  '+EMeta.Text;
+  Grafico.AInfo.TituloFormulario := 'Metas';
+  Grafico.AInfo.TituloY := 'Valor Faturamento';
+  Grafico.AInfo.RodapeGrafico := 'Metas de '+EMeta.Text;
+  Grafico.Executa;
+  Tabela.Close;
+end;
+
+{******************************************************************************}
 procedure TFGraficoAnaliseFaturamento.GerarGraficoReceberXPagar;
 var
   VpfQtdMetros : Double;
@@ -423,6 +490,16 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFGraficoAnaliseFaturamento.GraficoMetaFaturamento;
+begin
+  Caption := 'Meta Faturamento';
+  PainelGradiente1.Caption := '  Meta Faturamento  ';
+  VprTipoGrafico := 6;
+  MostraPanel(6);
+  showmodal;
+end;
+
+{******************************************************************************}
 procedure TFGraficoAnaliseFaturamento.GraficoMetaVendedor;
 begin
   Caption := 'Meta Vendedor';
@@ -484,8 +561,14 @@ end;
 procedure TFGraficoAnaliseFaturamento.MostraPanel(VpaTipGrafico : Integer);
 begin
   PVendedor.Visible := False;
+  PMeta.Visible := false;
   case VpaTipGrafico of
     1,2 : PVendedor.visible := true;
+    6 : begin
+          PMeta.Visible := true;
+          EDatInicio.Date := PrimeiroDiaMes(date);
+          CAgruparpor.ItemIndex := 0;
+        end;
   end;
 end;
 
@@ -509,12 +592,9 @@ begin
      (varia.CNPJFilial = CNPJ_AviamentosJaragua))and
      (EFilial.AInteiro = 0) then
     VpaTabela.sql.add(' and I_EMP_FIL <> 13');
-  if not VprMostrarContas then
-    VpaTabela.sql.add(' and MOV.C_IND_CAD = ''N''');
 
-  VpaTabela.Sql.add(' group by DATA1, DATA '  +
+  VpaTabela.Sql.add(' group by D_DAT_EMI '  +
                     ' order by 2');
-
   VpaTabela.Open;
 end;
 
@@ -812,6 +892,7 @@ begin
     3 : GeraGraficoPedidosEmitidos;
     4 : GeraGraficoReceberEmissao;
     5 : GerarGraficoReceberXPagar;
+    6 : GerarGraficoMetaFaturamento;
   end;
 end;
 

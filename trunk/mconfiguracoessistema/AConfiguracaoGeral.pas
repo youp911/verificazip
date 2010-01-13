@@ -507,6 +507,10 @@ type
     CFGC_CHA_SEC: TWideStringField;
     CFGC_COT_APG: TWideStringField;
     DBCheckBox47: TDBCheckBox;
+    Label125: TLabel;
+    DBEditColor32: TDBEditColor;
+    CFGI_MES_SCS: TFMTBCDField;
+    PanelColor7: TPanelColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

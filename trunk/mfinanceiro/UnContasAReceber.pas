@@ -83,7 +83,7 @@ type
     function RProximoSeqRemessa(VpaCodFilial : Integer):Integer;
     function RSeqRemessaCorpoAberto(VpaCodFilial : Integer;VpaContaCorrente : String):Integer;
     function InicializaNovaRemessa(VpaCodFilial : Integer;VpaContaCorrente : String):Integer;
-    function AdicionaRemessaItem(VpaCodFilial, VpaSeqRemessa,VpaLanReceber,VpaNumParcela, VpaCodMovimento : Integer) : string;
+    function AdicionaRemessaItem(VpaCodFilial, VpaSeqRemessa,VpaLanReceber,VpaNumParcela, VpaCodMovimento : Integer;VpaNomMotivo : String) : string;
 
     //cobranca
     function RProximoSeqCobranca : Integer;
@@ -177,13 +177,13 @@ type
     function RMaiorVencimentoContas(VpaDContas : TRBDContasConsolidadasCR):TDateTime;
     function GravaDContaConsolidada(VpaDContas : TRBDContasConsolidadasCR):String;
     procedure CarNroNotas(VpaDContas : TRBDContasConsolidadasCR);
-    procedure BaixaContasConsolidadas(VpaCodFilial,VpaLanReceber : Integer);
+    procedure BaixaContasConsolidadas(VpaCodFilial,VpaLanReceber : Integer;VpaDatBaixa : TDateTime);
     procedure ExtornaContasConsolidadas(VpaCodFilial,VpaLanReceber : Integer);
     procedure ExcluiContaConsolidada(VpaCodFilial,VpaLanReceber : Integer);
 
     //remessas
     function RNossoNumero(VpaLanReceber, VpaNumParcela : Integer; VpaContaCorrente :String):String;
-    function AdicionaRemessa(VpaCodFilial, VpaLanReceber,VpaNumParcela, VpaCodMovimento : Integer):String;
+    function AdicionaRemessa(VpaCodFilial, VpaLanReceber,VpaNumParcela, VpaCodMovimento : Integer;VpaNomMotivo : String):String;
     procedure ExcluiItemRemessa(VpaCodFilial,VpaSeqRemessa,VpaLanReceber,VpaNumParcela : Integer);
     procedure ExcluiItemRemessaSeNaoEnviado(VpaCodFilial,VpaLanReceber,VpaNumParcela : Integer);
     function ContaAdicionadaRemessa(VpaCodFilial, VpaLanReceber : Integer):string;
@@ -1063,7 +1063,7 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesContasAReceber.AdicionaRemessaItem(VpaCodFilial, VpaSeqRemessa,VpaLanReceber,VpaNumParcela,VpaCodMovimento : Integer) : string;
+function TFuncoesContasAReceber.AdicionaRemessaItem(VpaCodFilial, VpaSeqRemessa,VpaLanReceber,VpaNumParcela,VpaCodMovimento : Integer;VpaNomMotivo : String) : string;
 begin
   result := '';
   if ExisteRemessa(VpaCodFilial,VpaSeqRemessa,VpaLanReceber,VpaNumParcela) then
@@ -1079,6 +1079,7 @@ begin
     Cadastro.FieldByName('NUMPARCELA').AsInteger := VpaNumParcela;
     Cadastro.FieldByName('CODUSUARIO').AsInteger := Varia.CodigoUsuario;
     Cadastro.FieldByName('CODMOVIMENTO').AsInteger := VpaCodMovimento;
+    Cadastro.FieldByName('NOMMOTIVO').AsString := VpaNomMotivo;
     Cadastro.FieldByName('INDCONFIRMADA').AsString := 'N';
     Cadastro.post;
     result := Cadastro.AMensagemErroGravacao;
@@ -1112,7 +1113,7 @@ begin
   begin
     VpfDParcela := TRBDMovContasCR(VpaDContasAReceber.Parcelas.Items[VpfLaco]);
     if VpfDParcela.CodFormaPagamento = varia.FormaPagamentoBoleto then
-      result := adicionaremessa(VpaDContasAReceber.CodEmpFil,VpaDContasAReceber.LanReceber,VpfDParcela.NumParcela,1);
+      result := adicionaremessa(VpaDContasAReceber.CodEmpFil,VpaDContasAReceber.LanReceber,VpfDParcela.NumParcela,1,'Remessa');
     if result <> '' then
       exit;
   end;
@@ -2071,10 +2072,10 @@ begin
       begin
       // BAIXA A COMISSÃO SE O MÓDULO COMISSÕES EXISTIR //
         if (ConfigModulos.Comissao) then
-          result := FunComissoes.LiberaComissao(VpfDParcela.CodFilial,VpfDParcela.LanReceber,VpfDParcela.NumParcela);
+          result := FunComissoes.LiberaComissao(VpfDParcela.CodFilial,VpfDParcela.LanReceber,VpfDParcela.NumParcela,VpaDBaixa.DatPagamento);
         if Result = '' then
         begin
-          BaixaContasConsolidadas(VpfDParcela.CodFilial,VpfDParcela.LanReceber);
+          BaixaContasConsolidadas(VpfDParcela.CodFilial,VpfDParcela.LanReceber,VpaDBaixa.DatPagamento);
         end;
       end;
       if result <> '' then
@@ -3143,7 +3144,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFuncoesContasAReceber.BaixaContasConsolidadas(VpaCodFilial,VpaLanReceber : Integer);
+procedure TFuncoesContasAReceber.BaixaContasConsolidadas(VpaCodFilial,VpaLanReceber : Integer;VpaDatBaixa : TDateTime);
 begin
   AdicionaSQLAbreTabela(Tabela,'Select * from MOVCONTACONSOLIDADACR '+
                                ' Where  I_EMP_FIL = '+IntToStr(VpaCodFilial) +
@@ -3155,7 +3156,7 @@ begin
     begin
       Cadastro.edit;
 
-      Cadastro.FieldByName('D_DAT_PAG').AsDateTime := Date;
+      Cadastro.FieldByName('D_DAT_PAG').AsDateTime := VpaDatBaixa;
       Cadastro.FieldByName('N_VLR_PAG').AsFloat := Cadastro.FieldByName('N_VLR_PAR').AsFloat;
       Cadastro.FieldByName('I_COD_USU').AsInteger := Varia.CodigoUsuario;
       Cadastro.FieldByName('I_FIL_PAG').AsInteger := varia.CodigoEmpFil;
@@ -3164,7 +3165,8 @@ begin
       if ConfigModulos.Comissao then
         FunComissoes.LiberaComissao( Tabela.FieldByName('I_LAN_REC').AsInteger,
                                    Tabela.FieldByName('I_LAN_REC').AsInteger,
-                                     Tabela.FieldByName('I_NRO_PAR').AsInteger);
+                                     Tabela.FieldByName('I_NRO_PAR').AsInteger,
+                                     VpaDatBaixa);
 
 
     end;
@@ -3216,7 +3218,7 @@ end;
 
 
 {******************************************************************************}
-function TFuncoesContasAReceber.AdicionaRemessa(VpaCodFilial, VpaLanReceber,VpaNumParcela,VpaCodMovimento : Integer):String;
+function TFuncoesContasAReceber.AdicionaRemessa(VpaCodFilial, VpaLanReceber,VpaNumParcela,VpaCodMovimento : Integer;VpaNomMotivo : String):String;
 var
   VpfSeqRemessa : Integer;
 begin
@@ -3261,7 +3263,7 @@ begin
   end;
   if result = '' then
   begin
-    result :=  AdicionaRemessaItem(VpaCodFilial,VpfSeqRemessa,VpaLanReceber,VpaNumParcela,VpaCodMovimento);
+    result :=  AdicionaRemessaItem(VpaCodFilial,VpfSeqRemessa,VpaLanReceber,VpaNumParcela,VpaCodMovimento,VpaNomMotivo);
   end;
 end;
 
@@ -3390,7 +3392,7 @@ begin
      ExcluiItemRemessa(VpaCodFilial,Tabela.FieldByName('SEQREMESSA').AsInteger,VpaLanReceber,VpaNumParcela)
    else
      if confirmacao('DUPLICATA JÁ ENVIADA PARA O BANCO!!!'#13'A duplicata já foi enviada para o banco, é necessário cancelar ela junto ao banco. Deseja adicionar a baixa ao arquivo de remessa?') then
-       VpfResultado := AdicionaRemessa(VpaCodFilial,VpaLanReceber,VpaNumParcela,2);
+       VpfResultado := AdicionaRemessa(VpaCodFilial,VpaLanReceber,VpaNumParcela,2,'Pedido de Baixa');
    if VpfResultado <> '' then
      aviso(VpfResultado);
    Tabela.close;

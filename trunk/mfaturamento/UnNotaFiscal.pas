@@ -1372,7 +1372,7 @@ begin
     While not Tabela.Eof do
     begin
       if (Tabela.FieldByName('I_COD_FRM').AsInteger = varia.FormaPagamentoBoleto)then
-        result :=   FunContasAReceber.AdicionaRemessa(Tabela.FieldByName('I_EMP_FIL').AsInteger,Tabela.FieldByName('I_LAN_REC').AsInteger,Tabela.FieldByName('I_NRO_PAR').AsInteger,1);
+        result :=   FunContasAReceber.AdicionaRemessa(Tabela.FieldByName('I_EMP_FIL').AsInteger,Tabela.FieldByName('I_LAN_REC').AsInteger,Tabela.FieldByName('I_NRO_PAR').AsInteger,1,'Remessa');
       if result <> '' then
         Tabela.last;
       Tabela.next;

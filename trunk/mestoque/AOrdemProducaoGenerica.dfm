@@ -39,12 +39,16 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       Top = 1
       Width = 819
       Height = 323
-      ActivePage = PImpressao
+      ActivePage = PFracionada
       Align = alClient
       TabOrder = 0
       OnChange = PageControl1Change
       object PFracionada: TTabSheet
         Caption = 'Fracionada'
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object GridIndice1: TGridIndice
           Left = 0
           Top = 0
@@ -269,6 +273,10 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       object PSubMontagem: TTabSheet
         Caption = 'Sub Montagem'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Arvore: TTreeView
           Left = 0
           Top = 0
@@ -487,6 +495,10 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
         Caption = 'Impress'#227'o'
         ImageIndex = 2
         TabVisible = False
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object GImpressao: TRBStringGridColor
           Left = 0
           Top = 0
@@ -552,7 +564,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     Caption = '   Ordens de Produ'#231#227'o   '
     Font.Charset = ANSI_CHARSET
     Font.Color = clWhite
-    Font.Height = -24
+    Font.Height = -27
     Font.Name = 'Times New Roman'
     Font.Style = [fsBold]
     ParentFont = False
@@ -1540,7 +1552,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       OnClick = BFichaConsumoClick
     end
     object BitBtn2: TBitBtn
-      Left = 341
+      Left = 209
       Top = 34
       Width = 135
       Height = 30
@@ -1614,6 +1626,32 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       ParentDoubleBuffered = False
       TabOrder = 8
       OnClick = BImprimeOrdemCorteClick
+    end
+    object BImprimirEtiquetas: TBitBtn
+      Left = 400
+      Top = 34
+      Width = 100
+      Height = 30
+      Caption = '&Etiquetas'
+      DoubleBuffered = True
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        04000000000000010000130B0000130B00001000000000000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00300000000000
+        00033FFFFFFFFFFFFFFF0888888888888880777777777777777F088888888888
+        8880777777777777777F0000000000000000FFFFFFFFFFFFFFFF0F8F8F8F8F8F
+        8F80777777777777777F08F8F8F8F8F8F9F0777777777777777F0F8F8F8F8F8F
+        8F807777777777777F7F0000000000000000777777777777777F3330FFFFFFFF
+        03333337F3FFFF3F7F333330F0000F0F03333337F77773737F333330FFFFFFFF
+        03333337F3FF3FFF7F333330F00F000003333337F773777773333330FFFF0FF0
+        33333337F3FF7F3733333330F08F0F0333333337F7737F7333333330FFFF0033
+        33333337FFFF7733333333300000033333333337777773333333}
+      NumGlyphs = 2
+      ParentDoubleBuffered = False
+      PopupMenu = PopupMenu3
+      TabOrder = 11
+      OnClick = BImprimirEtiquetasClick
     end
   end
   object PainelTempo1: TPainelTempo
@@ -1843,7 +1881,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     Left = 416
     Top = 8
     Bitmap = {
-      494C010107000900040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101070009000C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

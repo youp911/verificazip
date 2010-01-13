@@ -34,7 +34,7 @@ type
     procedure AlterarPerComissao(VpaCodFilial, VpaNumLancamento, VpaNumLanReceber, VpaNroParcela : Integer;VpaNovoPercentual : Double);
     procedure GeraParcelasComissao(VpaDNovaCR : TRBDContasCR;VpaDComissao : TRBDComissao);
     function GravaDComissoes(VpaDComissao : TRBDComissao) : string;
-    function LiberaComissao(VpaCodFilial,VpaLanReceber,VpaNumParcela : Integer) : String;
+    function LiberaComissao(VpaCodFilial,VpaLanReceber,VpaNumParcela : Integer;VpaDatPagamentoParcela : TDateTime) : String;
     function EstornaComissao(VpaCodFilial,VpaLanReceber,VpaNumParcela : Integer) : string;
   end;
 
@@ -363,7 +363,7 @@ begin
 end;
 
 {******************************************************************************}
-function TFuncoesComissao.LiberaComissao(VpaCodFilial,VpaLanReceber,VpaNumParcela : Integer) : String;
+function TFuncoesComissao.LiberaComissao(VpaCodFilial,VpaLanReceber,VpaNumParcela : Integer;VpaDatPagamentoParcela : TDateTime) : String;
 begin
   result := '';
   PosicionaComisaoCR(Comissao,VpaCodfilial,VpaLanReceber,VpaNumParcela);
@@ -372,6 +372,7 @@ begin
     Comissao.Edit;
     Comissao.FieldByName('D_DAT_VAL').AsDateTime := date;
     Comissao.FieldByName('D_ULT_ALT').AsDateTime := Date;
+    Comissao.FieldByName('D_PAG_REC').AsDateTime := VpaDatPagamentoParcela;
     try
       Comissao.post;
     except
@@ -396,6 +397,7 @@ begin
     begin
       Comissao.Edit;
       Comissao.FieldByName('D_DAT_VAL').clear;
+      Comissao.FieldByName('D_PAG_REC').clear;
       Comissao.FieldByName('D_ULT_ALT').AsDateTime := Date;
       try
         Comissao.post;

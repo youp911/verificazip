@@ -495,7 +495,7 @@ begin
     //02 COD_ITEM
     Tabela.FieldByName('I_SEQ_PRO').AsString+'|'+
     //03 DESCR_ITEM
-    DeletaEspacoDE(Tabela.FieldByName('C_NOM_PRO').AsString)+'|'+
+    DeletaChars(DeletaEspacoDE(Tabela.FieldByName('C_NOM_PRO').AsString),'*')+'|'+
     //04 COD_BARRAS
     '|'+
     //05 COD_ANT_ITEM

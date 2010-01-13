@@ -243,6 +243,9 @@ type
     PanelColor8: TPanelColor;
     PanelColor9: TPanelColor;
     PanelColor10: TPanelColor;
+    DBCheckBox70: TDBCheckBox;
+    CadGruposC_GER_ALC: TWideStringField;
+    ScrollBox2: TScrollBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadGruposAfterInsert(DataSet: TDataSet);
@@ -402,6 +405,7 @@ begin
   CadGruposI_EMP_FIL.AsInteger := Varia.CodigoEmpFil;
   ECodigo.Proximocodigo;
   InicializaCheckBox(PanelColor4,'F');
+  CadGruposC_GER_ALC.AsString := 'T';
 end;
 
 procedure TFNovoGrupo.CadGruposAfterPost(DataSet: TDataSet);

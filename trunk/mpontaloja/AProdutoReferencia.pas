@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   StdCtrls, Componentes1, Localizacao, Buttons, ExtCtrls, PainelGradiente,
-  Db, DBTables, Grids, DBGrids, Tabela, DBKeyViolation, UnProdutos;
+  Db, DBTables, Grids, DBGrids, Tabela, DBKeyViolation, UnProdutos, DBClient;
 
 type
   TFReferenciaProduto = class(TFormularioPermissao)
@@ -19,20 +19,20 @@ type
     Label2: TLabel;
     ECliente: TEditLocaliza;
     GProdutos: TGridIndice;
-    ProdutoReferencia: TQuery;
-    ProdutoReferenciaSEQ_PRODUTO: TIntegerField;
-    ProdutoReferenciaSEQ_REFERENCIA: TIntegerField;
-    ProdutoReferenciaCOD_COR: TIntegerField;
-    ProdutoReferenciaDES_REFERENCIA: TStringField;
-    ProdutoReferenciaCOD_PRODUTO: TStringField;
+    ProdutoReferencia: TSQL;
+    ProdutoReferenciaSEQ_PRODUTO: TFMTBCDField;
+    ProdutoReferenciaSEQ_REFERENCIA: TFMTBCDField;
+    ProdutoReferenciaCOD_COR: TFMTBCDField;
+    ProdutoReferenciaDES_REFERENCIA: TWideStringField;
+    ProdutoReferenciaCOD_PRODUTO: TWideStringField;
     DataProdutoReferencia: TDataSource;
-    CadProdutos: TQuery;
-    ProdutoReferenciaNOM_PRODUTO: TStringField;
-    Cor: TQuery;
-    ProdutoReferenciaNom_Cor: TStringField;
-    ProdutoReferenciaCOD_CLIENTE: TIntegerField;
-    CadClientes: TQuery;
-    ProdutoReferenciaNom_Cliente: TStringField;
+    CadProdutos: TSQL;
+    ProdutoReferenciaNOM_PRODUTO: TWideStringField;
+    Cor: TSQL;
+    ProdutoReferenciaNom_Cor: TWideStringField;
+    ProdutoReferenciaCOD_CLIENTE: TFMTBCDField;
+    CadClientes: TSQL;
+    ProdutoReferenciaNom_Cliente: TWideStringField;
     Label4: TLabel;
     EProduto: TEditLocaliza;
     SpeedButton2: TSpeedButton;
@@ -121,6 +121,7 @@ var
   VpfPosicao : TBookMark;
 begin
   VpfPosicao := ProdutoReferencia.GetBookmark;
+  ProdutoReferencia.close;
   ProdutoReferencia.SQL.CLEAR;
   ProdutoReferencia.sql.Add('Select * from PRODUTO_REFERENCIA'+
                             ' Where SEQ_PRODUTO = SEQ_PRODUTO');

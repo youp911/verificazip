@@ -621,7 +621,7 @@ begin
   begin
     if confirmacao('Duplicata já se encontra no banco. Deseja adicionar o titulo no arquivo de remessa para que seja realizada a alteração no banco?') then
     begin
-      VpfResultado := FunContasAReceber.AdicionaRemessa(MovContasAReceberI_EMP_FIL.AsInteger,MovContasAReceberI_LAN_REC.AsInteger,MovContasAReceberI_NRO_PAR.AsInteger,6);
+      VpfResultado := FunContasAReceber.AdicionaRemessa(MovContasAReceberI_EMP_FIL.AsInteger,MovContasAReceberI_LAN_REC.AsInteger,MovContasAReceberI_NRO_PAR.AsInteger,6,'Alteracao Vencimento');
       if vpfresultado <> '' then
         aviso(VpfResultado);
     end;

@@ -161,6 +161,7 @@ type
     N12: TMenuItem;
     ListaProdutosaExcluir1: TMenuItem;
     PainelTempo1: TPainelTempo;
+    BImprimirEtiquetas: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -219,6 +220,7 @@ type
     procedure ArvoreDblClick(Sender: TObject);
     procedure GridIndice1Ordem(Ordem: string);
     procedure ListaProdutosaExcluir1Click(Sender: TObject);
+    procedure BImprimirEtiquetasClick(Sender: TObject);
   private
     { Private declarations }
     VprOrdem : String;
@@ -646,6 +648,13 @@ begin
     dtRave.ImprimeFracaoOP(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,true);
     dtRave.free;
   end;
+end;
+
+{******************************************************************************}
+procedure TFOrdemProducaoGenerica.BImprimirEtiquetasClick(Sender: TObject);
+begin
+  if OrdemProducaoSEQORD.AsInteger <> 0 then
+    FunOrdemProducao.ImprimeEtiquetasOrdemProducao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger);
 end;
 
 {******************************************************************************}

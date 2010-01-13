@@ -256,6 +256,7 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     procedure ImprimeEtiquetasFracaoPremer(VpaEtiquetas : TList);
     procedure ImprimeEtiquetasPlanoCorte(VpaDPlanoCorte : TRBDPlanoCorteCorpo);
     procedure ImprimeEtiquetaNroOP(VpaSeqOrdem : INteger;VpaNomCiente : String);
+    procedure ImprimeEtiquetasOrdemProducao(VpaCodFilial, VpaSeqOrdem : Integer);
     procedure CarIconeNoFracao(VpaNo : TTreeNode;VpaDFracao : TRBDFracaoOrdemProducao);
     procedure AdicionaNoFracao(VpaCodFilial,VpaSeqOrdem, VpaSeqFracao : Integer;VpaNoPai : TTreeNode;VpaArvore : TTreeView);
     procedure CarregaArvoreSubMontagem(VpaTabela : TDataSet;VpaArvore : TTreeView);
@@ -6244,6 +6245,12 @@ begin
   end;
   ImprimeEtiquetaFracao(VpfDOrdemProducao);
   VpfDOrdemProducao.free;
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesOrdemProducao.ImprimeEtiquetasOrdemProducao(VpaCodFilial,VpaSeqOrdem: Integer);
+begin
+
 end;
 
 {******************************************************************************}

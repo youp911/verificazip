@@ -250,7 +250,7 @@ begin
   end;
 
   if Config.AdicionarRemessaAoImprimirBoleto then
-    FunContasAReceber.AdicionaRemessa(VpaCodFilial,VpaLanReceber,VpaNumParcela,1);
+    FunContasAReceber.AdicionaRemessa(VpaCodFilial,VpaLanReceber,VpaNumParcela,1,'Remessa');
 
   VpfBoleto.Free;
 end;

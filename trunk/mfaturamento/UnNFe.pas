@@ -47,6 +47,7 @@ Type TRBFuncoesNFe = class
     function EnviaEmailDanfe(VpaDNota : TRBDNotaFiscal;VpaDCliente : TRBDCliente):String;
     function CancelaNFE(VpaDNota : TRBDNotaFiscal;VpaMotivo : String):string;
     procedure HigienizarCadastros(VpaErros, VpaCorrigidos : TStrings;VpaStatus : TStatusBar);
+    function InutilizaNumero(VpaNumNota : Integer):String;
 end;
 
 
@@ -54,7 +55,7 @@ end;
 implementation
 
 Uses FunSql, Constantes, funString, Constmsg, UnNotaFiscal, UnClientes, FunValida, FunNumeros,
-     FunArquivos;
+     FunArquivos, funData;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                             eventos da classe TRBFuncoesNFe
@@ -833,6 +834,13 @@ begin
   NFe.NotasFiscais.Imprimir;
   NFe.DANFE := nil;
   Danfe.FREE;
+end;
+
+{******************************************************************************}
+function TRBFuncoesNFe.InutilizaNumero(VpaNumNota: Integer): String;
+begin
+  result := '';
+  NFe.WebServices.Inutiliza(varia.CNPJFilial,'NUMERO PERDIDO',ANO(DATE),55,StrtoInt(Varia.SerieNota),VpaNumNota,VpaNumNota);
 end;
 
 {******************************************************************************}

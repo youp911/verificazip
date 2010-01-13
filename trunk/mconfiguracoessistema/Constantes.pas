@@ -80,7 +80,8 @@ type
     puESImprimirEtiquetaProduto, puCRSomenteProspectDoVendedor, puESPedidoCompra, puESOrcamentoCompra,puESSolicitacaoCompra,
     puSomenteClientesdoVendedor,puFIBloquearClientes, puVendedorAlteraContrato, puPLImprimirPedidoDuasVezes, puPLImprimirValoresRelatorioPedidosPendentes,
     puESPlanoCorte,puCRSomenteCadastraProspect,puESColetaQtdProduzidoOP,puESReprocessarProdutividade, puESAcertoEstoque,
-    puESMenuGerencial, puESRegerarProjeto,puSomenteCondicoesPgtoAutorizadas, puESCadastrarCelulaTrabalho, puESReservaEstoque, puESConsultaProduto);
+    puESMenuGerencial, puESRegerarProjeto,puSomenteCondicoesPgtoAutorizadas, puESCadastrarCelulaTrabalho, puESReservaEstoque, puESConsultaProduto,
+    puAlterarLimiteCredito);
 
   TRBDPermisaoUsuario = set of TRBDOpcoesPermisaoUsuario;
   TRBDTipoValorComissao = (vcTotalNota,vcTotalProdutos);
@@ -263,6 +264,7 @@ type
       TipoCotacaoRevenda,
       TipoCotacaoFaturaLocacao,
       TipoCotacaoFaturamentoPendente,
+      TipoCotacaoSuprimentoLocacao,
       CodTransportadoraVazio,
       CodFilialControladoraEstoque,
       CodVendedorCotacao
@@ -290,7 +292,8 @@ type
       CodClassificacaoChip: String;
 
       // clientes
-      SituacaoPadraoCliente: Integer;
+      SituacaoPadraoCliente,
+      QtdMesesSemConsultaSerasa: Integer;
 
       // ecf
       UsarGaveta : string;
@@ -956,6 +959,8 @@ begin
    VpaDPermissao := VpaDPermissao + [puESReservaEstoque];
   if TipoCheck(VarAux.FieldByName('C_EST_CPR').AsString) then
    VpaDPermissao := VpaDPermissao + [puESConsultaProduto];
+  if TipoCheck(VarAux.FieldByName('C_GER_ALC').AsString) then
+   VpaDPermissao := VpaDPermissao + [puAlterarLimiteCredito];
 
   config.UtilizarPercentualConsulta := TipoCheck(VarAux.fieldByName('C_IND_PER').AsString);
   config.ResponsavelLeituraLocacao := TipoCheck(VarAux.fieldByName('C_RES_LEL').AsString);
@@ -1372,6 +1377,7 @@ begin
        CodClienteOP := VpfTabela.FieldByName('I_ORP_ICP').AsInteger;
        AcrescimoCMEnfesto := VpfTabela.FieldByName('N_ACR_TEC').AsFloat;
        SituacaoPadraoCliente:= VpfTabela.FieldByName('I_SIT_CLI').AsInteger;
+       QtdMesesSemConsultaSerasa := VpfTabela.FieldByName('I_MES_SCS').AsInteger;
 
        PathVersoes:= VpfTabela.FieldByName('C_DIR_VER').AsString;
        DriveFoto:= VpfTabela.FieldByName('C_DIR_FOT').AsString;
@@ -1511,6 +1517,7 @@ begin
          TipoCotacaoRevenda := VpfTabela.FieldByName('I_ORC_REV').AsInteger;
          TipoCotacaoFaturaLocacao := VpfTabela.FieldByName('I_ORC_LOC').AsInteger;
          TipoCotacaoFaturamentoPendente := VpfTabela.FieldByName('I_FAT_PEN').AsInteger;
+         TipoCotacaoSuprimentoLocacao := VpfTabela.FieldByName('I_ORC_SLO').AsInteger;
          CodTransportadoraVazio := VpfTabela.FieldByName('I_COD_TRA').AsInteger;
          OperacaoEstoqueEstornoEntrada := VpfTabela.FieldByName('I_OPE_EEN').AsInteger;
          OperacaoEstoqueEstornoSaida := VpfTabela.FieldByName('I_OPE_ESA').AsInteger;

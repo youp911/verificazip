@@ -368,6 +368,11 @@ type
     CFGI_ORC_LOC: TFMTBCDField;
     DBCheckBox17: TDBCheckBox;
     CFGC_IND_CAT: TWideStringField;
+    Label98: TLabel;
+    Label99: TLabel;
+    SpeedButton43: TSpeedButton;
+    DBEditLocaliza38: TDBEditLocaliza;
+    CFGI_ORC_SLO: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

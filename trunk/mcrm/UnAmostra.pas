@@ -24,8 +24,10 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     function RSeqRequisicaoMaquinaDisponivel : Integer;
     procedure CarServicosAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
     procedure CarServicosFixoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
+    procedure CarPrecosClienteAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
     function GravaDServicoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
     function GravaDServicoFixoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
+    function GravaDPrecoClienteAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
     procedure CarCoeficientesTabelaPreco(VpaDAmostra : TRBDAmostra);
     function RValCustoMateriaPrima(VpaDAmostra : TRBDAmostra):Double;
   public
@@ -279,6 +281,40 @@ begin
     Amostra.next;
   end;
   Amostra.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.GravaDPrecoClienteAmostra(VpaDAmostra: TRBDAmostra; VpaCorAmostra: Integer): string;
+var
+  VpfLaco : Integer;
+  VpfDPrecoCliente : TRBDPrecoClienteAmostra;
+begin
+  result := '';
+  ExecutaComandoSql(Aux,'Delete from AMOSTRAPRECOCLIENTE '+
+                        ' Where CODAMOSTRA = '+IntToStr(VpaDAmostra.CodAmostra)+
+                        '  and CODCORAMOSTRA = '+IntToStr(VpaCorAmostra));
+  AdicionaSQLAbreTabela(Cadastro,'Select * from AMOSTRAPRECOCLIENTE '+
+                                 ' Where CODAMOSTRA = 0 AND CODCORAMOSTRA = 0 AND CODCLIENTE = 0 AND CODCOEFICIENTE = 0 AND SEQPRECO = 0 ');
+  for VpfLaco := 0 to VpaDAmostra.PrecosClientes.Count -1 do
+  begin
+    VpfDPrecoCliente := TRBDPrecoClienteAmostra(VpaDAmostra.PrecosClientes.Items[VpfLaco]);
+    Cadastro.insert;
+    Cadastro.FieldByName('CODAMOSTRA').AsInteger := VpaDAmostra.CodAmostra;
+    Cadastro.FieldByName('CODCORAMOSTRA').AsInteger := VpaCorAmostra;
+    VpfDPrecoCliente.SeqPreco := VpfLaco +1;
+    Cadastro.FieldByName('SEQPRECO').AsInteger := VpfDPrecoCliente.SeqPreco;
+    Cadastro.FieldByName('CODCLIENTE').AsInteger := VpfDPrecoCliente.CodCliente;
+    Cadastro.FieldByName('CODCOEFICIENTE').AsInteger := VpfDPrecoCliente.CodTabela;
+    Cadastro.FieldByName('QTDAMOSTRA').AsFloat :=  VpfDPrecoCliente.QtdVenda;
+    Cadastro.FieldByName('VALVENDA').AsFloat := VpfDPrecoCliente.ValVenda;
+    Cadastro.FieldByName('PERLUCRO').AsFloat := VpfDPrecoCliente.PerLucro;
+    Cadastro.FieldByName('PERCOMISSAO').AsFloat := VpfDPrecoCliente.PerComissao;
+    Cadastro.post;
+    result := Cadastro.AMensagemErroGravacao;
+    if Cadastro.AErronaGravacao then
+      break;
+  end;
+  Cadastro.close;
 end;
 
 {******************************************************************************}
@@ -551,6 +587,7 @@ begin
   Amostra.close;
   CarServicosAmostra(VpaDAmostra,VpaCorAmostra);
   CarServicosFixoAmostra(VpaDAmostra,VpaCorAmostra);
+  CarPrecosClienteAmostra(VpaDAmostra,VpaCorAmostra);
 end;
 
 {******************************************************************************}
@@ -610,6 +647,8 @@ begin
     if result = '' then
     begin
       Result := GravaDServicoFixoAmostra(VpaDAmostra,VpaCorAmostra);
+      if result = '' then
+        result := GravaDPrecoClienteAmostra(VpaDAmostra,VpaCorAmostra);
     end;
   end;
 end;
@@ -669,6 +708,40 @@ begin
   VpaPerLucro := Aux.FieldByName('PERLUCRO').AsFloat;
   VpaPerComissao := Aux.FieldByName('PERCOMISSAO').AsFloat;
   Aux.close;
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesAmostra.CarPrecosClienteAmostra(VpaDAmostra: TRBDAmostra;VpaCorAmostra: Integer);
+Var
+  VpfDPreAmostra :TRBDPrecoClienteAmostra;
+begin
+  FreeTObjectsList(VpaDAmostra.ServicoFixo);
+
+  AdicionaSQLAbreTabela(Amostra,'Select AMP.CODAMOSTRA, AMP.CODCORAMOSTRA, AMP.SEQPRECO, AMP.CODCLIENTE, AMP.CODCOEFICIENTE, AMP.QTDAMOSTRA, ' +
+                                ' AMP.VALVENDA, AMP.PERLUCRO, AMP.PERCOMISSAO, ' +
+                                ' CLI.C_NOM_CLI, ' +
+                                ' COE.NOMCOEFICIENTE ' +
+                                ' FROM AMOSTRAPRECOCLIENTE AMP, CADCLIENTES CLI, COEFICIENTECUSTO COE ' +
+                                ' Where AMP.CODCLIENTE = CLI.I_COD_CLI ' +
+                                ' AND AMP.CODCOEFICIENTE = COE.CODCOEFICIENTE '+
+                               ' and AMP.CODAMOSTRA = '+IntToStr(VpaDAmostra.CodAmostra)+
+                               ' and AMP.CODCORAMOSTRA = '+IntToStr(VpaCorAmostra)+
+                               ' order by AMP.SEQPRECO ');
+  While not Amostra.eof do
+  begin
+    VpfDPreAmostra := VpaDAmostra.addPrecoCliente;
+    VpfDPreAmostra.SeqPreco := Amostra.FieldByName('SEQPRECO').AsInteger;
+    VpfDPreAmostra.CodTabela := Amostra.FieldByName('CODCOEFICIENTE').AsInteger;
+    VpfDPreAmostra.CodCliente := Amostra.FieldByName('CODCLIENTE').AsInteger;
+    VpfDPreAmostra.NomTabela := Amostra.FieldByName('NOMCOEFICIENTE').AsString;
+    VpfDPreAmostra.NomCliente := Amostra.FieldByName('C_NOM_CLI').AsString;
+    VpfDPreAmostra.ValVenda := Amostra.FieldByName('VALVENDA').AsFloat;
+    VpfDPreAmostra.QtdVenda := Amostra.FieldByName('QTDAMOSTRA').AsFloat;
+    VpfDPreAmostra.PerLucro := Amostra.FieldByName('PERLUCRO').AsFloat;
+    VpfDPreAmostra.PerComissao := Amostra.FieldByName('PERCOMISSAO').AsFloat;
+    Amostra.next;
+  end;
+  Amostra.close;
 end;
 
 {******************************************************************************}
@@ -766,6 +839,10 @@ end;
 {******************************************************************************}
 procedure TRBFuncoesAmostra.ExcluiAmostra(VpaCodAmostra: Integer);
 begin
+  ExecutaComandoSql(Aux,'Delete from AMOSTRAPRECOCLIENTE '+
+                        ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
+  ExecutaComandoSql(Aux,'Delete from AMOSTRASERVICO '+
+                        ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
   ExecutaComandoSql(Aux,'Delete from AMOSTRACONSUMO '+
                         ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
   ExecutaComandoSql(Aux,'Delete from AMOSTRA '+
