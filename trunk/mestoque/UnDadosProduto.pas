@@ -322,21 +322,6 @@ Type TRBDProdutoReserva = class
     destructor destroy;override;
 end;
 
-Type TRBDServicoAmostra = class
-  public
-    SeqConsumo,
-    CodCorAmostra,
-    CodEmpresaServico,
-    CodServico : Integer;
-    NomServico,
-    DesAdicional : String;
-    QtdServico,
-    ValUnitario,
-    ValTotal : Double;
-    constructor cria;
-    destructor destroy;override;
-end;
-
 Type
   TRBDPrecoClienteAmostra = class
     public
@@ -404,7 +389,8 @@ Type TRBDConsumoAmostra = class
     CodMaquina,
     CodTipoMateriaPrima,
     NumSequencia,
-    AltProduto : Integer;
+    AltProduto,
+    QtdPontos : Integer;
     CodProduto,
     CodEntretela,
     NomProduto,
@@ -420,6 +406,7 @@ Type TRBDConsumoAmostra = class
     LarMolde,
     Qtdproduto,
     QtdPecasemMetro,
+    PerAcrescimoPerda,
     ValUnitario,
     ValTotal,
     ValIndiceConsumo : Double;
@@ -428,6 +415,18 @@ Type TRBDConsumoAmostra = class
     constructor cria;
     destructor destroy;override;
 end;
+
+Type
+  TRBDItensEspeciaisAmostra = class
+    public
+      SeqProduto : Integer;
+      CodProduto,
+      NomProduto,
+      DesObservacao : string;
+      ValProduto : double;
+      constructor cria;
+      destructor destroy;override;
+  end;
 
 Type TRBDAmostra = class
   public
@@ -439,6 +438,9 @@ Type TRBDAmostra = class
     CodVendedor,
     CodAmostraIndefinida,
     QtdAmostra,
+    QtdTotalPontos,
+    QtdTrocasLinhaBordado,
+    QtdCortesBordado,
     CodEmpresa : Integer;
 
     CodClassificacao,
@@ -472,15 +474,16 @@ Type TRBDAmostra = class
     ServicoFixo,
     Quantidades,
     ValoresVenda,
-    PrecosClientes : TList;
+    PrecosClientes,
+    ItensEspeciais : TList;
     constructor cria;
     destructor destroy; override;
     function addConsumo : TRBDConsumoAmostra;
-    function addServico : TRBDServicoAmostra;
     function addServicoFixo : TRBDServicoFixoAmostra;
     function addQuantidade : TRBDQuantidadeAmostra;
     function addValorVenda : TRBDValorVendaAmostra;
     function addPrecoCliente : TRBDPrecoClienteAmostra;
+    function addItemEspecial : TRBDItensEspeciaisAmostra;
 end;
 
 Type
@@ -2433,21 +2436,6 @@ begin
   inherited destroy;
 end;
 
-{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
-                 Dados da classe do consumo amostra
-)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
-
-{******************************************************************************}
-constructor TRBDServicoAmostra.cria;
-begin
-  inherited create;
-end;
-
-{******************************************************************************}
-destructor TRBDServicoAmostra.destroy;
-begin
-  inherited destroy;
-end;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                  Dados da classe do servico fixo da amostra
@@ -2502,6 +2490,7 @@ begin
   Quantidades := TList.Create;
   ValoresVenda := TList.Create;
   PrecosClientes := TList.create;
+  ItensEspeciais := TList.Create;
 end;
 
 {******************************************************************************}
@@ -2519,6 +2508,8 @@ begin
   ValoresVenda.free;
   FreeTObjectsList(PrecosClientes);
   PrecosClientes.free;
+  FreeTObjectsList(ItensEspeciais);
+  ItensEspeciais.Free;
   inherited destroy;
 end;
 
@@ -2527,6 +2518,13 @@ function TRBDAmostra.addConsumo : TRBDConsumoAmostra;
 begin
   result := TRBDConsumoAmostra.cria;
   Consumos.add(result);
+end;
+
+{******************************************************************************}
+function TRBDAmostra.addItemEspecial: TRBDItensEspeciaisAmostra;
+begin
+  result := TRBDItensEspeciaisAmostra.cria;
+  ItensEspeciais.Add(result);
 end;
 
 {******************************************************************************}
@@ -2541,13 +2539,6 @@ function TRBDAmostra.addQuantidade: TRBDQuantidadeAmostra;
 begin
   result := TRBDQuantidadeAmostra.cria;
   Quantidades.Add(result);
-end;
-
-{******************************************************************************}
-function TRBDAmostra.addServico : TRBDServicoAmostra;
-begin
-  result := TRBDServicoAmostra.cria;
-  Servicos.add(result);
 end;
 
 {******************************************************************************}
@@ -4005,5 +3996,20 @@ begin
   inherited;
 end;
 { TRBDCombinacaoCadarcoTear }
+
+
+{ TRBDItensEspeciaisAmostra }
+{******************************************************************************}
+constructor TRBDItensEspeciaisAmostra.cria;
+begin
+  inherited create;
+end;
+
+{******************************************************************************}
+destructor TRBDItensEspeciaisAmostra.destroy;
+begin
+
+  inherited;
+end;
 
 end.

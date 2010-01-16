@@ -51,6 +51,7 @@ Type TRBFuncoesSistema = class(TRBLocalizaSistema)
     function AtualizaInformacoesGerencialCustos(VpaDiaAnterior,VpaData : TDateTime) : String;
     function AtualizaDataInformacaoGerencial(VpaData : TDateTime) : string;
     function RQtdParcelasCondicaoPagamento(VpaCodCondicaoPagamento : Integer) : Integer;
+    function RRodapeCRM(VpaCodFilial : integer) : string;
 end;
 
 Var
@@ -288,6 +289,15 @@ begin
   AdicionaSQLAbreTabela(SisAux,'select I_QTD_PAR from CADCONDICOESPAGTO '+
                                ' Where I_COD_PAG = '+IntToStr(VpaCodCondicaoPagamento));
   result := SisAux.FieldByName('I_QTD_PAR').AsInteger;
+  SisAux.Close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesSistema.RRodapeCRM(VpaCodFilial: integer): string;
+begin
+  AdicionaSQLAbreTabela(SisAux,'Select L_ROD_EMA from CADFILIAIS '+
+                            ' Where I_EMP_FIL = ' +IntToStr(VpaCodFilial));
+  result := sisAux.FieldByname('L_ROD_EMA').AsString;
   SisAux.Close;
 end;
 

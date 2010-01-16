@@ -503,7 +503,7 @@ begin
 
     VpfEmailHTML := TIdText.Create(VprMensagem.MessageParts);
     VpfEmailHTML.ContentType := 'text/html';
-    VpfEmailHTML.DisplayName := 'Proposta Seguranca2';
+    VpfEmailHTML.DisplayName := 'Nfe';
     VpfEmailHTML.CharSet := 'ISO-8859-1'; // NOSSA LINGUAGEM PT-BR (Latin-1)!!!!
     VpfEmailHTML.ContentTransfer := '16bit'; // para SAIR ACENTUADO !!!! Pois, 8bit SAI SEM
 

@@ -46,6 +46,10 @@ type
     CadClassificacaoN_QTD_PER: TFMTBCDField;
     DBCheckBox3: TDBCheckBox;
     CadClassificacaoC_IMP_ETI: TWideStringField;
+    Label7: TLabel;
+    DBEditNumerico3: TDBEditNumerico;
+    Label8: TLabel;
+    CadClassificacaoN_PER_PER: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BotaoGravar1DepoisAtividade(Sender: TObject);

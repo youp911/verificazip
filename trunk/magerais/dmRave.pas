@@ -124,7 +124,7 @@ var
 
 implementation
 
-uses APrincipal, FunSql, Constantes, UnSistema,FunData, FunString, funNumeros;
+uses APrincipal, FunSql, Constantes, UnSistema,FunData, FunString, funNumeros, funArquivos;
 
 {$R *.dfm}
 
@@ -135,6 +135,7 @@ begin
   rvSystem1.DoNativeOutput := false;
   rvSystem1.RenderObject := PDF;
   rvSystem1.OutputFileName := VplArquivoPDF;
+  NaoExisteCriaDiretorio(RetornaDiretorioArquivo(VplArquivoPDF),false);
 end;
 
 {******************************************************************************}

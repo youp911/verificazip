@@ -121,9 +121,6 @@
 			<DCCReference Include="..\MaGerais\AVendedores.pas">
 				<Form>FVendedores</Form>
 			</DCCReference>
-			<DCCReference Include="..\MFinanceiro\ACondicoesPgtos.pas">
-				<Form>FCondicoesPagamentos</Form>
-			</DCCReference>
 			<DCCReference Include="..\MEstoque\UnClassificacao.pas"/>
 			<DCCReference Include="..\mpontaloja\ACotacao.pas">
 				<Form>FCotacao</Form>

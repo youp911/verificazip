@@ -27,13 +27,13 @@ type
     Paginas: TPageControl;
     PMateriaPrima: TTabSheet;
     Grade: TRBStringGridColor;
-    PServicos: TTabSheet;
-    GServicos: TRBStringGridColor;
+    PItensEspeciais: TTabSheet;
+    GItensEspeciais: TRBStringGridColor;
     PanelColor4: TPanelColor;
     PServicoFixo: TTabSheet;
     PValorVenda: TTabSheet;
     GServicoFixo: TRBStringGridColor;
-    EValVenda: Tnumerico;
+    ETotalPontos: Tnumerico;
     Label3: TLabel;
     ETipoMateriaPrima: TRBEditLocaliza;
     PanelColor5: TPanelColor;
@@ -47,6 +47,10 @@ type
     EValSugerido: Tnumerico;
     GPrecoCliente: TRBStringGridColor;
     BitBtn1: TBitBtn;
+    EQtdTrocasLinha: Tnumerico;
+    Label7: TLabel;
+    Label8: TLabel;
+    EQtdCortes: Tnumerico;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
@@ -70,19 +74,6 @@ type
     procedure EFacaRetorno(Retorno1, Retorno2: String);
     procedure EMaquinaRetorno(Retorno1, Retorno2: String);
     procedure ECorCadastrar(Sender: TObject);
-    procedure GServicosCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
-    procedure GServicosDadosValidos(Sender: TObject;
-      var VpaValidos: Boolean);
-    procedure GServicosGetEditMask(Sender: TObject; ACol, ARow: Integer;
-      var Value: String);
-    procedure GServicosKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure GServicosKeyPress(Sender: TObject; var Key: Char);
-    procedure GServicosMudouLinha(Sender: TObject; VpaLinhaAtual,
-      VpaLinhaAnterior: Integer);
-    procedure GServicosNovaLinha(Sender: TObject);
-    procedure GServicosSelectCell(Sender: TObject; ACol, ARow: Integer;
-      var CanSelect: Boolean);
     procedure GServicoFixoCarregaItemGrade(Sender: TObject;
       VpaLinha: Integer);
     procedure GServicoFixoDadosValidos(Sender: TObject;
@@ -97,7 +88,6 @@ type
     procedure GServicoFixoNovaLinha(Sender: TObject);
     procedure GServicoFixoSelectCell(Sender: TObject; ACol, ARow: Integer;
       var CanSelect: Boolean);
-    procedure GradeDepoisExclusao(Sender: TObject);
     procedure ETipoMateriaPrimaCadastrar(Sender: TObject);
     procedure ETipoMateriaPrimaRetorno(VpaColunas: TRBColunasLocaliza);
     procedure GQuantidadeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
@@ -116,10 +106,18 @@ type
     procedure EValSugeridoExit(Sender: TObject);
     procedure GPrecoClienteCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
     procedure BitBtn1Click(Sender: TObject);
+    procedure EQtdCortesExit(Sender: TObject);
+    procedure GItensEspeciaisCarregaItemGrade(Sender: TObject;
+      VpaLinha: Integer);
+    procedure GItensEspeciaisDadosValidos(Sender: TObject;
+      var VpaValidos: Boolean);
+    procedure GItensEspeciaisKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     VprServicoAnterior,
     VprServicoFixoAnterior,
-    VprProdutoAnterior: String;
+    VprProdutoAnterior,
+    VprItemEspecialAnterior: String;
     VprCorAmostraAnterior : Integer;
     VprAcao : Boolean;
     VprPerLucro,
@@ -127,7 +125,7 @@ type
     VprValSugerido : Double;
     VprDAmostra: TRBDAmostra;
     VprDConsumoAmostra: TRBDConsumoAmostra;
-    VprDServicoAmostra : TRBDServicoAmostra;
+    VprDItemEspecial : TRBDItensEspeciaisAmostra;
     VprDServicoFixoAmostra : TRBDServicoFixoAmostra;
     VprDQuantidadeAmostra : TRBDQuantidadeAmostra;
     VprDValorVendaAmostra : TRBDValorVendaAmostra;
@@ -136,13 +134,13 @@ type
     procedure CarTitulosGrade;
     procedure CarQtdPecaMetroGrade;
     procedure CarregaDadosClasse;
-    procedure CarDServicoAmostra;
     procedure CarDServicoFixoAmostra;
+    procedure CarDItensEspeciais;
     function LocalizaProduto: Boolean;
-    function LocalizaServico : Boolean;
+    function LocalizaItemEspecial : Boolean;
     function LocalizaServicoFixo : Boolean;
     function ExisteProduto: Boolean;
-    function ExisteServico : Boolean;
+    function ExisteItemEspecial : boolean;
     function ExisteServicoFixo : Boolean;
     function ExisteCor: Boolean;
     function ExisteFaca : Boolean;
@@ -152,7 +150,6 @@ type
     procedure CalculaValorVenda;
     procedure CarGrade;
     procedure CalculaConsumos;
-    procedure CalculaValorTotalServico;
     procedure CalculaValorTotalServicoFixo;
     procedure CarComissaoLucroPadrao;
   public
@@ -208,30 +205,29 @@ begin
   Grade.Cells[8,0] := 'Valor Total';
   Grade.Cells[9,0] := 'Legenda';
   Grade.Cells[10,0] := 'Sequen.';
-  Grade.Cells[11,0] := 'Código';
-  Grade.Cells[12,0] := 'Tipo Material';
-  Grade.Cells[13,0] := 'Código';
-  Grade.Cells[14,0] := 'Faca';
-  Grade.Cells[15,0] := 'Lar Molde';
-  Grade.Cells[16,0] := 'Alt Molde';
-  Grade.Cells[17,0] := 'Código';
-  Grade.Cells[18,0] := 'Máquina';
-  Grade.Cells[19,0] := 'Código';
-  Grade.Cells[20,0] := 'Entretela';
-  Grade.Cells[21,0] := 'Qtd';
-  Grade.Cells[22,0] := 'Código';
-  Grade.Cells[23,0] := 'Termocolante';
-  Grade.Cells[24,0] := 'Qtd';
-  Grade.Cells[25,0] := 'Pcs em MT';
-  Grade.Cells[26,0] := 'Indice MT';
-  Grade.Cells[27,0] := 'Observações';
+  Grade.Cells[11,0] := 'Qtd Pontos';
+  Grade.Cells[12,0] := 'Código';
+  Grade.Cells[13,0] := 'Tipo Material';
+  Grade.Cells[14,0] := 'Código';
+  Grade.Cells[15,0] := 'Faca';
+  Grade.Cells[16,0] := 'Lar Molde';
+  Grade.Cells[17,0] := 'Alt Molde';
+  Grade.Cells[18,0] := 'Código';
+  Grade.Cells[19,0] := 'Máquina';
+  Grade.Cells[20,0] := 'Código';
+  Grade.Cells[21,0] := 'Entretela';
+  Grade.Cells[22,0] := 'Qtd';
+  Grade.Cells[23,0] := 'Código';
+  Grade.Cells[24,0] := 'Termocolante';
+  Grade.Cells[25,0] := 'Qtd';
+  Grade.Cells[26,0] := 'Pcs em MT';
+  Grade.Cells[27,0] := 'Indice MT';
+  Grade.Cells[28,0] := 'Observações';
 
-  GServicos.Cells[1,0] := 'Código';
-  GServicos.Cells[2,0] := 'Serviço';
-  GServicos.Cells[3,0] := 'Descrição Adicional';
-  GServicos.Cells[4,0] := 'Quantidade';
-  GServicos.Cells[5,0] := 'Valor Unitário';
-  GServicos.Cells[6,0] := 'Valor Total';
+  GItensEspeciais.Cells[1,0] := 'Código';
+  GItensEspeciais.Cells[2,0] := 'Produto';
+  GItensEspeciais.Cells[3,0] := 'Valor';
+  GItensEspeciais.Cells[4,0] := 'Descrição Adicional';
 
   GServicoFixo.Cells[1,0] := 'Código';
   GServicoFixo.Cells[2,0] := 'Serviço';
@@ -268,13 +264,13 @@ end;
 procedure TFAmostraConsumo.CarQtdPecaMetroGrade;
 begin
   if VprDConsumoAmostra.QtdPecasemMetro <> 0 then
-    Grade.Cells[25,Grade.ALinha]:= FormatFloat('###,###,##0.00',VprDConsumoAmostra.QtdPecasemMetro)
-  else
-    Grade.Cells[25,Grade.ALinha]:= '';
-  if VprDConsumoAmostra.ValIndiceConsumo <> 0 then
-    Grade.Cells[26,Grade.ALinha]:= FormatFloat('###,###,##0.00',VprDConsumoAmostra.ValIndiceConsumo)
+    Grade.Cells[26,Grade.ALinha]:= FormatFloat('###,###,##0.00',VprDConsumoAmostra.QtdPecasemMetro)
   else
     Grade.Cells[26,Grade.ALinha]:= '';
+  if VprDConsumoAmostra.ValIndiceConsumo <> 0 then
+    Grade.Cells[27,Grade.ALinha]:= FormatFloat('###,###,##0.00',VprDConsumoAmostra.ValIndiceConsumo)
+  else
+    Grade.Cells[27,Grade.ALinha]:= '';
 end;
 
 {******************************************************************************}
@@ -406,42 +402,57 @@ begin
   if VprDConsumoAmostra.ValUnitario = 0 then
     Grade.Cells[7,Grade.ALinha]:= ''
   else
-    Grade.Cells[7,Grade.ALinha]:= FormatFloat(varia.MascaraValorUnitario,VprDConsumoAmostra.ValUnitario);
+    Grade.Cells[7,Grade.ALinha]:= FormatFloat('#,###,###,###,##0.000###',VprDConsumoAmostra.ValUnitario);
   if VprDConsumoAmostra.ValTotal = 0 then
     Grade.Cells[8,Grade.ALinha]:= ''
   else
-    Grade.Cells[8,Grade.ALinha]:= FormatFloat(varia.MascaraValor, VprDConsumoAmostra.ValTotal);
+    Grade.Cells[8,Grade.ALinha]:= FormatFloat('#,###,###,###,##0.000###', VprDConsumoAmostra.ValTotal);
   Grade.Cells[9,Grade.ALinha]:= VprDConsumoAmostra.DesLegenda;
   if VprDConsumoAmostra.NumSequencia = 0 then
     Grade.Cells[10,Grade.ALinha]:= ''
   else
     Grade.Cells[10,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.NumSequencia);
-  if VprDConsumoAmostra.CodTipoMateriaPrima = 0 then
+  if VprDConsumoAmostra.QtdPontos = 0 then
     Grade.Cells[11,Grade.ALinha]:= ''
   else
-    Grade.Cells[11,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodTipoMateriaPrima);
-  Grade.Cells[12,Grade.ALinha]:= VprDConsumoAmostra.NomTipoMateriaPrima;
+    Grade.Cells[11,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.QtdPontos);
+  if VprDConsumoAmostra.CodTipoMateriaPrima = 0 then
+    Grade.Cells[12,Grade.ALinha]:= ''
+  else
+    Grade.Cells[12,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodTipoMateriaPrima);
+  Grade.Cells[13,Grade.ALinha]:= VprDConsumoAmostra.NomTipoMateriaPrima;
   if VprDConsumoAmostra.CodFaca = 0 then
-    Grade.Cells[13,Grade.ALinha]:= ''
+    Grade.Cells[14,Grade.ALinha]:= ''
   else
-    Grade.Cells[13,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodFaca);
-  Grade.Cells[14,Grade.ALinha]:= VprDConsumoAmostra.Faca.NomFaca;
+    Grade.Cells[14,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodFaca);
+  Grade.Cells[15,Grade.ALinha]:= VprDConsumoAmostra.Faca.NomFaca;
   if VprDConsumoAmostra.LarMolde = 0 then
-    Grade.Cells[15,Grade.ALinha]:= ''
-  else
-    Grade.Cells[15,Grade.ALinha]:= FormatFloat('#,##0.00',VprDConsumoAmostra.LarMolde);
-  if VprDConsumoAmostra.AltMolde = 0 then
     Grade.Cells[16,Grade.ALinha]:= ''
   else
-    Grade.Cells[16,Grade.ALinha]:= FormatFloat('#,##0.00',VprDConsumoAmostra.AltMolde);
-  if VprDConsumoAmostra.CodMaquina = 0 then
+  begin
+    if config.ConverterMTeCMparaMM then
+      Grade.Cells[16,Grade.ALinha]:= FormatFloat('#,##0.00',VprDConsumoAmostra.LarMolde*10)
+    else
+      Grade.Cells[16,Grade.ALinha]:= FormatFloat('#,##0.00',VprDConsumoAmostra.LarMolde);
+  end;
+  if VprDConsumoAmostra.AltMolde = 0 then
     Grade.Cells[17,Grade.ALinha]:= ''
   else
-    Grade.Cells[17,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodMaquina);
-  Grade.Cells[18,Grade.ALinha]:= VprDConsumoAmostra.Maquina.NomMaquina;
-  Grade.Cells[19,Grade.ALinha]:= VprDConsumoAmostra.CodEntretela;
-  Grade.Cells[20,Grade.ALinha]:= VprDConsumoAmostra.NomEntretela;
-  Grade.Cells[27,Grade.ALinha]:= VprDConsumoAmostra.DesObservacao;
+  begin
+    if config.ConverterMTeCMparaMM then
+      Grade.Cells[17,Grade.ALinha]:= FormatFloat('#,##0.00',VprDConsumoAmostra.AltMolde*10)
+    else
+      Grade.Cells[17,Grade.ALinha]:= FormatFloat('#,##0.00',VprDConsumoAmostra.AltMolde);
+
+  end;
+  if VprDConsumoAmostra.CodMaquina = 0 then
+    Grade.Cells[18,Grade.ALinha]:= ''
+  else
+    Grade.Cells[18,Grade.ALinha]:= IntToStr(VprDConsumoAmostra.CodMaquina);
+  Grade.Cells[19,Grade.ALinha]:= VprDConsumoAmostra.Maquina.NomMaquina;
+  Grade.Cells[20,Grade.ALinha]:= VprDConsumoAmostra.CodEntretela;
+  Grade.Cells[21,Grade.ALinha]:= VprDConsumoAmostra.NomEntretela;
+  Grade.Cells[28,Grade.ALinha]:= VprDConsumoAmostra.DesObservacao;
   CarQtdPecaMetroGrade;
 end;
 
@@ -478,37 +489,40 @@ begin
           Grade.Col:= 6;
         end
         else
-          if not ETipoMateriaPrima.AExisteCodigo(Grade.Cells[11,Grade.ALinha]) then
+          if not ETipoMateriaPrima.AExisteCodigo(Grade.Cells[12,Grade.ALinha]) then
           begin
             VpaValidos := false;
             aviso('TIPO MATERIAL NÃO CADASTRADO!!!!'#13'O tipo de material digitado não existe cadastrado.');
-            Grade.Col := 11;
+            Grade.Col := 12;
           end
           else
             if not ExisteFaca then
             begin
               VpaValidos := false;
               aviso('FACA NÃO CADASTRADA!!!!'#13'A faca digitada não existe cadastrada.');
-              Grade.Col := 13;
+              Grade.Col := 14;
             end
             else
               if not ExisteMaquina then
               begin
                 VpaValidos := false;
                 aviso('MAQUINA NÃO CADASTRADA!!!!'#13'A maquina digitada não existe cadastrada.');
-                Grade.Col := 17;
-              end
-              else
+                Grade.Col := 18;
+              end;
+{              else
                 if not ExisteEntretela then
                 begin
                   aviso('ENTRETELA NÃO CADASTRADA!!!!'#13'A entretela digitada não existe cadastrada.');
-                  VpaValidos:= False;
+                  VpaValidos:= Fase;
                   Grade.Col:= 19;
-                end
+                end}
 
   if VpaValidos then
   begin
     CarregaDadosClasse;
+    FunAmostra.CarQtdPontos(VprDAmostra);
+    ETotalPontos.AValor := VprDAmostra.QtdTotalPontos;
+    EQtdTrocasLinha.AValor := VprDAmostra.QtdTrocasLinhaBordado;
     CalculaValorVenda;
     if VprDConsumoAmostra.Qtdproduto = 0 then
     begin
@@ -522,7 +536,7 @@ begin
       begin
         aviso('ALTURA DO PRODUTO NÃO PREENCHIDA!!!'#13'Para se calcular o consumo do produto é necessário que a altura do produto esteja preenhcida');
         VpaValidos:= False;
-        Grade.Col:= 15;
+        Grade.Col:= 16;
       end;
   end;
 end;
@@ -545,23 +559,38 @@ begin
   else
     VprDConsumoAmostra.NumSequencia := 0;
 
-  if Grade.Cells[13,Grade.ALinha] <> '' then
-    VprDConsumoAmostra.CodFaca:= StrToInt(Grade.Cells[13,Grade.ALinha])
+  if Grade.Cells[11,Grade.ALinha] <> '' then
+    VprDConsumoAmostra.QtdPontos := StrToInt(Grade.Cells[11,Grade.ALinha])
+  else
+    VprDConsumoAmostra.QtdPontos := 0;
+
+  if Grade.Cells[14,Grade.ALinha] <> '' then
+    VprDConsumoAmostra.CodFaca:= StrToInt(Grade.Cells[14,Grade.ALinha])
   else
     VprDConsumoAmostra.CodFaca := 0;
-  if Grade.Cells[15,Grade.ALinha] <> '' then
-    VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[15,Grade.ALinha])
+  if Grade.Cells[16,Grade.ALinha] <> '' then
+  begin
+    if config.ConverterMTeCMparaMM then
+      VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[16,Grade.ALinha])/10
+    else
+      VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[16,Grade.ALinha]);
+  end
   else
     VprDConsumoAmostra.LarMolde := 0;
-  if Grade.Cells[16,Grade.ALinha] <> '' then
-    VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[16,Grade.ALinha])
+  if Grade.Cells[17,Grade.ALinha] <> '' then
+  begin
+    if config.ConverterMTeCMparaMM then
+      VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[17,Grade.ALinha])/10
+    else
+      VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[17,Grade.ALinha]);
+  end
   else
     VprDConsumoAmostra.AltMolde := 0;
-  if Grade.Cells[17,Grade.ALinha] <> '' then
-    VprDConsumoAmostra.CodMaquina:= StrToInt(Grade.Cells[17,Grade.ALinha])
+  if Grade.Cells[18,Grade.ALinha] <> '' then
+    VprDConsumoAmostra.CodMaquina:= StrToInt(Grade.Cells[18,Grade.ALinha])
   else
     VprDConsumoAmostra.CodMaquina := 0;
-  VprDConsumoAmostra.DesObservacao:= Grade.Cells[27,Grade.ALinha];
+  VprDConsumoAmostra.DesObservacao:= Grade.Cells[28,Grade.ALinha];
 end;
 
 {******************************************************************************}
@@ -575,14 +604,10 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFAmostraConsumo.CarDServicoAmostra;
+procedure TFAmostraConsumo.CarDItensEspeciais;
 begin
-  VprDServicoAmostra.CodServico := StrToInt(GServicos.Cells[1,GServicos.Alinha]);
-  VprDServicoAmostra.NomServico := GServicos.Cells[2,GServicos.ALinha];
-  VprDServicoAmostra.DesAdicional := GServicos.Cells[3,GServicos.ALinha];
-  VprDServicoAmostra.QtdServico := StrToFloat(DeletaChars(GServicos.Cells[4,GServicos.ALinha],'.'));
-  VprDServicoAmostra.ValUnitario := StrToFloat(DeletaChars(GServicos.Cells[5,GServicos.ALinha],'.'));
-  CalculaValorTotalServico;
+  VprDItemEspecial.ValProduto := StrToFloat(DeletaChars(GItensEspeciais.Cells[3,GItensEspeciais.ALinha],'.'));
+  VprDItemEspecial.DesObservacao := GItensEspeciais.Cells[4,GItensEspeciais.ALinha];
 end;
 
 {******************************************************************************}
@@ -590,7 +615,7 @@ procedure TFAmostraConsumo.CarDServicoFixoAmostra;
 begin
   VprDServicoFixoAmostra.CodServico := StrToInt(GServicoFixo.Cells[1,GServicoFixo.Alinha]);
   VprDServicoFixoAmostra.NomServico := GServicoFixo.Cells[2,GServicoFixo.ALinha];
-  VprDServicoFixoAmostra.DesAdicional := GServicos.Cells[3,GServicoFixo.ALinha];
+  VprDServicoFixoAmostra.DesAdicional := GServicoFixo.Cells[3,GServicoFixo.ALinha];
   VprDServicoFixoAmostra.QtdServico := StrToFloat(DeletaChars(GServicoFixo.Cells[4,GServicoFixo.ALinha],'.'));
   VprDServicoFixoAmostra.ValUnitario := StrToFloat(DeletaChars(GServicoFixo.Cells[5,GServicoFixo.ALinha],'.'));
   CalculaValorTotalServicoFixo;
@@ -601,7 +626,7 @@ procedure TFAmostraConsumo.GradeGetEditMask(Sender: TObject; ACol,
   ARow: Integer; var Value: String);
 begin
   case ACol of
-    3,10,11,13,17: Value:= '0000;0; ';
+    3,10,12,14,18: Value:= '0000;0; ';
   end;
 end;
 
@@ -654,24 +679,26 @@ begin
                CalculaConsumos;
                CalculaValorTotalItem;
              end;
-        11: if not ETipoMateriaPrima.AExisteCodigo(Grade.Cells[11,Grade.ALinha]) then
+        12: if not ETipoMateriaPrima.AExisteCodigo(Grade.Cells[12,Grade.ALinha]) then
               if not ETipoMateriaPrima.AAbreLocalizacao then
               begin
                aviso('CÓDIGO DO TIPO DO MATERIALA INVÁLIDO!!!'#13'O código do tipo do material digitado não existe cadatrado.');
-               Grade.col := 11;
+               Grade.col := 12;
                abort;
               end;
-        13: if not ExisteFaca then
+        14: if not ExisteFaca then
              if not EFaca.AAbreLocalizacao then
              begin
                Aviso('CÓDIGO DA FACA INVÁLIDA!!!'#13'É necessário informar o código da faca.');
+               Grade.col := 14;
                abort;
              end;
-       15,16 : CalculaConsumos;
-       17: if not ExisteMaquina then
+       16,17 : CalculaConsumos;
+       18: if not ExisteMaquina then
              if not EMaquina.AAbreLocalizacao then
              begin
                Aviso('CÓDIGO DA MAQUINA INVÁLIDA!!!'#13'É necessário informar o código da maquina.');
+               Grade.col := 18;
                abort;
              end;
       end;
@@ -697,35 +724,58 @@ end;
 function TFAmostraConsumo.ExisteFaca : Boolean;
 begin
   Result:= True;
-  if Grade.Cells[13,Grade.ALinha] <> '' then
+  if Grade.Cells[14,Grade.ALinha] <> '' then
   begin
-    result := FunProdutos.ExisteFaca(StrToInt(Grade.Cells[13,Grade.ALinha]),VprDConsumoAmostra.Faca);
+    result := FunProdutos.ExisteFaca(StrToInt(Grade.Cells[14,Grade.ALinha]),VprDConsumoAmostra.Faca);
     if result then
     begin
       VprDConsumoAmostra.CodFaca := VprDConsumoAmostra.Faca.CodFaca;
-      Grade.Cells[14,Grade.ALinha] := VprDConsumoAmostra.Faca.NomFaca;
+      Grade.Cells[15,Grade.ALinha] := VprDConsumoAmostra.Faca.NomFaca;
       CalculaConsumos;
     end;
   end;
 end;
 
 {******************************************************************************}
+function TFAmostraConsumo.ExisteItemEspecial: boolean;
+begin
+  if (GItensEspeciais.Cells[1,GItensEspeciais.ALinha] <> '') then
+  begin
+    if GItensEspeciais.Cells[1,GItensEspeciais.ALinha] = VprItemEspecialAnterior then
+      result := true
+    else
+    begin
+      VprDItemEspecial.CodProduto := GItensEspeciais.Cells[1,GItensEspeciais.ALinha];
+      Result:= FunProdutos.ExisteProduto(GItensEspeciais.Cells[1,GItensEspeciais.ALinha], VprDItemEspecial);
+      if result then
+      begin
+        VprItemEspecialAnterior := VprDItemEspecial.CodProduto;
+        GItensEspeciais.Cells[2,GItensEspeciais.ALinha] := VprDItemEspecial.NomProduto;
+        GItensEspeciais.Cells[3,GItensEspeciais.ALinha] := FormatFloat(Varia.MascaraValor,VprDItemEspecial.ValProduto);;
+      end;
+    end;
+  end
+  else
+    result := false;
+end;
+
+{******************************************************************************}
 function TFAmostraConsumo.ExisteMaquina : Boolean;
 begin
   result := true;
-  if Grade.cells[17,Grade.ALinha] <> '' then
+  if Grade.cells[18,Grade.ALinha] <> '' then
   begin
-    result := FunProdutos.ExisteMaquina(StrToInt(Grade.Cells[17,Grade.ALinha]),VprDConsumoAmostra.Maquina);
+    result := FunProdutos.ExisteMaquina(StrToInt(Grade.Cells[18,Grade.ALinha]),VprDConsumoAmostra.Maquina);
     if result then
     begin
       VprDConsumoAmostra.CodMaquina := VprDConsumoAmostra.Maquina.CodMaquina;
-      Grade.Cells[18,Grade.ALinha] := VprDConsumoAmostra.Maquina.NomMaquina;
-      if Grade.Cells[15,Grade.ALinha] <> '' then
-        VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[15,Grade.ALinha])
+      Grade.Cells[19,Grade.ALinha] := VprDConsumoAmostra.Maquina.NomMaquina;
+      if Grade.Cells[16,Grade.ALinha] <> '' then
+        VprDConsumoAmostra.LarMolde:= StrToFloat(Grade.Cells[16,Grade.ALinha])
       else
         VprDConsumoAmostra.LarMolde := 0;
-      if Grade.Cells[16,Grade.ALinha] <> '' then
-        VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[16,Grade.ALinha])
+      if Grade.Cells[17,Grade.ALinha] <> '' then
+        VprDConsumoAmostra.AltMolde:= StrToFloat(Grade.Cells[17,Grade.ALinha])
       else
         VprDConsumoAmostra.AltMolde := 0;
       CalculaConsumos;
@@ -768,14 +818,17 @@ begin
     VprDConsumoAmostra.ValTotal := ((VprDConsumoAmostra.ValUnitario*VprDConsumoAmostra.ValIndiceConsumo)/VprDConsumoAmostra.QtdPecasemMetro)*VprDConsumoAmostra.Qtdproduto
   else
     VprDConsumoAmostra.ValTotal := VprDConsumoAmostra.Qtdproduto * VprDConsumoAmostra.ValUnitario;
-  Grade.Cells[8,grade.ALinha] := FormatFloat(varia.MascaraValor,VprDConsumoAmostra.ValTotal);
+  if VprDConsumoAmostra.PerAcrescimoPerda <> 0 then
+     VprDConsumoAmostra.ValTotal := VprDConsumoAmostra.ValTotal +  (VprDConsumoAmostra.ValTotal*VprDConsumoAmostra.PerAcrescimoPerda)/100;
+
+  Grade.Cells[8,grade.ALinha] := FormatFloat('#,###,###,###,##0.000###',VprDConsumoAmostra.ValTotal);
 end;
 
 {******************************************************************************}
 procedure TFAmostraConsumo.CalculaValorVenda;
 begin
   FunAmostra.CalculaValorVendaUnitario(VprDAmostra);
-  EValVenda.AValor := VprDAmostra.ValVendaUnitario;
+//  EValVenda.AValor := VprDAmostra.ValVendaUnitario;
 end;
 
 {******************************************************************************}
@@ -784,8 +837,6 @@ begin
   FunAmostra.CarConsumosAmostra(VprDAmostra,ECorKit.AInteiro);
   Grade.ADados := VprDAmostra.Consumos;
   Grade.CarregaGrade;
-  GServicos.ADados := VprDAmostra.Servicos;
-  GServicos.CarregaGrade;
   GServicoFixo.ADados := VprDAmostra.ServicoFixo;
   GServicoFixo.CarregaGrade;
   GQuantidade.ADados := VprDAmostra.Quantidades;
@@ -794,6 +845,8 @@ begin
   GValorVenda.CarregaGrade;
   GPrecoCliente.ADados := VprDAmostra.PrecosClientes;
   GPrecoCliente.CarregaGrade;
+  GItensEspeciais.ADados := VprDAmostra.ItensEspeciais;
+  GItensEspeciais.CarregaGrade;
   VprCorAmostraAnterior := ECorKit.AInteiro;
 end;
 
@@ -825,12 +878,6 @@ begin
   CalculaValorTotalItem;
 end;
 
-{******************************************************************************}
-procedure TFAmostraConsumo.CalculaValorTotalServico;
-begin
-  VprDServicoAmostra.ValTotal := VprDServicoAmostra.ValUnitario * VprDServicoAmostra.QtdServico;
-  GServicos.Cells[6,GServicos.ALinha] := FormatFloat('R$ #,###,###,###,##0.000',VprDServicoAmostra.ValTotal);
-end;
 
 {******************************************************************************}
 procedure TFAmostraConsumo.CalculaValorTotalServicoFixo;
@@ -858,31 +905,7 @@ begin
         Grade.Cells[2,Grade.ALinha] := VprDConsumoAmostra.NomProduto;
         Grade.Cells[5,Grade.ALinha] := VprDConsumoAmostra.DesUM;
         Grade.Cells[6,Grade.ALinha] := FormatFloat(Varia.MascaraQtd,VprDConsumoAmostra.Qtdproduto);
-        Grade.Cells[7,Grade.ALinha] := FormatFloat(Varia.MascaraValorUnitario,VprDConsumoAmostra.ValUnitario);;
-      end;
-    end;
-  end
-  else
-    result := false;
-end;
-
-{******************************************************************************}
-function TFAmostraConsumo.ExisteServico : Boolean;
-begin
-  if (GServicos.Cells[1,GServicos.ALinha] <> '') then
-  begin
-    if (GServicos.Cells[1,GServicos.ALinha] = VprServicoAnterior)  then
-      result := true
-    else
-    begin
-      result := FunServico.ExisteServico(StrtoInt(GServicos.Cells[1,GServicos.ALinha]),VprDServicoAmostra);
-      if result then
-      begin
-        VprServicoAnterior := GServicos.Cells[1,GServicos.ALinha];
-        GServicos.Cells[2,GServicos.Alinha] := VprDServicoAmostra.NomServico;
-        GServicos.Cells[4,GServicos.ALinha] :=  FormatFloat('###,###,###,##0.000',VprDServicoAmostra.QtdServico);
-        GServicos.Cells[5,GServicos.ALinha] :=  FormatFloat('###,###,###,##0.0000',VprDServicoAmostra.ValUnitario);
-        CalculaValorTotalServico;
+        Grade.Cells[7,Grade.ALinha] := FormatFloat('#,###,###,###,##0.000###',VprDConsumoAmostra.ValUnitario);;
       end;
     end;
   end
@@ -922,9 +945,9 @@ begin
     114: case Grade.Col of
            1: LocalizaProduto;
            3: ECor.AAbreLocalizacao;
-          11: ETipoMateriaPrima.AAbreLocalizacao;
-          13: EFaca.AAbreLocalizacao;
-          17: EMaquina.AAbreLocalizacao;
+          12: ETipoMateriaPrima.AAbreLocalizacao;
+          14: EFaca.AAbreLocalizacao;
+          18: EMaquina.AAbreLocalizacao;
          end;
   end;
 end;
@@ -933,8 +956,23 @@ end;
 procedure TFAmostraConsumo.GradeKeyPress(Sender: TObject; var Key: Char);
 begin
   case Grade.Col of
-    6,7,15,16: if Key = '.' then
+    6,7,16,17: if Key = '.' then
          Key:= ',';
+  end;
+end;
+
+{******************************************************************************}
+function TFAmostraConsumo.LocalizaItemEspecial: Boolean;
+begin
+  FlocalizaProduto := TFlocalizaProduto.criarSDI(Application,'',True);
+  Result:= FlocalizaProduto.LocalizaProduto(VprDItemEspecial);
+  FlocalizaProduto.free;
+  if Result then  // se o usuario nao cancelou a consulta
+  begin
+    VprItemEspecialAnterior:= VprDItemEspecial.CodProduto;
+    GItensEspeciais.Cells[1,GItensEspeciais.ALinha] := VprDItemEspecial.CodProduto;
+    GItensEspeciais.Cells[2,GItensEspeciais.ALinha] := VprDItemEspecial.NomProduto;
+    GItensEspeciais.Cells[3,GItensEspeciais.ALinha] := FormatFloat(Varia.MascaraValor, VprDItemEspecial.ValProduto);
   end;
 end;
 
@@ -952,26 +990,7 @@ begin
     Grade.Cells[1,Grade.ALinha] := VprDConsumoAmostra.CodProduto;
     Grade.Cells[2,Grade.ALinha] := VprDConsumoAmostra.NomProduto;
     Grade.Cells[5,Grade.ALinha] := VprDConsumoAmostra.DesUM;
-    Grade.Cells[7,Grade.ALinha] := FormatFloat(varia.MascaraValorUnitario, VprDConsumoAmostra.ValUnitario);
-  end;
-end;
-
-{******************************************************************************}
-function  TFAmostraConsumo.LocalizaServico : Boolean;
-begin
-  FlocalizaServico := TFlocalizaServico.criarSDI(Application,'',FPrincipal.VerificaPermisao('FlocalizaServico'));
-  result := FlocalizaServico.LocalizaServico(VprDServicoAmostra);
-  FlocalizaServico.free; // destroi a classe;
-
-  if result then  // se o usuario nao cancelou a consulta
-  begin
-    VprDServicoAmostra.QtdServico := 1;
-    GServicos.Cells[1,GServicos.ALinha] := IntToStr(VprDServicoAmostra.CodServico);
-    GServicos.Cells[2,GServicos.ALinha] := VprDServicoAmostra.NomServico;
-    GServicos.Cells[4,GServicos.ALinha] :=  FormatFloat('###,###,###,##0.000',VprDServicoAmostra.QtdServico);
-    GServicos.Cells[5,GServicos.ALinha] :=  FormatFloat('###,###,###,##0.0000',VprDServicoAmostra.ValUnitario);
-    VprServicoAnterior := GServicos.Cells[1,GServicos.ALinha];
-    CalculaValorTotalServico;
+    Grade.Cells[7,Grade.ALinha] := FormatFloat('#,###,###,###,##0.000###', VprDConsumoAmostra.ValUnitario);
   end;
 end;
 
@@ -1014,6 +1033,9 @@ function TFAmostraConsumo.ConsumosAmostra(VpaDAmostra: TRBDAmostra): Boolean;
 begin
   VprDAmostra:= VpaDAmostra;
   CarGrade;
+  ETotalPontos.AValor := VprDAmostra.QtdTotalPontos;
+  EQtdTrocasLinha.AValor := VprDAmostra.QtdTrocasLinhaBordado;
+  EQtdCortes.AValor := VprDAmostra.QtdCortesBordado;
   ShowModal;
   result := VprAcao;
 end;
@@ -1115,8 +1137,8 @@ begin
   if Retorno1 <> '' then
   begin
     FunProdutos.ExisteFaca(StrToInt(Retorno1),VprDConsumoAmostra.Faca);
-    Grade.Cells[13,Grade.ALinha] := IntTostr(VprDConsumoAmostra.Faca.CodFaca);
-    Grade.Cells[14,Grade.ALinha] := VprDConsumoAmostra.Faca.NomFaca;
+    Grade.Cells[14,Grade.ALinha] := IntTostr(VprDConsumoAmostra.Faca.CodFaca);
+    Grade.Cells[15,Grade.ALinha] := VprDConsumoAmostra.Faca.NomFaca;
   end
   else
     VprDConsumoAmostra.CodFaca := 0;
@@ -1128,8 +1150,8 @@ begin
   if Retorno1 <> '' then
   begin
     FunProdutos.ExisteMaquina(StrToInt(Retorno1),VprDConsumoAmostra.Maquina);
-    Grade.Cells[17,Grade.ALinha] := IntToStr(VprDConsumoAmostra.Maquina.CodMaquina);
-    Grade.Cells[18,Grade.ALinha] := VprDConsumoAmostra.Maquina.NomMaquina;
+    Grade.Cells[18,Grade.ALinha] := IntToStr(VprDConsumoAmostra.Maquina.CodMaquina);
+    Grade.Cells[19,Grade.ALinha] := VprDConsumoAmostra.Maquina.NomMaquina;
   end
   else
     VprDConsumoAmostra.CodMaquina := 0;
@@ -1184,6 +1206,20 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFAmostraConsumo.EQtdCortesExit(Sender: TObject);
+var
+  VpfResultado : String;
+begin
+  if EQtdCortes.AsInteger <> VprDAmostra.QtdCortesBordado then
+  begin
+    VprDAmostra.QtdCortesBordado := EQtdCortes.AsInteger;
+    VpfResultado := FunAmostra.AtualizaTrocaLinhasQtdTotalPontosAmostra(VprDAmostra);
+    if VpfResultado <> '' then
+      aviso(VpfResultado);
+  end;
+end;
+
+{******************************************************************************}
 procedure TFAmostraConsumo.ETipoMateriaPrimaCadastrar(Sender: TObject);
 begin
   FTipoMateriaPrima := TFTipoMateriaPrima.CriarSDI(self,'',true);
@@ -1199,8 +1235,8 @@ begin
   begin
     VprDConsumoAmostra.CodTipoMateriaPrima := StrToINt(VpaColunas.items[0].AValorRetorno);
     VprDConsumoAmostra.NomTipoMateriaPrima := VpaColunas.items[1].AValorRetorno;
-    Grade.Cells[11,Grade.ALinha] := VpaColunas.items[0].AValorRetorno;
-    Grade.Cells[12,Grade.ALinha] := VpaColunas.items[1].AValorRetorno;
+    Grade.Cells[12,Grade.ALinha] := VpaColunas.items[0].AValorRetorno;
+    Grade.Cells[13,Grade.ALinha] := VpaColunas.items[1].AValorRetorno;
   end
   else
   begin
@@ -1220,149 +1256,58 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFAmostraConsumo.GServicosCarregaItemGrade(Sender: TObject;
+procedure TFAmostraConsumo.GItensEspeciaisCarregaItemGrade(Sender: TObject;
   VpaLinha: Integer);
 begin
-  VprDServicoAmostra := TRBDServicoAmostra(VprDAmostra.Servicos.Items[VpaLinha-1]);
-  if VprDServicoAmostra.CodServico <> 0 then
-    GServicos.Cells[1,VpaLinha] := IntToStr(VprDServicoAmostra.CodServico)
+  VprDItemEspecial:= TRBDItensEspeciaisAmostra(VprDAmostra.ItensEspeciais.Items[VpaLinha-1]);
+  GItensEspeciais.Cells[1,GItensEspeciais.ALinha]:= VprDItemEspecial.CodProduto;
+  GItensEspeciais.Cells[2,GItensEspeciais.ALinha]:= VprDItemEspecial.NomProduto;
+  if VprDItemEspecial.ValProduto <> 0 then
+    GItensEspeciais.Cells[3,GItensEspeciais.ALinha]:= FormatFloat(varia.MascaraValor,VprDItemEspecial.ValProduto)
   else
-    GServicos.Cells[1,VpaLinha] := '';
-  GServicos.Cells[2,VpaLinha] := VprDServicoAmostra.NomServico;
-  GServicos.Cells[3,VpaLinha] := VprDServicoAmostra.DesAdicional;
-  GServicos.Cells[4,VpaLinha] := FormatFloat('###,###,###,##0.000',VprDServicoAmostra.QtdServico);
-  GServicos.Cells[5,VpaLinha] := FormatFloat('###,###,###,##0.0000',VprDServicoAmostra.ValUnitario);
-  GServicos.Cells[6,VpaLinha] := FormatFloat('R$ #,###,###,###,##0.000',VprDServicoAmostra.ValTotal)
+    GItensEspeciais.Cells[3,GItensEspeciais.ALinha]:= '';
+  GItensEspeciais.Cells[4,GItensEspeciais.ALinha]:= VprDItemEspecial.DesObservacao;
 end;
 
 {******************************************************************************}
-procedure TFAmostraConsumo.GServicosDadosValidos(Sender: TObject;
+procedure TFAmostraConsumo.GItensEspeciaisDadosValidos(Sender: TObject;
   var VpaValidos: Boolean);
 begin
-  VpaValidos := true;
-  if GServicos.Cells[1,GServicos.ALinha] = '' then
+  VpaValidos:= True;
+  if not ExisteItemEspecial then
   begin
-    VpaValidos := false;
-    aviso(CT_SERVICONAOCADASTRADO);
+    aviso(CT_PRODUTONAOCADASTRADO);
+    VpaValidos:= False;
+    GItensEspeciais.Col:= 1;
   end
   else
-    if not ExisteServico then
+    if GItensEspeciais.Cells[3,GItensEspeciais.ALinha] = '' then
     begin
-      VpaValidos := false;
-      aviso(CT_SERVICONAOCADASTRADO);
-      GServicos.col := 1;
-    end
-    else
-      if (GServicos.Cells[4,GServicos.ALinha] = '') then
-      begin
-        VpaValidos := false;
-        aviso(CT_QTDSERVICOSINVALIDO);
-        GServicos.Col := 4;
-      end
-      else
-        if (GServicos.Cells[5,GServicos.ALinha] = '') then
-        begin
-          VpaValidos := false;
-          aviso(CT_VALORUNITARIOINVALIDO);
-          GServicos.Col := 5;
-        end;
+      aviso('INFORME O VALOR!!!'#13'O valor deve ser preenchido.');
+      VpaValidos:= False;
+      GItensEspeciais.Col:= 3;
+    end;
   if VpaValidos then
   begin
-    CarDServicoAmostra;
+    CarDItensEspeciais;
     CalculaValorVenda;
-   if VprDServicoAmostra.QtdServico = 0 then
+    if VprDItemEspecial.ValProduto = 0 then
     begin
-      VpaValidos := false;
-      aviso(CT_QTDSERVICOINVALIDO);
-      GServicos.col := 4;
-    end
-    else
-      if VprDServicoAmostra.ValUnitario = 0 then
-      begin
-        VpaValidos := false;
-        aviso(CT_VALORUNITARIOINVALIDO);
-        GServicos.Col := 5;
-      end;
-  end;
-end;
-
-{******************************************************************************}
-procedure TFAmostraConsumo.GServicosGetEditMask(Sender: TObject; ACol,
-  ARow: Integer; var Value: String);
-begin
-  case ACol of
-    1 :  Value := '00000;0; ';
-  end;
-end;
-
-procedure TFAmostraConsumo.GServicosKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-begin
-  case key of
-    114 :
-    begin                           // F3
-      case GServicos.Col of
-        1 :  LocalizaServico;
-      end;
+      aviso('VALOR NÃO PREENCHIDO!!!'#13'É necessário preencher o valor do produto.');
+      VpaValidos:= False;
+      GItensEspeciais.Col:= 3;
     end;
   end;
 end;
 
-{******************************************************************************}
-procedure TFAmostraConsumo.GServicosKeyPress(Sender: TObject;
-  var Key: Char);
+procedure TFAmostraConsumo.GItensEspeciaisKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
 begin
-  if (key = '.')and (GServicos.col <>3)  then
-    key := DecimalSeparator;
-end;
-
-{******************************************************************************}
-procedure TFAmostraConsumo.GServicosMudouLinha(Sender: TObject;
-  VpaLinhaAtual, VpaLinhaAnterior: Integer);
-begin
-  if VprDAmostra.Servicos.Count >0 then
-  begin
-    VprDServicoAmostra := TRBDServicoAmostra(VprDAmostra.Servicos.Items[VpaLinhaAtual-1]);
-    VprServicoAnterior := IntTostr(VprDServicoAmostra.CodServico);
+  case Key of
+    114: case Grade.Col of
+           1: LocalizaItemEspecial;
+         end;
   end;
-end;
-
-{******************************************************************************}
-procedure TFAmostraConsumo.GServicosNovaLinha(Sender: TObject);
-begin
-  VprDServicoAmostra := VprDAmostra.AddServico;
-end;
-
-{******************************************************************************}
-procedure TFAmostraConsumo.GServicosSelectCell(Sender: TObject; ACol,
-  ARow: Integer; var CanSelect: Boolean);
-begin
-  if GServicos.AEstadoGrade in [egInsercao,EgEdicao] then
-    if GServicos.AColuna <> ACol then
-    begin
-      case GServicos.AColuna of
-        1 :if not ExisteServico then
-           begin
-             if not LocalizaServico then
-             begin
-               GServicos.Cells[1,GServicos.ALinha] := '';
-               abort;
-             end;
-           end;
-        4,5 :
-             begin
-               if GServicos.Cells[4,GServicos.ALinha] <> '' then
-                 VprDServicoAmostra.QtdServico := StrToFloat(DeletaChars(GServicos.Cells[4,GServicos.ALinha],'.'))
-               else
-                 VprDServicoAmostra.QtdServico := 0;
-               if GServicos.Cells[5,GServicos.ALinha] <> '' then
-                 VprDServicoAmostra.ValUnitario := StrToFloat(DeletaChars(GServicos.Cells[5,GServicos.ALinha],'.'))
-               else
-                 VprDServicoAmostra.ValUnitario := 0;
-               CalculaValorTotalServico;
-             end;
-      end;
-    end;
 end;
 
 {******************************************************************************}
@@ -1510,11 +1455,6 @@ begin
              end;
       end;
     end;
-end;
-
-procedure TFAmostraConsumo.GradeDepoisExclusao(Sender: TObject);
-begin
-  CalculaValorVenda;
 end;
 
 Initialization

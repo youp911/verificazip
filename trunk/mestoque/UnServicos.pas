@@ -29,7 +29,6 @@ Type TFuncoesServico = Class(TLocalizaServico)
     function ExisteServico(VpaCodServico: Integer; VpaDPropostaServico: TRBDPropostaServico): Boolean; overload;
     function ExisteServico(VpaCodServico: Integer; VpaDChamadoServicoExecutado: TRBDChamadoServicoExecutado): Boolean; overload;
     function ExisteServico(VpaCodServico: Integer; VpaDChamadoServicoOrcado: TRBDChamadoServicoOrcado): Boolean; overload;
-    function ExisteServico(VpaCodServico: Integer; VpaDServicoAmostra : TRBDServicoAmostra ): Boolean; overload;
     function ExisteServico(VpaCodServico: Integer; VpaDServicoFixoAmostra : TRBDServicoFixoAmostra ): Boolean; overload;
 end;
 
@@ -222,25 +221,6 @@ begin
   VpaDChamadoServicoOrcado.NomServico:= UnAux.FieldByName('C_NOM_SER').AsString;
   VpaDChamadoServicoOrcado.CodEmpresaServico:= UnAux.FieldByName('I_COD_EMP').AsInteger;
   VpaDChamadoServicoOrcado.ValUnitario:= UnAux.FieldByName('N_VLR_VEN').AsFloat;
-  UnAux.Close;
-end;
-
-{******************************************************************************}
-function TFuncoesServico.ExisteServico(VpaCodServico: Integer; VpaDServicoAmostra : TRBDServicoAmostra ): Boolean;
-begin
-  AdicionaSQLAbreTabela(UnAux,'SELECT SER.I_COD_EMP, SER.C_NOM_SER, TBS.N_VLR_VEN'+
-                              ' FROM CADSERVICO SER, MOVTABELAPRECOSERVICO TBS'+
-                              ' WHERE'+
-                              ' TBS.I_COD_EMP = SER.I_COD_EMP'+
-                              ' AND TBS.I_COD_SER = SER.I_COD_SER'+
-                              ' AND SER.I_COD_SER = '+IntToStr(VpaCodServico)+
-                              ' AND SER.I_COD_EMP = '+IntToStr(Varia.CodigoEmpresa));
-  Result:= not UnAux.Eof;
-  VpaDServicoAmostra.CodServico:= VpaCodServico;
-  VpaDServicoAmostra.NomServico:= UnAux.FieldByName('C_NOM_SER').AsString;
-  VpaDServicoAmostra.CodEmpresaServico:= UnAux.FieldByName('I_COD_EMP').AsInteger;
-  VpaDServicoAmostra.ValUnitario:= UnAux.FieldByName('N_VLR_VEN').AsFloat;
-  VpaDServicoAmostra.QtdServico := 1;
   UnAux.Close;
 end;
 

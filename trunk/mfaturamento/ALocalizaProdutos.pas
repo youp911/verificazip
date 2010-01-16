@@ -124,6 +124,7 @@ type
     PReferenciaCliente: TPanelColor;
     ERefCliente: TEditColor;
     Label7: TLabel;
+    CadProdutosN_PER_PER: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CProAtiClick(Sender: TObject);
@@ -196,6 +197,7 @@ type
     function LocalizaProduto(VpaDProdutoRotulado : TRBDPropostaProdutoASerRotulado):Boolean;overload;
     function LocalizaProduto(VpaDChamado : TRBDChamado;VpaDProdutoOrcado : TRBDChamadoProdutoOrcado):Boolean;overload;
     function LocalizaProduto(VpaDProdutoAdicional : TRBDPropostaVendaAdicional):boolean;overload;
+    function LocalizaProduto(VpaDItemEspecial : TRBDItensEspeciaisAmostra):boolean;overload;
     function LocalizaProduto : Boolean;overload;
     function LocalizaEntretela(VpaDProConsumo : TRBDConsumoMP):boolean;
     function LocalizaTermoColante(VpaDProConsumo : TRBDConsumoMP):boolean;
@@ -287,6 +289,7 @@ begin
                      ' PRO.C_COD_CTB, C_CIL_NOV, C_CHI_NOV, C_CAR_TEX, C_IND_ORI, '+
                      ' PRO.I_QTD_PAG, PRO.I_ALT_PRO, PRO.I_IND_COV, PRO.I_MES_GAR, '+
                      ' CLA.C_COD_CLA, CLA.C_NOM_CLA, CLA.N_PER_COM PERCOMISSAOCLASSIFICACAO, '+
+                     ' CLA.N_PER_PER, '+
                      ' Qtd.C_Cod_Bar, ' +
                      ' Qtd.N_QTD_MIN, QTD.N_QTD_PRO, QTD.N_QTD_PED, QTD.N_QTD_ARE, ' +
                      ' (PRE.N_VLR_VEN * MOE.N_Vlr_Dia) N_VLR_VEN, QTD.N_QTD_RES, ' +
@@ -777,6 +780,23 @@ begin
 end;
 
 {******************************************************************************}
+function TFlocalizaProduto.LocalizaProduto(VpaDItemEspecial: TRBDItensEspeciaisAmostra): boolean;
+begin
+  AtualizaConsulta;
+  ShowModal;
+  Result:= VprAcao;
+  if CadProdutos.IsEmpty then
+    Result:= False;
+  if VprAcao and Result then
+  begin
+    VpaDItemEspecial.SeqProduto:= CadProdutosI_SEQ_PRO.AsInteger;
+    VpaDItemEspecial.CodProduto:= CadProdutosC_COD_PRO.AsString;
+    VpaDItemEspecial.ValProduto := CadProdutosN_VLR_CUS.AsFloat;
+  end;
+  CadProdutos.close;
+end;
+
+{******************************************************************************}
 function TFlocalizaProduto.LocalizaProduto(var VpaSeqPRoduto: integer): boolean;
 begin
   AtualizaConsulta;
@@ -870,6 +890,7 @@ begin
     VpaDProAmostra.DesUM:= CadProdutosC_COD_UNI.AsString;
     VpaDProAmostra.UMAnterior := VpaDProAmostra.DesUM;
     VpaDProAmostra.ValUnitario:= CadProdutosN_VLR_CUS.AsCurrency;
+    VpaDProamostra.PerAcrescimoPerda := CadProdutosN_PER_PER.AsFloat;
   end;
   CadProdutos.close;
 end;

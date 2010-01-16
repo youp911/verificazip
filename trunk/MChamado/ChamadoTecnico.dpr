@@ -35,7 +35,6 @@ uses
   ALocalizaClassificacao in '..\MEstoque\ALocalizaClassificacao.pas' {FLocalizaClassificacao},
   ANovoVendedor in '..\MaGerais\ANovoVendedor.pas' {FNovoVendedor},
   AVendedores in '..\MaGerais\AVendedores.pas' {FVendedores},
-  ACondicoesPgtos in '..\MFinanceiro\ACondicoesPgtos.pas' {FCondicoesPagamentos},
   UnClassificacao in '..\MEstoque\UnClassificacao.pas',
   ACotacao in '..\mpontaloja\ACotacao.pas' {FCotacao},
   AConsultaCondicaoPgto in '..\MaGerais\AConsultaCondicaoPgto.pas' {FConsultaCondicaoPgto},

@@ -22,10 +22,8 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     Amostra : TSQLQuery;
     Cadastro : TSql;
     function RSeqRequisicaoMaquinaDisponivel : Integer;
-    procedure CarServicosAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
     procedure CarServicosFixoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
     procedure CarPrecosClienteAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
-    function GravaDServicoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
     function GravaDServicoFixoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
     function GravaDPrecoClienteAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
     procedure CarCoeficientesTabelaPreco(VpaDAmostra : TRBDAmostra);
@@ -58,6 +56,8 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     procedure CarPerLucroComissaoCoeficienteCusto(VpaCodCoeficiente : Integer;var VpaPerLucro, VpaPerComissao : Double);
     procedure ExcluiAmostra(VpaCodAmostra : Integer);
     procedure ExportaFichaTecnicaAmostra(VpaDAmostra : TRBDAmostra);
+    procedure CarQtdPontos(VpaDAmostra : TRBDAmostra);
+    function AtualizaTrocaLinhasQtdTotalPontosAmostra(VpaDAmostra : TRBDAmostra) : string;
 end;
 
 
@@ -65,7 +65,7 @@ end;
 implementation
 
 Uses FunSql, FunObjeto, UnProdutos, Constantes, FunData, dmRave, UnCotacao,
-     UnClientes, UnSistema;
+     UnClientes, UnSistema, FunString;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                               eventos da classe TRBLocalizaAmostra
@@ -151,6 +151,23 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFuncoesAmostra.CarQtdPontos(VpaDAmostra: TRBDAmostra);
+var
+  VpfLaco : Integer;
+begin
+  VpaDAmostra.QtdTotalPontos := 0;
+  VpaDAmostra.QtdTrocasLinhaBordado := 0;
+  for Vpflaco := 0 to VpaDAmostra.Consumos.Count - 1 do
+  begin
+    if TRBDConsumoAmostra(VpaDAmostra.Consumos.Items[Vpflaco]).QtdPontos > 0 then
+    begin
+      VpaDAmostra.QtdTotalPontos := VpaDAmostra.QtdTotalPontos + TRBDConsumoAmostra(VpaDAmostra.Consumos.Items[Vpflaco]).QtdPontos;
+      VpaDAmostra.QtdTrocasLinhaBordado := VpaDAmostra.QtdTrocasLinhaBordado +1;
+    end;
+  end;
+end;
+
+{******************************************************************************}
 function TRBFuncoesAmostra.RCodAmostraDisponivel(VpaCodClassificacao: String): Integer;
 var
   VpfBaseCodigo : String;
@@ -173,6 +190,7 @@ function TRBFuncoesAmostra.RLegendaDisponivel(VpaDAmostra : TRBDAmostra):String;
 var
   VpfLaco : Integer;
   VpfDConsumo : TRBDConsumoAmostra;
+  VpfLegenda : String;
 begin
   result := '';
   if VpaDAmostra.Consumos.Count = 1 then
@@ -182,12 +200,13 @@ begin
     for VpfLaco := 0 to VpaDAmostra.Consumos.Count - 1 do
     begin
       VpfDConsumo := TRBDConsumoAmostra(VpaDAmostra.Consumos.Items[VpfLaco]);
-      if VpfDConsumo.DesLegenda <> '' then
+      if DeletaEspaco(VpfDConsumo.DesLegenda) <> '' then
       begin
+        VpfLegenda := DeletaEspaco(VpfDConsumo.DesLegenda);
         result := '';
-        if Length(VpfDConsumo.DesLegenda) > 1 then
-          result := copy(VpfDConsumo.DesLegenda,1,Length(VpfDConsumo.DesLegenda)-1);
-        result := result + char(ord(VpfDConsumo.DesLegenda[Length(VpfDConsumo.DesLegenda)])+1);
+        if Length(VpfLegenda) > 1 then
+          result := copy(VpfLegenda,1,Length(VpfLegenda)-1);
+        result := result + char(ord(VpfLegenda[Length(VpfLegenda)])+1);
       end;
     end;
   end;
@@ -213,40 +232,6 @@ begin
     VpfDConsumo := TRBDConsumoAmostra(VpaDAmostra.Consumos.Items[VpfLaco]);
     result :=  result + VpfDConsumo.ValTotal;
   end;
-end;
-
-{******************************************************************************}
-procedure TRBFuncoesAmostra.CarServicosAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
-Var
-  VpfDSerAmostra :TRBDServicoAmostra;
-begin
-  FreeTObjectsList(VpaDAmostra.Servicos);
-
-  AdicionaSQLAbreTabela(Amostra,'Select AMS.CODAMOSTRA, AMS.CODCORAMOSTRA, AMS.SEQCONSUMO, ' +
-                               ' AMS.QTDSERVICO, AMS.VALUNITARIO, AMS.VALTOTAL, AMS.DESADICIONAL,'+
-                               ' AMS.CODSERVICO, AMS.CODEMPRESASERVICO, '+
-                               ' SER.C_NOM_SER '+
-                               ' FROM AMOSTRASERVICO AMS, CADSERVICO SER '+
-                               '  Where AMS.CODEMPRESASERVICO = SER.I_COD_EMP '+
-                               '  and AMS.CODSERVICO = SER.I_COD_SER '+
-                               ' and AMS.CODAMOSTRA = '+IntToStr(VpaDAmostra.CodAmostra)+
-                               ' and AMS.CODCORAMOSTRA = '+IntToStr(VpaCorAmostra)+
-                               ' order by AMS.SEQCONSUMO ');
-  While not Amostra.eof do
-  begin
-    VpfDSerAmostra := VpaDAmostra.addServico;
-    VpfDSerAmostra.SeqConsumo := Amostra.FieldByName('SEQCONSUMO').AsInteger;
-    VpfDSerAmostra.CodCorAmostra := VpaCorAmostra;
-    VpfDSerAmostra.CodEmpresaServico := Amostra.FieldByName('CODEMPRESASERVICO').AsInteger;
-    VpfDSerAmostra.CodServico := Amostra.FieldByName('CODSERVICO').AsInteger;
-    VpfDSerAmostra.NomServico := Amostra.FieldByName('C_NOM_SER').AsString;
-    VpfDSerAmostra.DesAdicional := Amostra.FieldByName('DESADICIONAL').AsString;
-    VpfDSerAmostra.QtdServico := Amostra.FieldByName('QTDSERVICO').AsFloat;
-    VpfDSerAmostra.ValUnitario := Amostra.FieldByName('VALUNITARIO').AsFloat;
-    VpfDSerAmostra.ValTotal := Amostra.FieldByName('VALTOTAL').AsFloat;
-    Amostra.next;
-  end;
-  Amostra.close;
 end;
 
 {******************************************************************************}
@@ -309,40 +294,6 @@ begin
     Cadastro.FieldByName('VALVENDA').AsFloat := VpfDPrecoCliente.ValVenda;
     Cadastro.FieldByName('PERLUCRO').AsFloat := VpfDPrecoCliente.PerLucro;
     Cadastro.FieldByName('PERCOMISSAO').AsFloat := VpfDPrecoCliente.PerComissao;
-    Cadastro.post;
-    result := Cadastro.AMensagemErroGravacao;
-    if Cadastro.AErronaGravacao then
-      break;
-  end;
-  Cadastro.close;
-end;
-
-{******************************************************************************}
-function TRBFuncoesAmostra.GravaDServicoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
-var
-  VpfLaco : Integer;
-  VpfDSerAmostra : TRBDServicoAmostra;
-begin
-  result := '';
-  ExecutaComandoSql(Aux,'Delete from AMOSTRASERVICO '+
-                        ' Where CODAMOSTRA = '+IntToStr(VpaDAmostra.CodAmostra)+
-                        '  and CODCORAMOSTRA = '+IntToStr(VpaCorAmostra));
-  AdicionaSQLAbreTabela(Cadastro,'Select * from AMOSTRASERVICO '+
-                                 ' Where CODAMOSTRA = 0 AND CODCORAMOSTRA = 0 AND SEQCONSUMO = 0 ');
-  for VpfLaco := 0 to VpaDAmostra.Servicos.Count -1 do
-  begin
-    VpfDSerAmostra := TRBDServicoAmostra(VpaDAmostra.Servicos.Items[VpfLaco]);
-    Cadastro.insert;
-    Cadastro.FieldByName('CODAMOSTRA').AsInteger := VpaDAmostra.CodAmostra;
-    Cadastro.FieldByName('CODCORAMOSTRA').AsInteger := VpaCorAmostra;
-    VpfDSerAmostra.SeqConsumo := VpfLaco +1;
-    Cadastro.FieldByName('SEQCONSUMO').AsInteger := VpfDSerAmostra.SeqConsumo;
-    Cadastro.FieldByName('CODEMPRESASERVICO').AsInteger := VpfDSerAmostra.CodEmpresaServico;
-    Cadastro.FieldByName('CODSERVICO').AsInteger := VpfDSerAmostra.CodServico;
-    Cadastro.FieldByName('VALUNITARIO').AsFloat := VpfDSerAmostra.ValUnitario;
-    Cadastro.FieldByName('VALTOTAL').AsFloat := VpfDSerAmostra.ValTotal;
-    Cadastro.FieldByName('QTDSERVICO').AsFloat := VpfDSerAmostra.QtdServico;
-    Cadastro.FieldByName('DESADICIONAL').AsString := VpfDSerAmostra.DesAdicional;
     Cadastro.post;
     result := Cadastro.AMensagemErroGravacao;
     if Cadastro.AErronaGravacao then
@@ -539,16 +490,20 @@ begin
   Amostra.SQL.Add('Select CON.SEQCONSUMO, CON.SEQPRODUTO, CON.DESUM, CON.NOMPRODUTO, CON.CODCOR,' +
                   ' CON.DESOBSERVACAO, CON.DESLEGENDA, CON.VALUNITARIO, CON.QTDPRODUTO, CON.VALTOTAL,'+
                   ' CON.CODFACA, CON.ALTMOLDE, CON.LARMOLDE, CON.CODMAQUINA,  '+
-                  ' CON.DESOBSERVACAO, CON.NUMSEQUENCIA, '+
+                  ' CON.DESOBSERVACAO, CON.NUMSEQUENCIA, CON.QTDPONTOSBORDADO, '+
                   ' PRO.C_COD_PRO, PRO.I_ALT_PRO, '+
                   ' COR.NOM_COR, '  +
+                  ' CLA.N_PER_PER, ' +
                   ' TIP.CODTIPOMATERIAPRIMA, TIP.NOMTIPOMATERIAPRIMA '+
-                  ' FROM AMOSTRACONSUMO CON, CADPRODUTOS PRO, COR, TIPOMATERIAPRIMA TIP  '+
+                  ' FROM AMOSTRACONSUMO CON, CADPRODUTOS PRO, COR, TIPOMATERIAPRIMA TIP, CADCLASSIFICACAO CLA  '+
                   ' Where CON.CODAMOSTRA = '+IntToStr(VpaDAmostra.CodAmostra));
   Amostra.SQL.Add(' AND CON.CODCORAMOSTRA = '+IntToStr(VpaCorAmostra));
   Amostra.SQL.Add(' AND CON.SEQPRODUTO = PRO.I_SEQ_PRO '+
                   ' AND '+SQLTextoRightJoin('CON.CODCOR','COR.COD_COR')+
                   ' AND '+SQLTextoRightJoin('CON.CODTIPOMATERIAPRIMA','TIP.CODTIPOMATERIAPRIMA')+
+                  ' AND PRO.I_COD_EMP = CLA.I_COD_EMP ' +
+                  ' AND PRO.C_COD_CLA = CLA.C_COD_CLA ' +
+                  ' AND PRO.C_TIP_CLA = CLA.C_TIP_CLA '+
                   ' ORDER BY NUMSEQUENCIA, SEQCONSUMO');
   Amostra.Open;
   while not Amostra.Eof do
@@ -578,6 +533,8 @@ begin
     VpfDConsumo.CodTipoMateriaPrima := Amostra.FieldByName('CODTIPOMATERIAPRIMA').AsInteger;
     VpfDConsumo.NomTipoMateriaPrima := Amostra.FieldByName('NOMTIPOMATERIAPRIMA').AsString;
     VpfDConsumo.NumSequencia := Amostra.FieldByName('NUMSEQUENCIA').AsInteger;
+    VpfDConsumo.QtdPontos := Amostra.FieldByName('QTDPONTOSBORDADO').AsInteger;
+    VpfDConsumo.PerAcrescimoPerda := Amostra.FieldByName('N_PER_PER').AsFloat;
     if VpfDConsumo.CodFaca <> 0 then
       FunProdutos.ExisteFaca(VpfDConsumo.CodFaca,VpfDConsumo.Faca);
     if VpfDConsumo.CodMaquina <> 0 then
@@ -585,7 +542,6 @@ begin
     Amostra.next;
   end;
   Amostra.close;
-  CarServicosAmostra(VpaDAmostra,VpaCorAmostra);
   CarServicosFixoAmostra(VpaDAmostra,VpaCorAmostra);
   CarPrecosClienteAmostra(VpaDAmostra,VpaCorAmostra);
 end;
@@ -635,6 +591,8 @@ begin
       Cadastro.FieldByName('CODTIPOMATERIAPRIMA').AsInteger := VpfDConsumo.CodTipoMateriaPrima;
     if VpfDConsumo.NumSequencia <> 0 then
       Cadastro.FieldByName('NUMSEQUENCIA').AsInteger := VpfDConsumo.NumSequencia;
+    if VpfDConsumo.QtdPontos <> 0 then
+      Cadastro.FieldByName('QTDPONTOSBORDADO').AsInteger := VpfDConsumo.QtdPontos;
     Cadastro.Post;
     result := Cadastro.AMensagemErroGravacao;
     if Cadastro.AErronaGravacao then
@@ -643,12 +601,15 @@ begin
   Cadastro.close;
   if result = '' then
   begin
-    result := GravaDServicoAmostra(VpaDAmostra,VpaCorAmostra);
     if result = '' then
     begin
       Result := GravaDServicoFixoAmostra(VpaDAmostra,VpaCorAmostra);
       if result = '' then
+      begin
         result := GravaDPrecoClienteAmostra(VpaDAmostra,VpaCorAmostra);
+        if result = '' then
+          result := AtualizaTrocaLinhasQtdTotalPontosAmostra(VpaDAmostra);
+      end;
     end;
   end;
 end;
@@ -696,6 +657,9 @@ begin
   VpaDAmostra.DatAlteradoEntrega:= Amostra.FieldByName('DATALTERADOENTREGA').AsDateTime;
   VpaDAmostra.DatFicha:= Amostra.FieldByName('DATFICHA').AsDateTime;
   VpaDAmostra.QtdPrevisaoCompra:= Amostra.FieldByName('QTDPREVISAOCOMPRA').AsFloat;
+  VpaDAmostra.QtdTotalPontos := Amostra.FieldByName('QTDTOTALPONTOSBORDADO').AsInteger;
+  VpaDAmostra.QtdCortesBordado := Amostra.FieldByName('QTDCORTES').AsInteger;
+  VpaDAmostra.QtdTrocasLinhaBordado := Amostra.FieldByName('QTDTROCALINHA').AsInteger;
 
   Amostra.Close;
 end;
@@ -757,6 +721,21 @@ begin
     Cadastro.Post;
     result := Cadastro.AMensagemErroGravacao;
   end;
+  Cadastro.Close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.AtualizaTrocaLinhasQtdTotalPontosAmostra(VpaDAmostra: TRBDAmostra): string;
+begin
+  result := '';
+  AdicionaSQLAbreTabela(Cadastro,'Select * from AMOSTRA '+
+                                 ' Where CODAMOSTRA = '+IntToStr(VpaDAmostra.CodAmostra));
+  Cadastro.Edit;
+  Cadastro.FieldByName('QTDTOTALPONTOSBORDADO').AsInteger := VpaDAmostra.QtdTotalPontos;
+  Cadastro.FieldByName('QTDCORTES').AsInteger := VpaDAmostra.QtdCortesBordado;
+  Cadastro.FieldByName('QTDTROCALINHA').AsInteger := VpaDAmostra.QtdTrocasLinhaBordado;
+  Cadastro.Post;
+  result := Cadastro.AMensagemErroGravacao;
   Cadastro.Close;
 end;
 

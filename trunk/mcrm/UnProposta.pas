@@ -27,7 +27,6 @@ Type TRBFuncoesProposta = class(TRBLocalizaProposta)
     function RSeqPropostaDisponivel(VpaCodfilial : Integer) : Integer;
     function RTextoAcrescimoDesconto(VpaDProposta : TRBDpropostaCorpo):String;
     function RValorAcresicmodesconto(VpaDProposta : TRBDpropostaCorpo):String;
-    function RRodapeCRM(VpaCodFilial : integer) : string;
     function RSeqEstagioDisponivel(VpaCodFilial,VpaSeqProposta : Integer):Integer;
     function RSeqEmailDisponivel: Integer;
     function RNomTipoProposta(VpaCodTipoProposta : Integer):String;
@@ -198,15 +197,6 @@ begin
   else
     if VpaDProposta.ValDesconto > 0 then
       Result := FormatFloat(varia.MascaraValor,VpaDProposta.ValDesconto*-1);
-end;
-
-{******************************************************************************}
-function TRBFuncoesProposta.RRodapeCRM(VpaCodFilial : Integer) : string;
-begin
-  AdicionaSQLAbreTabela(Aux,'Select L_ROD_EMA from CADFILIAIS '+
-                            ' Where I_EMP_FIL = ' +IntToStr(VpaCodFilial));
-  result := Aux.FieldByname('L_ROD_EMA').AsString;
-  Aux.Close;
 end;
 
 {******************************************************************************}
@@ -1336,7 +1326,7 @@ begin
   for VpfLaco := 0 to VpfDescricaoTecnica.Count - 1 do
     VpaTexto.Add(VpfDescricaoTecnica.Strings[VpfLaco]);
 
-  VpfDescricaoTecnica.Text := RRodapeCRM(VpaDProposta.CodFilial);
+  VpfDescricaoTecnica.Text := Sistema.RRodapeCRM(VpaDProposta.CodFilial);
   for VpfLaco := 0 to VpfDescricaoTecnica.Count - 1 do
     VpaTexto.Add(VpfDescricaoTecnica.Strings[VpfLaco]);
 
@@ -1493,7 +1483,7 @@ begin
   for VpfLaco := 0 to VpfDescricaoTecnica.Count - 1 do
     VpaTexto.Add(VpfDescricaoTecnica.Strings[VpfLaco]);
 
-  VpfDescricaoTecnica.Text := RRodapeCRM(VpaDProposta.CodFilial);
+  VpfDescricaoTecnica.Text := Sistema.RRodapeCRM(VpaDProposta.CodFilial);
   for VpfLaco := 0 to VpfDescricaoTecnica.Count - 1 do
     VpaTexto.Add(VpfDescricaoTecnica.Strings[VpfLaco]);
 
@@ -1630,7 +1620,7 @@ begin
     VpaTexto.Add(VpfDescricaoTecnica.Strings[VpfLaco]+'<br>');
 
   VpaTexto.add('<br>');
-  VpfDescricaoTecnica.Text := RRodapeCRM(VpaDProposta.CodFilial);
+  VpfDescricaoTecnica.Text := Sistema.RRodapeCRM(VpaDProposta.CodFilial);
   for VpfLaco := 0 to VpfDescricaoTecnica.Count - 1 do
     VpaTexto.Add(VpfDescricaoTecnica.Strings[VpfLaco]);
 
@@ -1857,7 +1847,7 @@ begin
     VpaTexto.Add(VpfDescricaoTecnica.Strings[VpfLaco]+'<br>');
 
   VpaTexto.add('<br>');
-  VpfDescricaoTecnica.Text := RRodapeCRM(VpaDProposta.CodFilial);
+  VpfDescricaoTecnica.Text := Sistema.RRodapeCRM(VpaDProposta.CodFilial);
   for VpfLaco := 0 to VpfDescricaoTecnica.Count - 1 do
     VpaTexto.Add(VpfDescricaoTecnica.Strings[VpfLaco]);
 

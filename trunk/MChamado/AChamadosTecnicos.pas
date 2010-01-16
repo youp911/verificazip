@@ -385,7 +385,7 @@ begin
   graficostrio.info.TituloY := 'Quantidade';
 
   AdicionaFiltros(VpfComandosql);
-  VpfComandosql.add(' GROUP BY CAMPO');
+  VpfComandosql.add(' GROUP BY TEC.NOMTECNICO');
 
   graficostrio.info.ComandoSQL :=  VpfComandoSql.text;
   graficostrio.info.CampoRotulo := 'CAMPO';
@@ -409,7 +409,7 @@ begin
   graficostrio.info.TituloY := 'Quantidade';
 
   AdicionaFiltros(VpfComandosql);
-  VpfComandosql.add(' GROUP BY CAMPO');
+  VpfComandosql.add(' GROUP BY TIP.NOMTIPOCHAMADO');
 
   graficostrio.info.ComandoSQL :=  VpfComandoSql.text;
   graficostrio.info.CampoRotulo := 'CAMPO';
@@ -426,14 +426,14 @@ var
   VpfComandoSql : TStringList;
 begin
   VpfComandoSql := TStringList.Create;
-  VpfComandoSql.add('Select count(*) Qtd, dateformat(CHA.DATCHAMADO,''DD/MM/YYYY'') CAMPO '+
+  VpfComandoSql.add('Select count(*) Qtd, CHA.DATCHAMADO CAMPO '+
                     ' from CHAMADOCORPO CHA '+
                     ' Where CHA.CODFILIAL = CHA.CODFILIAL');
   graficostrio.info.CampoValor := 'Qtd';
   graficostrio.info.TituloY := 'Quantidade';
 
   AdicionaFiltros(VpfComandosql);
-  VpfComandosql.add(' GROUP BY CAMPO ORDER BY 2');
+  VpfComandosql.add(' GROUP BY CHA.DATCHAMADO ORDER BY CHA.DATCHAMADO ');
 
   graficostrio.info.ComandoSQL :=  VpfComandoSql.text;
   graficostrio.info.CampoRotulo := 'CAMPO';
@@ -529,7 +529,7 @@ begin
   graficostrio.info.TituloY := 'Quantidade';
 
   AdicionaFiltros(VpfComandosql);
-  VpfComandosql.add(' GROUP BY CAMPO');
+  VpfComandosql.add(' GROUP BY EST.NOMEST');
 
   graficostrio.info.ComandoSQL :=  VpfComandoSql.text;
   graficostrio.info.CampoRotulo := 'CAMPO';
@@ -553,7 +553,7 @@ begin
   graficostrio.info.TituloY := 'Quantidade';
 
   AdicionaFiltros(VpfComandosql);
-  VpfComandosql.add(' GROUP BY CAMPO ');
+  VpfComandosql.add(' GROUP BY CLI.C_CID_CLI ');
 
   graficostrio.info.ComandoSQL :=  VpfComandoSql.text;
   graficostrio.info.CampoRotulo := 'CAMPO';
@@ -579,7 +579,7 @@ begin
   graficostrio.info.TituloY := 'Quantidade';
 
   AdicionaFiltros(VpfComandosql);
-  VpfComandosql.add(' GROUP BY CAMPO ');
+  VpfComandosql.add(' GROUP BY PRO.C_NOM_PRO ');
 
   graficostrio.info.ComandoSQL :=  VpfComandoSql.text;
   graficostrio.info.CampoRotulo := 'CAMPO';

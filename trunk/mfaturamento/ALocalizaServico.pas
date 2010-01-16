@@ -81,7 +81,6 @@ type
     function LocalizaServico(VpaDServicoCotacao : TRBDOrcServico) : boolean;overload;
     function LocalizaServico(VpaDServicoExecutado: TRBDChamadoServicoExecutado): Boolean; overload;
     function LocalizaServico(VpaDServicoOrcado: TRBDChamadoServicoOrcado): Boolean; overload;
-    function LocalizaServico(VpaDServicoAmostra : TRBDServicoAmostra):boolean;overload;
     function LocalizaServico(VpaDServicoAmostra : TRBDServicoFixoAmostra):boolean;overload;
   end;
 
@@ -425,23 +424,6 @@ begin
     VpaDServicoOrcado.CodEmpresaServico:= CadServicoI_COD_EMP.AsInteger;
     VpaDServicoOrcado.NomServico:= CadServicoC_NOM_SER.AsString;
     VpaDServicoOrcado.QtdServico := 1;
-  end;
-end;
-
-{******************************************************************************}
-function TFlocalizaServico.LocalizaServico(VpaDServicoAmostra : TRBDServicoAmostra):boolean;
-begin
-  ShowModal;
-  Result:= VprAcao;
-  if CadServico.IsEmpty then
-    Result:= False;
-  if VprAcao then
-  begin
-    VpaDServicoAmostra.CodServico:= CadServicoI_COD_SER.AsInteger;
-    VpaDServicoAmostra.ValUnitario:= CadServicoN_VLR_VEN.AsFloat;
-    VpaDServicoAmostra.CodEmpresaServico:= CadServicoI_COD_EMP.AsInteger;
-    VpaDServicoAmostra.NomServico:= CadServicoC_NOM_SER.AsString;
-    VpaDServicoAmostra.QtdServico := 1;
   end;
 end;
 

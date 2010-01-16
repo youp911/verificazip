@@ -1192,7 +1192,9 @@ end;
 procedure TFNovaCotacao.CalculaValorTotalProduto;
 begin
   if Config.DescontoNosProdutodaCotacao then
+  begin
     VprDProCotacao.ValTotal := VprDProCotacao.ValTotal - ((VprDProCotacao.ValTotal *VprDProCotacao.PerDesconto)/100);
+  end;
   GProdutos.Cells[9,GProdutos.ALinha] := FormatFloat(Varia.MascaraQtd,VprDProCotacao.QtdProduto);
   GProdutos.Cells[10,GProdutos.ALinha] := FormatFloat(Varia.MascaraValorUnitario,VprDProCotacao.ValUnitario);
   GProdutos.Cells[11,GProdutos.ALinha] := FormatFloat(varia.MascaraValor,VprDProCotacao.ValTotal);
@@ -2808,6 +2810,7 @@ begin
                  VprDProCotacao.PerDesconto := StrToFloat(DeletaChars(GProdutos.Cells[12,GProdutos.ALinha],'.'))
                else
                  VprDProCotacao.PerDesconto := 0;
+               VprDProCotacao.ValTotal := VprDProCotacao.ValUnitario * VprDProCotacao.QtdProduto;
                CalculaValorTotalProduto;
              end;
        13 : if not config.NumeroSerieProduto then

@@ -37,19 +37,54 @@ Type
   end;
 
 Type
+  TRBDPecasContratoLocacaoRave = class
+    public
+    SeqProduto : Integer;
+    CodProduto,
+    NomProduto : String;
+    QtdPecas,
+    ValCusto : Double;
+    constructor cria;
+    destructor destroy;override;
+  end;
+
+
+Type
+  TRBDInsumoContratoLocacaoRave = class
+    public
+      SeqProduto :Integer;
+      CodProduto,
+      NomProduto : String;
+      QtdProduto,
+      ValCustoInsumo : Double;
+      constructor cria;
+      destructor destroy;override;
+  end;
+
+Type
   TRBDContratoLocacaoRave = class
     public
     CodFilial,
-    SeqContrato : Integer;
+    SeqContrato,
+    CodCliente : Integer;
     ValTotalLeituras,
     ValTotalEquipamentos,
+    ValTotalInsumosContabilizados,
+    ValTotalInsumosNaoContabilizados,
+    ValTotalPecas,
     ValFinalContrato : Double;
     Leituras,
-    Equipamentos : TList;
+    Equipamentos,
+    InsumosContabilizados,
+    InsumosNaoContabilizados,
+    Pecas : TList;
     constructor cria;
     destructor destroy;
     function AddLeituraLocacao : TRBDLeiturasContratoLocacaoRave;
     function addEquipamento : TRBDEquipamentoContratoLocacaoRave;
+    function addInsumoContabilizado : TRBDInsumoContratoLocacaoRave;
+    function addInsumoNaoContabilizado : TRBDInsumoContratoLocacaoRave;
+    function addPeca : TRBDPecasContratoLocacaoRave;
 end;
 
 Type
@@ -256,9 +291,11 @@ type
       procedure CarCombinacoesOPH(VpaDOPEtikArt : TRBDOrdemProducaoEtiqueta;VpaDProduto : TRBDProduto);
       procedure CarManequinsOPConvencional(VpaDOPEtikArt : TRBDOrdemProducaoEtiqueta;VpaDProduto : TRBDProduto);
       procedure CarMetrosCombinacaoOPH(VpaDOPEtikArt : TRBDOrdemProducaoEtiqueta;VpaDProduto : TRBDProduto);
-      procedure CarDContrato(VpaDContrato : TRBDContratoLocacaoRave;VpaCodFilial, VpaSeqContrato : Integer);
+      procedure CarDContrato(VpaDContrato : TRBDContratoLocacaoRave;VpaCodFilial, VpaSeqContrato,VpaCodCliente  : Integer);
       procedure CarLeituraLocacao(VpaDContrato : TRBDContratoLocacaoRave;VpaCodFilial, VpaSeqContrato : Integer);
       procedure CarEquipamentosContrato(VpaDContrato : TRBDContratoLocacaoRave);
+      procedure CarInsumosContrato(VpaDContrato : TRBDContratoLocacaoRave;VpaContabilizados : Boolean);
+      procedure CarPecasContrato(VpaDContrato : TRBDContratoLocacaoRave);
 
       procedure ConfiguraRelatorioPDF;
       procedure ImprimeRelEstoqueMinimo(VpaObjeto : TObject);
@@ -277,6 +314,8 @@ type
       procedure ImprimeRelRomaneioSeparacaoCotacao(VpaObjeto : TObject);
       procedure ImprimeRelAnaliseContratosAnaliticoLeituras(VpaDContrato : TRBDContratoLocacaoRave);
       procedure ImprimeRelAnaliseContratosAnaliticoEquipamentos(VpaDContrato : TRBDContratoLocacaoRave);
+      procedure ImprimeRelAnaliseContratosAnaliticoInsumos(VpaDContrato : TRBDContratoLocacaoRave; VpaInsumos : TList; VpaContabilizados : Boolean);
+      procedure ImprimeRelAnaliseContratosAnaliticoPecas(VpaDContrato : TRBDContratoLocacaoRave);
       procedure ImprimeRelAnaliseContratosAnalitico(VpaObjeto : TObject);
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
@@ -314,6 +353,36 @@ implementation
 
 Uses FunSql, constantes, funObjeto, funString, FunData, UnContasAReceber, FunNumeros;
 
+
+{ TRBDPecasContratoLocacaoRave }
+
+{******************************************************************************}
+constructor TRBDPecasContratoLocacaoRave.cria;
+begin
+  inherited;
+end;
+
+{******************************************************************************}
+destructor TRBDPecasContratoLocacaoRave.destroy;
+begin
+
+  inherited;
+end;
+
+{ TRBDInsumoContratoLocacaoRave }
+
+{******************************************************************************}
+constructor TRBDInsumoContratoLocacaoRave.cria;
+begin
+  inherited create;
+end;
+
+{******************************************************************************}
+destructor TRBDInsumoContratoLocacaoRave.destroy;
+begin
+
+  inherited;
+end;
 
 
 { TRBDEquipamentoContratoLocacaoRave }
@@ -361,6 +430,20 @@ begin
 end;
 
 {******************************************************************************}
+function TRBDContratoLocacaoRave.addInsumoContabilizado: TRBDInsumoContratoLocacaoRave;
+begin
+  result := TRBDInsumoContratoLocacaoRave.cria;
+  InsumosContabilizados.Add(result);
+end;
+
+{******************************************************************************}
+function TRBDContratoLocacaoRave.addInsumoNaoContabilizado: TRBDInsumoContratoLocacaoRave;
+begin
+  result := TRBDInsumoContratoLocacaoRave.cria;
+  InsumosContabilizados.Add(result);
+end;
+
+{******************************************************************************}
 function TRBDContratoLocacaoRave.AddLeituraLocacao: TRBDLeiturasContratoLocacaoRave;
 begin
   Result := TRBDLeiturasContratoLocacaoRave.cria;
@@ -368,10 +451,20 @@ begin
 end;
 
 {******************************************************************************}
+function TRBDContratoLocacaoRave.addPeca: TRBDPecasContratoLocacaoRave;
+begin
+  result := TRBDPecasContratoLocacaoRave.cria;
+  Pecas.Add(result);
+end;
+
+{******************************************************************************}
 constructor TRBDContratoLocacaoRave.cria;
 begin
   Leituras := TList.Create;
   Equipamentos := TList.Create;
+  InsumosContabilizados := TList.Create;
+  InsumosNaoContabilizados := TList.Create;
+  Pecas := TList.Create;
 end;
 
 {******************************************************************************}
@@ -379,8 +472,14 @@ destructor TRBDContratoLocacaoRave.destroy;
 begin
   FreeTObjectsList(Leituras);
   FreeTObjectsList(Equipamentos);
+  FreeTObjectsList(InsumosContabilizados);
+  FreeTObjectsList(InsumosNaoContabilizados);
+  FreeTObjectsList(Pecas);
   Leituras.Free;
   Equipamentos.Free;
+  InsumosContabilizados.Free;
+  InsumosNaoContabilizados.Free;
+  Pecas.Free;
 end;
 
 
@@ -892,7 +991,7 @@ begin
    with RVSystem.BaseReport do begin
      clearTabs;
      SetTab(1.0,pjleft,1.9,0.5,BoxlineNONE,0); //Codigo cliente
-     SetTab(NA,pjleft,13,0.5,BoxlineNONE,0); //Nom cliente
+     SetTab(NA,pjleft,12.5,0.5,BoxlineNONE,0); //Nom cliente
      SetTab(NA,pjRight,2.5,0.5,BoxlineNONE,0); //Valor Final
      SetTab(NA,pjRight,2.5,0.5,BoxlineNONE,0); //Valor final
      SaveTabs(1);
@@ -938,6 +1037,12 @@ begin
      SetTab(NA,pjleft,2.5,0.5,BoxlineALL,0); //Setor
      SetTab(NA,pjRight,3.5,0.5,BoxlineALL,0); //Valor equipamento
      SaveTabs(7);
+     clearTabs;
+     SetTab(1.0,pjLeft,9.5,0.1,BoxlineALL,0); //Insumo
+     SetTab(NA,pjRight,2.1,0.5,BoxlineALL,0); //Qtd
+     SetTab(NA,pjRight,3.5,0.5,BoxlineALL,0); //Valor Custo
+     SetTab(NA,pjRight,3.5,0.5,BoxlineALL,0); //Valor Unitario Medio
+     SaveTabs(8);
    end;
 end;
 
@@ -2510,13 +2615,17 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.CarDContrato(VpaDContrato: TRBDContratoLocacaoRave;VpaCodFilial, VpaSeqContrato: Integer);
+procedure TRBFunRave.CarDContrato(VpaDContrato: TRBDContratoLocacaoRave;VpaCodFilial, VpaSeqContrato, VpaCodCliente : Integer);
 begin
-  VpaDContrato.CodFilial := Tabela.FieldByName('CODFILIAL').AsInteger;
-  VpaDContrato.SeqContrato := Tabela.FieldByName('SEQCONTRATO').AsInteger;
-  CarLeituraLocacao(VpaDContrato,Tabela.FieldByName('CODFILIAL').AsInteger,Tabela.FieldByName('SEQCONTRATO').AsInteger);
+  VpaDContrato.CodFilial := VpaCodFilial;
+  VpaDContrato.SeqContrato := VpaSeqContrato;
+  VpaDContrato.CodCliente := VpaCodCliente;
+  CarLeituraLocacao(VpaDContrato,VpaCodFilial,VpaSeqContrato);
   CarEquipamentosContrato(VpaDContrato);
-  VpaDContrato.ValFinalContrato := VpaDContrato.ValTotalLeituras - VpaDContrato.ValTotalEquipamentos;
+  CarInsumosContrato(VpaDContrato,true);
+  CarInsumosContrato(VpaDContrato,false);
+  CarPecasContrato(VpaDContrato);
+  VpaDContrato.ValFinalContrato := VpaDContrato.ValTotalLeituras - VpaDContrato.ValTotalEquipamentos - VpaDContrato.ValTotalInsumosContabilizados - VpaDContrato.ValTotalPecas;
 end;
 
 {******************************************************************************}
@@ -2574,6 +2683,59 @@ begin
     VpfDEquipamento.DesSetor := Aux.FieldByName('DESSETOR').AsString;
     VpfDEquipamento.ValorEquipamento := Aux.FieldByName('N_VLR_CUS').AsFloat;
     VpaDContrato.ValTotalEquipamentos := VpaDContrato.ValTotalEquipamentos + Aux.FieldByName('N_VLR_CUS').AsFloat;
+    Aux.Next;
+  end;
+  Aux.Close;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.CarInsumosContrato(VpaDContrato: TRBDContratoLocacaoRave;VpaContabilizados: Boolean);
+var
+  VpfDInsumo : TRBDInsumoContratoLocacaoRave;
+begin
+  Aux.Close;
+  Aux.SQL.Clear;
+  AdicionaSQLTabela(Aux,'Select SUM(ITE.N_QTD_PRO) QTD, SUM(ITE.N_QTD_PRO * QTD.N_VLR_CUS) VALOR, PRO.I_SEQ_PRO, PRO.C_COD_PRO , PRO.C_NOM_PRO ' +
+                            ' FROM CADORCAMENTOS CAD, MOVORCAMENTOS ITE, MOVQDADEPRODUTO QTD, CADPRODUTOS PRO ' +
+                            ' Where CAD.I_EMP_FIL = ITE.I_EMP_FIL ' +
+                            ' AND CAD.I_LAN_ORC = ITE.I_LAN_ORC ' +
+                            ' AND CAD.I_COD_CLI =  ' + IntToStr(VpaDContrato.CodCliente)+
+                            ' AND ITE.I_SEQ_PRO = QTD.I_SEQ_PRO ' +
+                            ' AND ITE.I_COD_COR = QTD.I_COD_COR ' +
+                            ' AND QTD.I_EMP_FIL = ITE.I_EMP_FIL ' +
+                            ' AND QTD.I_COD_TAM = 0 ' +
+                            ' AND ITE.I_SEQ_PRO = PRO.I_SEQ_PRO ');
+  if VpaContabilizados  then
+  begin
+    AdicionaSQLTabela(Aux,' AND CAD.I_TIP_ORC = ' + IntToStr(Varia.TipoCotacaoSuprimentoLocacao));
+    VpaDContrato.ValTotalInsumosContabilizados := 0;
+  end
+  else
+  begin
+    AdicionaSQLTabela(Aux,' AND CAD.I_TIP_ORC <> ' + IntToStr(Varia.TipoCotacaoSuprimentoLocacao));
+    VpaDContrato.ValTotalInsumosNAOContabilizados := 0;
+  end;
+  AdicionaSQLTabela(Aux,' GROUP BY PRO.I_SEQ_PRO, PRO.C_COD_PRO, PRO.C_NOM_PRO'+
+                            ' ORDER BY 1 ' );
+  Aux.Open;
+
+  while not Aux.Eof do
+  begin
+    if VpaContabilizados then
+    begin
+      VpfDInsumo := VpaDContrato.addInsumoContabilizado;
+      VpaDContrato.ValTotalInsumosContabilizados := VpaDContrato.ValTotalInsumosContabilizados + Aux.FieldByName('VALOR').AsFloat;
+    end
+    else
+    begin
+      VpfDInsumo := VpaDContrato.addInsumoNaoContabilizado;
+      VpaDContrato.ValTotalInsumosNAOContabilizados := VpaDContrato.ValTotalInsumosNAOContabilizados + Aux.FieldByName('VALOR').AsFloat;
+    end;
+    VpfDInsumo.SeqProduto := Aux.FieldByName('I_SEQ_PRO').AsInteger;
+    VpfDInsumo.CodProduto := Aux.FieldByName('C_COD_PRO').AsString;
+    VpfDInsumo.NomProduto := Aux.FieldByName('C_NOM_PRO').AsString;
+    VpfDInsumo.QtdProduto := Aux.FieldByName('QTD').AsFloat;
+    VpfDInsumo.ValCustoInsumo := Aux.FieldByName('VALOR').AsFloat;
     Aux.Next;
   end;
   Aux.Close;
@@ -2687,6 +2849,40 @@ begin
         NewPage;
     end;
   end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.CarPecasContrato(VpaDContrato: TRBDContratoLocacaoRave);
+Var
+  VpfDPecaContrato : TRBDPecasContratoLocacaoRave;
+begin
+  VpaDContrato.ValTotalPecas := 0;
+  AdicionaSQLAbreTabela(Aux,'select SUM(CPO.QTDPRODUTO) QTD, SUM(CPO.QTDPRODUTO * QTD.N_VLR_CUS) CUSTO, PRO.I_SEQ_PRO, PRO.C_COD_PRO, PRO.C_NOM_PRO '+
+                            ' from CHAMADOPRODUTO CHP, CHAMADOPRODUTOORCADO CPO, CADPRODUTOS PRO, MOVQDADEPRODUTO QTD '+
+                            ' WHERE CHP.CODFILIALCONTRATO = '+ IntToStr(VpaDContrato.CodFilial)+
+                            ' AND  CHP.SEQCONTRATO =  '+ IntToStr(VpaDContrato.SeqContrato)+
+                            ' AND CHP.CODFILIAL = CPO.CODFILIAL '+
+                            ' AND CHP.NUMCHAMADO = CPO.NUMCHAMADO '+
+                            ' AND CHP.SEQITEM = CPO.SEQITEM '+
+                            ' AND CPO.SEQPRODUTO = PRO.I_SEQ_PRO '+
+                            ' AND CPO.SEQPRODUTO = QTD.I_SEQ_PRO '+
+                            ' AND QTD.I_EMP_FIL = CHP.CODFILIAL '+
+                            ' AND QTD.I_COD_COR =0 '+
+                            ' AND QTD.I_COD_TAM = 0 '+
+                            ' GROUP BY PRO.I_SEQ_PRO, PRO.C_COD_PRO, PRO.C_NOM_PRO '+
+                            ' order by 1');
+  while not Aux.Eof do
+  begin
+    VpaDContrato.ValTotalPecas := VpaDContrato.ValTotalPecas + Aux.FieldByName('CUSTO').AsFloat;
+    VpfDPecaContrato := VpaDContrato.addPeca;
+    VpfDPecaContrato.SeqProduto := Aux.FieldByName('I_SEQ_PRO').AsInteger;
+    VpfDPecaContrato.CodProduto := Aux.FieldByName('C_COD_PRO').AsString;
+    VpfDPecaContrato.NomProduto := Aux.FieldByName('C_NOM_PRO').AsString;
+    VpfDPecaContrato.QtdPecas := Aux.FieldByName('QTD').AsFloat;
+    VpfDPecaContrato.ValCusto := Aux.FieldByName('CUSTO').AsFloat;
+    aux.Next;
+  end;
+  Aux.Close;
 end;
 
 {******************************************************************************}
@@ -3086,7 +3282,7 @@ begin
     while not Tabela.Eof  do
     begin
       VpfDContrato := TRBDContratoLocacaoRave.cria;
-      CarDContrato(VpfDContrato,Tabela.FieldByName('CODFILIAL').AsInteger,Tabela.FieldByName('CODFILIAL').AsInteger);
+      CarDContrato(VpfDContrato,Tabela.FieldByName('CODFILIAL').AsInteger,Tabela.FieldByName('SEQCONTRATO').AsInteger,Tabela.FieldByName('I_COD_CLI').AsInteger);
       RestoreTabs(1);
       FontSize := 12;
       PrintTab(' Cliente :');
@@ -3152,6 +3348,11 @@ begin
 
       ImprimeRelAnaliseContratosAnaliticoLeituras(VpfDContrato);
       ImprimeRelAnaliseContratosAnaliticoEquipamentos(VpfDContrato);
+      ImprimeRelAnaliseContratosAnaliticoInsumos(VpfDContrato,VpfDContrato.InsumosContabilizados,true);
+      if VpfDContrato.InsumosNaoContabilizados.Count > 0 then
+        ImprimeRelAnaliseContratosAnaliticoInsumos(VpfDContrato,VpfDContrato.InsumosNaoContabilizados,false);
+      ImprimeRelAnaliseContratosAnaliticoPecas(VpfDContrato);
+
       newline;
       newline;
       If LinesLeft<=1 Then
@@ -3207,6 +3408,57 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.ImprimeRelAnaliseContratosAnaliticoInsumos(VpaDContrato: TRBDContratoLocacaoRave; VpaInsumos : TList; VpaContabilizados: Boolean);
+Var
+  VpfLaco : Integer;
+  VpfDInsumo : TRBDInsumoContratoLocacaoRave;
+begin
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(5);
+    FontSize := 14;
+    newline;
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    if VpaContabilizados then
+      PrintTab(' Insumos Contabilizados ')
+    else
+      PrintTab(' Insumos NÃO Contabilizados ');
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    RestoreTabs(8);
+    FontSize := 10;
+    PrintTab('Produto');
+    PrintTab('Quantidade');
+    PrintTab('Valor Custo Total');
+    PrintTab('Custo Medio Unitario');
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    for Vpflaco := 0 to VpaInsumos.Count - 1 do
+    begin
+      VpfDInsumo :=  TRBDInsumoContratoLocacaoRave(VpaInsumos.Items[VpfLaco]);
+      PrintTab(' '+VpfDInsumo.CodProduto+' - '+VpfDInsumo.NomProduto);
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfDInsumo.QtdProduto));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfDInsumo.ValCustoInsumo));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfDInsumo.ValCustoInsumo / VpfDInsumo.QtdProduto));
+      newline;
+      If LinesLeft<=1 Then
+        NewPage;
+    end;
+    PrintTab('');
+    PrintTab('Total');
+    if VpaContabilizados then
+      PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValTotalInsumosContabilizados))
+    else
+      PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValTotalInsumosNaoContabilizados));
+    PrintTab('');
+  end;
+end;
+
+{******************************************************************************}
 procedure TRBFunRave.ImprimeRelAnaliseContratosAnaliticoLeituras(VpaDContrato: TRBDContratoLocacaoRave);
 Var
   VpfLaco : Integer;
@@ -3256,6 +3508,50 @@ begin
     PrintTab('');
     PrintTab('Total');
     PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValTotalLeituras));
+  end;
+end;
+
+procedure TRBFunRave.ImprimeRelAnaliseContratosAnaliticoPecas( VpaDContrato: TRBDContratoLocacaoRave);
+Var
+  VpfLaco : Integer;
+  VpfDPeca : TRBDPecasContratoLocacaoRave;
+begin
+  with RVSystem.BaseReport do
+  begin
+    RestoreTabs(5);
+    FontSize := 14;
+    newline;
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    PrintTab(' Peças ');
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    RestoreTabs(8);
+    FontSize := 10;
+    PrintTab('Peça');
+    PrintTab('Qtd');
+    PrintTab('Custo Total');
+    PrintTab('Custo Medio Unitario');
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    for Vpflaco := 0 to VpaDContrato.Pecas.Count - 1 do
+    begin
+      VpfDPeca :=  TRBDPecasContratoLocacaoRave(VpaDContrato.Pecas.Items[VpfLaco]);
+      PrintTab(' '+VpfDPeca.CodProduto+' - '+VpfDPeca.NomProduto);
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfDPeca.QtdPecas));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfDPeca.ValCusto));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpfDPeca.ValCusto / VpfDPeca.QtdPecas));
+      newline;
+      If LinesLeft<=1 Then
+        NewPage;
+    end;
+    PrintTab('');
+    PrintTab('Total');
+    PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValTotalPecas));
+    PrintTab('');
   end;
 end;
 
@@ -5625,8 +5921,6 @@ begin
   ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
-
-
 
 
 end.

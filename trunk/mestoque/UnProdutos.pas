@@ -165,6 +165,7 @@ type
     function ExisteProduto(VpaCodProduto : String;var VpaSeqProduto : Integer;var VpaNomProduto, VpaUM : String):boolean;overload;
     function ExisteProduto(VpaSeqProduto : Integer;Var VpaCodProduto, VpaNomProduto : String):Boolean;overload;
     function ExisteProduto(VpaCodProduto: String; VpaDProAmostra: TRBDConsumoAmostra): Boolean; overload;
+    function ExisteProduto(VpaCodProduto: String; VpaDProEspecialAmostra: TRBDItensEspeciaisAmostra): Boolean; overload;
     function ExisteProduto(VpaCodProduto: String): Boolean; overload;
     function ExisteProduto(VpaCodProduto : String;VpaDProdutoPedido: TRBDProdutoPedidoCompra): Boolean; overload;
     function ExisteProduto(VpaCodProduto: String; VpaDOrcamentoItem: TRBDSolicitacaoCompraItem): Boolean; overload;
@@ -3111,10 +3112,14 @@ begin
   begin
     AdicionaSQLAbreTabela(ProProduto,'Select pro.I_Seq_Pro, '+varia.CodigoProduto +
                                      ', Pro.C_Cod_Uni, PRO.C_NOM_PRO, I_ALT_PRO, '+
-                                     ' QTD.N_VLR_CUS '+
-                                     ' from CADPRODUTOS PRO, MOVQDADEPRODUTO QTD '+
+                                     ' QTD.N_VLR_CUS,  '+
+                                     ' CLA.N_PER_PER '+
+                                     ' from CADPRODUTOS PRO, MOVQDADEPRODUTO QTD, CADCLASSIFICACAO CLA '+
                                      ' Where '+Varia.CodigoProduto +' = ''' + VpaCodProduto +''''+
-                                     ' AND PRO.I_SEQ_PRO = QTD.I_SEQ_PRO ');
+                                     ' AND PRO.I_SEQ_PRO = QTD.I_SEQ_PRO '+
+                                     ' AND PRO.I_COD_EMP = CLA.I_COD_EMP ' +
+                                     ' AND PRO.C_COD_CLA = CLA.C_COD_CLA ' +
+                                     ' AND PRO.C_TIP_CLA = CLA.C_TIP_CLA ');
 
     result := not ProProduto.Eof;
     if result then
@@ -3128,6 +3133,7 @@ begin
         NomProduto := ProProduto.FieldByName('C_NOM_PRO').AsString;
         ValUnitario:= ProProduto.FieldByName('N_VLR_CUS').AsFloat;
         AltProduto := ProProduto.FieldByName('I_ALT_PRO').AsInteger;
+        PerAcrescimoPerda := ProProduto.FieldByName('N_PER_PER').AsFloat;
       end;
     end;
     ProProduto.close;
@@ -3265,6 +3271,38 @@ begin
     ProProduto.Close;
   end;
 end;
+
+{******************************************************************************}
+function TFuncoesProduto.ExisteProduto(VpaCodProduto: String; VpaDProEspecialAmostra: TRBDItensEspeciaisAmostra): Boolean;
+begin
+  result:= false;
+  if VpaCodProduto <> '' then
+  begin
+    AdicionaSQLAbreTabela(ProProduto,'Select pro.I_Seq_Pro, '+varia.CodigoProduto +
+                                     ', Pro.C_Cod_Uni, PRO.C_NOM_PRO, I_ALT_PRO, '+
+                                     ' QTD.N_VLR_CUS,  '+
+                                     ' CLA.N_PER_PER '+
+                                     ' from CADPRODUTOS PRO, MOVQDADEPRODUTO QTD, CADCLASSIFICACAO CLA '+
+                                     ' Where '+Varia.CodigoProduto +' = ''' + VpaCodProduto +''''+
+                                     ' AND PRO.I_SEQ_PRO = QTD.I_SEQ_PRO '+
+                                     ' AND PRO.I_COD_EMP = CLA.I_COD_EMP ' +
+                                     ' AND PRO.C_COD_CLA = CLA.C_COD_CLA ' +
+                                     ' AND PRO.C_TIP_CLA = CLA.C_TIP_CLA ');
+
+    result := not ProProduto.Eof;
+    if result then
+    begin
+      with VpaDProEspecialAmostra do
+      begin
+        SeqProduto := ProProduto.FieldByName('I_SEQ_PRO').AsInteger;
+        NomProduto := ProProduto.FieldByName('C_NOM_PRO').AsString;
+        ValProduto:= ProProduto.FieldByName('N_VLR_CUS').AsFloat;
+      end;
+    end;
+    ProProduto.close;
+  end;
+end;
+
 {******************************************************************************}
 function TFuncoesProduto.ExisteEntretela(VpaCodProduto : String;VpaDConsumoMP : TRBDConsumoMP):Boolean;
 begin
@@ -3538,8 +3576,14 @@ begin
   if result then
   begin
     VpaDFaca.CodFaca := Tabela2.FieldByname('CODFACA').AsInteger;
-    VpaDFaca.LarFaca := Tabela2.FieldByname('LARFACA').AsFloat;
-    VpaDFaca.AltFaca := Tabela2.FieldByname('ALTFACA').AsFloat;
+    if config.ConverterMTeCMparaMM then
+      VpaDFaca.LarFaca := Tabela2.FieldByname('LARFACA').AsFloat/10
+    else
+      VpaDFaca.LarFaca := Tabela2.FieldByname('LARFACA').AsFloat;
+    if config.ConverterMTeCMparaMM then
+      VpaDFaca.AltFaca := Tabela2.FieldByname('ALTFACA').AsFloat/10
+    else
+      VpaDFaca.AltFaca := Tabela2.FieldByname('ALTFACA').AsFloat;
     VpaDFaca.QtdProvas := Tabela2.FieldByname('QTDPROVA').AsInteger;
     VpaDFaca.NomFaca := Tabela2.FieldByname('NOMFACA').AsString;
   end;

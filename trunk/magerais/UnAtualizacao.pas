@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1568;
+  CT_VersaoBanco = 1572;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1318,6 +1318,33 @@ begin
                           ' WHERE D_DAT_VAL IS NOT NULL' );
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1568');
       end;
+      if VpaNumAtualizacao < 1569 Then
+      begin
+        VpfErro := '1569';
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRACONSUMO ADD QTDPONTOSBORDADO NUMBER(10,0) NULL ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1569');
+      end;
+      if VpaNumAtualizacao < 1570 Then
+      begin
+        VpfErro := '1570';
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRA ADD (QTDTOTALPONTOSBORDADO NUMBER(10,0) NULL, '+
+                                                        ' QTDCORTES NUMBER(10,0) NULL ,' +
+                                                        ' QTDTROCALINHA NUMBER(10,0) NULL)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1570');
+      end;
+      if VpaNumAtualizacao < 1571 Then
+      begin
+        VpfErro := '1571';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADCLASSIFICACAO ADD N_PER_PER NUMBER(5,2)NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1571');
+      end;
+      if VpaNumAtualizacao < 1572 Then
+      begin
+        VpfErro := '1572';
+        ExecutaComandoSql(Aux,'DROP TABLE AMOSTRASERVICO ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1572');
+      end;
+
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then
       begin

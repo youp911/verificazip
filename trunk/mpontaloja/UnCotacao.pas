@@ -8,7 +8,7 @@ unit UnCotacao;
  funcao: unidade que faz as acoes da cotacao}
 
 interface
-uses classes, DBTables, Db, SysUtils, ConvUnidade, UnDados, UnContasAReceber, UnProdutos, UnDadosCR, UnDadosProduto,
+uses classes, DBTables, Db, dbClient,SysUtils, ConvUnidade, UnDados, UnContasAReceber, UnProdutos, UnDadosCR, UnDadosProduto,
      Parcela, UnContasAPagar, UnSistema, UnImpressaoBoleto, Registry, IdMessage, IdSMTP, UnVendedor, windows,comctrls, variants,
      IdAttachmentfile, idText, SQLExpr, tabela, UnArgox;
 
@@ -33,9 +33,9 @@ end;
 type TFuncoesCotacao = class(TLocalizaCotacao)
   private
     Aux,
-    Orcamento,
     Kit,
     ProdutosNota : TSQLQuery;
+    Orcamento,
     CotCadastro,
     CotCadastro2  : TSQL;
     VprBaseDados : TSQLConnection;
@@ -200,7 +200,7 @@ var
 implementation
 
 uses FunSql, Constantes, FunString,FunObjeto, UnNotaFiscal, ConstMsg, unClientes, FunData,
-     FunNumeros;
+     FunNumeros, dmRave, FunArquivos;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                           eventos da classe localiza
@@ -279,8 +279,8 @@ begin
   ProdutosNota.SQLConnection := VpaBaseDados;
   IndiceUnidade :=  TConvUnidade.create(nil);
   IndiceUnidade.ADataBase := VpaBaseDados;
-  Orcamento := TSQLQuery.Create(nil);
-  Orcamento.SQLConnection := VpaBaseDados;
+  Orcamento := TSQL.Create(nil);
+  Orcamento.ASQLConnection := VpaBaseDados;
   CotCadastro := TSQL.Create(nil);
   CotCadastro.ASQLConnection := VpaBaseDados;
   CotCadastro2 := TSQL.Create(nil);
@@ -1326,11 +1326,6 @@ end;
 {******************************************************************************}
 procedure TFuncoesCotacao.MontaCabecalhoEmail(VpaTexto : TStrings; VpaDCotacao : TRBDOrcamento;VpaDCliente : TRBDCliente;VpaEnviarImagem : Boolean);
 begin
-  VpaTexto.add('<html>');
-  VpaTexto.add('<title> '+Sistema.RNomFilial(VpaDCotacao.CodEmpFil)+' - '+RNomeTipoOrcamento(VpaDCotacao.CodTipoOrcamento)+' : '+IntToStr(VpaDCotacao.LanOrcamento));
-  VpaTexto.add('</title>');
-  VpaTexto.add('<body>');
-  VpaTexto.add('<left>');
   VpaTexto.add('<table width=100%>');
   VpaTexto.add('  <tr>');
   VpaTexto.add('    <td width='+IntToStr(varia.CRMTamanhoLogo)+' bgcolor="#'+varia.CRMCorClaraEmail+'">');
@@ -1367,10 +1362,101 @@ var
   VpfDProduto : TRBDOrcProduto;
   VpfDServico : TRBDOrcServico;
   VpfLaco : Integer;
-  Vpfbmppart : TIdAttachmentFile;
+//  Vpfbmppart : TIdAttachmentFile;
   VpfValUnitario,VpfValTotal : Double;
 begin
-  Vpfbmppart := TIdAttachmentFile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\'+intToStr(VpaDCotacao.CodEmpFil)+'.jpg');
+{  VpaTexto.add('<html>');
+  VpaTexto.add('<title> '+Sistema.RNomFilial(VpaDCotacao.CodEmpFil)+' - '+RNomeTipoOrcamento(VpaDCotacao.CodTipoOrcamento)+' : '+IntToStr(VpaDCotacao.LanOrcamento));
+  VpaTexto.add('</title>');
+  VpaTexto.add('<body>');
+  VpaTexto.add('<left>');
+  VpaTexto.add('Prezado(a) <b>'+ VpaDCotacao.NomContato+'</b>' );
+  VpaTexto.add('<br>' );
+  VpaTexto.add('<br>' );
+  VpaTexto.add('<br>Segue anexo o pedido "'+IntToStr(VpaDCotacao.LanOrcamento)+' " realizado no dia '+FormatDateTime('DD/MM/YYYY',VpaDCotacao.DatOrcamento));
+  VpaTexto.add('<br>' );
+  VpaTexto.add('<br>' );
+  VpaTexto.add('<br>' );
+  VpaTexto.add('Atencionamente, ' );
+  VpaTexto.add('<br>' );
+  VpaTexto.add('<br>' );
+  VpaTexto.add('<br>'+RNomVendedor(VpaDCotacao.CodVendedor));
+  VpaTexto.add('<br>' );}
+
+
+  VpaTexto.Clear;
+  VpaTexto.Add('<html>');
+  VpaTexto.Add('<head>');
+  VpaTexto.add('<title> '+Sistema.RNomFilial(VpaDCotacao.CodEmpFil)+' - '+RNomeTipoOrcamento(VpaDCotacao.CodTipoOrcamento)+' : '+IntToStr(VpaDCotacao.LanOrcamento));
+  VpaTexto.Add('</title>');
+  VpaTexto.add('<body>');
+  VpaTexto.Add('<center>');
+  VpaTexto.add('<table width=80%  border=1 bordercolor="black" cellspacing="0" >');
+  VpaTexto.Add('<tr>');
+  VpaTexto.add('<td>');
+  VpaTexto.Add('<table width=100%  border=0 >');
+  VpaTexto.add(' <tr>');
+  VpaTexto.Add('  <td width=40%>');
+  VpaTexto.add('    <a > <img src="cid:'+IntToStr(VpaDCotacao.CodEmpFil)+'.jpg" width='+IntToStr(varia.CRMTamanhoLogo)+' height = '+IntToStr(Varia.CRMAlturaLogo)+' boder=0>');
+  VpaTexto.Add('  </td>');
+  VpaTexto.add('  <td width=20% align="center" > <font face="Verdana" size="5"><b>Pedido '+IntToStr(VpaDCotacao.LanOrcamento));
+  VpaTexto.Add('  <td width=40% align="right" > <font face="Verdana" size="5"><right> <a title="Sistema de Gestão Desenvolvido por Eficacia Sistemas e Consultoria" href="http://www.eficaciaconsultoria.com.br"> <img src="cid:efi.jpg" border="0"');
+  VpaTexto.add('  </td>');
+  VpaTexto.Add('  </td>');
+  VpaTexto.add('  </tr>');
+  VpaTexto.Add('</table>');
+  VpaTexto.add('<br>');
+  VpaTexto.Add('<br>');
+  VpaTexto.add('<table width=100%  border=0 cellpadding="0" cellspacing="0" >');
+  VpaTexto.Add(' <tr>');
+  VpaTexto.add('  <td width=100% bgcolor=#6699FF ><font face="Verdana" size="3">');
+  VpaTexto.Add('   <br> <center>');
+  VpaTexto.add('   <br>Esta mensagem refere-se ao Pedido "'+IntToStr(VpaDCotacao.LanOrcamento)+'"');
+  VpaTexto.Add('   <br></center>');
+  VpaTexto.add('   <br>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.add(' </tr><tr>');
+  VpaTexto.Add('  <td width=100% bgcolor="silver" ><font face="Verdana" size="3">');
+  VpaTexto.add('   <br><center>');
+  VpaTexto.Add('   <br>Cliente : '+VpaDCliente.NomCliente );
+  VpaTexto.add('   <br>CNPJ :'+VpaDCliente.CGC_CPF);
+  VpaTexto.Add('   <br>');
+  VpaTexto.add('   <br>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.add(' </tr><tr>');
+  VpaTexto.Add('  <td width=100% bgcolor=#6699FF ><font face="Verdana" size="3">');
+  VpaTexto.add('   <br><center>');
+  VpaTexto.Add('   <br>Data Emissao : '+FormatDateTime('DD/MM/YYY',VpaDCotacao.DatOrcamento));
+  VpaTexto.Add('   <br>Vendedor : '+RNomVendedor(VpaDCotacao.CodVendedor));
+  VpaTexto.add('   <br>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.add('   <br>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.add(' </tr>');
+  VpaTexto.Add(' </tr><tr>');
+  VpaTexto.add('  <td width=100% bgcolor="silver" ><font face="Verdana" size="3">');
+  VpaTexto.Add('   <br><center>');
+  VpaTexto.add('   <br><address><a href="http://'+varia.SiteFilial+'">'+Varia.NomeFilial+'</a>  </address>');
+  VpaTexto.Add('   <br> '+Varia.FoneFilial);
+  VpaTexto.add('   <br>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.add('   <br>');
+  VpaTexto.Add(' </tr><tr>');
+  VpaTexto.add('</table>');
+  VpaTexto.Add('</td>');
+  VpaTexto.add('</tr>');
+  VpaTexto.Add('</table>');
+  VpaTexto.add('<hr>');
+  VpaTexto.Add('<center>');
+    if (Varia.CNPJFilial <> CNPJ_Reeltex) and
+       (varia.CNPJFilial <> CNPJ_Cadartex) then
+    VpaTexto.add('<address>Sistema de gestão desenvolvido por <a href="http://www.eficaciaconsultoria.com.br">Eficácia Sistemas e Consultoria Ltda.</a>  </address>');
+  VpaTexto.Add('</center>');
+  VpaTexto.add('</body>');
+  VpaTexto.Add('');
+  VpaTexto.add('</html>');
+
+{  Vpfbmppart := TIdAttachmentFile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\'+intToStr(VpaDCotacao.CodEmpFil)+'.jpg');
   Vpfbmppart.ContentType := 'image/jpg';
   Vpfbmppart.ContentDisposition := 'inline';
   Vpfbmppart.ExtraHeaders.Values['content-id'] := intToStr(VpaDCotacao.CodEmpFil)+'.jpg';
@@ -1523,13 +1609,15 @@ begin
   end;
   VpaTexto.add('</tr>');
   VpaTexto.add('</table><br>');
+
+
   VpaTexto.add('<hr>');
   VpaTexto.add('<center>');
   if Varia.CNPJFilial <>  CNPJ_REELTEX then
     VpaTexto.add('<address>Sistema de gestão desenvolvido por <a href="http://www.eficaciaconsultoria.com.br">Eficácia Sistemas e Consultoria Ltda.</a>  </address>');
   VpaTexto.add('</center>');
   VpaTexto.add('</body>');
-  VpaTexto.add('</html>');
+  VpaTexto.add('</html>');}
 //  VpaTExto.saveToFile('c:\marcelo.html');
 end;
 
@@ -3553,6 +3641,7 @@ end;
 function TFuncoesCotacao.GravaLogEstagio(VpaCodFilial,VpaLanOrcamento,VpaCodEstagio,VpaCodUsuario : Integer;VpaDesMotivo : String) :string;
 Var
   VpfLaco, VpfLacoItem : Integer;
+  VpfNomArquivo : String;
 begin
   AdicionaSQLAbreTabela(CotCadastro,'Select * from ESTAGIOORCAMENTO '+
                                     ' Where CODFILIAL = 0 AND SEQORCAMENTO = 0 AND CODESTAGIO = 0 ' );
@@ -3568,25 +3657,17 @@ begin
   AdicionaSQLAbreTabela(Orcamento,'Select * from CADORCAMENTOS '+
                                   ' Where I_EMP_FIL = '+IntToStr(VpaCodFilial)+
                                   ' and I_LAN_ORC = '+ IntToStr(VpaLanOrcamento));
-  for VpfLaco := 0 to Orcamento.FieldCount - 1 do
-  begin
-    CotCadastro.FieldByname('LOGALTERACAO').AsString := CotCadastro.FieldByname('LOGALTERACAO').AsString+
-                                   Orcamento.Fields[VpfLaco].DisplayName+' = "'+ Orcamento.Fields[VpfLaco].AsString+'"'+#13;
-  end;
+  VpfNomArquivo := varia.PathVersoes+'\LOG\COTACAO\'+IntToStr(VpaCodFilial)+'_'+IntToStr(VpaLanOrcamento)+'_'+FormatDateTime('DDMMYYHHMMSSMM',NOW)+'CAB.xml';
+  NaoExisteCriaDiretorio(RetornaDiretorioArquivo(VpfNomArquivo),false);
+  CotCadastro.FieldByname('LOGALTERACAO').AsString := CotCadastro.FieldByname('LOGALTERACAO').AsString+'CADORCAMENTOS="'+VpfNomArquivo+'"'+ #13;
+  Orcamento.SAVETOFILE(VpfNomArquivo,dfxml);
+
+  VpfNomArquivo := varia.PathVersoes+'\LOG\COTACAO\'+IntToStr(VpaCodFilial)+'_'+IntToStr(VpaLanOrcamento)+'_'+FormatDateTime('DDMMYYHHMMSSMM',NOW)+'ITE.xml';
   AdicionaSQLAbreTabela(Orcamento,'Select * from MOVORCAMENTOS '+
                                   ' Where I_EMP_FIL = '+IntToStr(VpaCodFilial)+
                                   ' and I_LAN_ORC = '+ IntToStr(VpaLanOrcamento));
-  while not Orcamento.eof do
-  begin
-    CotCadastro.FieldByname('LOGALTERACAO').AsString := CotCadastro.FieldByname('LOGALTERACAO').AsString +
-                                                        #13'MOVORCAMENTOS '#13;
-    for VpfLacoItem := 0 to Orcamento.FieldCount - 1 do
-      CotCadastro.FieldByname('LOGALTERACAO').AsString := CotCadastro.FieldByname('LOGALTERACAO').AsString+
-                                 Orcamento.Fields[VpfLacoItem].DisplayName+' = "'+ Orcamento.Fields[VpfLacoItem].AsString+'"'+#13;
-    Orcamento.next;
-  end;
-
-  Orcamento.close;
+  Orcamento.SAVETOFILE(VpfNomArquivo,dfxml);
+  CotCadastro.FieldByname('LOGALTERACAO').AsString := CotCadastro.FieldByname('LOGALTERACAO').AsString+'MOVORCAMENTOS="'+VpfNomArquivo+'"'+ #13;
 
   CotCadastro.FieldByname('LOGALTERACAO').AsString := copy(CotCadastro.FieldByname('LOGALTERACAO').AsString,1,3500);
   CotCadastro.FieldByName('SEQESTAGIO').AsInteger := RProximoSeqEstagioOrcamento(VpaCodFilial,VpaLanOrcamento);
@@ -4264,7 +4345,8 @@ end;
 function TFuncoesCotacao.EnviaEmailCliente(VpaDCotacao : TRBDOrcamento;VpaDCliente : TRBDCliente) : string;
 var
   VpfEmailTexto, VpfEmailHTML : TIdText;
-  VpfEmailVendedor,VpfEmailCliente : String;
+  VpfEmailVendedor,VpfEmailCliente, VpfNomAnexo : String;
+  VpfPDF, Vpfbmppart : TIdAttachmentFile;
   VpfChar : Char;
 begin
   result := '';
@@ -4273,11 +4355,41 @@ begin
       result := 'E-MAIL DO CLIENTE NÃO PREENCHIDO!!!'#13'Falta preencher o e-mail do cliente.'
     else
       VpaDCotacao.DesEmail := VpaDCliente.DesEmail;
+  if not ExisteArquivo(varia.PathVersoes+'\efi.jpg') then
+    result := 'Falta arquivo "'+varia.PathVersoes+'\efi.jpg'+'"';
   if result = '' then
   begin
 {    VpfEmailTexto := TIdText.Create(VprMensagem.MessageParts);
     VpfEmailTexto.ContentType := 'text/plain';
     MontaEmailCotacaoTexto(VpfEmailTexto.Body,VpaDCotacao,VpaDCliente);}
+    Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\'+inttoStr(VpaDCotacao.CodEmpFil)+'.jpg');
+    Vpfbmppart.ContentType := 'image/jpg';
+    Vpfbmppart.ContentDisposition := 'attachment';
+    Vpfbmppart.ExtraHeaders.Values['content-id'] := inttoStr(VpaDCotacao.CodEmpFil)+'.jpg';
+    Vpfbmppart.FileName := '';
+    Vpfbmppart.DisplayName := '';
+
+    Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\efi.jpg');
+    Vpfbmppart.ContentType := 'image/jpg';
+    Vpfbmppart.ContentDisposition := 'inline';
+    Vpfbmppart.ExtraHeaders.Values['content-id'] := 'efi.jpg';
+    Vpfbmppart.FileName := '';
+    Vpfbmppart.DisplayName := '';
+
+
+
+    dtRave := TdtRave.Create(nil);
+    VpfNomAnexo := varia.PathVersoes+'\ANEXOS\COTACAO'+IntToStr(VpaDCotacao.CodEmpFil)+'_'+IntToStr(VpaDCotacao.LanOrcamento)+'.PDF';
+    dtRave.VplArquivoPDF := VpfNomAnexo ;
+    dtRave.ImprimePedido(VpaDCotacao.CodEmpFil,VpaDCotacao.LanOrcamento,false);
+    dtRave.Free;
+
+    VpfPDF := TIdAttachmentFile.Create(VprMensagem.MessageParts,VpfNomAnexo);
+    VpfPDF.ContentType := 'application/pdf;Cotacao';
+    VpfPDF.ContentDisposition := 'inline';
+    VpfPDF.ExtraHeaders.Values['content-id'] := VpfNomAnexo;
+    VpfPDF.DisplayName := RetornaNomeSemExtensao(VpfNomAnexo)+'.pdf';
+
 
     VpfEmailHTML := TIdText.Create(VprMensagem.MessageParts);
     VpfEmailHTML.ContentType := 'text/html';
