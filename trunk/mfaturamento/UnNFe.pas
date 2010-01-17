@@ -802,16 +802,16 @@ begin
       VpaDNota.CodMotivoNFE := IntTostr(nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].cStat);
       VpaDNota.DesMotivoNFE := nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].xMotivo;
       VpaDNota.DesChaveNFE := nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].chNFe;
-      if VpaDNota.CodMotivoNFE = 204 then
+      if VpaDNota.CodMotivoNFE = '204' then
       begin
         if VpaDNota.IndNFEEnviada then
         begin
-          if nfe.Consultar then
-          
+          nfe.Consultar;
+          VpaDNota.CodMotivoNFE := IntToStr(nfe.WebServices.Consulta.cStat);
+          VpaDNota.NumProtocoloNFE := nfe.WebServices.Consulta.Protocolo;
+          VpaDNota.DesMotivoNFE := nfe.WebServices.Consulta.XMotivo;
         end;
       end;
-
-
     end;
 
     NFe.DANFE := Danfe;
