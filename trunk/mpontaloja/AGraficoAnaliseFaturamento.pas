@@ -712,7 +712,7 @@ begin
   VpaTabela.Sql.Clear;
   case CAgruparpor.ItemIndex of
     0 : VpaTabela.Sql.Add('Select Sum(isnull(MOV.N_VLR_PAG,MOV.N_VLR_PAR)) Valor, MOV.D_DAT_VEN DATA1, MOV.D_DAT_VEN DATA ');
-    1 : VpaTabela.Sql.Add('Select Sum(isnull(MOV.N_VLR_PAG,MOV.N_VLR_PAR)) Valor, (YEAR(MOV.D_DAT_VEN) *100)+month(MOV.D_DAT_VEN) DATA1, month(MOV.D_DAT_VEN)||''/''|| year(MOV.D_DAT_VEN) DATA ');
+    1 : VpaTabela.Sql.Add('Select Sum('+SQLTextoIsNull('MOV.N_VLR_PAG','MOV.N_VLR_PAR')+') Valor, ('+SQLTextoAno('MOV.D_DAT_VEN')+' *100)+ '+SQLTextoMes('MOV.D_DAT_VEN')+ ' DATA1, '+SQLTextoMes('MOV.D_DAT_VEN')+'||''/''|| '+SQLTextoAno('MOV.D_DAT_VEN')+' DATA ');
     2 : VpaTabela.Sql.Add('Select Sum(isnull(MOV.N_VLR_PAG,MOV.N_VLR_PAR)) Valor,  year(MOV.D_DAT_VEN) DATA1, year(MOV.D_DAT_VEN) DATA ');
   end;
   VpaTabela.Sql.add(' from CADCONTASARECEBER CAD, MOVCONTASARECEBER MOV '+
@@ -727,8 +727,11 @@ begin
 
   if not VprMostrarContas then
     VpaTabela.sql.add(' and MOV.C_IND_CAD = ''N''');
-  VpaTabela.sql.add(' group by DATA1, DATA '  +
-                    ' order by 2');
+
+  case CAgruparpor.ItemIndex of
+    1 : VpaTabela.Sql.Add('GROUP BY ('+SQLTextoAno('MOV.D_DAT_VEN')+' *100)+ '+SQLTextoMes('MOV.D_DAT_VEN')+ ', '+SQLTextoMes('MOV.D_DAT_VEN')+'||''/''|| '+SQLTextoAno('MOV.D_DAT_VEN'));
+  end;
+    VpaTabela.sql.add(' order by 2');
   VpaTabela.Open;
 end;
 
@@ -802,7 +805,7 @@ var
   vpfMes : TDateTime;
 begin
   Aux.Sql.Clear;
-  Aux.Sql.Add('Select Sum(isnull(MOV.N_VLR_PAG,MOV.N_VLR_PAR)) VALOR FROM CADCONTASARECEBER CAD, MOVCONTASARECEBER MOV '+
+  Aux.Sql.Add('Select Sum('+SQLTextoIsNull('MOV.N_VLR_PAG','MOV.N_VLR_PAR')+') VALOR FROM CADCONTASARECEBER CAD, MOVCONTASARECEBER MOV '+
               ' Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '+
               ' AND CAD.I_LAN_REC = MOV.I_LAN_REC ');
   case CAgruparpor.ItemIndex of
@@ -832,7 +835,7 @@ var
   vpfMes : TDateTime;
 begin
   Aux.Sql.Clear;
-  Aux.Sql.Add('Select Sum(isnull(MOV.N_VLR_PAG,MOV.N_VLR_DUP)) VALOR FROM CADCONTASAPAGAR CAD, MOVCONTASAPAGAR MOV '+
+  Aux.Sql.Add('Select Sum('+SQLTextoIsNull('MOV.N_VLR_PAG','MOV.N_VLR_DUP')+') VALOR FROM CADCONTASAPAGAR CAD, MOVCONTASAPAGAR MOV '+
               ' Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '+
               ' AND CAD.I_LAN_APG = MOV.I_LAN_APG ');
   case CAgruparpor.ItemIndex of
@@ -860,7 +863,7 @@ var
   vpfMes : TDateTime;
 begin
   Aux.Sql.Clear;
-  Aux.Sql.Add('Select Sum(isnull(MOV.N_VLR_PAG,MOV.N_VLR_DUP)) VALOR FROM CADCONTASAPAGAR CAD, MOVCONTASAPAGAR MOV '+
+  Aux.Sql.Add('Select Sum('+SQLTextoIsNull('MOV.N_VLR_PAG','MOV.N_VLR_DUP')+') VALOR FROM CADCONTASAPAGAR CAD, MOVCONTASAPAGAR MOV '+
               ' Where CAD.I_EMP_FIL = MOV.I_EMP_FIL '+
               ' AND CAD.I_LAN_APG = MOV.I_LAN_APG ');
   case CAgruparpor.ItemIndex of

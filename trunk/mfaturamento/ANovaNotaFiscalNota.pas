@@ -1226,6 +1226,7 @@ begin
     IndNotaDevolvida := false;
     IndReducaoICMS := false;
     IndRevendaEdson := false;
+    IndNFEEnviada := false;
     CodFilial := Varia.CodigoEmpFil;
     CodNatureza := Varia.NaturezaNota;
     CodUsuario := Varia.CodigoUsuario;

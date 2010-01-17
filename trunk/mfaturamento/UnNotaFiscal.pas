@@ -138,6 +138,7 @@ type
    function GeraFinanceiroNota(VpaDNota : TRBDNotaFiscal;VpaCotacoes : tlist;VpaDCliente : TRBDCliente;VpaDContasAReceber : TRBDContasCR;VpaOcultar, VpaGravar : Boolean):String;
    function GravaDNotaFiscal(VpaDNota : TRBDNotaFiscal) : String;
    procedure SetaNotaImpressa(VpaCodFilial, VpaSeqNota :Integer);
+   procedure SetaNfeComoEnviada(VpaCodFilial, VpaSeqNota : Integer);
    function RNomNaturezaOperacao(VpaCodNatureza : String;VpaItemNatureza : Integer) :String;
    procedure CarFaturasImpressaoNotaFiscal(VpaDNotaFiscal : TRBDNotaFiscal;VpaQtdColunasFatura : Integer);
    procedure CarObservacaoNotaFiscal(VpaDNota : TRBDNotaFiscal;VpaDCliente : TRBDCliente);
@@ -540,6 +541,7 @@ begin
   VpaDNota.DesOrdemCompra := CadNotaFiscal.FieldByName('C_ORD_COM').AsString;
   VpaDNota.IndGeraFinanceiro := CadNotaFiscal.FieldByName('C_FIN_GER').AsString = 'S';
   VpaDNota.IndRevendaEdson := CadNotaFiscal.FieldByName('C_REV_EDS').AsString = 'S';
+  VpaDNota.IndNFEEnviada := CadNotaFiscal.FieldByName('C_ENV_NFE').AsString = 'S';
   VpaDNota.PerDesconto := CadNotaFiscal.FieldByName('N_PER_DES').AsFloat;
   VpaDNota.ValDesconto := CadNotaFiscal.FieldByName('N_VLR_DES').AsFloat;
   VpaDNota.PerComissao := CadNotaFiscal.FieldByName('N_PER_COM').AsFloat;
@@ -2759,6 +2761,10 @@ begin
     Cadastro.FieldByName('C_NOT_DEV').AsString := 'S'
   else
     Cadastro.FieldByName('C_NOT_DEV').AsString := 'N';
+  if VpaDNota.IndNFEEnviada then
+    Cadastro.FieldByName('C_ENV_NFE').AsString := 'S'
+  else
+    Cadastro.FieldByName('C_ENV_NFE').AsString := 'N';
   Cadastro.FieldByName('I_ITE_NAT').AsInteger := VpaDNota.SeqItemNatureza;
   Cadastro.FieldByName('D_ULT_ALT').AsDateTime := date;
   if VpaDNota.DesOrdemCompra <> '' then
@@ -2819,6 +2825,16 @@ begin
     end;
   end;
   Cadastro.Close;
+end;
+
+{******************************************************************************}
+procedure TFuncoesNotaFiscal.SetaNfeComoEnviada(VpaCodFilial,
+  VpaSeqNota: Integer);
+begin
+  ExecutaComandoSql(Aux,'UPDATE CADNOTAFISCAIS '+
+                        ' SET C_ENV_NFE = ''S'''+
+                        ' Where I_EMP_FIL = '+IntToStr(VpaCodFilial)+
+                        ' and I_SEQ_NOT = '+ IntToStr(VpaSeqNota));
 end;
 
 {******************************************************************************}

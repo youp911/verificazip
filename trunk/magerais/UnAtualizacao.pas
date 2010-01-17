@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1572;
+  CT_VersaoBanco = 1573;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1343,6 +1343,13 @@ begin
         VpfErro := '1572';
         ExecutaComandoSql(Aux,'DROP TABLE AMOSTRASERVICO ');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1572');
+      end;
+      if VpaNumAtualizacao < 1573 Then
+      begin
+        VpfErro := '1573';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADNOTAFISCAIS ADD (C_ENV_NFE CHAR(1) NULL)');
+        ExecutaComandoSql(Aux,'Update CADNOTAFISCAIS set C_ENV_NFE = ''N''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1573');
       end;
 
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);

@@ -792,7 +792,8 @@ type TRBDNotaFiscal = class
     IndClienteRevenda,
     IndDescontarISS,
     IndMostrarParcelas,
-    IndRevendaEdson : Boolean;
+    IndRevendaEdson,
+    IndNFEEnviada : Boolean;
     ValICMSPadrao,
     ValBaseICMS,
     ValICMS,
