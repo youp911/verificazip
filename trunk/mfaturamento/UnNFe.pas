@@ -34,6 +34,7 @@ Type TRBFuncoesNFe = class
     procedure CarDTransporteNota(VpaDNota : TRBDNotaFiscal;VpaDNFe : TNFe);
     procedure CarFaturas(VpaDNota : TRBDNotaFiscal;VpaDNFe : TNFe);
     procedure CarDObservacoesNota(VpaDNota : TRBDNotaFiscal;VpaDNFe : TNFe);
+    function CarArquivoXMLNFE(VpaDNota : TRBDNotaFiscal) : String;
   public
     NFe : TACBrNFe;
     Danfe : TACBrNFeDANFERave;
@@ -71,7 +72,7 @@ begin
   NFe.OnStatusChange := MostraStatusOperacao;
   NFe.Configuracoes.Certificados.NumeroSerie := varia.CertificadoNFE;
   NFe.Configuracoes.Geral.Salvar := true;
-  NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe';
+  NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',DATE) ;
 
   if config.EmiteNFe then
   begin
@@ -209,6 +210,31 @@ procedure TRBFuncoesNFe.AtualizaStatus(VpaStatus: TStatusBar; VpaTexto: String);
 begin
   VpaStatus.Panels[0].Text := VpaTexto;
   VpaStatus.Refresh;
+end;
+
+{******************************************************************************}
+function  TRBFuncoesNFe.CarArquivoXMLNFE(VpaDNota: TRBDNotaFiscal):String;
+var
+  VpfDCliente : TRBDCliente;
+begin
+  result := '';
+  NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao) ;
+  if ExisteArquivo(Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+VpaDNota.DesChaveNFE+'-nfe.xml') then
+    NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+VpaDNota.DesChaveNFE+'-nfe.xml')
+  else
+    if ExisteArquivo(Varia.PathVersoes+'\NFe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+VpaDNota.DesChaveNFE+'-nfe.xml') then
+      NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\NFe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+VpaDNota.DesChaveNFE+'-nfe.xml')
+    else
+      if ExisteArquivo(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml') then
+        NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml')
+      else
+      begin
+        VpfDCliente := TRBDCliente.cria;
+        VpfDCliente.CodCliente := VpaDNota.CodCliente;
+        FunClientes.CarDCliente(VpfDCliente);
+        result := EmiteNota(VpaDNota,VpfDCliente,nil);
+        NFe.NotasFiscais.SaveToFile;
+      end;
 end;
 
 {******************************************************************************}
@@ -756,6 +782,7 @@ function TRBFuncoesNFe.VerificaStatusServico(VpaBarraStatus : TStatusBar): Strin
 var
   VpfVisualizar : Boolean;
 begin
+  NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',DATE) ;
   VprStatusBar := VpaBarraStatus;
   VpfVisualizar := NFe.Configuracoes.WebServices.Visualizar;
   NFe.Configuracoes.WebServices.Visualizar := true;
@@ -770,6 +797,7 @@ var
   VpfDNFe : TNFe;
   VpfVisualizar : Boolean;
 begin
+  NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao) ;
   VpfVisualizar := NFe.Configuracoes.WebServices.Visualizar;
   FunNotaFiscal.SetaNfeComoEnviada(VpaDNota.CodFilial,VpaDNota.SeqNota);
   NFe.Configuracoes.WebServices.Visualizar := false;
@@ -825,6 +853,7 @@ end;
 {******************************************************************************}
 function TRBFuncoesNFe.ImprimeDanfe(VpaDNota: TRBDNotaFiscal): String;
 begin
+  NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao) ;
   result := '';
   Danfe := TACBrNFeDANFERave.Create(Application);
   Danfe.RavFile :=Varia.PathRelatorios+'\NotaFiscalEletronica.rav';
@@ -836,7 +865,7 @@ begin
   NFe.DANFE.Logo := varia.PathVersoes+'\'+inttoStr(varia.CodigoEmpFil)+'.bmp';
 
   NFe.NotasFiscais.Clear;
-  NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml');
+  CarArquivoXMLNFE(VpaDNota);
   NFe.DANFE.ProtocoloNFe := VpaDNota.NumProtocoloNFE;
   NFe.DANFE.Sistema := ' Eficácia Sistemas e Consultoria - www.eficaciaconsultoria.com.br';
   NFe.DANFE.Site := lowerCAse(varia.SiteFilial);
@@ -901,6 +930,7 @@ var
   VpfDFilial : TRBDFilial;
 begin
   Result := '';
+  NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao) ;
   if (VpaDCliente.DesEmail = '') and (VpaDCliente.DesEmailFinanceiro = '') and
      (VpaDCliente.DesEmailNfe = '') then
     result := 'E-MAIL DO CLIENTE NÃO PREENCHIDO!!!!'#13'É necessário preencher o e-mail do cliente.';
@@ -920,16 +950,7 @@ begin
 
     if config.EmiteNFe then
     begin
-      if ExisteArquivo(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml') then
-        NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml')
-      else
-        if ExisteArquivo(Varia.PathVersoes+'\nfe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml') then
-          NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml')
-        else
-        begin
-          result := EmiteNota(VpaDNota,VpaDCliente,nil);
-          NFe.NotasFiscais.SaveToFile;
-        end;
+      result := CarArquivoXMLNFE(VpaDNota);
     end
     else
     begin
@@ -1076,9 +1097,10 @@ end;
 {******************************************************************************}
 function TRBFuncoesNFe.CancelaNFE(VpaDNota: TRBDNotaFiscal;VpaMotivo : String):string;
 begin
-  result := '';
+  Result := '';
+  NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao) ;
   NFe.NotasFiscais.Clear;
-  NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml');
+  CarArquivoXMLNFE(VpaDNota);
   NFe.Configuracoes.Certificados.NumeroSerie := varia.CertificadoNFE;
   NFe.Configuracoes.Geral.Salvar := false;
   NFe.Configuracoes.WebServices.UF := Varia.UFSefazNFE;

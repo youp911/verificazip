@@ -67,6 +67,7 @@ Type
     CodFilial,
     SeqContrato,
     CodCliente : Integer;
+    NomCliente : String;
     ValTotalLeituras,
     ValTotalEquipamentos,
     ValTotalInsumosContabilizados,
@@ -212,7 +213,8 @@ type
       VprDatInicio,
       VprDatFim : TDateTime;
       VprAgruparPorEstado,
-      VprTodosProdutos : Boolean;
+      VprTodosProdutos,
+      VprAnalitico : Boolean;
       VprDOPEtikArt : TRBDOrdemProducaoEtiqueta;
       FunClassificacao : TFuncoesClassificacao;
       VprNiveis : TList;
@@ -316,7 +318,9 @@ type
       procedure ImprimeRelAnaliseContratosAnaliticoEquipamentos(VpaDContrato : TRBDContratoLocacaoRave);
       procedure ImprimeRelAnaliseContratosAnaliticoInsumos(VpaDContrato : TRBDContratoLocacaoRave; VpaInsumos : TList; VpaContabilizados : Boolean);
       procedure ImprimeRelAnaliseContratosAnaliticoPecas(VpaDContrato : TRBDContratoLocacaoRave);
-      procedure ImprimeRelAnaliseContratosAnalitico(VpaObjeto : TObject);
+      procedure ImprimeRelAnaliseContratosAnalitico(VpaDContrato : TRBDContratoLocacaoRave;VpaTabela :  TSQLQuery);
+      procedure ImprimeRelAnaliseContratosSintetico(VpaDContrato : TRBDContratoLocacaoRave);
+      procedure ImprimeRelAnaliseContratos(VpaObjeto : TObject);
       procedure ImprimeCabecalho(VpaObjeto : TObject);
       procedure ImprimeRodape(VpaObjeto : TObject);
     public
@@ -347,7 +351,7 @@ type
       procedure ImprimeRomaneioEtikArt(VpaCodFilial, VpaSeqRomaneio : Integer;VpaVisualizar : Boolean);
       procedure ImprimeOrdemProducaoEtikArt(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta;VpaVisualizar : Boolean);
       procedure ImprimeRomaneioSeparacaoCotacao(VpaCotacoes : TList);
-      procedure ImprimeAnaliseContratosLocacaoAnalitica(VpaCodTipoContrato, VpaCodCliente, VpaCodVendedor : Integer; VpaCaminho, VpaNomTipoCotrato, VpaNomVendedor, VpaNomCliente: string;VpaDatInicioAssinatura,VpaDatFimAssinatura : TDateTime; VpaSomenteNaoCancelados : Boolean);
+      procedure ImprimeAnaliseContratosLocacao(VpaCodTipoContrato, VpaCodCliente, VpaCodVendedor : Integer; VpaCaminho, VpaNomTipoCotrato, VpaNomVendedor, VpaNomCliente: string;VpaDatInicioAssinatura,VpaDatFimAssinatura : TDateTime; VpaSomenteNaoCancelados,VpaAnalitico : Boolean);
   end;
 implementation
 
@@ -1043,6 +1047,17 @@ begin
      SetTab(NA,pjRight,3.5,0.5,BoxlineALL,0); //Valor Custo
      SetTab(NA,pjRight,3.5,0.5,BoxlineALL,0); //Valor Unitario Medio
      SaveTabs(8);
+     clearTabs;
+     SetTab(1.0,pjLeft,7.5,0.1,BoxlineALL,0); //Cliente
+     SetTab(NA,pjRight,1.5,0.5,BoxlineALL,0); //SeqContrato
+     SetTab(NA,pjRight,2.5,0.5,BoxlineALL,0); //Valor Leituras
+     SetTab(NA,pjRight,2.5,0.5,BoxlineALL,0); //Valor Equipamentos
+     SetTab(NA,pjRight,2.5,0.5,BoxlineALL,0); //Valor Insumos Contabilizados
+     SetTab(NA,pjRight,2.5,0.5,BoxlineALL,0); //Valor Insumos nao contabili
+     SetTab(NA,pjRight,2.5,0.5,BoxlineALL,0); //Valor Peças
+     SetTab(NA,pjRight,2.5,0.5,BoxlineALL,0); //Valor Servicos
+     SetTab(NA,pjRight,2.5,0.5,BoxlineALL,0); //Valor Final
+     SaveTabs(9);
    end;
 end;
 
@@ -3273,26 +3288,39 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.ImprimeRelAnaliseContratosAnalitico(VpaObjeto: TObject);
+procedure TRBFunRave.ImprimeRelAnaliseContratos(VpaObjeto: TObject);
 var
   VpfDContrato :  TRBDContratoLocacaoRave;
 begin
+  while not Tabela.Eof  do
+  begin
+    VpfDContrato := TRBDContratoLocacaoRave.cria;
+    CarDContrato(VpfDContrato,Tabela.FieldByName('CODFILIAL').AsInteger,Tabela.FieldByName('SEQCONTRATO').AsInteger,Tabela.FieldByName('I_COD_CLI').AsInteger);
+    VpfDContrato.NomCliente :=Tabela.FieldByName('C_NOM_CLI').AsString;
+    if VprAnalitico  then
+      ImprimeRelAnaliseContratosAnalitico(VpfDContrato,Tabela)
+    else
+      ImprimeRelAnaliseContratosSintetico(VpfDContrato);
+    Tabela.Next;
+  end;
+  Tabela.Close;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRelAnaliseContratosAnalitico(VpaDContrato : TRBDContratoLocacaoRave;VpaTabela :  TSQLQuery);
+begin
   with RVSystem.BaseReport do
   begin
-    while not Tabela.Eof  do
-    begin
-      VpfDContrato := TRBDContratoLocacaoRave.cria;
-      CarDContrato(VpfDContrato,Tabela.FieldByName('CODFILIAL').AsInteger,Tabela.FieldByName('SEQCONTRATO').AsInteger,Tabela.FieldByName('I_COD_CLI').AsInteger);
       RestoreTabs(1);
       FontSize := 12;
       PrintTab(' Cliente :');
-      PrintTab(Tabela.FieldByName('I_COD_CLI').AsString+'-'+Tabela.FieldByName('C_NOM_CLI').AsString);
+      PrintTab(VpaTabela.FieldByName('I_COD_CLI').AsString+'-'+VpaTabela.FieldByName('C_NOM_CLI').AsString);
       PrintTab(' Valor Final :');
-      if VpfDContrato.ValFinalContrato > 0  then
+      if VpaDContrato.ValFinalContrato > 0  then
         FontColor := clBlack
       else
         FontColor := clred;
-      PrintTab(FormatFloat('#,###,###,##0.00',VpfDContrato.ValFinalContrato));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValFinalContrato));
       FontColor := clBlack;
       newline;
       If LinesLeft<=1 Then
@@ -3300,67 +3328,64 @@ begin
       FontSize := 10;
       RestoreTabs(2);
       PrintTab(' Filial :');
-      PrintTab(' '+Tabela.FieldByName('CODFILIAL').AsString+'-'+Tabela.FieldByName('C_NOM_FIL').AsString);
+      PrintTab(' '+VpaTabela.FieldByName('CODFILIAL').AsString+'-'+VpaTabela.FieldByName('C_NOM_FIL').AsString);
       PrintTab(' Vendedor :');
-      PrintTab(' '+Tabela.FieldByName('I_COD_VEN').AsString+'-'+Tabela.FieldByName('C_NOM_VEN').AsString);
+      PrintTab(' '+VpaTabela.FieldByName('I_COD_VEN').AsString+'-'+VpaTabela.FieldByName('C_NOM_VEN').AsString);
       newline;
       If LinesLeft<=1 Then
         NewPage;
       PrintTab('Tipo Contrato :');
-      PrintTab(' '+ Tabela.FieldByName('CODTIPOCONTRATO').AsString+'-'+Tabela.FieldByName('NOMTIPOCONTRATO').AsString);
+      PrintTab(' '+ VpaTabela.FieldByName('CODTIPOCONTRATO').AsString+'-'+VpaTabela.FieldByName('NOMTIPOCONTRATO').AsString);
       PrintTab(' Modalidade :');
-      PrintTab(' '+Tabela.FieldByName('DESNOTACUPOM').AsString);
+      PrintTab(' '+VpaTabela.FieldByName('DESNOTACUPOM').AsString);
       newline;
       If LinesLeft<=1 Then
         NewPage;
       RestoreTabs(3);
       PrintTab('Qtd Meses :');
-      PrintTab(' '+ Tabela.FieldByName('QTDMESES').AsString);
+      PrintTab(' '+ VpaTabela.FieldByName('QTDMESES').AsString);
       PrintTab('Data Assinatura :');
-      PrintTab(' '+FormatDateTime('DD/MM/YYYY',Tabela.FieldByName('DATASSINATURA').AsDateTime));
+      PrintTab(' '+FormatDateTime('DD/MM/YYYY',VpaTabela.FieldByName('DATASSINATURA').AsDateTime));
       PrintTab('Data Cancelamento :');
-      if not Tabela.FieldByName('DATCANCELAMENTO').IsNull then
-        PrintTab(' '+FormatDateTime('DD/MM/YYYY',Tabela.FieldByName('DATCANCELAMENTO').AsDateTime));
+      if not VpaTabela.FieldByName('DATCANCELAMENTO').IsNull then
+        PrintTab(' '+FormatDateTime('DD/MM/YYYY',VpaTabela.FieldByName('DATCANCELAMENTO').AsDateTime));
       newline;
       If LinesLeft<=1 Then
         NewPage;
       PrintTab('Seq Contrato :');
-      PrintTab(' '+ Tabela.FieldByName('SEQCONTRATO').AsString);
+      PrintTab(' '+ VpaTabela.FieldByName('SEQCONTRATO').AsString);
       PrintTab('Nro Contrato :');
-      PrintTab(' '+ Tabela.FieldByName('NUMCONTRATO').AsString);
+      PrintTab(' '+ VpaTabela.FieldByName('NUMCONTRATO').AsString);
       PrintTab('Valor Contrato :');
-      PrintTab(FormatFloat('#,###,###,##0.00',Tabela.FieldByName('VALCONTRATO').AsFloat));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpaTabela.FieldByName('VALCONTRATO').AsFloat));
       newline;
       If LinesLeft<=1 Then
         NewPage;
       RestoreTabs(4);
       PrintTab('Val Exc. PB :');
-      PrintTab(' '+FormatFloat('#,###,###,##0.00',Tabela.FieldByName('VALEXCESSOFRANQUIA').AsFloat));
+      PrintTab(' '+FormatFloat('#,###,###,##0.00',VpaTabela.FieldByName('VALEXCESSOFRANQUIA').AsFloat));
       PrintTab('Qtd Franquia PB :');
-      PrintTab(' '+IntToStr(Tabela.FieldByName('QTDFRANQUIA').AsInteger));
+      PrintTab(' '+IntToStr(VpaTabela.FieldByName('QTDFRANQUIA').AsInteger));
       PrintTab('Val Excedente Color :');
-      PrintTab(' '+FormatFloat('#,###,###,##0.00',Tabela.FieldByName('VALEXCESSOFRANQUIACOLOR').AsFloat));
+      PrintTab(' '+FormatFloat('#,###,###,##0.00',VpaTabela.FieldByName('VALEXCESSOFRANQUIACOLOR').AsFloat));
       PrintTab('Qtd Franquia Color :');
-      PrintTab(' '+IntToStr(Tabela.FieldByName('QTDFRANQUIACOLOR').AsInteger));
+      PrintTab(' '+IntToStr(VpaTabela.FieldByName('QTDFRANQUIACOLOR').AsInteger));
       newline;
       If LinesLeft<=1 Then
         NewPage;
 
-      ImprimeRelAnaliseContratosAnaliticoLeituras(VpfDContrato);
-      ImprimeRelAnaliseContratosAnaliticoEquipamentos(VpfDContrato);
-      ImprimeRelAnaliseContratosAnaliticoInsumos(VpfDContrato,VpfDContrato.InsumosContabilizados,true);
-      if VpfDContrato.InsumosNaoContabilizados.Count > 0 then
-        ImprimeRelAnaliseContratosAnaliticoInsumos(VpfDContrato,VpfDContrato.InsumosNaoContabilizados,false);
-      ImprimeRelAnaliseContratosAnaliticoPecas(VpfDContrato);
+      ImprimeRelAnaliseContratosAnaliticoLeituras(VpaDContrato);
+      ImprimeRelAnaliseContratosAnaliticoEquipamentos(VpaDContrato);
+      ImprimeRelAnaliseContratosAnaliticoInsumos(VpaDContrato,VpaDContrato.InsumosContabilizados,true);
+      if VpaDContrato.InsumosNaoContabilizados.Count > 0 then
+        ImprimeRelAnaliseContratosAnaliticoInsumos(VpaDContrato,VpaDContrato.InsumosNaoContabilizados,false);
+      ImprimeRelAnaliseContratosAnaliticoPecas(VpaDContrato);
 
       newline;
       newline;
       If LinesLeft<=1 Then
         NewPage;
-      Tabela.Next;
-    end;
   end;
-  Tabela.Close;
 end;
 
 procedure TRBFunRave.ImprimeRelAnaliseContratosAnaliticoEquipamentos(VpaDContrato: TRBDContratoLocacaoRave);
@@ -3552,6 +3577,33 @@ begin
     PrintTab('Total');
     PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValTotalPecas));
     PrintTab('');
+  end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRelAnaliseContratosSintetico(VpaDContrato: TRBDContratoLocacaoRave);
+begin
+  with RVSystem.BaseReport do
+  begin
+      RestoreTabs(9);
+      FontSize := 10;
+      PrintTab(' ' +IntToStr(VpaDContrato.CodCliente)+'-'+VpaDContrato.nomCliente);
+      PrintTab(IntToStr(VpaDContrato.SeqContrato));
+      PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValTotalLeituras)+' ');
+      PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValTotalEquipamentos)+' ');
+      PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValTotalInsumosContabilizados)+' ');
+      PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValTotalInsumosNaoContabilizados)+' ');
+      PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValTotalPecas)+' ');
+      PrintTab(FormatFloat('#,###,###,##0.00',0)+' ');
+      if VpaDContrato.ValFinalContrato > 0  then
+        FontColor := clBlack
+      else
+        FontColor := clred;
+      PrintTab(FormatFloat('#,###,###,##0.00',VpaDContrato.ValFinalContrato)+' ');
+      FontColor := clBlack;
+      newline;
+      If LinesLeft<=1 Then
+        NewPage;
   end;
 end;
 
@@ -5862,9 +5914,14 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.ImprimeAnaliseContratosLocacaoAnalitica(VpaCodTipoContrato, VpaCodCliente, VpaCodVendedor : Integer; VpaCaminho, VpaNomTipoCotrato, VpaNomVendedor, VpaNomCliente: string;VpaDatInicioAssinatura,VpaDatFimAssinatura : TDateTime; VpaSomenteNaoCancelados : Boolean);
+procedure TRBFunRave.ImprimeAnaliseContratosLocacao(VpaCodTipoContrato, VpaCodCliente, VpaCodVendedor : Integer; VpaCaminho, VpaNomTipoCotrato, VpaNomVendedor, VpaNomCliente: string;VpaDatInicioAssinatura,VpaDatFimAssinatura : TDateTime; VpaSomenteNaoCancelados, VpaAnalitico : Boolean);
 begin
   RvSystem.Tag := 24;
+  VprAnalitico := VpaAnalitico;
+  if VpaAnalitico then
+    RvSystem.SystemPrinter.Orientation := poPortrait
+  else
+    RvSystem.SystemPrinter.Orientation := poLandScape;
   LimpaSQlTabela(Tabela);
   AdicionaSqltabela(Tabela,'select CLI.I_COD_CLI, CLI.C_NOM_CLI, '+
                                ' FIL.C_NOM_FIL, '+
@@ -5913,10 +5970,13 @@ begin
   rvSystem.onBeforePrint := DefineTabelaAnaliseLocacaoAnalitico;
   rvSystem.onNewPage := ImprimeCabecalho;
   rvSystem.onPrintFooter := Imprimerodape;
-  rvSystem.onPrint := ImprimeRelAnaliseContratosAnalitico;
+  rvSystem.onPrint := ImprimeRelAnaliseContratos;
 
   VprCaminhoRelatorio := VpaCaminho;
-  VprNomeRelatorio := 'Analise Contratos Analítico';
+  if VpaAnalitico then
+    VprNomeRelatorio := 'Analise Contratos Analítico'
+  else
+    VprNomeRelatorio := 'Analise Contratos Sintético';
 
   ConfiguraRelatorioPDF;
   RvSystem.execute;
