@@ -8,15 +8,18 @@ Uses Classes, UnDadosCR,SQLExpr, tabela, SysUtils;
 Type TRBFuncoesCondicaoPagamento = class
   private
     Cadastro : TSQL;
+    Tabela,
     Aux : TSqlQuery;
     function RCodCondicaoPagamentoDisponivel : Integer;
     function GravaDParcelas(VpaDCondicaoPagamento : TRBDCondicaoPagamento) : String;
+    procedure CarDParcelas(VpaDCondicaoPagamento : TRBDCondicaoPagamento);
   public
     constructor cria(VpaBaseDados : TSqlConnection);
     destructor destroy;override;
     procedure CriaParcelas(VpaDCondicaoPagamento : TRBDCondicaoPagamento);
     procedure VerificaPercentuais(VpaDCondicaoPagamento : TRBDCondicaoPagamento);
     function GravaDCondicaoPagamento(VpaDCondicaoPagamento : TRBDCondicaoPagamento):string;
+    procedure CarDCondicaoPagamento(VpaDCondicaoPagamento : TRBDCondicaoPagamento;VpaCodCondicaoPagamento : Integer);
 end;
 
 
@@ -37,6 +40,8 @@ begin
   Cadastro.ASQlConnection := VpaBaseDados;
   Aux := TSQLQuery.Create(nil);
   Aux.SQLConnection := VpaBaseDados;
+  Tabela := TSQLQuery.Create(nil);
+  Tabela.SQLConnection := VpaBaseDados;
 end;
 
 {******************************************************************************}
@@ -44,7 +49,58 @@ destructor TRBFuncoesCondicaoPagamento.destroy;
 begin
   Cadastro.free;
   Aux.free;
+  Tabela.Free;
   inherited;
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesCondicaoPagamento.CarDParcelas(VpaDCondicaoPagamento: TRBDCondicaoPagamento);
+var
+  VpfDParcela : TRBDParcelaCondicaoPagamento;
+begin
+  AdicionaSQLAbreTabela(Tabela,'Select * from MOVCONDICAOPAGTO '+
+                                 ' Where I_COD_PAG = '+ IntToStr(VpaDCondicaoPagamento.CodCondicaoPagamento)+
+                                 ' ORDER BY I_NRO_PAR');
+  while not Tabela.eof do
+  begin
+    VpfDParcela := VpaDCondicaoPagamento.AddParcela;
+    with VpfDParcela do
+    begin
+      NumParcela := Tabela.FieldByName('I_NRO_PAR').AsInteger;
+      QtdDias := Tabela.FieldByName('I_NUM_DIA').AsInteger;
+      DiaFixo := Tabela.FieldByName('I_DIA_FIX').AsInteger;
+      PerParcela := Tabela.FieldByName('N_PER_PAG').AsFloat;
+      PerAcrescimoDesconto := Tabela.FieldByName('N_PER_CON').AsFloat;
+      TipAcrescimoDesconto := Tabela.FieldByName('C_CRE_DEB').AsString;
+      DatFixa := Tabela.FieldByName('D_DAT_FIX').AsDateTime;
+      if Tabela.FieldByName('I_DIA_FIX').AsInteger = 100  then
+        TipoParcela := tpProximoMes
+        else
+          if Tabela.FieldByName('I_DIA_FIX').AsInteger <> 0  then
+            TipoParcela := tpDiaFixo
+          else
+            if Tabela.FieldByName('D_DAT_FIX').AsDateTime > MontaData(1,1,1900)  then
+              TipoParcela := tpDataFixa
+            else
+              TipoParcela := tpQtdDias;
+    end;
+    Tabela.Next;
+  end;
+  Tabela.close;
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesCondicaoPagamento.CarDCondicaoPagamento(VpaDCondicaoPagamento: TRBDCondicaoPagamento;VpaCodCondicaoPagamento : Integer);
+begin
+  AdicionaSQLAbreTabela(Tabela,'Select * from CADCONDICOESPAGTO '+
+                                 ' Where I_COD_PAG = '+IntToStr(VpaCodCondicaoPagamento));
+  with VpaDCondicaoPagamento do
+  begin
+    CodCondicaoPagamento := VpaCodCondicaoPagamento;
+    NomCondicaoPagamento :=  Tabela.FieldByName('C_NOM_PAG').AsString;
+    QtdParcelas := Tabela.FieldByName('I_QTD_PAR').AsInteger;
+  end;
+  CarDParcelas(VpaDCondicaoPagamento);
 end;
 
 {******************************************************************************}

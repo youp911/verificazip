@@ -557,7 +557,7 @@ begin
           dtRave.ImprimeClientesSemPedido(EVendedor.AInteiro,EPreposto.AInteiro, ESituacaoCliente.AInteiro,ETipoCotacao.AInteiro,CDataFinal.Date,LVendedor.Caption,LPreposto.Caption,LSituacaoCliente.Caption,LTipoCotacao.Caption,VprCaminhoRelatorio)
         else
           if (VPRNOMRELATORIO = 'LEITURA DOS CONTRATOS') then
-            dtRave.ImprimeLeituraContratos(ECliente.Ainteiro,ETecnico.AInteiro,ECodTipoContrato.AInteiro, ENumerico1.AsInteger, VprCaminhoRelatorio,
+            dtRave.ImprimeLeituraContratos(ECliente.Ainteiro,ETecnico.AInteiro,ECodTipoContrato.AInteiro, ENumerico1.AsInteger,0,0, VprCaminhoRelatorio,
                                            LCliente.caption,LTecnico.Caption,LNomTipoContrato.Caption)
           else
             if (VPRNOMRELATORIO = 'ESTOQUE PRODUTOS') then

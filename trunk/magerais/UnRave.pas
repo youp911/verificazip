@@ -254,6 +254,7 @@ type
       procedure ImprimeCabecalhoTotalTipoPedidoXCusto;
       procedure ImprimeCabecalhoResumoCaixas;
       procedure ImprimeCabecalhoRomaneioEtikArt;
+      procedure ImprimeCabecalhoAnaliseContrato;
       procedure ImprimeCabecalhoProdutosVendidoseTrocados;
       procedure ImprimeCabecalhoQtdMinima;
       procedure ImprimeCabecalhoAnaliseFaturamento;
@@ -2027,6 +2028,30 @@ begin
       bold := false;
       newline;
     end;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeCabecalhoAnaliseContrato;
+begin
+  if not VprAnalitico  then
+  begin
+    with RVSystem.BaseReport do
+    begin
+      RestoreTabs(9);
+      bold := true;
+      PrintTab('Cliente');
+      PrintTab('Contrato');
+      PrintTab('Valor Leituras');
+      PrintTab('Val Equipamentos');
+      PrintTab('Val Ins Cont');
+      PrintTab('Val Ins Não Cont');
+      PrintTab('Val Peças');
+      PrintTab('Val Serviços');
+      PrintTab('Valor Final');
+      Bold := false;
+      newline;
+    end;
+  end;
 end;
 
 {******************************************************************************}
@@ -4890,6 +4915,7 @@ begin
       18 : ImprimeCabecalhoTotalTipoPedidoXCusto;
       20 : ImprimeCabecalhoResumoCaixas;
       21 : ImprimeCabecalhoRomaneioEtikArt;
+      24 : ImprimeCabecalhoAnaliseContrato;
      end;
    end;
 end;

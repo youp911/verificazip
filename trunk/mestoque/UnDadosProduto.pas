@@ -1700,6 +1700,7 @@ Type
       CodEmpFil,
       LanOrcamento,
       CodTipoOrcamento,
+      CodRepresentada,
       CodCliente,
       CodVendedor,
       CodPreposto,

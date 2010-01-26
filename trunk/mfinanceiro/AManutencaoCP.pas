@@ -7,7 +7,7 @@ uses
   StdCtrls, Buttons, Grids, DBGrids, Tabela, DBKeyViolation, DBCtrls,
   Localizacao, Db, DBTables, ComCtrls, Componentes1, ExtCtrls,
   PainelGradiente, Mask, UnContasAPagar, numericos, UnDadosCR, FMTBcd, SqlExpr,
-  DBClient;
+  DBClient, CGrades, unDadosLocaliza;
                                         
 type
   TFManutencaoCP = class(TFormularioPermissao)
@@ -93,15 +93,6 @@ type
     DBEditColor4: TDBEditColor;
     CadContaapagarN_VLR_REC: TFMTBCDField;
     PanelColor1: TPanelColor;
-    MObs: TDBMemoColor;
-    PanelColor4: TPanelColor;
-    PanelFecha: TPanelColor;
-    BFecha: TBitBtn;
-    BExclui: TBitBtn;
-    BEstornar: TBitBtn;
-    BExcuiTitulo: TBitBtn;
-    BBAjuda: TBitBtn;
-    BPagamento: TBitBtn;
     ECentroCusto: TDBEditLocaliza;
     Label6: TLabel;
     SpeedButton4: TSpeedButton;
@@ -109,6 +100,20 @@ type
     CadContaapagarI_COD_CEN: TFMTBCDField;
     CadContaapagarC_COD_PLA: TWideStringField;
     CadContaapagarC_CLA_PLA: TWideStringField;
+    PanelColor2: TPanelColor;
+    PageControl1: TPageControl;
+    PParcelas: TTabSheet;
+    PanelColor3: TPanelColor;
+    MObs: TDBMemoColor;
+    BExclui: TBitBtn;
+    BEstornar: TBitBtn;
+    BPagamento: TBitBtn;
+    BExcuiTitulo: TBitBtn;
+    Label12: TLabel;
+    BFecha: TBitBtn;
+    PProjeto: TTabSheet;
+    GProjetos: TRBStringGridColor;
+    EConsultaProjeto: TRBEditLocaliza;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EDuplicataSelect(Sender: TObject);
@@ -140,10 +145,28 @@ type
     procedure CommitTransacao;
     procedure RollbackTransacao;
     procedure GradeMovKeyPress(Sender: TObject; var Key: Char);
+    procedure GProjetosCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
+    procedure GProjetosDadosValidos(Sender: TObject; var VpaValidos: Boolean);
+    procedure GProjetosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure EConsultaProjetoRetorno(VpaColunas: TRBColunasLocaliza);
+    procedure GProjetosKeyPress(Sender: TObject; var Key: Char);
+    procedure GProjetosMudouLinha(Sender: TObject; VpaLinhaAtual,
+      VpaLinhaAnterior: Integer);
+    procedure GProjetosNovaLinha(Sender: TObject);
+    procedure GProjetosSelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
   private
     VprTransacao : TTransactionDesc;
+    VprDDespesaProjeto : TRBDContasaPagarProjeto;
+    VprDContasAPagar : TRBDContasaPagar;
+    procedure CarTitulosGrade;
+    procedure CarValoresGrade;
+    procedure CarDProjetoClasse;
+    procedure CalculaValorDespesaPeloPercentual;
+    procedure CalculaPercentualDespesaPeloValor;
   public
-    procedure CarregaConta( lancamento : integer);
+    procedure CarregaConta( VpaCodFilial, VpaLanPagar: integer);
   end;
 
 var
@@ -164,12 +187,18 @@ uses
 { ****************** Na criação do Formulário ******************************** }
 procedure TFManutencaoCP.FormCreate(Sender: TObject);
 begin
+  VprDContasAPagar :=  TRBDContasaPagar.cria;
+  VprDContasAPagar.CodFilial :=0;
+  CarTitulosGrade;
 end;
 
 { ******************* Quando o formulario e fechado ************************** }
 procedure TFManutencaoCP.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   RollbackTransacao;
+  if VprDContasAPagar.CodFilial <> 0 then
+    FunContasAPagar.GravaDDespesaProjeto(VprDContasAPagar);
+  VprDContasAPagar.Free;
   Action := CaFree;
 end;
 
@@ -287,16 +316,57 @@ end;
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) }
 
 {***************** chamda externa para carregar uma conta ******************* }
-procedure TFManutencaoCP.CarregaConta( lancamento : integer);
+procedure TFManutencaoCP.CarDProjetoClasse;
 begin
+  if VprDDespesaProjeto.PerDespesa <> StrToFloat(DeletaChars(DeletaChars(GProjetos.Cells[3,GProjetos.ALinha],'.'),'%')) then
+  begin
+    CalculaValorDespesaPeloPercentual;
+  end
+  else
+    if VprDDespesaProjeto.ValDespesa <> StrToFloat(DeletaChars(GProjetos.Cells[4,GProjetos.ALinha],'.')) then
+    begin
+      CalculaPercentualDespesaPeloValor;
+    end;
+  CarValoresGrade;
+end;
+
+{***************************************************************************** }
+procedure TFManutencaoCP.CarregaConta(VpaCodFilial, VpaLanPagar : integer);
+begin
+  PageControl1.ActivePage := PParcelas;
+  if VprDContasAPagar.CodFilial <> 0 then
+    FunContasAPagar.GravaDDespesaProjeto(VprDContasAPagar);
+  VprDContasAPagar.Free;
+  VprDContasAPagar := TRBDContasaPagar.cria;
+  PProjeto.TabVisible := Config.ControlarProjeto;
   VerificaAtesGravar(CadContaapagar);
   VerificaAtesGravar(MovContasAPagar);
-  FunContasAPagar.LocalizaContaCP(CadContaapagar,varia.CodigoEmpfil, lancamento);
-  FunContasAPagar.LocalizaParcelasComParciais(MovContasapagar, lancamento );
+  FunContasAPagar.LocalizaContaCP(CadContaapagar,VpaCodFilial, VpaLanpagar);
+  FunContasAPagar.LocalizaParcelasComParciais(MovContasapagar, VpaLanpagar );
+  FunContasAPagar.CarDContasaPagar(VprDContasAPagar,VpaCodFilial,VpaLanPagar,false);
+  FunContasAPagar.CarDProjetoContasaPagar(VprDContasAPagar);
+  GProjetos.ADados := VprDContasAPagar.DespesaProjeto;
+  GProjetos.CarregaGrade;
   EditarReg(CadContaapagar);
   ECliente.Atualiza;
   ECentroCusto.Atualiza;
   EPlanoExit(self);
+end;
+
+{***************************************************************************** }
+procedure TFManutencaoCP.CarTitulosGrade;
+begin
+  GProjetos.Cells[1,0] := 'Código';
+  GProjetos.Cells[2,0] := 'Projeto';
+  GProjetos.Cells[3,0] := 'Percentual';
+  GProjetos.Cells[4,0] := 'Valor';
+end;
+
+{***************************************************************************** }
+procedure TFManutencaoCP.CarValoresGrade;
+begin
+  GProjetos.Cells[3,GProjetos.ALinha]:= FormatFloat('0.00 %',VprDDespesaProjeto.PerDespesa);
+  GProjetos.Cells[4,GProjetos.ALinha]:= FormatFloat('#,###,###,##0.00',VprDDespesaProjeto.ValDespesa);
 end;
 
 {********************* localiza duplicata ************************************ }
@@ -320,11 +390,29 @@ begin
                                ' and  MCP.c_nro_dup = ''@''');
 end;
 
-{*************** retorno da duplicata *************************************** }
+{***************************************************************************** }
+procedure TFManutencaoCP.EConsultaProjetoRetorno(
+  VpaColunas: TRBColunasLocaliza);
+begin
+  if VpaColunas.items[0].AValorRetorno <> '' then
+  begin
+    VprDDespesaProjeto.CodProjeto := StrToINt(VpaColunas.items[0].AValorRetorno);
+    VprDDespesaProjeto.NomProjeto := VpaColunas.items[1].AValorRetorno;
+    GProjetos.Cells[1,GProjetos.ALinha] := VpaColunas.items[0].AValorRetorno;
+    GProjetos.Cells[2,GProjetos.ALinha] := VpaColunas.items[1].AValorRetorno;
+  end
+  else
+  begin
+    VprDDespesaProjeto.CodProjeto := 0;
+    VprDDespesaProjeto.NomProjeto := '';
+  end;
+end;
+
+{***************************************************************************** }
 procedure TFManutencaoCP.EDuplicataRetorno(Retorno1, Retorno2: String);
 begin
   if retorno1 <> '' then
-    CarregaConta(StrToInt(retorno1));
+    CarregaConta(varia.CodigoEmpFil,Strtoint(retorno1));
   ENota.Clear;
   EOrdem.Clear;
 end;
@@ -349,7 +437,7 @@ end;
 procedure TFManutencaoCP.ENotaRetorno(Retorno1, Retorno2: String);
 begin
   if retorno1 <> '' then
-    CarregaConta(StrToInt(retorno1));
+    CarregaConta(Varia.CodigoEmpFil, StrToInt(retorno1));
   EDuplicata.Clear;
   EOrdem.Clear;
 end;
@@ -380,11 +468,12 @@ end;
 procedure TFManutencaoCP.EOrdemRetorno(Retorno1, Retorno2: String);
 begin
   if retorno1 <> '' then
-    CarregaConta(StrToInt(retorno1));
+    CarregaConta(Varia.CodigoEmpFil,StrToInt(retorno1));
   ENota.Clear;
   EDuplicata.Clear;
 end;
 
+{***************************************************************************** }
 procedure TFManutencaoCP.EPlanoExit(Sender: TObject);
 var
   VpfCodigo : string;
@@ -400,6 +489,7 @@ begin
     CadContaAPagar.Edit;
 end;
 
+{***************************************************************************** }
 procedure TFManutencaoCP.EPlanoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
@@ -407,6 +497,7 @@ begin
     BPlano.Click;
 end;
 
+{***************************************************************************** }
 procedure TFManutencaoCP.CamposExit(Sender: TObject);
 begin
   if (CadContaAPagar.State in [dsInsert, dsEdit]) then
@@ -419,17 +510,46 @@ end;
                       acoes das tabelas
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) }
 
+{***************************************************************************** }
 procedure TFManutencaoCP.MovContasAPagarAfterPost(DataSet: TDataSet);
 begin
   FunContasAPagar.AtualizaValorTotal(MovContasAPagar.fieldByName('I_EMP_FIL').AsInteger, MovContasAPagar.fieldByName('i_lan_apg').AsInteger);
   AtualizaSQLTabela(CadContaapagar);
 end;
 
+{***************************************************************************** }
 procedure TFManutencaoCP.CadContaapagarAfterInsert(DataSet: TDataSet);
 begin
   CadContaapagar.Cancel;
 end;
 
+{***************************************************************************** }
+procedure TFManutencaoCP.CalculaPercentualDespesaPeloValor;
+var
+  VpfValContasAPagar : Double;
+begin
+  VpfValContasAPagar := VprDContasAPagar.ValTotal;
+  if VpfValContasAPagar > 0  then
+  begin
+    VprDDespesaProjeto.ValDespesa := StrToFloat(DeletaChars(GProjetos.Cells[4,GProjetos.ALinha],'.'));
+    VprDDespesaProjeto.PerDespesa :=  (VprDDespesaProjeto.ValDespesa *100)/VpfValContasAPagar;
+  end;
+end;
+
+{***************************************************************************** }
+procedure TFManutencaoCP.CalculaValorDespesaPeloPercentual;
+var
+  VpfValContasAPagar : Double;
+begin
+  VpfValContasAPagar := VprDContasAPagar.ValTotal;
+  if VpfValContasAPagar > 0  then
+  begin
+    VprDDespesaProjeto.PerDespesa := StrToFloat(DeletaChars(DeletaChars(GProjetos.Cells[3,GProjetos.ALinha],'.'),'%'));
+    VprDDespesaProjeto.ValDespesa := VpfValContasAPagar * (VprDDespesaProjeto.PerDespesa / 100);
+  end;
+end;
+
+{***************************************************************************** }
 procedure TFManutencaoCP.MovContasAPagarAfterScroll(DataSet: TDataSet);
 begin
   BExclui.Enabled := (MovContasAPagarN_VLR_PAG.AsFloat = 0 ) and (MovContasAPagarI_NRO_PAR.AsInteger <> 0);
@@ -439,6 +559,7 @@ begin
   GradeMov.ReadOnly := MovContasAPagarN_VLR_PAG.AsFloat <> 0;
 end;
 
+{***************************************************************************** }
 procedure TFManutencaoCP.MovContasAPagarBeforeInsert(DataSet: TDataSet);
 begin
   Abort;
@@ -448,12 +569,14 @@ end;
                       Diversos
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) }
 
+{***************************************************************************** }
 procedure TFManutencaoCP.GradeMovExit(Sender: TObject);
 begin
   if (MovContasAPagar.State = dsEdit) then
     MovContasAPagar.Post;
 end;
 
+{***************************************************************************** }
 procedure TFManutencaoCP.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
@@ -494,6 +617,144 @@ begin
 end;
 
 
+{***************************************************************************** }
+procedure TFManutencaoCP.GProjetosCarregaItemGrade(Sender: TObject;
+  VpaLinha: Integer);
+begin
+  VprDDespesaProjeto := TRBDContasaPagarProjeto(VprDContasAPagar.DespesaProjeto.Items[VpaLinha-1]);
+  if VprDDespesaProjeto.CodProjeto <> 0 then
+    GProjetos.Cells[1,VpaLinha]:= InttoStr(VprDDespesaProjeto.CodProjeto)
+  else
+    GProjetos.Cells[1,VpaLinha]:= '';
+  GProjetos.Cells[2,VpaLinha]:= VprDDespesaProjeto.NomProjeto;
+  CarValoresGrade;
+end;
+
+{***************************************************************************** }
+procedure TFManutencaoCP.GProjetosDadosValidos(Sender: TObject;
+  var VpaValidos: Boolean);
+begin
+  VpaValidos := true;
+  if not EConsultaProjeto.AExisteCodigo(GProjetos.Cells[1,GProjetos.ALinha]) then
+  begin
+    VpaValidos := false;
+    aviso('PROJETO NÃO CADASTRADO!!!'#13'O projeto digitado não existe cadastrado.');
+    GProjetos.Col := 1;
+  end
+  else
+    if (DeletaChars(DeletaChars(DeletaChars(GProjetos.Cells[3,GProjetos.ALinha],'%'),'0'),' ') = '') then
+    begin
+      VpaValidos := false;
+      aviso('PERCENTUAL NÃO PREENCHIDO!!!'#13'É necessário digitar o percentual da despesa no projeto.');
+      GProjetos.Col := 3;
+    end
+    else
+      if (DeletaChars(DeletaChars(GProjetos.Cells[4,GProjetos.ALinha],'0'),' ') = '') then
+      begin
+        VpaValidos := false;
+        aviso('VALOR NÃO PREENCHIDO!!!'#13'É necessário digitar o valor da despesa no projeto.');
+        GProjetos.Col := 4;
+      end;
+  if VpaValidos then
+  begin
+    CarDProjetoClasse;
+    if VprDDespesaProjeto.PerDespesa = 0  then
+    begin
+      VpaValidos := false;
+      aviso('PERCENTUAL NÃO PREENCHIDO!!!'#13'É necessário digitar o percentual da despesa no projeto.');
+      GProjetos.Col := 3;
+    end
+    else
+      if VprDDespesaProjeto.ValDespesa = 0  then
+      begin
+        VpaValidos := false;
+        aviso('VALOR NÃO PREENCHIDO!!!'#13'É necessário digitar o valor da despesa no projeto.');
+        GProjetos.Col := 4;
+      end;
+  end;
+  if Vpavalidos then
+  begin
+    if FunContasAPagar.ProjetoDuplicado(VprDContasAPagar) then
+    begin
+      vpaValidos := false;
+      aviso('PROJETO DUPLICADO!!!'#13'Esse projeto já foi digitado.');
+      GProjetos.Col := 1;
+    end;
+  end;
+end;
+
+{***************************************************************************** }
+procedure TFManutencaoCP.GProjetosKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  case key of
+    114 :
+    begin
+      case GProjetos.AColuna of
+        1: EConsultaProjeto.AAbreLocalizacao;
+      end;
+    end;
+  end;
+end;
+
+{***************************************************************************** }
+procedure TFManutencaoCP.GProjetosKeyPress(Sender: TObject; var Key: Char);
+begin
+  if (key = '.') and  not(GProjetos.col in [3,4]) then
+    key := DecimalSeparator;
+end;
+
+{***************************************************************************** }
+procedure TFManutencaoCP.GProjetosMudouLinha(Sender: TObject; VpaLinhaAtual,
+  VpaLinhaAnterior: Integer);
+begin
+  if VprDContasAPagar.DespesaProjeto.Count >0 then
+    VprDDespesaProjeto := TRBDContasaPagarProjeto(VprDContasAPagar.DespesaProjeto.Items[VpaLinhaAtual-1]);
+end;
+
+{***************************************************************************** }
+procedure TFManutencaoCP.GProjetosNovaLinha(Sender: TObject);
+begin
+  VprDDespesaProjeto := VprDContasAPagar.addDespesaProjeto;
+  VprDDespesaProjeto.PerDespesa := FunContasAPagar.RPercentualProjetoFaltante(VprDContasAPagar);
+  CarValoresGrade;
+  CalculaValorDespesaPeloPercentual;
+  CarValoresGrade;
+end;
+
+{***************************************************************************** }
+procedure TFManutencaoCP.GProjetosSelectCell(Sender: TObject; ACol,
+  ARow: Integer; var CanSelect: Boolean);
+begin
+  if GProjetos.AEstadoGrade in [egInsercao,EgEdicao] then
+  begin
+    if GProjetos.AColuna <> ACol then
+    begin
+      case GProjetos.AColuna of
+        1 :if not EConsultaProjeto.AExisteCodigo(GProjetos.Cells[1,GProjetos.ALinha]) then
+           begin
+             if not EConsultaProjeto.AAbreLocalizacao then
+             begin
+               GProjetos.Cells[1,GProjetos.ALinha] := '';
+               abort;
+             end;
+           end;
+        3 : if VprDDespesaProjeto.PerDespesa <> StrToFloat(DeletaChars(DeletaChars(GProjetos.Cells[3,GProjetos.ALinha],'.'),'%')) then
+            begin
+              CalculaValorDespesaPeloPercentual;
+              CarValoresGrade;
+            end;
+        4 : if VprDDespesaProjeto.ValDespesa <> StrToFloat(DeletaChars(GProjetos.Cells[4,GProjetos.ALinha],'.')) then
+            begin
+              CalculaPercentualDespesaPeloValor;
+              CarValoresGrade;
+            end;
+      end;
+    end;
+  end;
+end;
+
+{***************************************************************************** }
 procedure TFManutencaoCP.GradeMovEditButtonClick(Sender: TObject);
 begin
   if GradeMov.SelectedIndex = 4 then

@@ -35,6 +35,7 @@ type
       function GravaLogEstagio(VpaCodFilial, VpaSeqPedido, VpaCodEstagio: Integer; VpaDesMotivo: String): String;
       procedure MontaCabecalhoEmail(VpaTexto : TStrings; VpaDPedidoCompra : TRBDPedidoCompraCorpo;VpaDFilial : TRBDFilial);
       procedure MontaEmailPedidoCompra(VpaTexto : TStrings; VpaDPedidoCompra : TRBDPedidoCompraCorpo;VpaDCliente : TRBDCliente; VpaDComprador : TRBDComprador; VpaDFilial : TRBDFilial);
+      procedure MontaEmailCobrancaPedidoCompra(VpaTexto : TStrings; VpaDCliente : TRBDCliente);
       function EnviaEmail(VpaMensagem : TIdMessage;VpaSMTP : TIdSMTP;VpaDFilial : TRBDFilial;VpaDComprador : TRBDComprador) : string;
       procedure AtualizarQtdeProdutoPedido(VpaDNotaItem: TRBDNotaFiscalForItem; VpaDPedidoCompraCorpo: TRBDPedidoCompraCorpo);
       function GravaDVinculoNotaFiscalItem(VpaCodFilial, VpaSeqNota, VpaSeqPedido,VpaSeqProduto, VpaCodCor: Integer; VpaQuantidade: Double): String;
@@ -48,6 +49,7 @@ type
       function ExisteClienteFracaoOP(VpaDFracaoOPPedido: TRBDFracaoOPPedidoCompra): Boolean;
       procedure ApagaPedido(VpaDPedidoCompra: TRBDPedidoCompraCorpo);
       function EnviaEmailFornecedor(VpaDPedidoCompra : TRBDPedidoCompraCorpo) : String;
+      function EnviaEmailCobrancaFornecedor(VpaCodFornecedor : Integer):string;
       function GravaDPedidoCompra(VpaDPedidoCompra: TRBDPedidoCompraCorpo): String;
       procedure CarDPedidoCompra(VpaCodFilial, VpaSeqPedido: Integer; VpaDPedidoCompra: TRBDPedidoCompraCorpo);
       function AprovarPedido(VpaCodFilial, VpaSeqPedido : Integer): String;
@@ -67,7 +69,8 @@ end;
 
 implementation
 uses
-  Constantes, FunSQL, FunData, UnProdutos, FunObjeto, ANovaNotaFiscaisFor, ConstMsg, FunString;
+  Constantes, FunSQL, FunData, UnProdutos, FunObjeto, ANovaNotaFiscaisFor, ConstMsg, FunString, Funarquivos,
+  dmRave;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                                 TRBFunPedidoCompra
@@ -733,6 +736,84 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunPedidoCompra.MontaEmailCobrancaPedidoCompra(VpaTexto: TStrings;VpaDCliente: TRBDCliente);
+begin
+  VpaTexto.Clear;
+  VpaTexto.Add('<html>');
+  VpaTexto.Add('<head>');
+  VpaTexto.add('<title> Eficacia Sistemas e Consultoria');
+  VpaTexto.Add('</title>');
+  VpaTexto.add('<body>');
+  VpaTexto.Add('<center>');
+  VpaTexto.add('<table width=80%  border=1 bordercolor="black" cellspacing="0" >');
+  VpaTexto.Add('<tr>');
+  VpaTexto.add('<td>');
+  VpaTexto.Add('<table width=100%  border=0 >');
+  VpaTexto.add(' <tr>');
+  VpaTexto.Add('  <td width=40%>');
+  VpaTexto.add('    <a > <img src="cid:'+IntToStr(Varia.CodigoEmpFil)+'.jpg" width='+IntToStr(varia.CRMTamanhoLogo)+' height = '+IntToStr(Varia.CRMAlturaLogo)+' boder=0>');
+  VpaTexto.Add('  </td>');
+  VpaTexto.add('  <td width=20% align="center" > <font face="Verdana" size="5"><b>Pedidos de Compras Atrasados ');
+  VpaTexto.Add('  <td width=40% align="right" > <font face="Verdana" size="5"><right> <a title="Sistema de Gestão Desenvolvido por Eficacia Sistemas e Consultoria" href="http://www.eficaciaconsultoria.com.br"> <img src="cid:efi.jpg" border="0"');
+  VpaTexto.add('  </td>');
+  VpaTexto.Add('  </td>');
+  VpaTexto.add('  </tr>');
+  VpaTexto.Add('</table>');
+  VpaTexto.add('<br>');
+  VpaTexto.Add('<br>');
+  VpaTexto.add('<table width=100%  border=0 cellpadding="0" cellspacing="0" >');
+  VpaTexto.Add(' <tr>');
+  VpaTexto.add('  <td width=100% bgcolor=#6699FF ><font face="Verdana" size="3">');
+  VpaTexto.Add('   <br> <center>');
+  VpaTexto.add('   <br>Prezado <b>'+VpaDCliente.NomContatoFornecedor+ '</b>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.Add('   <br>Seguem abaixo os pedidos de compra que não foram recebidos pela nossa empresa.');
+  VpaTexto.Add('   <br>Solicitamos informações o mais breve possivel.');
+  VpaTexto.add('   <br>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.add(' </tr><tr>');
+  VpaTexto.Add('  <td width=100% bgcolor="silver" ><font face="Verdana" size="3">');
+  VpaTexto.add('   <br><center>');
+  VpaTexto.Add('   <br>Cliente : '+varia.NomeFilial );
+  VpaTexto.add('   <br>CNPJ :'+Varia.CNPJFilial);
+  VpaTexto.Add('   <br>');
+  VpaTexto.Add('   <br>Fornecedor : '+VpaDCliente.NomCliente );
+  VpaTexto.add('   <br>CNPJ :'+VpaDCliente.CGC_CPF);
+  VpaTexto.add('   <br>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.add(' </tr><tr>');
+  VpaTexto.Add('  <td width=100% bgcolor=#6699FF ><font face="Verdana" size="3">');
+  VpaTexto.add('   <br><center>');
+  VpaTexto.add('   <br>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.add('   <br>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.add(' </tr>');
+  VpaTexto.Add(' </tr><tr>');
+  VpaTexto.add('  <td width=100% bgcolor="silver" ><font face="Verdana" size="3">');
+  VpaTexto.Add('   <br><center>');
+  VpaTexto.add('   <br><address><a href="http://'+varia.SiteFilial+'">'+Varia.NomeFilial+'</a>  </address>');
+  VpaTexto.Add('   <br> '+Varia.FoneFilial);
+  VpaTexto.add('   <br>');
+  VpaTexto.Add('   <br>');
+  VpaTexto.add('   <br>');
+  VpaTexto.Add(' </tr><tr>');
+  VpaTexto.add('</table>');
+  VpaTexto.Add('</td>');
+  VpaTexto.add('</tr>');
+  VpaTexto.Add('</table>');
+  VpaTexto.add('<hr>');
+  VpaTexto.Add('<center>');
+    if (Varia.CNPJFilial <> CNPJ_Reeltex) and
+       (varia.CNPJFilial <> CNPJ_Cadartex) then
+    VpaTexto.add('<address>Sistema de gestão desenvolvido por <a href="http://www.eficaciaconsultoria.com.br">Eficácia Sistemas e Consultoria Ltda.</a>  </address>');
+  VpaTexto.Add('</center>');
+  VpaTexto.add('</body>');
+  VpaTexto.Add('');
+  VpaTexto.add('</html>');
+end;
+
+{******************************************************************************}
 procedure TRBFunPedidoCompra.MontaEmailPedidoCompra(VpaTexto : TStrings; VpaDPedidoCompra : TRBDPedidoCompraCorpo;VpaDCliente : TRBDCliente; VpaDComprador : TRBDComprador; VpaDFilial : TRBDFilial);
 var
   VpfLaco : Integer;
@@ -985,6 +1066,75 @@ begin
   end;
   VpaMensagem.Recipients.Clear;
   VpaMensagem.Clear;
+end;
+
+{******************************************************************************}
+function TRBFunPedidoCompra.EnviaEmailCobrancaFornecedor(VpaCodFornecedor: Integer): string;
+var
+  VpfEmailHTML : TIdText;
+  VpfNomAnexo : String;
+  VpfPDF, Vpfbmppart : TIdAttachmentFile;
+  VpfDCliente : TRBDCliente;
+  VpfChar : Char;
+  VpfEmailFornecedor : string;
+begin
+  result := '';
+  VpfDCliente := TRBDCliente.cria;
+  VpfDCliente.CodCliente := VpaCodFornecedor;
+  FunClientes.CarDCliente(VpfDCliente,true);
+  if VpfDCliente.DesEmailFornecedor = '' then
+    result := 'E-MAIL DO FORNECEDOR NÃO PREENCHIDO!!!'#13'Falta preencher o e-mail do fornecedor.';
+  if not ExisteArquivo(varia.PathVersoes+'\efi.jpg') then
+    result := 'Falta arquivo "'+varia.PathVersoes+'\efi.jpg'+'"';
+  if result = '' then
+  begin
+    Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\'+inttoStr(varia.CodigoEmpresa)+'.jpg');
+    Vpfbmppart.ContentType := 'image/jpg';
+    Vpfbmppart.ContentDisposition := 'attachment';
+    Vpfbmppart.ExtraHeaders.Values['content-id'] := inttoStr(varia.CodigoEmpresa)+'.jpg';
+    Vpfbmppart.FileName := '';
+    Vpfbmppart.DisplayName := '';
+
+    Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\efi.jpg');
+    Vpfbmppart.ContentType := 'image/jpg';
+    Vpfbmppart.ContentDisposition := 'inline';
+    Vpfbmppart.ExtraHeaders.Values['content-id'] := 'efi.jpg';
+    Vpfbmppart.FileName := '';
+    Vpfbmppart.DisplayName := '';
+
+
+
+    dtRave := TdtRave.Create(nil);
+ {   VpfNomAnexo := varia.PathVersoes+'\ANEXOS\COTACAO'+IntToStr(VpaDCotacao.CodEmpFil)+'_'+IntToStr(VpaDCotacao.LanOrcamento)+'.PDF';
+    dtRave.VplArquivoPDF := VpfNomAnexo ;
+    dtRave.ImprimePedido(VpaDCotacao.CodEmpFil,VpaDCotacao.LanOrcamento,false);
+    dtRave.Free;}
+
+    VpfPDF := TIdAttachmentFile.Create(VprMensagem.MessageParts,VpfNomAnexo);
+    VpfPDF.ContentType := 'application/pdf;Cotacao';
+    VpfPDF.ContentDisposition := 'inline';
+    VpfPDF.ExtraHeaders.Values['content-id'] := VpfNomAnexo;
+    VpfPDF.DisplayName := RetornaNomeSemExtensao(VpfNomAnexo)+'.pdf';
+
+
+    VpfEmailHTML := TIdText.Create(VprMensagem.MessageParts);
+    VpfEmailHTML.ContentType := 'text/html';
+    MontaEmailCobrancaPedidoCompra(VpfEmailHTML.Body,VpfDCliente);
+
+    VpfEmailFornecedor := VpfDCliente.DesEmailFornecedor;
+    VpfChar := ',';
+    if ExisteLetraString(';',VpfEmailFornecedor) then
+      VpfChar := ';';
+    while Length(VpfEmailFornecedor) > 0 do
+    begin
+      VprMensagem.Recipients.Add.Address := DeletaChars(CopiaAteChar(VpfEmailFornecedor,VpfChar),VpfChar);
+      VpfEmailFornecedor := DeleteAteChar(VpfEmailFornecedor,VpfChar);
+    end;
+
+    VprMensagem.Subject := Varia.NomeFilial+' - Pedidos em Atraso';
+
+//    result := EnviaEmail(VprMensagem,VprSMTP,);
+  end;
 end;
 
 {******************************************************************************}

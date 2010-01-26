@@ -29,7 +29,6 @@ type
     PParcela: TPanelColor;
     Label4: TLabel;
     RadioButton1: TRadioButton;
-    CheckBox1: TCheckBox;
     COpcao2: TRadioButton;
     Label5: TLabel;
     COpcao3: TRadioButton;
@@ -53,6 +52,7 @@ type
     Panel1: TPanelColor;
     RadioButton5: TRadioButton;
     RadioButton6: TRadioButton;
+    Label6: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BCancelarClick(Sender: TObject);
@@ -82,9 +82,12 @@ type
     procedure CriaPaginasParcelas(VpaQtdParcelas : Integer);
     procedure CarDClasse;
     procedure CarDParcelas;
+    procedure CarDTela;
+    procedure CarDParcelaTela;
   public
     { Public declarations }
     function NovaCondicaoPagamento: boolean;
+    function AlteraCondicaoPagamento(VpaCodCondicaoPagamento : Integer):Boolean;
   end;
 
 var
@@ -168,6 +171,19 @@ end;
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                             Ações Diversas
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+function TFNovaCondicaoPagamento.AlteraCondicaoPagamento(VpaCodCondicaoPagamento: Integer): Boolean;
+begin
+  VprDCondicaoPagamento.Free;
+  VprDCondicaoPagamento :=TRBDCondicaoPagamento.cria;
+  FunCondicaoPagamento.CarDCondicaoPagamento(VprDCondicaoPagamento,VpaCodCondicaoPagamento);
+  GPercentual.ADados := VprDCondicaoPagamento.Parcelas;
+  GPercentual.CarregaGrade;
+  CarDTela;
+  showmodal;
+  result := VprAcao;
+end;
 
 {******************************************************************************}
 procedure TFNovaCondicaoPagamento.BCancelarClick(Sender: TObject);
@@ -327,7 +343,7 @@ begin
         begin
           VpfDParcela.TipoParcela := tpDiaFixo;
           VpfNumerico := TNumerico(LocalizaComponente(VpfPagina,21));
-          VpfDParcela.QtdDias := VpfNumerico.AsInteger;
+          VpfDParcela.DiaFixo := VpfNumerico.AsInteger;
         end
         else
           if TCheckBox(LocalizaComponente(VpfPagina,30)).Checked then
@@ -342,6 +358,73 @@ begin
     else
       VpfDParcela.TipAcrescimoDesconto := 'D';
   end;
+end;
+
+{******************************************************************************}
+procedure TFNovaCondicaoPagamento.CarDParcelaTela;
+Var
+  Vpflaco : Integer;
+  VpfPagina : TTabSheet;
+  VpfDParcela : TRBDParcelaCondicaoPagamento;
+  VpfNumerico : TNumerico;
+  VpfMaskEdit : TMaskEditColor;
+begin
+  if VprDCondicaoPagamento.Parcelas.Count = 0 then
+  begin
+    VprDCondicaoPagamento.QtdParcelas := 0;
+    EQtdParcelas.AsInteger := 1;
+    CriaParcelas;
+  end;
+
+  CriaPaginasParcelas(VprDCondicaoPagamento.QtdParcelas);
+  for VpfLaco := 1 to VprDCondicaoPagamento.Parcelas.Count  do
+  begin
+    VpfDParcela := TRBDParcelaCondicaoPagamento(VprDCondicaoPagamento.Parcelas.Items[VpfLaco - 1]);
+    VpfPagina := Paginas.Pages[VpfLaco];
+    TCheckBox(LocalizaComponente(VpfPagina,1)).Checked := false;
+    TCheckBox(LocalizaComponente(VpfPagina,10)).Checked := false;
+    TCheckBox(LocalizaComponente(VpfPagina,20)).Checked := false;
+    TCheckBox(LocalizaComponente(VpfPagina,30)).Checked := false;
+    case VpfDParcela.TipoParcela of
+      tpProximoMes:
+      begin
+        TCheckBox(LocalizaComponente(VpfPagina,1)).Checked := true ;
+      end;
+      tpQtdDias:
+      begin
+        TCheckBox(LocalizaComponente(VpfPagina,10)).Checked := true;
+        VpfNumerico := TNumerico(LocalizaComponente(VpfPagina,11));
+        VpfNumerico.AsInteger := VpfDParcela.QtdDias;
+      end;
+      tpDiaFixo:
+      begin
+        TCheckBox(LocalizaComponente(VpfPagina,20)).Checked := true;
+        VpfNumerico := TNumerico(LocalizaComponente(VpfPagina,21));
+        VpfNumerico.AsInteger := VpfDParcela.DiaFixo;
+      end;
+      tpDataFixa:
+      begin
+        TCheckBox(LocalizaComponente(VpfPagina,30)).Checked := true;
+        TMaskEditColor(LocalizaComponente(VpfPagina,31)).Text := FormatDateTime('DD/MM/YYYY',VpfDParcela.DatFixa);
+      end;
+    end;
+    VpfNumerico := TNumerico(LocalizaComponente(VpfPagina,50));
+    VpfNumerico.AValor := VpfDParcela.PerAcrescimoDesconto;
+    if VpfDParcela.TipAcrescimoDesconto = 'C' then
+      TCheckBox(LocalizaComponente(VpfPagina,51)).Checked := true;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFNovaCondicaoPagamento.CarDTela;
+begin
+  with VprDCondicaoPagamento do
+  begin
+    ENome.Text := NomCondicaoPagamento;
+    EQtdParcelas.AsInteger := QtdParcelas;
+  end;
+  CarDParcelaTela;
+  Paginas.ActivePage := PGeral;
 end;
 
 {******************************************************************************}

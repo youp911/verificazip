@@ -1472,7 +1472,7 @@ begin
                           ' FROM PEDIDOCOMPRAITEM PCI, CADPRODUTOS PRO, COR COR'+
                           ' WHERE'+
                           ' PRO.I_SEQ_PRO = PCI.SEQPRODUTO'+
-                          ' AND COR.COD_COR =* PCI.CODCOR'+
+                          ' AND '+SQLTextoRightJoin('PCI.CODCOR','COR.COD_COR')+
                           ' AND PCI.CODFILIAL = '+PEDIDOCOMPRACORPOCODFILIAL.AsString+
                           ' AND PCI.SEQPEDIDO = '+PEDIDOCOMPRACORPOSEQPEDIDO.AsString);
     PRODUTOPEDIDO.SQL.Add(VprOrdemPedidoCompraItem);

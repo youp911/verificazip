@@ -110,7 +110,7 @@ type
     N17: TMenuItem;
     GeraMovimento1: TMenuItem;
     N18: TMenuItem;
-    Inventrio1: TMenuItem;
+    MInventario: TMenuItem;
     MRelatorios: TMenuItem;
     Mquinas1: TMenuItem;
     N19: TMenuItem;
@@ -399,6 +399,8 @@ begin
       AlterarVisibleDet([MCadastro,MCelulaTrabalho],true);
     if (puESConsultaProduto in varia.PermissoesUsuario) then
       AlterarVisibleDet([MProdutos,MFLocalizaProduto],true);
+    if (puESInventario in varia.PermissoesUsuario) then
+      AlterarVisibleDet([MEstoque,MInventario],true);
   end;
 
   if not (config.ManutencaoImpressoras) then

@@ -125,6 +125,8 @@ type
     ERefCliente: TEditColor;
     Label7: TLabel;
     CadProdutosN_PER_PER: TFMTBCDField;
+    Label8: TLabel;
+    EPrateleira: TEditColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CProAtiClick(Sender: TObject);
@@ -358,6 +360,8 @@ begin
     VpaSelect.Add(' and PRO.C_COD_PRO like '''+ECodigo.Text+'''');
   if ESumula.Text <> '' then
     VpaSelect.Add(' and PRO.I_COD_SUM = ' +ESumula.Text);
+  if EPrateleira.Text <> '' then
+    VpaSelect.add(' and PRO.C_PRA_PRO = '''+EPrateleira.Text+'''');
   if ECodigoReduzido.Text <> '' then
     VpaSelect.add(' and PRO.C_COD_CTB = '''+ECodigoReduzido.Text+'''');
   if CChipNovo.Checked then

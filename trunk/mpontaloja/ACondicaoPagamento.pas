@@ -36,6 +36,7 @@ type
     DataMovCondicao: TDataSource;
     GridIndice1: TGridIndice;
     PanelColor3: TPanelColor;
+    BAlterar: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -46,6 +47,7 @@ type
     procedure BitBtn1Click(Sender: TObject);
     procedure BExcluirClick(Sender: TObject);
     procedure CadCondicoesPagtoAfterScroll(DataSet: TDataSet);
+    procedure BAlterarClick(Sender: TObject);
   private
     { Private declarations }
     VprOrdem : String;
@@ -81,15 +83,31 @@ begin
 end;
 
 { ******************* Quando o formulario e fechado ************************** }
-procedure TFCondicaoPagamento.BExcluirClick(Sender: TObject);
+procedure TFCondicaoPagamento.BAlterarClick(Sender: TObject);
 begin
-  if  Confirmacao(CT_DeletaRegistro) then
+  if CadCondicoesPagtoI_COD_PAG.AsInteger <> 0 then
   begin
-    FunContasAReceber.ExcluiCondicaoPagamento(CadCondicoesPagtoI_COD_PAG.AsInteger);
-    AtualizaConsulta;
+    FNovaCondicaoPagamento := TFNovaCondicaoPagamento.CriarSDI(self,'',true);
+    if FNovaCondicaoPagamento.AlteraCondicaoPagamento(CadCondicoesPagtoI_COD_PAG.AsInteger) then
+      AtualizaConsulta;
+    FNovaCondicaoPagamento.Free;
   end;
 end;
 
+{ ******************* Quando o formulario e fechado ************************** }
+procedure TFCondicaoPagamento.BExcluirClick(Sender: TObject);
+begin
+  if CadCondicoesPagtoI_COD_PAG.AsInteger <> 0 then
+  begin
+    if  Confirmacao(CT_DeletaRegistro) then
+    begin
+      FunContasAReceber.ExcluiCondicaoPagamento(CadCondicoesPagtoI_COD_PAG.AsInteger);
+      AtualizaConsulta;
+    end;
+  end;
+end;
+
+{ ******************* Quando o formulario e fechado ************************** }
 procedure TFCondicaoPagamento.BFecharClick(Sender: TObject);
 begin
   close;

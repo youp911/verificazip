@@ -139,29 +139,15 @@ type
     Splitter1: TSplitter;
     BEntregador: TBitBtn;
     PCliente: TPanel;
-    Shape1: TShape;
     LNomeFantasia: TLabel;
-    Label1: TLabel;
-    SpeedButton1: TSpeedButton;
-    Label2: TLabel;
-    LEnderecoCliente: TLabel;
-    Label5: TLabel;
-    Label12: TLabel;
     Shape8: TShape;
     Label16: TLabel;
     SpeedButton6: TSpeedButton;
     Label31: TLabel;
-    LCNPJ: TLabel;
-    Label42: TLabel;
-    ECliente: TEditLocaliza;
-    EContato: TEditColor;
-    EOrdemCompra: TEditColor;
     ECor: TEditLocaliza;
     ETipoCotacao: TEditLocaliza;
     EEmbalagem: TEditLocaliza;
     PainelTempo1: TPainelTempo;
-    EConsultaSerasa: TEditColor;
-    CPendenciaSerasa: TCheckBox;
     PVendedor: TPanel;
     Shape4: TShape;
     Shape3: TShape;
@@ -238,8 +224,6 @@ type
     DBMemoColor2: TDBMemoColor;
     EstagiosLOGALTERACAO: TWideStringField;
     ETamanho: TEditLocaliza;
-    Label59: TLabel;
-    EEmailContato: TEditColor;
     MCupom: TPopupMenu;
     NotaFiscaldeServico1: TMenuItem;
     N6: TMenuItem;
@@ -250,6 +234,29 @@ type
     PImagem: TPanel;
     Foto: TImage;
     Shape17: TShape;
+    Panel1: TPanel;
+    Shape1: TShape;
+    Label1: TLabel;
+    SpeedButton1: TSpeedButton;
+    Label2: TLabel;
+    LEnderecoCliente: TLabel;
+    Label5: TLabel;
+    Label12: TLabel;
+    LCNPJ: TLabel;
+    Label42: TLabel;
+    Label59: TLabel;
+    ECliente: TEditLocaliza;
+    EContato: TEditColor;
+    EOrdemCompra: TEditColor;
+    EConsultaSerasa: TEditColor;
+    CPendenciaSerasa: TCheckBox;
+    EEmailContato: TEditColor;
+    PRepresentada: TPanel;
+    Shape20: TShape;
+    Label61: TLabel;
+    SpeedButton10: TSpeedButton;
+    Label62: TLabel;
+    ERepresentada: TRBEditLocaliza;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EClienteRetorno(Retorno1, Retorno2: String);
@@ -353,6 +360,7 @@ type
     procedure SomenteServicos1Click(Sender: TObject);
     procedure EClienteSelect(Sender: TObject);
     procedure Label11DblClick(Sender: TObject);
+    procedure EFormaPagamentoCadastrar(Sender: TObject);
   private
     { Private declarations }
     VprOperacao,
@@ -458,7 +466,7 @@ uses APrincipal, Funsql, Constantes, FunObjeto, ALocalizaProdutos,  Fundata, UnC
   ATipoCotacao, AEmbalagem, AProdutoReferencia, AProdutosDevolvidos,
   AMostraObservacaoCliente, ANovaNotaFiscaisFor, ANovoTecnico, UnSistema,
   ANovoECF, ABrindesCliente, AMedico, ATamanhos, ANovaNotaFiscalNota, dmRave,
-  ACondicaoPagamento, ACreditoCliente;
+  ACondicaoPagamento, ACreditoCliente, AFormasPagamento;
 
 {$R *.DFM}
 
@@ -1637,6 +1645,11 @@ begin
     LPreposto.Caption := 'Atendente : ';
   if not config.NaCotacaoBuscaroContato then
     EContato.ACampoObrigatorio := true;
+  if not config.RepresentanteComercial then
+  begin
+    PRepresentada.Visible := false;
+    PCliente.Height := PCliente.Height - PRepresentada.Height;
+  end;
 end;
 
 {******************************************************************************}
@@ -1926,6 +1939,7 @@ begin
         if CodFormaPaqamento = 0 then
           CodFormaPaqamento := varia.FormaPagamentoPadrao;
       end;
+      CodRepresentada := ERepresentada.AInteiro;
       CodFormaPaqamento := EFormaPagamento.AInteiro;
       CodTabelaPreco := ETabelaPreco.AInteiro;
       CodVendedor := EVendedor.AInteiro;
@@ -2142,6 +2156,8 @@ begin
   begin
     ETipoCotacao.AInteiro := CodTipoOrcamento;
     ETipoCotacao.Atualiza;
+    ERepresentada.AInteiro := CodRepresentada;
+    ERepresentada.Atualiza;
     ECliente.AInteiro := CodCliente;
     VprDCotacao.CodCliente := 0;
     ECliente.Atualiza;
@@ -2395,6 +2411,8 @@ begin
     begin
       ETabelaPreco.Atualiza;
     end;
+    if config.RepresentanteComercial then
+      ActiveControl := ERepresentada;
   end;
   ValidaGravacao1.Execute;
   BFechar.Enabled := false;
@@ -3106,6 +3124,14 @@ begin
     GProdutos.AEstadoGrade := egEdicao;
   end;
 
+end;
+
+procedure TFNovaCotacao.EFormaPagamentoCadastrar(Sender: TObject);
+begin
+  FFormasPagamento := TFFormasPagamento.CriarSDI(self,'',true);
+  FFormasPagamento.BotaoCadastrar1.Click;
+  FFormasPagamento.ShowModal;
+  FFormasPagamento.Free;
 end;
 
 {******************************************************************************}

@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Componentes1, ExtCtrls, PainelGradiente, Grids, DBGrids, Tabela, UnDadosProduto,
-  DBKeyViolation, StdCtrls, Localizacao, Buttons, Db, DBTables, ComCtrls, UnNotaFiscal;
+  DBKeyViolation, StdCtrls, Localizacao, Buttons, Db, DBTables, ComCtrls, UnNotaFiscal,
+  DBClient;
 
 type
   TFDetalhesEstoque = class(TFormularioPermissao)
@@ -29,7 +30,7 @@ type
     RNenhum: TRadioButton;
     EditLocaliza1: TEditLocaliza;
     Grade: TGridIndice;
-    Estoque: TQuery;
+    Estoque: TSQL;
     DataEstoque: TDataSource;
     AtiPro: TCheckBox;
     Data1: TCalendario;
@@ -90,7 +91,7 @@ begin
   begin
     VpaCampos := ' pro.c_nom_pro, mov.c_cod_uni, mov.n_qtd_mov, mov.n_vlr_mov, ' +
                  ' op.c_nom_ope, mov.d_dat_mov, mov.c_tip_mov, mov.i_nro_not, mov.i_not_sai, mov.i_not_ent, ' +
-                 ' IFnull(mov.n_qtd_mov,0, mov.n_vlr_mov / mov.n_qtd_mov)  ValorMedio';
+                 ' decode(mov.n_qtd_mov,null,0, mov.n_vlr_mov / mov.n_qtd_mov)  ValorMedio';
     VpaGrupo := ' ';
   end
   else
@@ -98,7 +99,7 @@ begin
     begin
       VpaCampos := ' mov.d_dat_mov, sum(mov.n_vlr_mov) n_vlr_mov, ' +
                    ' sum(n_qtd_mov) n_qtd_mov, '+
-                   ' IFnull(n_qtd_mov,0, n_vlr_mov / n_qtd_mov) ValorMedio ';
+                   ' decode(sum(n_qtd_mov),null,0, sum(n_vlr_mov) / sum(n_qtd_mov)) ValorMedio ';
       VpaGrupo := 'group by mov.d_dat_mov order by mov.d_dat_mov';
       MudaVisibleDetColunasGrid(Grade, [0,1,3,7,8], false);
     end
@@ -106,31 +107,31 @@ begin
       if RDataUnidade.Checked then
       begin
         VpaCampos := ' mov.d_dat_mov, sum(mov.n_vlr_mov) n_vlr_mov, sum(n_qtd_mov) n_qtd_mov,  pro.c_cod_uni, ' +
-                     ' IFnull(n_qtd_mov,0, n_vlr_mov / n_qtd_mov) ValorMedio ';
+                     ' decode(sum(n_qtd_mov),NULL,0, sum(n_vlr_mov) / sum(n_qtd_mov)) ValorMedio ';
         VpaGrupo := ' group by mov.d_dat_mov, pro.c_cod_uni order by mov.d_dat_mov';
         MudaVisibleDetColunasGrid(Grade, [0,1,7,8], false);
       end
       else
         if RMes.Checked then
         begin
-          VpaCampos := ' month(mov.d_dat_mov) d_dat_mov, sum(mov.n_vlr_mov) n_vlr_mov, sum(n_qtd_mov) n_qtd_mov, ' +
-                       ' IFnull(n_qtd_mov,0, n_vlr_mov / n_qtd_mov) ValorMedio';
-          VpaGrupo := ' group by month(mov.d_dat_mov) order by month(mov.d_dat_mov)';
+          VpaCampos :=  SQLTextoMes('mov.d_dat_mov')+' d_dat_mov, sum(mov.n_vlr_mov) n_vlr_mov, sum(n_qtd_mov) n_qtd_mov, ' +
+                       ' decode(sum(n_qtd_mov),NULL,0, sum(n_vlr_mov) / sum(n_qtd_mov)) ValorMedio';
+          VpaGrupo := ' group by '+SQLTextoMes('mov.d_dat_mov')+' order by '+SQLTextoMes('mov.d_dat_mov');
           MudaVisibleDetColunasGrid(Grade, [0,1,3,7,8], false);
         end
         else
           if RMesUnidade.Checked then
           begin
-            VpaCampos := ' month(mov.d_dat_mov) d_dat_mov, sum(mov.n_vlr_mov) n_vlr_mov, sum(n_qtd_mov) n_qtd_mov, pro.c_cod_uni, ' +
-                         ' IFnull(n_qtd_mov,0, n_vlr_mov / n_qtd_mov) ValorMedio ';
-            VpaGrupo := ' group by month(mov.d_dat_mov), pro.c_cod_uni order by month(mov.d_dat_mov)';
+            VpaCampos := SQLTextoMes('mov.d_dat_mov')+' d_dat_mov, sum(mov.n_vlr_mov) n_vlr_mov, sum(n_qtd_mov) n_qtd_mov, pro.c_cod_uni, ' +
+                         ' decode(sum(n_qtd_mov),NULL,0, sum(n_vlr_mov) / sum(n_qtd_mov)) ValorMedio ';
+            VpaGrupo := ' group by '+SQLTextoMes('mov.d_dat_mov')+', pro.c_cod_uni order by '+SQLTextoMes('mov.d_dat_mov');
             MudaVisibleDetColunasGrid(Grade, [0,1,7,8], false);
           end
           else
             if ROperacao.Checked then
             begin
               VpaCampos := ' mov.i_cod_ope,  op.c_nom_ope, mov.c_tip_mov, sum(mov.n_vlr_mov) n_vlr_mov, sum(n_qtd_mov) n_qtd_mov, ' +
-                           ' IFnull(n_qtd_mov,0, n_vlr_mov / n_qtd_mov) ValorMedio ';
+                           ' decode(sum(n_qtd_mov),NULL,0, sum(n_vlr_mov) / sum(n_qtd_mov)) ValorMedio ';
               VpaGrupo := ' group by mov.i_cod_ope, op.c_nom_ope, mov.c_tip_mov order by (op.c_nom_ope)';
               MudaVisibleDetColunasGrid(Grade, [0,2,3,8], false);
             end
@@ -138,7 +139,7 @@ begin
               if ROperacaoUnidade.Checked then
               begin
                 VpaCampos := ' mov.i_cod_ope,  op.c_nom_ope, mov.c_tip_mov, sum(mov.n_vlr_mov) n_vlr_mov, sum(n_qtd_mov) n_qtd_mov, pro.c_cod_uni, ' +
-                             ' IFnull(n_qtd_mov,0, n_vlr_mov / n_qtd_mov) ValorMedio ';
+                             ' decode(sum(n_qtd_mov),NULL,0, sum(n_vlr_mov) / sum(n_qtd_mov)) ValorMedio ';
                 VpaGrupo := ' group by mov.i_cod_ope, op.c_nom_ope, mov.c_tip_mov, pro.c_cod_uni order by (op.c_nom_ope)';
                 MudaVisibleDetColunasGrid(Grade, [0,2,8], false);
                end;
@@ -147,7 +148,7 @@ begin
   LimpaSQLTabela(estoque);
   AdicionaSQLTabela(Estoque,'select ');
   AdicionaSQLTabela(Estoque,VpaCampos);
-  AdicionaSQLTabela(Estoque,'from MovEstoqueProdutos  as MOV, cadOperacaoEstoque as OP, CadProdutos as PRO ' +
+  AdicionaSQLTabela(Estoque,'from MovEstoqueProdutos  MOV, cadOperacaoEstoque OP, CadProdutos PRO ' +
                             ' where MOV.I_COD_OPE = OP.I_COD_OPE ' +
                             ' and PRO.I_SEQ_PRO = MOV.I_SEQ_PRO ');
 
@@ -173,8 +174,7 @@ begin
   if EditLocaliza1.Text <> '' then
     estoque.sql.add(' and MOV.I_COD_OPE = ' + EditLocaliza1.Text);
 
-  Estoque.sql.add(' and MOV.D_DAT_MOV between ''' + DataToStrFormato(AAAAMMDD,Data1.Date,'/') + '''' +
-                  ' and ''' + DataToStrFormato(AAAAMMDD,Data2.Date,'/') + ''''  );
+  Estoque.sql.add(SQLTextoDataEntreAAAAMMDD('MOV.D_DAT_MOV',Data1.Date,Data2.Date,true));
 
   Estoque.sql.add(VpaGrupo);
 

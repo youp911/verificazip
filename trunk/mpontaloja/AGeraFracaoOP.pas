@@ -557,13 +557,15 @@ begin
     end
     else
     begin
-      dtRave := TdtRave.create(self);
-      for VpfLaco := 0 to  VprDOrdemProducao.Fracoes.Count - 1 do
+//      dtRave := TdtRave.create(self);
+      FunOrdemProducao.ImprimeEtiquetasOrdemProducao(VprDOrdemProducao);
+
+{      for VpfLaco := 0 to  VprDOrdemProducao.Fracoes.Count - 1 do
       begin
         VpfDFracao := TRBDFracaoOrdemProducao(VprDOrdemProducao.Fracoes.Items[VpfLaco]);
         dtRave.ImprimeFracaoOP(VprDOrdemProducao.CodEmpresafilial,VprDOrdemProducao.SeqOrdem,VpfDFracao.SeqFracao,false);
       end;
-      dtRave.free;
+      dtRave.free;}
       if VprDOrdemProducao.OrdemCorte.Itens.Count > 0 then
       begin
         dtRave := TdtRave.create(self);

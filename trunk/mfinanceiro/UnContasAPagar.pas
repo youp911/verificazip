@@ -19,7 +19,8 @@ type
   public
     constructor criar( aowner : TComponent; VpaBaseDados : TSQLConnection  ); virtual;
     destructor destroy; override;
-    function SomaTotalParcelas(VpaCodFilial,VpaLanPagar : Integer ) : Double;
+    function SomaTotalParcelas(VpaCodFilial,VpaLanPagar : Integer ) : Double;overload;
+    function somaTotalParcelas(VpaDContasAPagar : TRBDContasaPagar) : Double;overload;
 end;
 
 // localizacao
@@ -59,7 +60,6 @@ type
     procedure CarParcelasCheque(VpaParcelas : TList;VpaSeqCheque, VpaCodFilialOriginal, VpaLanPagarOriginal, VpaNumParcelaOriginal : Integer);
     function GravaDContasaPagar(VpaDContasAPagar : TRBDContasaPagar) : String;
     function GravaDParcelaPagar(VpaDContasAPagar : TRBDContasaPagar) : String;
-    function GravaDDespesaProjeto(VpaDContasAPagar : TRBDContasaPagar) : String;
   public
     constructor criar( aowner : TComponent; VpaBaseDados : TSQLConnection ); override;
     destructor Destroy; override;
@@ -73,6 +73,7 @@ type
     procedure CriaParcelas( VpaDContasaPagar : TRBDContasaPagar );
     procedure AtualizaValorTotal(VpaCodfilial, VpaLanPagar : integer );
     function VerificaAtualizaValoresParcelas(ValorInicialParcelas : double; lancamento : Integer ) : boolean;
+    procedure AjustaValorUltimaParcela(VpaDContasAPagar : TRBDContasaPagar;VpaValorInicial : Double);
 
     // baixa parcela
     function BaixaContasAPagar(VpaDBaixa : TRBDBaixaCP) : string;
@@ -123,6 +124,8 @@ type
     function RPercentualProjetoFaltante(VpaDContasAPagar : TRBDContasaPagar) : Double;
     function ProjetoDuplicado(VpaDContasAPagar : TRBDContasaPagar) : boolean;
     procedure ExcluiPlanoContas(VpaPlanoOrigem, VpaPlanoDestino : String);
+    procedure CarDProjetoContasaPagar(VpaDContasAPagar : TRBDContasaPagar);
+    function GravaDDespesaProjeto(VpaDContasAPagar : TRBDContasaPagar) : String;
   end;
 
 var
@@ -152,6 +155,19 @@ begin
   Calcula.close;
   calcula.Destroy;
   inherited;
+end;
+
+{ *************************************************************************** }
+function TCalculosContasAPagar.SomaTotalParcelas(VpaDContasAPagar: TRBDContasaPagar): Double;
+var
+  VpfLaco : Integer;
+begin
+  result := 0;
+  for VpfLaco := 0 to VpaDContasAPagar.Parcelas.Count - 1 do
+  begin
+    result := result + TRBDParcelaCP(VpaDContasAPagar.Parcelas.Items[VpfLaco]).ValParcela;
+  end;
+  VpaDContasAPagar.ValTotal := result;
 end;
 
 { ******************* Soma Total das parcelas ****************************** }
@@ -440,6 +456,7 @@ begin
     Tabela.next;
   end;
   Tabela.close;
+  AjustaValorUltimaParcela(VpaDContasaPagar,VpaDContasaPagar.ValTotal);
 end;
 
 {*************** atualiza o valor total do cadcontasapagar ***************** }
@@ -715,6 +732,31 @@ begin
   else
     VpaDParcela.NumDiasAtraso := 0;
 
+  Tabela.Close;
+end;
+
+{******************************************************************************}
+procedure TFuncoesContasAPagar.CarDProjetoContasaPagar(VpaDContasAPagar: TRBDContasaPagar);
+Var
+  VpfDDespesaProjeto : TRBDContasaPagarProjeto;
+begin
+  FreeTObjectsList(VpaDContasAPagar.DespesaProjeto);
+  AdicionaSQLAbreTabela(Tabela,'Select PRO.CODPROJETO, PRO.NOMPROJETO, '+
+                               ' CPP.VALDESPESA, CPP.PERDESPESA ' +
+                               ' From PROJETO PRO, CONTAAPAGARPROJETO CPP ' +
+                               ' WHERE PRO.CODPROJETO = CPP.CODPROJETO ' +
+                               ' AND CPP.CODFILIAL = '+IntToStr( VpaDContasAPagar.CodFilial)+
+                               ' AND CPP.LANPAGAR = '+IntToStr(VpaDContasAPagar.LanPagar)+
+                               ' ORDER BY SEQDESPESA ');
+  while not Tabela.Eof do
+  begin
+    VpfDDespesaProjeto := VpaDContasAPagar.addDespesaProjeto;
+    VpfDDespesaProjeto.CodProjeto := Tabela.FieldByName('CODPROJETO').AsInteger;
+    VpfDDespesaProjeto.NomProjeto := Tabela.FieldByName('NOMPROJETO').AsString;
+    VpfDDespesaProjeto.PerDespesa := Tabela.FieldByName('PERDESPESA').AsFloat;
+    VpfDDespesaProjeto.ValDespesa := Tabela.FieldByName('VALDESPESA').AsFloat;
+    Tabela.Next;
+  end;
   Tabela.Close;
 end;
 
@@ -1563,6 +1605,14 @@ begin
   if (not Result) then
     Aviso(CT_Titulo_Pago);
   calcula.close;
+end;
+
+{***************** configura o valor recebido de um adicional **************** }
+procedure TFuncoesContasAPagar.AjustaValorUltimaParcela(VpaDContasAPagar: TRBDContasaPagar;VpaValorInicial : Double);
+begin
+  SomaTotalParcelas(VpaDContasAPagar);
+  if VpaDContasAPagar.ValTotal <> VpaValorInicial then
+    TRBDParcelaCP(VpaDContasAPagar.Parcelas.Items[VpaDContasAPagar.Parcelas.Count-1]).ValParcela :=  TRBDParcelaCP(VpaDContasAPagar.Parcelas.Items[VpaDContasAPagar.Parcelas.Count-1]).ValParcela - (VpaDContasAPagar.ValTotal - VpaValorInicial);
 end;
 
 {***************** configura o valor recebido de um adicional **************** }

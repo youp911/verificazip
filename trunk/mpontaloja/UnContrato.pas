@@ -6,7 +6,7 @@ Interface
 
 Uses Classes, DBTables, UnDados, SysUtils,ComCtrls, UnDadosProduto, UnClientes, UnCotacao, Unsistema,
      UnContasAReceber, UnCrystal, ANovaNotaFiscalNota, Forms,stdctrls, UnNotaFiscal, UnImpressaoBoleto, UnDadosCR,
-     UnVendedor, SQLExpr, Tabela,db;
+     UnVendedor, SQLExpr, Tabela,db,IdAttachmentfile, idText, IdMessage, IdSMTP;
 
 //classe localiza
 Type TRBLocalizaContrato = class
@@ -24,6 +24,8 @@ Type TRBFuncoesContrato = class(TRBLocalizaContrato)
     ContratosAExecutar,
     FaturamentoPosterior : TSQLQuery;
     Cadastro : TSQL;
+    VprMensagem : TidMessage;
+    VprSMTP : TIdSMTP;
     VprBarraStatus : TStatusbar;
     FunImpFolhaBranca: TImpressaoBoleto;
     function RProximoSeqContrato(VpaCodFilial : Integer) : Integer;
@@ -56,6 +58,7 @@ Type TRBFuncoesContrato = class(TRBLocalizaContrato)
     procedure ExcluirFinanceiro(VpaDCotacao : TRBDOrcamento);
     procedure GeraBoletoUnicoContrato(VpaDCotacaoContrato: trbdorcamento;VpaDCliente : TRBDCliente; VpaLanOrcamentoPosterior :Integer);
     function VincularReajusteContratos(VpaSeqReajuste, VpaAno, VpaMes: Integer): String;
+    procedure MontaEmailLeituraLocacao(VpaTexto : TStrings; VpaDContrato : TRBDContratoCorpo ;VpaDCliente : TRBDCliente);
   public
     constructor cria(VpaBaseDados : TSqlConnection);
     destructor destroy;override;
@@ -74,13 +77,16 @@ Type TRBFuncoesContrato = class(TRBLocalizaContrato)
     procedure SetaReprocessarContratos(VpaCodFilial,VpaSeqProcessado : Integer);
     procedure ImprimirBoleto(VpaCodFilial,VpaLanOrcamento, VpaCodCliente : Integer);
     function ReajustaContrato(VpaAno, VpaMes: Integer; VpaIndice: Double): String;
+    function EnviaMedidorEmail(VpaCodFilial, VpaSeqContrato : Integer) : String;
+    function RNomTipoContrato(VpaCodTipoContrato : Integer) : String;
 end;
 
 
 
 implementation
 
-Uses FunSql,FunData, Constantes, FunObjeto, UnProdutos, constmsg, FunString, dmRave;
+Uses FunSql,FunData, Constantes, FunObjeto, UnProdutos, constmsg, FunString, dmRave,
+     FunArquivos;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                               eventos da classe TRBLocalizaContrato
@@ -155,6 +161,9 @@ begin
   FaturamentoPosterior := TSQLQuery.Create(nil);
   FaturamentoPosterior.SQLConnection := VpaBaseDados;
   FunImpFolhaBranca := TImpressaoBoleto.cria(VpaBaseDados);
+  //componentes indy
+  VprMensagem := TIdMessage.Create(nil);
+  VprSMTP := TIdSMTP.Create(nil);
 end;
 
 {******************************************************************************}
@@ -166,6 +175,8 @@ begin
   ContratosAExecutar.free;
   FaturamentoPosterior.free;
   FunImpFolhaBranca.free;
+  VprMensagem.free;
+  VprSMTP.free;
   inherited destroy;
 end;
 
@@ -658,6 +669,92 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFuncoesContrato.MontaEmailLeituraLocacao(VpaTexto: TStrings;VpaDContrato: TRBDContratoCorpo; VpaDCliente: TRBDCliente);
+var
+  VpfLaco : Integer;
+  VpfDContratoItem : TRBDContratoItem;
+begin
+  VpaTexto.Clear;
+  VpaTexto.Add('<html>');
+  VpaTexto.Add('<head>');
+  VpaTexto.add('<title> Eficacia Sistemas e Consultoria Ltda');
+  VpaTexto.Add('</title>');
+  VpaTexto.add('<body>');
+  VpaTexto.Add('<center>');
+  VpaTexto.add('<table width=80%  border=1 bordercolor="black" cellspacing="0" >');
+  VpaTexto.Add('<tr>');
+  VpaTexto.add('<td>');
+  VpaTexto.Add('<table width=100%  border=0 >');
+  VpaTexto.add(' <tr>');
+  VpaTexto.Add('  <td width=40%>');
+  VpaTexto.add('    <a > <img src="cid:'+IntToStr(VpaDContrato.CodFilial)+'.jpg" width='+IntToStr(varia.CRMTamanhoLogo)+' height = '+IntToStr(Varia.CRMAlturaLogo)+' boder=0>');
+  VpaTexto.Add('  </td>');
+  VpaTexto.add('  <td width=20% align="center" > <font face="Verdana" size="5"><b>Medidores Contrato ');
+  VpaTexto.Add('  <td width=40% align="right" > <font face="Verdana" size="5"><right> <a title="Sistema de Gestão Desenvolvido por Eficacia Sistemas e Consultoria" href="http://www.eficaciaconsultoria.com.br"> <img src="cid:efi.jpg" border="0"');
+  VpaTexto.add('  </td>');
+  VpaTexto.Add('  </td>');
+  VpaTexto.add('  </tr>');
+  VpaTexto.Add('</table>');
+  VpaTexto.add('<br>');
+  VpaTexto.Add('<br>');
+  VpaTexto.add('<table width=100%  border=1 cellpadding="0" cellspacing="0" >');
+  VpaTexto.Add(' <tr>');
+  VpaTexto.add('	<td width="20%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Cliente</td>');
+  VpaTexto.add('	<td colspan="3" bgcolor="#'+varia.CRMCorEscuraemail+'"><font face="Verdana" size="2">&nbsp;'+vpadcliente.NomCliente+'</td>');
+  VpaTexto.add(' </tr><tr>');
+  VpaTexto.add('	<td width="20%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Tipo Contrato</td>');
+  VpaTexto.add('	<td width="30%" bgcolor="#'+varia.CRMCorEscuraemail+'"><font face="Verdana" size="2">&nbsp;'+RNomTipoContrato(VpaDContrato.CodTipoContrato) +'</td>');
+  VpaTexto.add('	<td width="15%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Vendedor</td>');
+  VpaTexto.add('	<td width="35%" bgcolor="#'+varia.CRMCorEscuraemail+'"><font face="Verdana" size="2">&nbsp;'+FunCotacao.RNomVendedor(VpaDContrato.CodVendedor) +'</td>');
+  VpaTexto.add(' </tr>');
+  VpaTexto.add('</table>');
+
+  VpaTexto.add('<table width=100%  border=1 cellpadding="0" cellspacing="0" >');
+  VpaTexto.add(' <tr>');
+  VpaTexto.add('	<td width="5%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Item</td>');
+  VpaTexto.add('	<td width="15%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Modelo</td>');
+  VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Num Serie</td>');
+  VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Serie Interno</td>');
+  VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Setor</td>');
+  VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Ult Leitura</td>');
+  VpaTexto.add('	<td width="8%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Med PB</td>');
+  VpaTexto.add('	<td width="8%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Med Atual</td>');
+  VpaTexto.add('	<td width="8%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Med Color</td>');
+  VpaTexto.add('	<td width="8%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Med Atual</td>');
+  VpaTexto.add('	<td width="8%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1"><b>&nbsp;Defeitos</td>');
+  for VpfLaco := 0 to VpaDContrato.ItensContrato.Count - 1 do
+  begin
+    VpfDContratoItem := TRBDContratoItem(VpaDContrato.ItensContrato.Items[VpfLaco]);
+    if VpfDContratoItem.DatDesativacao > MontaData(1,1,1900) then
+      continue;
+    VpaTexto.add(' </tr><tr>');
+    VpaTexto.add('	<td width="5%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;'+IntToStr(VpfDContratoItem.SeqItem)+'</td>');
+    VpaTexto.add('	<td width="15%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;'+VpfDContratoItem.NomProduto+'</td>');
+    VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;'+VpfDContratoItem.NumSerieProduto+'</td>');
+    VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;'+VpfDContratoItem.NumSerieInterno+'</td>');
+    VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;'+VpfDContratoItem.DesSetorEmpresa+'</td>');
+    VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;'+FormatDateTime('DD/MM/YY',VpfDContratoItem.DatUltimaLeitura)+'</td>');
+    VpaTexto.add('	<td width="8%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;'+IntToStr(VpfDContratoItem.QtdUltimaLeitura)+'</td>');
+    VpaTexto.add('	<td width="8%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;</td>');
+    VpaTexto.add('	<td width="8%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;'+IntToStr(VpfDContratoItem.QtdUltimaLeituraColor)+'</td>');
+    VpaTexto.add('	<td width="8%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;</td>');
+    VpaTexto.add('	<td width="8%" bgcolor="#'+varia.CRMCorClaraemail+'"><font face="Verdana" size="1">&nbsp;</td>');
+  end;
+  VpaTexto.add(' </tr>');
+  VpaTexto.add('</table>');
+
+  VpaTexto.add('<hr>');
+  VpaTexto.Add('<center>');
+    if (Varia.CNPJFilial <> CNPJ_Reeltex) and
+       (varia.CNPJFilial <> CNPJ_Cadartex) then
+    VpaTexto.add('<address>Sistema de gestão desenvolvido por <a href="http://www.eficaciaconsultoria.com.br">Eficácia Sistemas e Consultoria Ltda.</a>  </address>');
+  VpaTexto.Add('</center>');
+  VpaTexto.add('</body>');
+  VpaTexto.Add('');
+  VpaTexto.add('</html>');
+end;
+
+{******************************************************************************}
 procedure TRBFuncoesContrato.SetaContratoProcessado(VpaCodfilial,VpaSeqContrato : Integer);
 begin
   ExecutaComandoSql(Aux,'UPDATE CONTRATOCORPO '+
@@ -680,7 +777,7 @@ begin
                                ' Where ITE.SEQPRODUTO = PRO.I_SEQ_PRO '+
                                ' and ITE.CODFILIAL = '+InttoStr(VpaDContrato.CodFilial)+
                                ' and ITE.SEQCONTRATO = '+IntToStr(VpaDContrato.SeqContrato)+
-                               ' order by ITE.SEQITEM');
+                               ' order by ITE.DATDESATIVACAO DESC, ITE.SEQITEM');
   while not Tabela.Eof do
   begin
     VpfDItem := VpaDContrato.addItemContrato;
@@ -1131,6 +1228,7 @@ begin
   Cadastro.FieldByName('TIPPERIODO').AsInteger := VpaDContrato.TipPeriodicidade;
   Cadastro.FieldByName('DESNOTACUPOM').AsString := VpaDContrato.NotaFiscalCupom;
   Cadastro.FieldByName('NOMCONTATO').AsString := VpaDContrato.NomContato;
+  Cadastro.FieldByName('DESEMAIL').AsString := VpaDContrato.DesEmail;
   Cadastro.FieldByName('CODTECNICOLEITURA').AsInteger := VpaDContrato.CodTecnicoLeitura;
   cadastro.FieldByName('DATALTERACAO').AsDateTime := now;
   if VpaDContrato.IndProcessamentoAutomatico then
@@ -1253,7 +1351,7 @@ begin
                                 ' CON.QTDFRANQUIACOLOR, '+
                                 ' CON.DESNOTACUPOM, CON.TIPPERIODO, CON.NOMCONTATO, CON.CODTECNICOLEITURA,'+
                                 ' CON.INDAUTOMATICO, CON.NUMDIALEITURA,  CON.CODPREPOSTO, CON.PERCOMISSAO, '+
-                                ' CON.PERCOMISSAOPREPOSTO, ' +
+                                ' CON.PERCOMISSAOPREPOSTO, CON.DESEMAIL, ' +
                                 ' SER.C_NOM_SER '+
                                 ' from CONTRATOCORPO CON, CADSERVICO SER '+
                                 ' Where CON.CODFILIAL = '+IntToStr(VpaCodFilial)+
@@ -1292,6 +1390,7 @@ begin
   VpaDContrato.NumDiaLeitura := Tabela.FieldByname('NUMDIALEITURA').AsInteger;
   VpaDContrato.PerComissao := Tabela.FieldByname('PERCOMISSAO').AsFloat;
   VpaDContrato.PerComissaoPreposto := Tabela.FieldByname('PERCOMISSAOPREPOSTO').AsFloat;
+  VpaDContrato.DesEmail := Tabela.FieldByName('DESEMAIL').AsString;
 
   CarDContratoItem(VpaDContrato);
   Tabela.close;
@@ -1334,6 +1433,76 @@ begin
     QtdFranquiaColor:= Tabela.FieldByName('QTDFRANQUIACOLOR').AsInteger;
   end;
   CarDLeituraLocacaoItem(VpaDLeitura);
+end;
+
+{******************************************************************************}
+function TRBFuncoesContrato.EnviaMedidorEmail(VpaCodFilial,VpaSeqContrato: Integer): String;
+var
+  VpfDContrato : TRBDContratoCorpo;
+  VpfPDF, Vpfbmppart : TIdAttachmentFile;
+  VpfChar : Char;
+  VpfNomAnexo, VpfEmailCliente : String;
+  VpfEmailHTML : TIdText;
+  VpfDCliente : TRBDCliente;
+begin
+  result := '';
+  VpfDContrato := TRBDContratoCorpo.cria;
+  CarDContrato(VpfDContrato,VpaCodFilial,VpaSeqContrato);
+  VpfDCliente := TRBDCliente.cria;
+  VpfDCliente.CodCliente := VpfDContrato.CodCliente;
+  FunClientes.CarDCliente(VpfDCliente);
+
+  if VpfDContrato.DesEmail = '' then
+    result := 'CONTRATO '+IntToStr(VpaSeqContrato)+ ' DO CLIENTE "'+VpfDCliente.NomCliente+'" NÃO POSSUI E-MAIL CADASTRADO.';
+  if not ExisteArquivo(varia.PathVersoes+'\efi.jpg') then
+    result := 'Falta arquivo "'+varia.PathVersoes+'\efi.jpg'+'"';
+  if result = '' then
+  begin
+    Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\'+inttoStr(VpaCodFilial)+'.jpg');
+    Vpfbmppart.ContentType := 'image/jpg';
+    Vpfbmppart.ContentDisposition := 'attachment';
+    Vpfbmppart.ExtraHeaders.Values['content-id'] := inttoStr(VpaCodFilial)+'.jpg';
+    Vpfbmppart.FileName := '';
+    Vpfbmppart.DisplayName := '';
+
+    Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\efi.jpg');
+    Vpfbmppart.ContentType := 'image/jpg';
+    Vpfbmppart.ContentDisposition := 'inline';
+    Vpfbmppart.ExtraHeaders.Values['content-id'] := 'efi.jpg';
+    Vpfbmppart.FileName := '';
+    Vpfbmppart.DisplayName := '';
+
+    dtRave := TdtRave.Create(nil);
+    VpfNomAnexo := varia.PathVersoes+'\ANEXOS\LEITURALOCACAO'+IntToStr(VpaCodFilial)+'_'+IntToStr(VpaSeqContrato)+'.PDF';
+    dtRave.VplArquivoPDF := VpfNomAnexo ;
+    dtRave.ImprimeLeituraContratos(0,0,0,0,VpaCodFilial,VpaSeqContrato,'','','','');
+    dtRave.Free;
+
+    VpfPDF := TIdAttachmentFile.Create(VprMensagem.MessageParts,VpfNomAnexo);
+    VpfPDF.ContentType := 'application/pdf;LeituraContrato';
+    VpfPDF.ContentDisposition := 'inline';
+    VpfPDF.ExtraHeaders.Values['content-id'] := VpfNomAnexo;
+    VpfPDF.DisplayName := RetornaNomeSemExtensao(VpfNomAnexo)+'.pdf';
+
+    VpfEmailHTML := TIdText.Create(VprMensagem.MessageParts);
+    VpfEmailHTML.ContentType := 'text/html';
+    MontaEmailLeituraLocacao(VpfEmailHTML.Body,VpfDContrato,VpfDCliente);
+
+    VpfEmailCliente := VpfDContrato.DesEmail;
+    VpfChar := ',';
+    if ExisteLetraString(';',VpfEmailCliente) then
+      VpfChar := ';';
+    while Length(VpfEmailCliente) > 0 do
+    begin
+      VprMensagem.Recipients.Add.Address := DeletaChars(CopiaAteChar(VpfEmailCliente,VpfChar),VpfChar);
+      VpfEmailCliente := DeleteAteChar(VpfEmailCliente,VpfChar);
+    end;
+    VprMensagem.Subject := Varia.NomeFilial+' - Medidores Contrato ';
+
+    result := Sistema.EnviaEmail(VprMensagem,VprSMTP);
+  end;
+  VpfDCliente.Free;
+  VpfDContrato.Free;
 end;
 
 {******************************************************************************}
@@ -1608,6 +1777,16 @@ begin
   end;
   Result:= VincularReajusteContratos(Cadastro.FieldByName('SEQREAJUSTE').AsInteger, VpaAno, VpaMes);
   Cadastro.Close;
+  Tabela.Close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesContrato.RNomTipoContrato(VpaCodTipoContrato: Integer): String;
+begin
+  AdicionaSQLAbreTabela(Tabela,'Select NOMTIPOCONTRATO ' +
+                               ' FROM TIPOCONTRATO ' +
+                               ' Where CODTIPOCONTRATO = ' +IntToStr(VpaCodTipoContrato));
+  result := Tabela.FieldByName('NOMTIPOCONTRATO').AsString;
   Tabela.Close;
 end;
 

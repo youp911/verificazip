@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1573;
+  CT_VersaoBanco = 1576;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1351,7 +1351,27 @@ begin
         ExecutaComandoSql(Aux,'Update CADNOTAFISCAIS set C_ENV_NFE = ''N''');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1573');
       end;
-
+      if VpaNumAtualizacao < 1574 Then
+      begin
+        VpfErro := '1574';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADGRUPOS ADD C_EST_INV CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'Update CADGRUPOS set C_EST_INV = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1574');
+      end;
+      if VpaNumAtualizacao < 1575 Then
+      begin
+        VpfErro := '1575';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADEMPRESAS ADD C_IND_REC CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'Update CADEMPRESAS set C_IND_REC = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1575');
+      end;
+      if VpaNumAtualizacao < 1576 Then
+      begin
+        VpfErro := '1576';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADORCAMENTOS ADD I_COD_REP NUMBER(10) NULL');
+        ExecutaComandoSql(Aux,'CREATE INDEX CADORCAMENTOS_REP ON CADORCAMENTOS(I_COD_REP)');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1576');
+      end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then
       begin

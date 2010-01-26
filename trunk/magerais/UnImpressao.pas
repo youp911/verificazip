@@ -615,6 +615,7 @@ begin
   VpaTabela.Sql.Clear;
   VpaTabela.Sql.add('Select CLI.I_COD_CLI, CLI.C_NOM_CLI, C_FO1_CLI, CR.D_DAT_EMI, '+
                     ' CR.I_NRO_NOT, MCR.I_NRO_PAR, MCR.D_DAT_VEN, MCR.N_VLR_PAR, MCR.D_PRO_LIG, '+
+                    ' MCR.C_FUN_PER, '+
                     ' CR.I_LAN_REC, CR.I_EMP_FIL, CR.I_QTD_PAR, PAG.I_DIA_CAR ' +
                     '  from  MovContasaReceber MCR, CadContasaReceber CR, '+
                     '  CadClientes CLI, CADCONDICOESPAGTO PAG'+
@@ -888,7 +889,11 @@ begin
     if (DiasPorPeriodo(ClientesEmAberto.FieldByName('D_DAT_VEN').AsDateTime,Date) > ClientesEmAberto.FieldByName('I_DIA_CAR').AsInteger) and
        (ClientesEmAberto.FieldByName('D_DAT_VEN').AsDateTime < date)  then
     begin
-      VpfValJuros := ((ClientesEmAberto.FieldByName('N_VLR_PAR').AsFloat * Varia.Juro)/100);
+      if (ClientesEmAberto.FieldByName('C_FUN_PER').AsString = 'S') AND
+         (varia.CNPJFilial = CNPJ_Feldmann) then
+        VpfValJuros := ((ClientesEmAberto.FieldByName('N_VLR_PAR').AsFloat * 1)/100)
+      else
+        VpfValJuros := ((ClientesEmAberto.FieldByName('N_VLR_PAR').AsFloat * Varia.Juro)/100);
       VpfValJuros := ((VpfValJuros /30)*DiasPorPeriodo(ClientesEmAberto.FieldByName('D_DAT_VEN').AsDateTime,Date));
     end;
     //retorna o valor de desconto da cotacao

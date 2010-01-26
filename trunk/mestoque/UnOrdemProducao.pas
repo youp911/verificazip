@@ -7,7 +7,7 @@ Unit UnOrdemProducao;
 Interface
 
 Uses Classes, DBTables, UnDados,SysUtils, CGrades, UnDadosProduto, UnSistema, comctrls,
-     SQLExpr, tabela, db, Unzebra  ;
+     SQLExpr, tabela, db, Unzebra, UnArgox ;
 
 //classe localiza
 Type TRBLocalizaOrdemProducao = class
@@ -256,7 +256,7 @@ Type TRBFuncoesOrdemProducao = class(TRBLocalizaOrdemProducao)
     procedure ImprimeEtiquetasFracaoPremer(VpaEtiquetas : TList);
     procedure ImprimeEtiquetasPlanoCorte(VpaDPlanoCorte : TRBDPlanoCorteCorpo);
     procedure ImprimeEtiquetaNroOP(VpaSeqOrdem : INteger;VpaNomCiente : String);
-    procedure ImprimeEtiquetasOrdemProducao(VpaCodFilial, VpaSeqOrdem : Integer);
+    procedure ImprimeEtiquetasOrdemProducao(VpaDOrdemProducao : TRBDOrdemProducao);
     procedure CarIconeNoFracao(VpaNo : TTreeNode;VpaDFracao : TRBDFracaoOrdemProducao);
     procedure AdicionaNoFracao(VpaCodFilial,VpaSeqOrdem, VpaSeqFracao : Integer;VpaNoPai : TTreeNode;VpaArvore : TTreeView);
     procedure CarregaArvoreSubMontagem(VpaTabela : TDataSet;VpaArvore : TTreeView);
@@ -6248,9 +6248,14 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFuncoesOrdemProducao.ImprimeEtiquetasOrdemProducao(VpaCodFilial,VpaSeqOrdem: Integer);
+procedure TRBFuncoesOrdemProducao.ImprimeEtiquetasOrdemProducao(VpaDOrdemProducao : TRBDOrdemProducao);
+Var
+  VpfFunArgox : TRBFuncoesArgox;
 begin
-
+  VpfFunArgox := TRBFuncoesArgox.cria(varia.PortaComunicacaoImpTermica);
+  VpfFunArgox.ImprimeEtiquetaOrdemCorte25X50(VpaDOrdemProducao);
+  VpfFunArgox.ImprimeEtiquetaOrdemProducao25X50(VpaDOrdemProducao);
+  VpfFunArgox.Free;
 end;
 
 {******************************************************************************}

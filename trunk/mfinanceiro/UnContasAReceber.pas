@@ -165,6 +165,7 @@ type
     function TemParcelas(VpaCodFilial, VpaLanReceber : Integer): Boolean;
     function EstornaParcela(VpaCodCliente, VpaCodFilial, VpaLanReceber,VpaNumParcela, VpaNumParcelaFilha : integer;VpaVerificarCheques : Boolean) : String;
     function EstornaDesconto(VpaCodFilial, VpaLanReceber,VpaNumParcela: integer) : String;
+    function EstornaFundoPerdido(VpaCodFilial, VpaLanReceber,VpaNumParcela: integer) : String;
     function EstornaParcelaParcial(VpaCodFilial, VpaLanReceber, VpaNumParcelaFilha : integer) : string;
     function EstornaCreditoCliente(VpaCodCliente,VpaCodFilial, VpaLanReceber, VpaNumParcela : Integer) : string;
     function ExisteChequeAssociadoCP(VpaCheques, VpaParcelas : TList;VpaIndDevolucaoCheque : Boolean):String;
@@ -2893,6 +2894,26 @@ begin
       result := 'DULICATA NÃO DESCONTADA!!!'#13'Não é possível estornar um desconto de uma duplicata que não foi descontada...';
   end;
   Cadastro2.close;
+end;
+
+function TFuncoesContasAReceber.EstornaFundoPerdido(VpaCodFilial, VpaLanReceber, VpaNumParcela: integer): String;
+begin
+  if result = '' then
+  begin
+    LocalizaParcela(Cadastro2,VpaCodFilial, VpaLanReceber, VpaNumParcela);
+    if Cadastro2.FieldByName('C_FUN_PER').AsString = 'S' then
+    begin
+      Cadastro2.edit;
+      Cadastro2.FieldByName('C_FUN_PER').AsString := 'N';
+      Cadastro2.FieldByName('D_ULT_ALT').AsDateTime := Date;
+      Cadastro2.post;
+      result := Cadastro2.AMensagemErroGravacao;
+    end
+    else
+      result := 'DULICATA NÃO ESTA MARCADA FUNDO PERDIDO!!!'#13'Não é possível estornar um fundo perdido uma duplicata que não foi marcada como fundo perdido...';
+  end;
+  Cadastro2.close;
+
 end;
 
 { ********  estorna a parcela parcial ***************************************}

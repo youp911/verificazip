@@ -3,6 +3,17 @@ unit UnDados;
 interface
 Uses Classes, UnDadosCR, SysUtils;
 
+Type
+  TRBDRepresentada = class
+    public
+      CodRepresentada : Integer;
+      NomRepresentada,
+      NomFantasia,
+      DesEmail,
+      NomContado : String;
+      constructor cria;
+      destructor destroy;override;
+end;
 
 Type
   TRBDFilial = class
@@ -1230,7 +1241,8 @@ Type
       NomContato,
       NomServico,
       NumContaBancaria,
-      NotaFiscalCupom : String;
+      NotaFiscalCupom,
+      DesEmail : String;
       DatAssinatura,
       DatUltimaExecucao,
       DatCancelamento : TDateTime;
@@ -3367,5 +3379,24 @@ end;
 
 { TRBDSpedfiscalRegistroC190 }
 
+
+{(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
+                     Classe da classe
+)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+constructor TRBDRepresentada.cria;
+begin
+
+end;
+
+{******************************************************************************}
+destructor TRBDRepresentada.destroy;
+begin
+
+  inherited;
+end;
+
+{ TRBDRepresentada }
 
 end.

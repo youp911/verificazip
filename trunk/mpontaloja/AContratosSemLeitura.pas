@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Componentes1, ExtCtrls, PainelGradiente, Grids, DBGrids, Tabela,
   DBKeyViolation, ComCtrls, StdCtrls, Localizacao, Buttons, Db, DBTables,
-  DBClient;
+  DBClient, UnContrato;
 
 type
   TFContratosSemLeitura = class(TFormularioPermissao)
@@ -45,12 +45,19 @@ type
     ContratosSemLeituraDATASSINATURA: TSQLTimeStampField;
     ContratosSemLeituraNUMDIALEITURA: TFMTBCDField;
     ContratosSemLeituraDATULTIMAEXECUCAO: TSQLTimeStampField;
+    BEnviar: TBitBtn;
+    ECliente: TRBEditLocaliza;
+    SpeedButton3: TSpeedButton;
+    Label7: TLabel;
+    Label8: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ECodTipoContratoFimConsulta(Sender: TObject);
     procedure BFecharClick(Sender: TObject);
+    procedure BEnviarClick(Sender: TObject);
   private
     { Private declarations }
+    FunContrato : TRBFuncoesContrato;
     procedure AtualizaConsulta;
     procedure AdicionaFiltros(VpaSelect: TStrings);
   public
@@ -62,7 +69,7 @@ var
 
 implementation
 
-uses APrincipal, FunSql,FunData;
+uses APrincipal, FunSql,FunData, Constmsg;
 
 {$R *.DFM}
 
@@ -74,6 +81,7 @@ begin
   { chamar a rotina de atualização de menus }
   EDatInicio.DateTime := DecDia(date,15);
   EDatFim.DateTime := date;
+  FunContrato := TRBFuncoesContrato.cria(FPrincipal.BaseDados);
   AtualizaConsulta;
 end;
 
@@ -83,6 +91,7 @@ begin
   { fecha tabelas }
   { chamar a rotina de atualização de menus }
   ContratosSemLeitura.close;
+  FunContrato.Free;
   Action := CaFree;
 end;
 
@@ -107,6 +116,9 @@ procedure TFContratosSemLeitura.AdicionaFiltros(VpaSelect: TStrings);
 begin
   if EVendedor.AInteiro <> 0 then
     VpaSelect.Add(' AND CON.CODVENDEDOR = '+EVendedor.Text);
+  if ECliente.AInteiro <> 0 then
+    VpaSelect.Add(' AND CON.CODCLIENTE = '+ECliente.Text);
+
   if ECodTipoContrato.AInteiro <> 0 then
     VpaSelect.add(' and CON.CODTIPOCONTRATO = '+ECodTipoContrato.Text);
   VpaSelect.add('and not exists(Select * from LEITURALOCACAOCORPO LEI '+
@@ -128,6 +140,19 @@ procedure TFContratosSemLeitura.ECodTipoContratoFimConsulta(
   Sender: TObject);
 begin
   AtualizaConsulta;
+end;
+
+{******************************************************************************}
+procedure TFContratosSemLeitura.BEnviarClick(Sender: TObject);
+var
+  VpfResultado : String;
+begin
+  if ContratosSemLeituraCODFILIAL.AsInteger <> 0 then
+  begin
+    VpfResultado := FunContrato.EnviaMedidorEmail(ContratosSemLeituraCODFILIAL.AsInteger,ContratosSemLeituraSEQCONTRATO.AsInteger);
+    if VpfResultado <> '' then
+      aviso(VpfResultado);
+  end;
 end;
 
 {******************************************************************************}

@@ -77,7 +77,7 @@ type TFuncoesCotacao = class(TLocalizaCotacao)
     procedure DuplicaDadosItemOrcamento(VpaDItemOrigem,VpaDItemDestino : TRBDOrcProduto);
     procedure MontaEmailCotacaoTexto(VpaTexto : TStrings; VpaDCotacao : TRBDOrcamento;VpaDCliente : TRBDCliente);
     procedure MontaCabecalhoEmail(VpaTexto : TStrings; VpaDCotacao : TRBDOrcamento;VpaDCliente : TRBDCliente;VpaEnviarImagem : Boolean);
-    procedure MontaEmailCotacao(VpaTexto : TStrings; VpaDCotacao : TRBDOrcamento;VpaDCliente : TRBDCliente;VpaEnviarImagem : Boolean);
+    procedure MontaEmailCotacao(VpaTexto : TStrings; VpaDCotacao : TRBDOrcamento;VpaDCliente : TRBDCliente;VpaDRepresentada : TRBDRepresentada; VpaEnviarImagem : Boolean);
     function EnviaEmail(VpaMensagem : TIdMessage;VpaSMTP : TIdSMTP) : string;
     function VerificaSeparacaoTotal(VpaDCotacao : TRBDOrcamento;Var VpaIndTotal : Boolean):string;
     function BaixaEstoqueCartuchoAssociado(VpaDCotacao : TRBDOrcamento;VpaCartuchos : TList):string;
@@ -107,6 +107,7 @@ type TFuncoesCotacao = class(TLocalizaCotacao)
     procedure CarComposeCombinacao(VpaDProCotacao : TRBDOrcProduto);
     procedure CarPrecosProdutosRevenda(VpaDCotacao : TRBDOrcamento);
     procedure CarServicoExecutadonaObsdaCotacao(VpaDCotacao : TRBDOrcamento;VpaDChamado : TRBDChamado);
+    procedure CarDRepresentada(VpaDRepresentada : TRBDRepresentada;VpaCodRepresentada : Integer);
     function RProdutoCotacao(VpaDCotacao : TRBDOrcamento;VpaSeqProduto,VpaCodCor,VpaCodTamanho : Integer;VpaValUnitario : Double):TRBDOrcProduto;
     function RServicoCotacao(VpaDCotacao : TRBDOrcamento; VpaCodServico : Integer): TRBDOrcServico;
     function RSeqNotaFiscalCotacao(VpaCodFilial,VpaLanOrcamento : Integer):Integer;
@@ -115,6 +116,7 @@ type TFuncoesCotacao = class(TLocalizaCotacao)
     function RVendedorUltimaCotacao : Integer;
     function RNomTransportadora(VpaCodTransportadora : Integer) : string;
     function RNomVendedor(VpaCodVendedor : Integer):string;
+    function RNomFantasiaRepresentada(VpaCodRepresentada : Integer) : String;
     function REmailVencedor(VpaCodVendedor : Integer) : string;
     function ROrdemProducao(VpaCodFilial,VpaLanOrcamento, VpaItemOrcamento : Integer) : Integer;
     function RValTotalCotacaoParcial(VpaDCotacao : TRBDOrcamento) : Double;
@@ -780,8 +782,10 @@ end;
 
 {******************************************************************************}
 procedure TFuncoesCotacao.CarParcelasContasAReceber(VpaDOrcamento : TRBDOrcamento);
+VAR
+  VpfValParcela : Double;
 begin
-  AdicionaSQLAbreTabela(Aux,'select MOV.I_NRO_PAR, MOV.D_DAT_VEN, MOV.N_VLR_PAR '+
+  AdicionaSQLAbreTabela(Aux,'select MOV.I_NRO_PAR, MOV.D_DAT_VEN, MOV.N_VLR_PAR, MOV.N_VLR_PAG '+
                                   ' from CADCONTASARECEBER CAD, MOVCONTASARECEBER MOV '+
                                   ' where CAD.I_EMP_FIL = '+IntToStr(VpaDOrcamento.CodEmpFil)+
                                   ' and CAD.I_LAN_ORC = '+IntToStr(VpaDOrcamento.LanOrcamento) +
@@ -790,9 +794,13 @@ begin
                                   ' order by I_NRO_PAR');
   while not  Aux.eof do
   begin
+    if Aux.FieldByName('N_VLR_PAG').AsFloat <> 0 then
+      VpfValParcela := Aux.FieldByName('N_VLR_PAG').AsFloat
+    else
+      VpfValParcela := Aux.FieldByName('N_VLR_PAR').AsFloat;
     VpaDOrcamento.Parcelas.add('*  '+CentraStr(Aux.FieldByName('I_NRO_PAR').AsString,6) + ' - '+
                            CentraStr(FormatDateTime('DD/MM/YYYY',Aux.FieldByName('D_DAT_VEN').AsDateTime) ,10) + ' - ' +
-                           AdicionaBrancoE(Formatfloat(Varia.MascaraMoeda,Aux.FieldByName('N_VLR_PAR').AsFloat),17));
+                           AdicionaBrancoE(Formatfloat(Varia.MascaraMoeda,VpfValParcela),17));
 
     Aux.Next;
   end;
@@ -1357,7 +1365,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFuncoesCotacao.MontaEmailCotacao(VpaTexto : TStrings; VpaDCotacao : TRBDOrcamento;VpaDCliente : TRBDCliente;VpaEnviarImagem : Boolean);
+procedure TFuncoesCotacao.MontaEmailCotacao(VpaTexto : TStrings; VpaDCotacao : TRBDOrcamento;VpaDCliente : TRBDCliente;VpaDRepresentada : TRBDRepresentada;VpaEnviarImagem : Boolean);
 var
   VpfDProduto : TRBDOrcProduto;
   VpfDServico : TRBDOrcServico;
@@ -1400,7 +1408,10 @@ begin
   VpaTexto.add('    <a > <img src="cid:'+IntToStr(VpaDCotacao.CodEmpFil)+'.jpg" width='+IntToStr(varia.CRMTamanhoLogo)+' height = '+IntToStr(Varia.CRMAlturaLogo)+' boder=0>');
   VpaTexto.Add('  </td>');
   VpaTexto.add('  <td width=20% align="center" > <font face="Verdana" size="5"><b>Pedido '+IntToStr(VpaDCotacao.LanOrcamento));
-  VpaTexto.Add('  <td width=40% align="right" > <font face="Verdana" size="5"><right> <a title="Sistema de Gestão Desenvolvido por Eficacia Sistemas e Consultoria" href="http://www.eficaciaconsultoria.com.br"> <img src="cid:efi.jpg" border="0"');
+  if varia.CNPJFilial = CNPJ_HORNBURG then
+    VpaTexto.Add('  <td width=40% align="right" > <font face="Verdana" size="5"><right> <a title="" href="http://www..com.br"> <img src="cid:R'+IntToStr(VpaDCotacao.CodRepresentada)+'.jpg" border="0"')
+  else
+    VpaTexto.Add('  <td width=40% align="right" > <font face="Verdana" size="5"><right> <a title="Sistema de Gestao Desenvolvido por Eficacia Sistemas e Consultoria" href="http://www.eficaciaconsultoria.com.br"> <img src="cid:efi.jpg" border="0"');
   VpaTexto.add('  </td>');
   VpaTexto.Add('  </td>');
   VpaTexto.add('  </tr>');
@@ -1418,7 +1429,7 @@ begin
   VpaTexto.add(' </tr><tr>');
   VpaTexto.Add('  <td width=100% bgcolor="silver" ><font face="Verdana" size="3">');
   VpaTexto.add('   <br><center>');
-  VpaTexto.Add('   <br>Cliente : '+VpaDCliente.NomCliente );
+  VpaTexto.Add('   <br>Cliente : '+RetiraAcentuacao(VpaDCliente.NomCliente) );
   VpaTexto.add('   <br>CNPJ :'+VpaDCliente.CGC_CPF);
   VpaTexto.Add('   <br>');
   VpaTexto.add('   <br>');
@@ -1436,6 +1447,10 @@ begin
   VpaTexto.Add(' </tr><tr>');
   VpaTexto.add('  <td width=100% bgcolor="silver" ><font face="Verdana" size="3">');
   VpaTexto.Add('   <br><center>');
+  if config.RepresentanteComercial then
+  begin
+    VpaTexto.Add('<br>'+VpaDRepresentada.NomFantasia);
+  end;
   VpaTexto.add('   <br><address><a href="http://'+varia.SiteFilial+'">'+Varia.NomeFilial+'</a>  </address>');
   VpaTexto.Add('   <br> '+Varia.FoneFilial);
   VpaTexto.add('   <br>');
@@ -1449,7 +1464,8 @@ begin
   VpaTexto.add('<hr>');
   VpaTexto.Add('<center>');
     if (Varia.CNPJFilial <> CNPJ_Reeltex) and
-       (varia.CNPJFilial <> CNPJ_Cadartex) then
+       (varia.CNPJFilial <> CNPJ_Cadartex) and
+       (varia.CNPJFilial <> CNPJ_HORNBURG) then
     VpaTexto.add('<address>Sistema de gestão desenvolvido por <a href="http://www.eficaciaconsultoria.com.br">Eficácia Sistemas e Consultoria Ltda.</a>  </address>');
   VpaTexto.Add('</center>');
   VpaTexto.add('</body>');
@@ -1922,6 +1938,7 @@ begin
   begin
     CodEmpFil := Orcamento.FieldByName('I_EMP_FIL').AsInteger;
     CodTipoOrcamento := Orcamento.FieldByName('I_TIP_ORC').AsInteger;
+    CodRepresentada := Orcamento.FieldByName('I_COD_REP').AsInteger;
     CodUsuario := Orcamento.FieldByName('I_COD_USU').AsInteger;
     CodCliente := Orcamento.FieldByName('I_COD_CLI').AsInteger;
     CodFormaPaqamento := Orcamento.FieldByName('I_COD_FRM').AsInteger;
@@ -2165,6 +2182,15 @@ begin
   AdicionaSQLAbreTabela(Aux,'Select C_NOM_TIP from CADTIPOORCAMENTO '+
                             ' Where I_COD_TIP = ' +IntToStr(VpaTipCotacao));
   Result := aux.FieldByName('C_NOM_TIP').AsString;
+  Aux.Close;
+end;
+
+{******************************************************************************}
+function TFuncoesCotacao.RNomFantasiaRepresentada(VpaCodRepresentada: Integer): String;
+begin
+  AdicionaSQLAbreTabela(Aux,'Select NOMFANTASIA FROM REPRESENTADA '+
+                            ' Where CODREPRESENTADA = '+IntToStr(VpaCodRepresentada));
+  Result := Aux.FieldByName('NOMFANTASIA').AsString;
   Aux.Close;
 end;
 
@@ -3350,6 +3376,11 @@ begin
           FieldByName('D_DAT_REC').AsDateTime := DatReceita
         else
           FieldByName('D_DAT_REC').Clear;
+        if CodRepresentada <> 0 then
+          FieldByName('I_COD_REP').AsInteger := CodRepresentada
+        else
+          FieldByName('I_COD_REP').Clear;
+
         if LanOrcamento = 0 then
           LanOrcamento := RProximoLanOrcamento;
         FieldByName('I_LAN_ORC').AsInteger := LanOrcamento;
@@ -4273,6 +4304,18 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFuncoesCotacao.CarDRepresentada(VpaDRepresentada: TRBDRepresentada;VpaCodRepresentada: Integer);
+begin
+  AdicionaSQLAbreTabela(Aux,'Select * from REPRESENTADA '+
+                            ' Where CODREPRESENTADA = '+IntToStr(VpaCodRepresentada));
+  VpaDRepresentada.CodRepresentada := VpaCodRepresentada;
+  VpaDRepresentada.NomRepresentada := Aux.FieldByName('NOMREPRESENTADA').AsString;
+  VpaDRepresentada.NomFantasia := Aux.FieldByName('NOMFANTASIA').AsString;
+  VpaDRepresentada.DesEmail :=  Aux.FieldByName('DESEMAIL').AsString;
+  Aux.Close;
+end;
+
+{******************************************************************************}
 procedure TFuncoesCotacao.OrdenaProdutosPendentes(VpaProdutos : TList);
 var
   VpfLacoInterno, VpfLacoExterno : Integer;
@@ -4348,8 +4391,12 @@ var
   VpfEmailVendedor,VpfEmailCliente, VpfNomAnexo : String;
   VpfPDF, Vpfbmppart : TIdAttachmentFile;
   VpfChar : Char;
+  VpfDRepresentada : TRBDRepresentada;
 begin
   result := '';
+  VpfDRepresentada := TRBDRepresentada.cria;
+  if VpaDCotacao.CodRepresentada <> 0 then
+    CarDRepresentada(VpfDRepresentada,VpaDCotacao.CodRepresentada);
   if VpaDCotacao.DesEmail = '' then
     if VpaDCliente.DesEmail = '' then
       result := 'E-MAIL DO CLIENTE NÃO PREENCHIDO!!!'#13'Falta preencher o e-mail do cliente.'
@@ -4364,19 +4411,32 @@ begin
     MontaEmailCotacaoTexto(VpfEmailTexto.Body,VpaDCotacao,VpaDCliente);}
     Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\'+inttoStr(VpaDCotacao.CodEmpFil)+'.jpg');
     Vpfbmppart.ContentType := 'image/jpg';
-    Vpfbmppart.ContentDisposition := 'attachment';
+    Vpfbmppart.ContentDisposition := 'inline';
     Vpfbmppart.ExtraHeaders.Values['content-id'] := inttoStr(VpaDCotacao.CodEmpFil)+'.jpg';
     Vpfbmppart.FileName := '';
     Vpfbmppart.DisplayName := '';
 
-    Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\efi.jpg');
-    Vpfbmppart.ContentType := 'image/jpg';
-    Vpfbmppart.ContentDisposition := 'inline';
-    Vpfbmppart.ExtraHeaders.Values['content-id'] := 'efi.jpg';
-    Vpfbmppart.FileName := '';
-    Vpfbmppart.DisplayName := '';
-
-
+    if config.RepresentanteComercial and (VpaDCotacao.CodRepresentada <> 0) then
+    begin
+      if ExisteArquivo(varia.PathVersoes+'\R'+IntToStr(VpaDCotacao.CodRepresentada)+'.jpg') then
+        Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\R'+IntToStr(VpaDCotacao.CodRepresentada)+'.jpg')
+      else
+        Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\'+inttoStr(VpaDCotacao.CodEmpFil)+'.jpg');
+      Vpfbmppart.ContentType := 'image/jpg';
+      Vpfbmppart.ContentDisposition := 'inline';
+      Vpfbmppart.ExtraHeaders.Values['content-id'] := 'R'+IntToStr(VpaDCotacao.CodRepresentada)+'.jpg';
+      Vpfbmppart.FileName := '';
+      Vpfbmppart.DisplayName := '';
+    end
+    else
+    begin
+      Vpfbmppart := TIdAttachmentfile.Create(VprMensagem.MessageParts,varia.PathVersoes+'\efi.jpg');
+      Vpfbmppart.ContentType := 'image/jpg';
+      Vpfbmppart.ContentDisposition := 'inline';
+      Vpfbmppart.ExtraHeaders.Values['content-id'] := 'efi.jpg';
+      Vpfbmppart.FileName := '';
+      Vpfbmppart.DisplayName := '';
+    end;
 
     dtRave := TdtRave.Create(nil);
     VpfNomAnexo := varia.PathVersoes+'\ANEXOS\COTACAO'+IntToStr(VpaDCotacao.CodEmpFil)+'_'+IntToStr(VpaDCotacao.LanOrcamento)+'.PDF';
@@ -4393,7 +4453,7 @@ begin
 
     VpfEmailHTML := TIdText.Create(VprMensagem.MessageParts);
     VpfEmailHTML.ContentType := 'text/html';
-    MontaEmailCotacao(VpfEmailHTML.Body,VpaDCotacao,VpaDCliente,true);
+    MontaEmailCotacao(VpfEmailHTML.Body,VpaDCotacao,VpaDCliente,VpfDRepresentada, true);
 
     VpfEmailCliente := VpaDCotacao.DesEmail;
     VpfChar := ',';
@@ -4403,6 +4463,17 @@ begin
     begin
       VprMensagem.Recipients.Add.Address := DeletaChars(CopiaAteChar(VpfEmailCliente,VpfChar),VpfChar);
       VpfEmailCliente := DeleteAteChar(VpfEmailCliente,VpfChar);
+    end;
+    if VpfDRepresentada.DesEmail <> '' then
+    begin
+      VpfEmailCliente := VpfDRepresentada.DesEmail;
+      if ExisteLetraString(';',VpfEmailCliente) then
+        VpfChar := ';';
+      while Length(VpfEmailCliente) > 0 do
+      begin
+        VprMensagem.Recipients.Add.Address := DeletaChars(CopiaAteChar(VpfEmailCliente,VpfChar),VpfChar);
+        VpfEmailCliente := DeleteAteChar(VpfEmailCliente,VpfChar);
+      end;
     end;
 
     VprMensagem.Subject := Varia.NomeFilial+' - Cotação ' +IntToStr(VpaDCotacao.LanOrcamento);
@@ -4414,6 +4485,7 @@ begin
     if result = '' then
       Result:= GravaDEmail(VpaDCotacao,VpaDCliente.DesEmail);
   end;
+  VpfDRepresentada.Free;
 end;
 
 {******************************************************************************}

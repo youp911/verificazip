@@ -188,6 +188,8 @@ type
     DBCheckBox9: TDBCheckBox;
     PanelColor4: TPanelColor;
     CadEmpresasC_IND_FCA: TWideStringField;
+    DBCheckBox10: TDBCheckBox;
+    CadEmpresasC_IND_REC: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BPlanoClick(Sender: TObject);

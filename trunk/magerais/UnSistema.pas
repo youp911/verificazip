@@ -35,7 +35,8 @@ Type TRBFuncoesSistema = class(TRBLocalizaSistema)
     constructor cria(VpaBaseDados : TSqlConnection);
     destructor destroy;override;
     function CarEmailMarketing(VpaEmails : TList) : String;
-    function EnviaEmail(VpaDestinatario, VpaAssunto, VpaCorpo,VpaAnexo : String):String;
+    function EnviaEmail(VpaDestinatario, VpaAssunto, VpaCorpo,VpaAnexo : String):String;overload;
+    function EnviaEmail(VpaMensagem : TIdMessage;VpaSMTP : TIdSMTP) : string;overload;
     function CFGInventarioValido : String;
     procedure GravaLogExclusao(VpaNomTabela :String; VpaComandoSQL : String);
     function RNomUsuario(VpaCodUsuario : Integer):String;
@@ -95,6 +96,48 @@ begin
   SisCadastro.free;
   SisAux.free;
   inherited destroy;
+end;
+
+{******************************************************************************}
+function TRBFuncoesSistema.EnviaEmail(VpaMensagem: TIdMessage;VpaSMTP: TIdSMTP): string;
+begin
+  VpaMensagem.Priority := TIdMessagePriority(0);
+  VpaMensagem.ContentType := 'multipart/mixed';
+  VpaMensagem.From.Address := varia.UsuarioSMTP;
+  VpaMensagem.From.Name := varia.NomeFilial;
+
+  VpaSMTP.UserName := varia.UsuarioSMTP;
+  VpaSMTP.Password := Varia.SenhaEmail;
+  VpaSMTP.Host := Varia.ServidorSMTP;
+  VpaSMTP.Port := 25;
+  VpaSMTP.AuthType := satDefault;
+
+  VpaMensagem.ReceiptRecipient.Text  :=VpaMensagem.From.Text;
+
+  if VpaMensagem.ReceiptRecipient.Address = '' then
+    result := 'E-MAIL DA FILIAL !!!'#13'É necessário preencher o e-mail da transportadora.';
+  if VpaSMTP.UserName = '' then
+    result := 'USUARIO DO E-MAIL ORIGEM NÃO CONFIGURADO!!!'#13'É necessário preencher nas configurações o e-mail de origem.';
+  if VpaSMTP.Password = '' then
+    result := 'SENHA SMTP DO E-MAIL ORIGEM NÃO CONFIGURADO!!!'#13'É necessário preencher nas configurações a senha do e-mail de origem';
+  if VpaSMTP.Host = '' then
+    result := 'SERVIDOR DE SMTP NÃO CONFIGURADO!!!'#13'É necessário configurar qual o servidor de SMTP...';
+  if result = '' then
+  begin
+    VpaSMTP.Connect;
+    try
+      VpaSMTP.Send(VpaMensagem);
+
+    except
+      on e : exception do
+      begin
+        result := 'ERRO AO ENVIAR O E-MAIL!!!'#13+e.message;
+        VpaSMTP.Disconnect;
+      end;
+    end;
+    VpaSMTP.Disconnect;
+    VpaMensagem.Clear;
+  end;
 end;
 
 {******************************************************************************}

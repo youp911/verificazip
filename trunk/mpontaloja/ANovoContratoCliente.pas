@@ -90,6 +90,12 @@ type
     Label32: TLabel;
     EComissaoPreposto: Tnumerico;
     Label33: TLabel;
+    ScrollBox1: TScrollBox;
+    PanelColor3: TPanelColor;
+    EEmail: TEditColor;
+    Label34: TLabel;
+    Label35: TLabel;
+    Shape1: TShape;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -115,6 +121,8 @@ type
     procedure GradeGetEditMask(Sender: TObject; ACol, ARow: Integer;
       var Value: String);
     procedure ECodFormaPagamentoRetorno(Retorno1, Retorno2: String);
+    procedure GradeGetCellColor(Sender: TObject; ARow, ACol: Integer;
+      AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
   private
     { Private declarations }
     VprProdutoAnterior : string;
@@ -278,6 +286,7 @@ begin
   CProcessaAutomatico.Checked := VprDContrato.IndProcessamentoAutomatico;
   EComissaoVendedor.Avalor := VprDContrato.PerComissao;
   EComissaoPreposto.AValor := VprDContrato.PerComissaoPreposto;
+  EEmail.Text := VprDContrato.desEmail;
 end;
 
 {******************************************************************************}
@@ -314,6 +323,7 @@ begin
   VprDContrato.IndProcessamentoAutomatico := CProcessaAutomatico.Checked;
   VprDContrato.PerComissao := EComissaoVendedor.AValor;
   VprDContrato.PerComissaoPreposto := EComissaoPreposto.AValor;
+  VprDContrato.DesEmail := EEmail.Text;
 end;
 
 {******************************************************************************}
@@ -660,6 +670,24 @@ begin
   EDatCancelamento.Clear;
 end;
 
+{******************************************************************************}
+procedure TFNovoContratoCliente.GradeGetCellColor(Sender: TObject; ARow,
+  ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+var
+  VpfDItem : TRBDContratoItem;
+begin
+  if (ARow > 0) and (Acol > 0) then
+  begin
+    if VprDContrato.ItensContrato.Count >0 then
+    begin
+      VpfDItem := TRBDContratoItem(VprDContrato.ItensContrato.Items[arow-1]);
+      if VpfDItem.DatDesativacao > MontaData(1,1,1900) then
+        ABrush.Color := $008080FF;
+    end;
+  end;
+end;
+
+{******************************************************************************}
 procedure TFNovoContratoCliente.GradeGetEditMask(Sender: TObject; ACol,
   ARow: Integer; var Value: String);
 begin

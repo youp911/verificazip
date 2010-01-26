@@ -579,42 +579,39 @@ var
   VpfDFracao : TRBDFracaoOrdemProducao;
   VpfSomenteASeparar : Boolean;
 begin
-  if (varia.TipoOrdemProducao = toFracionada) then
-  begin
-    if OrdemProducaoSEQORD.AsInteger <> 0 then
-    begin
-      if OrdemProducaoDATIMPRESSAOFICHA.AsDateTime < MontaData(1,1,1900) then
-        FunOrdemProducao.SetaFichaConsumoImpressa(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger);
-      FunCrystal.ImprimeRelatorio(varia.PathRelatorios+'\Ordem Produção\XX_CONSUMOMATERIAPRIMA.rpt',[OrdemProducaoEMPFIL.AsString,OrdemProducaoSEQORD.AsString]);
-      AtualizaConsulta(false);
-    end;
-  end
+  if TWinControl(Sender).Tag = 1 then
+    VpfSomenteASeparar := false
   else
+    VpfSomenteASeparar := true;
+  if PageControl1.ActivePage = PFracionada then
+  begin
     if (varia.TipoOrdemProducao = toSubMontagem) then
     begin
-      if TWinControl(Sender).Tag = 1 then
-        VpfSomenteASeparar := false
-      else
-        VpfSomenteASeparar := true;
-      if PageControl1.ActivePage = PFracionada then
+      FunOrdemProducao.GeraImpressaoConsumoFracao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,false);
+      dtRave := TdtRave.create(self);
+      dtRave.ImprimeConsumoSubmontagem(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,VpfSomenteASeparar,false);
+      dtRave.free;
+    end
+    else
+      if (varia.TipoOrdemProducao = toFracionada) then
       begin
-        FunOrdemProducao.GeraImpressaoConsumoFracao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,false);
+        FunOrdemProducao.GeraImpressaoConsumoFracao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,0,false);
         dtRave := TdtRave.create(self);
-        dtRave.ImprimeConsumoSubmontagem(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,OrdemProducaoSEQFRACAO.AsInteger,VpfSomenteASeparar,false);
+        dtRave.ImprimeConsumoFracionada(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,VpfSomenteASeparar);
         dtRave.free;
-      end
-      else
-      begin
-        if (TObject(Arvore.Selected.Data) is TRBDFracaoOrdemProducao) then
-        begin
-          VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.Data);
-          FunOrdemProducao.GeraImpressaoConsumoFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,false);
-          dtRave := TdtRave.create(self);
-          dtRave.ImprimeConsumoSubmontagem(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,VpfSomenteASeparar,false);
-          dtRave.free;
-        end;
       end;
+  end
+  else
+  begin
+    if (TObject(Arvore.Selected.Data) is TRBDFracaoOrdemProducao) then
+    begin
+      VpfDFracao := TRBDFracaoOrdemProducao(Arvore.Selected.Data);
+      FunOrdemProducao.GeraImpressaoConsumoFracao(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,false);
+      dtRave := TdtRave.create(self);
+      dtRave.ImprimeConsumoSubmontagem(VpfDFracao.CodFilial,VpfDFracao.SeqOrdemProducao,VpfDFracao.SeqFracao,VpfSomenteASeparar,false);
+      dtRave.free;
     end;
+  end;
 end;
 
 {******************************************************************************}
@@ -652,9 +649,17 @@ end;
 
 {******************************************************************************}
 procedure TFOrdemProducaoGenerica.BImprimirEtiquetasClick(Sender: TObject);
+var
+  VpfDOrdemProducao : TRBDOrdemProducao;
 begin
   if OrdemProducaoSEQORD.AsInteger <> 0 then
-    FunOrdemProducao.ImprimeEtiquetasOrdemProducao(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger);
+  begin
+    VpfDOrdemProducao := TRBDOrdemProducao.cria;
+    FunOrdemProducao.CarDOrdemProducaoBasica(OrdemProducaoEMPFIL.AsInteger,OrdemProducaoSEQORD.AsInteger,VpfDOrdemProducao);
+    FunOrdemProducao.CarDOrdemCorte(VpfDOrdemProducao);
+    FunOrdemProducao.ImprimeEtiquetasOrdemProducao(VpfDOrdemProducao);
+    VpfDOrdemProducao.Free;
+  end;
 end;
 
 {******************************************************************************}

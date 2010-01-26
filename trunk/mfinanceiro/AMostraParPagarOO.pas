@@ -70,7 +70,6 @@ type
     VprDParcela : TRBDParcelaCP;
     VprFormasPagamento : TList;
     procedure CarTitulosGrade;
-    procedure SomaTotalParcelasCP(VpaDContasAPagar : TRBDContasaPagar) ;
     procedure CarDParcela;
     function VerificaValores : Boolean;
     procedure CarFormasPagamento;
@@ -134,19 +133,6 @@ begin
   GParcelas.Cells[6,0] := 'Mora';
   GParcelas.Cells[7,0] := 'Juros';
   GParcelas.Cells[8,0] := 'Código Barras';
-end;
-
-{******************************************************************************}
-procedure TFMostraParPagarOO.SomaTotalParcelasCP(VpaDContasAPagar : TRBDContasaPagar) ;
-var
-  VpfLaco : Integer;
-begin
-  VpaDContasAPagar.ValTotal := 0;
-  for VpfLaco := 0 to VpaDContasAPagar.Parcelas.Count - 1 do
-  begin
-    VpaDContasAPagar.ValTotal := VpaDContasAPagar.ValTotal + TRBDParcelaCP(VpaDContasAPagar.Parcelas.Items[VpfLaco]).ValParcela;
-  end;
-  EValTotal.AValor := VprDContasAPagar.ValTotal;
 end;
 
 
@@ -287,7 +273,7 @@ begin
   GParcelas.row := 1;
   GParcelas.ALinha := 1;
   VprCarregandoTela := false;
-  SomaTotalParcelasCP(VprDContasAPagar);
+  EValTotal.AValor := FunContasAPagar.SomaTotalParcelas(VprDContasAPagar);
   VprValorTotalInicial := VprDContasAPagar.ValTotal;
   EValTotal.AValor := VprDContasAPagar.ValTotal;
   showmodal;
@@ -369,7 +355,14 @@ begin
   if VpaValidos then
   begin
     CarDParcela;
-    SomaTotalParcelasCP(VprDContasAPagar);
+    EValTotal.AValor := FunContasAPagar.SomaTotalParcelas(VprDContasAPagar);
+    if (VprValorTotalInicial <> VprDContasAPagar.ValTotal) and
+       (GParcelas.ALinha < VprDContasAPagar.Parcelas.Count)  then
+    begin
+      FunContasAPagar.AjustaValorUltimaParcela(VprDContasAPagar,VprValorTotalInicial);
+      GParcelasCarregaItemGrade(Gparcelas,VprDContasAPagar.Parcelas.Count);
+      EValTotal.AValor := FunContasAPagar.SomaTotalParcelas(VprDContasAPagar);
+    end;
   end;
 end;
 

@@ -45,10 +45,6 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       OnChange = PageControl1Change
       object PFracionada: TTabSheet
         Caption = 'Fracionada'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object GridIndice1: TGridIndice
           Left = 0
           Top = 0
@@ -273,10 +269,6 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
       object PSubMontagem: TTabSheet
         Caption = 'Sub Montagem'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Arvore: TTreeView
           Left = 0
           Top = 0
@@ -495,10 +487,6 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
         Caption = 'Impress'#227'o'
         ImageIndex = 2
         TabVisible = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object GImpressao: TRBStringGridColor
           Left = 0
           Top = 0
@@ -564,7 +552,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     Caption = '   Ordens de Produ'#231#227'o   '
     Font.Charset = ANSI_CHARSET
     Font.Color = clWhite
-    Font.Height = -27
+    Font.Height = -24
     Font.Name = 'Times New Roman'
     Font.Style = [fsBold]
     ParentFont = False
@@ -1881,7 +1869,7 @@ object FOrdemProducaoGenerica: TFOrdemProducaoGenerica
     Left = 416
     Top = 8
     Bitmap = {
-      494C0101070009000C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107000900180010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -942,6 +942,7 @@ begin
       VpfDadoCP.CodCondicaoPagamento := VpaDNotaFor.CodCondicaoPagamento;
       VpfDadoCP.PerDescontoAcrescimo := 0;
       VpfDadoCP.IndMostrarParcelas := true;
+      VpfDadoCP.ValTotal := VpaDNotaFor.ValTotal;
       VpfDadoCP.ValParcela := VpaDNotaFor.ValTotal / Sistema.RQtdParcelasCondicaoPagamento(VpaDNotaFor.CodCondicaoPagamento);
       VpfDadoCP.DesTipFormaPagamento := VpaDNotaFor.TipFormaPagamento;
       VpfDadoCP.IndBaixarConta := FunContasAPagar.FlagBaixarContaFormaPagamento(VpaDNotaFor.CodFormaPagamento);

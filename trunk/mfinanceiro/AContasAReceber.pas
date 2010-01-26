@@ -385,7 +385,7 @@ procedure TFContasaReceber.FormCreate(Sender: TObject);
 begin
   VprOrdem := ' order by MCR.D_DAT_VEN';
   FunImpressao := TFuncoesImpressao.Criar(self,FPrincipal.BaseDados);
-   SitPar.ItemIndex := 7;
+   SitPar.ItemIndex := 8;
    RPeriodo.ItemIndex := 0;
    VprMostrarContas := false;
    VprPressionadoR := false;
@@ -718,6 +718,7 @@ begin
        4 : VpaSelect.add(' and MCR.D_DAT_VEN > '+ SQLTextoDataAAAAMMMDD(Date) +' and MCR.D_DAT_PAG is null ' );
        5 : VpaSelect.add(' and MCR.C_IND_REM = ''N''' );
        6 : VpaSelect.add(' and MCR.C_IND_RET is null');
+       7 : VpaSelect.add(' and MCR.C_FUN_PER = ''S''');
      end;
      // filtro empresa / filial
      if ECodFilial.Text <> '' then

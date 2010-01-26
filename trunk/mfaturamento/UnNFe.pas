@@ -173,15 +173,19 @@ var
   VpfNomArquivo : String;
 begin
   result := '';
-  if ExisteArquivo(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml') and
-     (VpaDNota.DesChaveNFE <> '') then
-    VpfNomArquivo := VpaDNota.DesChaveNFE+'-nfe.xml'
-  else
-    if ExisteArquivo(Varia.PathVersoes+'\nfe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml') and
+   if ExisteArquivo(Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml') and
        (VpaDNota.DesChaveNFE <> '') then
-      VpfNomArquivo := FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml'
+    VpfNomArquivo := Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml'
+  else
+    if ExisteArquivo(Varia.PathVersoes+'\nfe\'+VpaDNota.DesChaveNFE+'-nfe.xml') and
+       (VpaDNota.DesChaveNFE <> '') then
+      VpfNomArquivo := VpaDNota.DesChaveNFE+'-nfe.xml'
     else
-      VpfNomArquivo := IntToStr(VpaDNota.NumNota)+'-NFe.xml';
+      if ExisteArquivo(Varia.PathVersoes+'\nfe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml') and
+         (VpaDNota.DesChaveNFE <> '') then
+        VpfNomArquivo := FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml'
+      else
+        VpfNomArquivo := IntToStr(VpaDNota.NumNota)+'-NFe.xml';
 
   if not ExisteArquivo(Varia.PathVersoes+'\nfe\'+NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf') then
     result := 'Falta arquivo "'+Varia.PathVersoes+'\nfe\'+NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf"';
@@ -196,7 +200,7 @@ begin
     VpfAnexo.ExtraHeaders.Values['content-id'] := NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf';
     VpfAnexo.DisplayName := NFe.NotasFiscais.Items[0].NFe.infNFe.ID+'.pdf';
 
-    VpfAnexo := TIdAttachmentfile.Create(VprMensagem.MessageParts,Varia.PathVersoes+'\nfe\'+VpfNomArquivo);
+    VpfAnexo := TIdAttachmentfile.Create(VprMensagem.MessageParts,VpfNomArquivo);
     VpfAnexo.ContentType := 'application/xml';
     VpfAnexo.ContentDisposition := 'inline';
     VpfAnexo.DisplayName:=VpfNomArquivo;
@@ -219,8 +223,8 @@ var
 begin
   result := '';
   NFe.Configuracoes.Geral.PathSalvar := Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao) ;
-  if ExisteArquivo(Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+VpaDNota.DesChaveNFE+'-nfe.xml') then
-    NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+VpaDNota.DesChaveNFE+'-nfe.xml')
+  if ExisteArquivo(Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml') then
+    NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\NFe\'+DeletaChars(DeletaChars(DeletaChars(Varia.CNPJFilial,'.'),'-'),'/')+'\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+'\'+VpaDNota.DesChaveNFE+'-nfe.xml')
   else
     if ExisteArquivo(Varia.PathVersoes+'\NFe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+VpaDNota.DesChaveNFE+'-nfe.xml') then
       NFe.NotasFiscais.LoadFromFile(Varia.PathVersoes+'\NFe\'+FormatDateTime('YYYYMM',VpaDNota.DatEmissao)+VpaDNota.DesChaveNFE+'-nfe.xml')
@@ -824,7 +828,15 @@ begin
     nfe.DANFE := nil;
     if config.EmiteNFe then
     begin
-      NFe.Enviar(0);
+      try
+        NFe.Enviar(0);
+      except
+        on e : exception do
+        begin
+          aviso('erro no envio');
+//          result := E.Message;
+        end;
+      end;
       VpaDNota.NumReciboNFE := nfe.WebServices.Retorno.Recibo;
       VpaDNota.NumProtocoloNFE := nfe.WebServices.Retorno.Protocolo;
       VpaDNota.CodMotivoNFE := IntTostr(nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].cStat);
@@ -838,6 +850,7 @@ begin
           VpaDNota.CodMotivoNFE := IntToStr(nfe.WebServices.Consulta.cStat);
           VpaDNota.NumProtocoloNFE := nfe.WebServices.Consulta.Protocolo;
           VpaDNota.DesMotivoNFE := nfe.WebServices.Consulta.XMotivo;
+          result := '';
         end;
       end;
     end;

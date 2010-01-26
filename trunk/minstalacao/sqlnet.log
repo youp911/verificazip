@@ -4709,3 +4709,136 @@ Fatal NI connect error 12545, connecting to:
     TNS-00515: A conexão falhou porque o objeto ou host de destino não existe
     nt secondary err code: 1004
     nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12170.
+
+  VERSION INFORMATION:
+	TNS for 32-bit Windows: Version 10.2.0.1.0 - Production
+	Windows NT TCP/IP NT Protocol Adapter for 32-bit Windows: Version 10.2.0.1.0 - Production
+  Time: 18-JAN-2010 07:24:23
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12535
+    TNS-12535: TNS:operação sofreu timeout
+    ns secondary err code: 12560
+    nt main err code: 505
+    TNS-00505: Operação sofreu timeout
+    nt secondary err code: 60
+    nt OS err code: 0
+  Client address: <unknown>
+
+
+***********************************************************************
+Fatal NI connect error 12170.
+
+  VERSION INFORMATION:
+	TNS for 32-bit Windows: Version 10.2.0.1.0 - Production
+	Windows NT TCP/IP NT Protocol Adapter for 32-bit Windows: Version 10.2.0.1.0 - Production
+  Time: 18-JAN-2010 16:08:37
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12535
+    TNS-12535: TNS:operação sofreu timeout
+    ns secondary err code: 12560
+    nt main err code: 505
+    TNS-00505: Operação sofreu timeout
+    nt secondary err code: 60
+    nt OS err code: 0
+  Client address: (ADDRESS=(PROTOCOL=tcp)(HOST=192.168.0.250)(PORT=1521))
+
+
+***********************************************************************
+Fatal NI connect error 12170.
+
+  VERSION INFORMATION:
+	TNS for 32-bit Windows: Version 10.2.0.1.0 - Production
+	Windows NT TCP/IP NT Protocol Adapter for 32-bit Windows: Version 10.2.0.1.0 - Production
+  Time: 19-JAN-2010 16:57:13
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12535
+    TNS-12535: TNS:operação sofreu timeout
+    ns secondary err code: 12560
+    nt main err code: 505
+    TNS-00505: Operação sofreu timeout
+    nt secondary err code: 60
+    nt OS err code: 0
+  Client address: (ADDRESS=(PROTOCOL=tcp)(HOST=192.168.0.107)(PORT=1521))
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=SERVIDOR)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=XE)(CID=(PROGRAM=D:\Eficacia\Siscorp\minstalacao\Financeiro.exe)(HOST=BUDAGHP)(USER=Rafael?Budag))))
+
+  VERSION INFORMATION:
+	TNS for 32-bit Windows: Version 10.2.0.1.0 - Production
+	Windows NT TCP/IP NT Protocol Adapter for 32-bit Windows: Version 10.2.0.1.0 - Production
+  Time: 22-JAN-2010 13:26:28
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: A conexão falhou porque o objeto ou host de destino não existe
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: A conexão falhou porque o objeto ou host de destino não existe
+    nt secondary err code: 1004
+    nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=SERVIDOR)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=XE)(CID=(PROGRAM=D:\Eficacia\Siscorp\minstalacao\pontoloja.exe)(HOST=BUDAGHP)(USER=Rafael?Budag))))
+
+  VERSION INFORMATION:
+	TNS for 32-bit Windows: Version 10.2.0.1.0 - Production
+	Windows NT TCP/IP NT Protocol Adapter for 32-bit Windows: Version 10.2.0.1.0 - Production
+  Time: 25-JAN-2010 20:46:48
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: A conexão falhou porque o objeto ou host de destino não existe
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: A conexão falhou porque o objeto ou host de destino não existe
+    nt secondary err code: 1004
+    nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=SRV-DADOS)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=XE)(CID=(PROGRAM=D:\Eficacia\Siscorp\minstalacao\SisCorp.exe)(HOST=BUDAGHP)(USER=Rafael?Budag))))
+
+  VERSION INFORMATION:
+	TNS for 32-bit Windows: Version 10.2.0.1.0 - Production
+	Windows NT TCP/IP NT Protocol Adapter for 32-bit Windows: Version 10.2.0.1.0 - Production
+  Time: 26-JAN-2010 14:25:40
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: A conexão falhou porque o objeto ou host de destino não existe
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: A conexão falhou porque o objeto ou host de destino não existe
+    nt secondary err code: 1001
+    nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=SRV-DADOS)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=XE)(CID=(PROGRAM=D:\Eficacia\Siscorp\minstalacao\SisCorp.exe)(HOST=BUDAGHP)(USER=Rafael?Budag))))
+
+  VERSION INFORMATION:
+	TNS for 32-bit Windows: Version 10.2.0.1.0 - Production
+	Windows NT TCP/IP NT Protocol Adapter for 32-bit Windows: Version 10.2.0.1.0 - Production
+  Time: 26-JAN-2010 14:25:43
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: A conexão falhou porque o objeto ou host de destino não existe
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: A conexão falhou porque o objeto ou host de destino não existe
+    nt secondary err code: 1001
+    nt OS err code: 0

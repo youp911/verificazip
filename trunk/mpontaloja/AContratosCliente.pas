@@ -33,6 +33,7 @@ type
     PanelColor3: TPanelColor;
     Label22: TLabel;
     Shape1: TShape;
+    PanelColor2: TPanelColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);

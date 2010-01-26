@@ -249,6 +249,10 @@ type
     MAdicionarRomaneioSeparacao: TMenuItem;
     N9: TMenuItem;
     ImprimirRomaneioSeparao1: TMenuItem;
+    ERepresentada: TRBEditLocaliza;
+    Label27: TLabel;
+    SpeedButton12: TSpeedButton;
+    Label28: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FlagClick(Sender: TObject);
@@ -1470,6 +1474,8 @@ begin
                                 ' AND MOV.I_LAN_ORC = ORC.I_LAN_ORC) ');
     if EOrdemCompra.Text <> '' then
       VpaSelect.add(' and ORC.C_ORD_COM = '''+EOrdemCompra.Text+'''');
+    if ERepresentada.AInteiro <> 0 then
+      VpaSelect.Add(' and ORC.I_COD_REP = '+ERepresentada.Text)
   end;
   if (puSomenteClientesdoVendedor in varia.PermissoesUsuario) then
     VpaSelect.Add('and ORC.I_COD_VEN in '+Varia.CodigosVendedores) ;
@@ -2049,18 +2055,12 @@ procedure TFCotacao.BFiltrosClick(Sender: TObject);
 begin
   if BFiltros.Caption = '>>' then
   begin
-    if screen.Height = 768 then
-      PanelColor1.Height := 340
-    else
-      PanelColor1.Height := 264;
+    PanelColor1.Height := ERepresentada.Top + ERepresentada.Height + 5;
     BFiltros.Caption := '<<';
   end
   else
   begin
-    if screen.Height = 768 then
-      PanelColor1.Height := 67
-    else
-      PanelColor1.Height := 52;
+    PanelColor1.Height := ECotacao.Top + ECotacao.Height + 2;
     BFiltros.Caption := '>>';
   end;
 end;

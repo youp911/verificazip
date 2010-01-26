@@ -323,7 +323,7 @@ begin
     if Amostra.State in [dsedit,dsinsert] then
       AmostraCODCLASSIFICACAO.AsString := VpfCodClassificacao;
     LNomClassificacao.Caption := VpfNomClassificacao;
-    if Amostra.State = dsinsert then
+    if (Amostra.State = dsinsert) and (config.CodigoAmostraGeradoPelaClassificacao) then
       AmostraCODAMOSTRA.AsInteger := FunAmostra.RCodAmostraDisponivel(AmostraCODCLASSIFICACAO.AsString);
     CarNomeImagemPadrao(VpfNomClassificacao);
   end
@@ -447,7 +447,7 @@ begin
       end
       else
         LNomClassificacao.Caption := VpfNomClassificacao;
-      if Amostra.State = dsinsert then
+      if (Amostra.State = dsinsert) and config.CodigoAmostraGeradoPelaClassificacao then
         AmostraCODAMOSTRA.AsInteger := FunAmostra.RCodAmostraDisponivel(AmostraCODCLASSIFICACAO.AsString);
     end
     else

@@ -246,6 +246,8 @@ type
     DBCheckBox70: TDBCheckBox;
     CadGruposC_GER_ALC: TWideStringField;
     ScrollBox2: TScrollBox;
+    DBCheckBox71: TDBCheckBox;
+    CadGruposC_EST_INV: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadGruposAfterInsert(DataSet: TDataSet);

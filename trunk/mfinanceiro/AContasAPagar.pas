@@ -213,8 +213,6 @@ type
     Label9: TLabel;
     DBText2: TDBText;
     MovParcelasC_BOL_REC: TWideStringField;
-    ENumCheque: TEditColor;
-    Label13: TLabel;
     DBText3: TDBText;
     Label19: TLabel;
     BFiltros: TBitBtn;
@@ -667,8 +665,6 @@ begin
   //15/06/2007 foi colocado o filtro em comentario porque estava muito lento para atualizar a consulta do contas a pagar.
 
 
-    if ENumCheque.Text <> '' then
-      VpaSelect.add(' and MCP.C_NRO_DOC = '''+ENumCheque.Text+''' AND MCP.C_NRO_CON IS NOT NULL ');
     if EFormaPagamento.AInteiro <> 0 then
       VpaSelect.add(' and MCP.I_COD_FRM = '+EFormaPagamento.Text);
     if  ENotaFiscal.AsInteger <> 0 Then
@@ -1036,14 +1032,14 @@ begin
   FManutencaoCP := TFManutencaoCP.CriarSDI(self, '', FPrincipal.VerificaPermisao('FManutencaoCP'));
   if paginas.ActivePage = TabNotas then
   begin
-    FManutencaoCP.CarregaConta(CadNotasI_LAN_APG.AsInteger);
+    FManutencaoCP.CarregaConta(CadNotasI_EMP_FIL.AsInteger,CadNotasI_LAN_APG.AsInteger);
     FManutencaoCP.ShowModal;
     AtualizaSQLTabela(CadNotas);
     AtualizaSQLTabela(movnotas);
   end
   else
   begin
-    FManutencaoCP.CarregaConta(MovParcelasI_LAN_APG.AsInteger);
+    FManutencaoCP.CarregaConta(MovParcelasI_EMP_FIL.AsInteger,MovParcelasI_LAN_APG.AsInteger);
     FManutencaoCP.ShowModal;
     AtualizaSQLTabela(MovParcelas);
   end;

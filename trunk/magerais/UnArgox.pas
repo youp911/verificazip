@@ -34,6 +34,8 @@ Type
       function ImprimeEtiquetaProduto8X15(VpaEtiquetas : TList) : Integer;
       function ImprimeEtiquetaProduto50X25(VpaEtiquetas : TList) : Integer;
       function ImprimeEtiquetaKairosTexto(VpaEtiquetas : TList) : Integer;
+      function ImprimeEtiquetaOrdemCorte25X50(VpaDordemOrdemProducao : TRBDOrdemProducao):string;
+      function ImprimeEtiquetaOrdemProducao25X50(VpaDordemOrdemProducao : TRBDOrdemProducao):string;
       function ImprimeEtiquetaProduto54X28(VpaEtiquetas : TList) : Integer;
       function ImprimeEtiquetaProduto35X89(VpaEtiquetas : TList) : Integer;
       function ImprimeEtiquetaProduto34X23(VpaEtiquetas : TList) : Integer;
@@ -48,7 +50,7 @@ end;
 
 implementation
 
-Uses FunString, Constantes, UnOrdemProducao, unProdutos;
+Uses FunString, Constantes, UnOrdemProducao, unProdutos, unClientes;
 
 
 {******************************************************************************}
@@ -414,6 +416,153 @@ begin
   if VpfColuna > -1 then
   begin
     result := A_Print_Out(1,1,1,1);
+  end;
+end;
+
+{******************************************************************************}
+function TRBFuncoesArgox.ImprimeEtiquetaOrdemCorte25X50(VpaDordemOrdemProducao: TRBDOrdemProducao): string;
+var
+  VpfPosicaoX : Integer;
+  VpfLacoOrdemCorte, VpfLacoFracao, VpfColuna: Integer;
+  VpfDOrdemCorteItem : TRBDOrdemCorteItem;
+  VpfDFracao : TRBDFracaoOrdemProducao;
+  VpfTexto  : AnsiString;
+  VpfDProduto : TRBDProduto;
+begin
+  Result := '';
+  VpfColuna := -1;
+  for VpfLacoOrdemCorte := 0 to VpaDordemOrdemProducao.OrdemCorte.Itens.Count - 1 do
+  begin
+    VpfDOrdemCorteItem := TRBDOrdemCorteItem(VpaDordemOrdemProducao.OrdemCorte.Itens.Items[VpfLacoOrdemCorte]);
+    VpfDOrdemCorteItem.NomCor := FunProdutos.RNomeCor(IntToStr(VpfDOrdemCorteItem.CodCor));
+    VpfDProduto := TRBDProduto.Cria;
+    FunProdutos.CarDProduto(VpfDProduto,Varia.CodigoEmpresa,VpaDordemOrdemProducao.CodEmpresafilial,VpfDOrdemCorteItem.SeqProduto);
+    if VpfDOrdemCorteItem.CodFaca <> 0 then
+    begin
+      for VpfLacofracao := 0 to VpaDordemOrdemProducao.Fracoes.Count - 1 do
+      begin
+        VpfDFracao := TRBDFracaoOrdemProducao(VpaDordemOrdemProducao.Fracoes.Items[VpfLacoFracao]);
+        begin
+          inc(VpfColuna);
+          if VpfColuna > 3 then
+          begin
+            A_Print_Out(1,1,1,1);
+            VpfColuna := -1;
+          end;
+          VpfPosicaoX := VpfColuna * 100;
+          A_Prn_Text(VpfPosicaoX+25,10,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('Fl'));
+          VpfTExto := IntToStr(VpaDordemOrdemProducao.CodEmpresafilial);
+          A_Prn_Text(VpfPosicaoX+25,35,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+          A_Prn_Text(VpfPosicaoX+25,65,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('OP'));
+          VpfTExto := FormatFloat('#,###,##0',VpaDordemOrdemProducao.SeqOrdem);
+          A_Prn_Text(VpfPosicaoX+25,90,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+          A_Prn_Text(VpfPosicaoX+25,140,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('Fra'));
+          VpfTExto := IntToStr(VpfDFracao.SeqFracao);
+          A_Prn_Text(VpfPosicaoX+25,170,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+
+          A_Prn_Text(VpfPosicaoX+45,10,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('Faca'));
+          VpfTExto := IntToStr(VpfDOrdemCorteItem.CodFaca);
+          A_Prn_Text(VpfPosicaoX+45,55,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+          A_Prn_Text(VpfPosicaoX+45,100,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('QTD'));
+          VpfTExto := FormatFloat('#,###,##0',VpfDOrdemCorteItem.QtdProduto * VpfDFracao.QtdProduto);
+          A_Prn_Text(VpfPosicaoX+45,150,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+
+          A_Prn_Text(VpfPosicaoX+55,10,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('MP'));
+          VpfTExto := VpfDProduto.CodProduto + '-'+VpfDProduto.NomProduto;
+          A_Prn_Text(VpfPosicaoX+55,35,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+
+          A_Prn_Text(VpfPosicaoX+65,10,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Cor'));
+          VpfTExto := IntToStr(VpfDOrdemCorteItem.CodCor) + '-'+VpfDOrdemCorteItem.NomCor;
+          A_Prn_Text(VpfPosicaoX+65,35,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+
+          A_Prn_Text(VpfPosicaoX+75,10,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Combinacao'));
+          VpfTExto := IntToStr(VpaDordemOrdemProducao.CodCor);
+          A_Prn_Text(VpfPosicaoX+75,65,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+        end;
+        if VpfColuna >= 3 then
+        begin
+          A_Print_Out(1,1,1,1);
+          VpfColuna := -1;
+        end;
+      end;
+    end;
+    VpfDProduto.Free;
+  end;
+  if VpfColuna > -1 then
+  begin
+    A_Print_Out(1,1,1,1);
+  end;
+end;
+
+{******************************************************************************}
+function TRBFuncoesArgox.ImprimeEtiquetaOrdemProducao25X50(VpaDordemOrdemProducao: TRBDOrdemProducao): string;
+var
+  VpfPosicaoX : Integer;
+  VpfLacoFracao, VpfColuna: Integer;
+  VpfDFracao : TRBDFracaoOrdemProducao;
+  VpfTexto  : AnsiString;
+  VpfDProduto : TRBDProduto;
+  VpfNomCliente : String;
+begin
+  Result := '';
+  VpfColuna := -1;
+  VpfNomCliente := FunClientes.RNomCliente(IntToStr(VpaDordemOrdemProducao.CodCliente));
+  VpfDProduto := TRBDProduto.Cria;
+  FunProdutos.CarDProduto(VpfDProduto,Varia.CodigoEmpresa,VpaDordemOrdemProducao.CodEmpresafilial,VpaDordemOrdemProducao.SeqProduto);
+  for VpfLacoFracao := 0 to VpaDordemOrdemProducao.Fracoes.Count - 1 do
+  begin
+    VpfDFracao := TRBDFracaoOrdemProducao(VpaDordemOrdemProducao.Fracoes.Items[VpfLacoFracao]);
+    inc(VpfColuna);
+    if VpfColuna > 3 then
+    begin
+      A_Print_Out(1,1,1,1);
+      VpfColuna := -1;
+    end;
+    VpfPosicaoX := VpfColuna * 100;
+    A_Prn_Text(VpfPosicaoX+25,10,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('Fl'));
+    VpfTExto := IntToStr(VpaDordemOrdemProducao.CodEmpresafilial);
+    A_Prn_Text(VpfPosicaoX+25,35,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+    A_Prn_Text(VpfPosicaoX+25,65,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('OP'));
+    VpfTExto := FormatFloat('#,###,##0',VpaDordemOrdemProducao.SeqOrdem);
+    A_Prn_Text(VpfPosicaoX+25,90,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+    A_Prn_Text(VpfPosicaoX+25,140,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('Fra'));
+    VpfTExto := IntToStr(VpfDFracao.SeqFracao);
+    A_Prn_Text(VpfPosicaoX+25,170,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+
+    A_Prn_Text(VpfPosicaoX+45,10,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('QTD'));
+    VpfTExto := FormatFloat('#,###,##0',VpfDFracao.QtdProduto)+' '+VpaDordemOrdemProducao.UMPedido;
+    A_Prn_Text(VpfPosicaoX+45,50,4,9,1,1,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+    A_Prn_Text(VpfPosicaoX+45,110,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('Lote'));
+    VpfTExto := IntToStr(VpfDFracao.SeqFracao)+'/'+IntToStr(VpaDordemOrdemProducao.Fracoes.Count);
+    A_Prn_Text(VpfPosicaoX+45,150,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+
+    A_Prn_Text(VpfPosicaoX+55,10,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Pro'));
+    VpfTExto := VpfDProduto.CodProduto + '-'+VpfDProduto.NomProduto;
+    A_Prn_Text(VpfPosicaoX+55,35,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+
+    A_Prn_Text(VpfPosicaoX+65,10,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Cor'));
+    VpfTExto := IntToStr(VpaDordemOrdemProducao.CodCor);
+    A_Prn_Text(VpfPosicaoX+65,35,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+    A_Prn_Text(VpfPosicaoX+65,120,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Entrega'));
+    VpfTExto := FormatDateTime('DD/MM/YY',VpaDordemOrdemProducao.DatEntregaPrevista);
+    A_Prn_Text(VpfPosicaoX+65,155,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+
+    A_Prn_Text(VpfPosicaoX+75,10,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Cliente'));
+    VpfTExto := VpfNomCliente;
+    A_Prn_Text(VpfPosicaoX+75,45,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+
+    VpfTexto := FloattoStr(VpfDFracao.CodBarras);
+    A_Prn_Barcode(VpfPosicaoX+105,24,4,PAnsiChar('D'),3,6,17,PAnsiChar('N'),1,PAnsiChar(VpfTexto));
+  end;
+  if VpfColuna >= 3 then
+  begin
+    A_Print_Out(1,1,1,1);
+    VpfColuna := -1;
+  end;
+  VpfDProduto.Free;
+  if VpfColuna > -1 then
+  begin
+    A_Print_Out(1,1,1,1);
   end;
 end;
 

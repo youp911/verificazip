@@ -65,6 +65,7 @@ const
   CNPJ_VENETO = '95.757.399/0001-66';
   CNPJ_PERFOR = '09.004.720/0001-08';
   CNPJ_BLOCONORTE = '02.994.136/0001-90';
+  CNPJ_HORNBURG = '01.533.294/0001-80';
 
 type
 
@@ -81,7 +82,7 @@ type
     puSomenteClientesdoVendedor,puFIBloquearClientes, puVendedorAlteraContrato, puPLImprimirPedidoDuasVezes, puPLImprimirValoresRelatorioPedidosPendentes,
     puESPlanoCorte,puCRSomenteCadastraProspect,puESColetaQtdProduzidoOP,puESReprocessarProdutividade, puESAcertoEstoque,
     puESMenuGerencial, puESRegerarProjeto,puSomenteCondicoesPgtoAutorizadas, puESCadastrarCelulaTrabalho, puESReservaEstoque, puESConsultaProduto,
-    puAlterarLimiteCredito);
+    puAlterarLimiteCredito, puESInventario);
 
   TRBDPermisaoUsuario = set of TRBDOpcoesPermisaoUsuario;
   TRBDTipoValorComissao = (vcTotalNota,vcTotalProdutos);
@@ -477,6 +478,7 @@ type
     Grafica : Boolean;
     SoftwareHouse : boolean;
     RotuladorasAutomatizadas : Boolean;
+    RepresentanteComercial : Boolean;
     UtilizarPercentualConsulta : Boolean;
     ResponsavelLeituraLocacao : Boolean;
     ServidorInternetRequerAutenticacao : Boolean;
@@ -961,6 +963,8 @@ begin
    VpaDPermissao := VpaDPermissao + [puESConsultaProduto];
   if TipoCheck(VarAux.FieldByName('C_GER_ALC').AsString) then
    VpaDPermissao := VpaDPermissao + [puAlterarLimiteCredito];
+  if TipoCheck(VarAux.FieldByName('C_EST_INV').AsString) then
+   VpaDPermissao := VpaDPermissao + [puESInventario];
 
   config.UtilizarPercentualConsulta := TipoCheck(VarAux.fieldByName('C_IND_PER').AsString);
   config.ResponsavelLeituraLocacao := TipoCheck(VarAux.fieldByName('C_RES_LEL').AsString);
@@ -1142,6 +1146,7 @@ begin
       Grafica := TipoCheck(VpfTabela.fieldByName('C_IND_GRA').AsString);
       SoftwareHouse := TipoCheck(VpfTabela.fieldByName('C_IND_SOF').AsString);
       RotuladorasAutomatizadas := TipoCheck(VpfTabela.fieldByName('C_IND_ROT').AsString);
+      RepresentanteComercial := TipoCheck(VpfTabela.fieldByName('C_IND_REC').AsString);
       AlterarCotacaoSomentenoDiaEmissao := TipoCheck(VpfTabela.fieldByName('C_ALC_SDE').AsString);
       ObservacaoFiscalNaCotacao := TipoCheck(VpfTabela.fieldByName('C_COT_TFI').AsString);
       UtilizarMailing := TipoCheck(VpfTabela.fieldByName('C_IND_MAI').AsString);

@@ -32,7 +32,6 @@ object FAlteraEstagioCotacao: TFAlteraEstagioCotacao
     ParentFont = False
     TabOrder = 0
     AConfiguracoes = FPrincipal.CorPainelGra
-    ExplicitTop = 8
   end
   object PanelColor1: TPanelColor
     Left = 0
@@ -46,6 +45,7 @@ object FAlteraEstagioCotacao: TFAlteraEstagioCotacao
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
+    ParentBackground = False
     ParentFont = False
     TabOrder = 1
     AUsarCorForm = False
@@ -409,6 +409,7 @@ object FAlteraEstagioCotacao: TFAlteraEstagioCotacao
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
+    ParentBackground = False
     ParentFont = False
     TabOrder = 2
     AUsarCorForm = False

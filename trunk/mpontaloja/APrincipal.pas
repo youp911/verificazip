@@ -214,7 +214,7 @@ type
     ConsultaProdutosCliente1: TMenuItem;
     ComparativoAnoCliente1: TMenuItem;
     N39: TMenuItem;
-    Representada1: TMenuItem;
+    MRepresentada: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -392,6 +392,9 @@ begin
   end;
   if not config.Grafica then
     MOrcamentoGrafica.Visible := false;
+  if MRepresentada.Visible then
+     AlterarVisibleDet([MRepresentada,N39] ,config.RepresentanteComercial);
+
 end;
 
 {************ abre base de dados ********************************************* }

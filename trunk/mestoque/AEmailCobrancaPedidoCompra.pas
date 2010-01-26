@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   StdCtrls, Buttons, ExtCtrls, Componentes1, PainelGradiente, ComCtrls,
-  Grids, DBGrids, Tabela, DBKeyViolation, Db, DBTables;
+  Grids, DBGrids, Tabela, DBKeyViolation, Db, DBTables, DBClient;
 
 type
   TFEmailCobrancaPedidoCompra = class(TFormularioPermissao)
@@ -21,26 +21,26 @@ type
     GECobrancaCompraCorpo: TGridIndice;
     GECobrancaCompraItem: TGridIndice;
     Splitter1: TSplitter;
-    ECOBRANCACOMPRACORPO: TQuery;
+    ECOBRANCACOMPRACORPO: TSQL;
     DataECOBRANCACOMPRACORPO: TDataSource;
     DataECOBRANCACOMPRAITEM: TDataSource;
-    ECOBRANCACOMPRAITEM: TQuery;
-    ECOBRANCACOMPRACORPOSEQEMAIL: TIntegerField;
-    ECOBRANCACOMPRACORPODATENVIO: TDateTimeField;
-    ECOBRANCACOMPRACORPOQTDENVIADOS: TIntegerField;
-    ECOBRANCACOMPRACORPOQTDERRO: TIntegerField;
-    ECOBRANCACOMPRACORPOC_NOM_USU: TStringField;
+    ECOBRANCACOMPRAITEM: TSQL;
+    ECOBRANCACOMPRACORPOSEQEMAIL: TFMTBCDField;
+    ECOBRANCACOMPRACORPOQTDENVIADOS: TFMTBCDField;
+    ECOBRANCACOMPRACORPOQTDERRO: TFMTBCDField;
+    ECOBRANCACOMPRACORPOC_NOM_USU: TWideStringField;
     BImprimir: TBitBtn;
     BEnviar: TBitBtn;
-    ECOBRANCACOMPRAITEMINDENVIADO: TStringField;
-    ECOBRANCACOMPRAITEMNOMFORNECEDOR: TStringField;
-    ECOBRANCACOMPRAITEMSEQITEM: TIntegerField;
-    ECOBRANCACOMPRAITEMCODFILIAL: TIntegerField;
-    ECOBRANCACOMPRAITEMSEQPEDIDO: TIntegerField;
-    ECOBRANCACOMPRAITEMNOMFORNECEDOR_1: TStringField;
-    ECOBRANCACOMPRAITEMDESEMAIL: TStringField;
-    ECOBRANCACOMPRAITEMDESSTATUS: TStringField;
-    ECOBRANCACOMPRACORPOCODFILIAL: TIntegerField;
+    ECOBRANCACOMPRAITEMINDENVIADO: TWideStringField;
+    ECOBRANCACOMPRAITEMNOMFORNECEDOR: TWideStringField;
+    ECOBRANCACOMPRAITEMSEQITEM: TFMTBCDField;
+    ECOBRANCACOMPRAITEMCODFILIAL: TFMTBCDField;
+    ECOBRANCACOMPRAITEMSEQPEDIDO: TFMTBCDField;
+    ECOBRANCACOMPRAITEMNOMFORNECEDOR_1: TWideStringField;
+    ECOBRANCACOMPRAITEMDESEMAIL: TWideStringField;
+    ECOBRANCACOMPRAITEMDESSTATUS: TWideStringField;
+    ECOBRANCACOMPRACORPOCODFILIAL: TFMTBCDField;
+    ECOBRANCACOMPRACORPODATENVIO: TSQLTimeStampField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);

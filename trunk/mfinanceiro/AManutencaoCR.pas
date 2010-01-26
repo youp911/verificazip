@@ -108,6 +108,7 @@ type
     BEstornaDesconto: TBitBtn;
     MovContasAReceberD_DAT_PRO: TSQLTimeStampField;
     MovContasAReceberI_COD_CLI: TFMTBCDField;
+    BEstornaFundoPerdido: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EDuplicataSelect(Sender: TObject);
@@ -140,6 +141,7 @@ type
     procedure MovContasAReceberD_DAT_VENChange(Sender: TField);
     procedure BEstornaDescontoClick(Sender: TObject);
     procedure EClienteRetorno(Retorno1, Retorno2: String);
+    procedure BEstornaFundoPerdidoClick(Sender: TObject);
   private
     VprDataVencimentoInicio : TDateTime;
     VprTransacao : TTransactionDesc;
@@ -439,6 +441,7 @@ begin
   BExcuiTitulo.Enabled := (MovContasAReceberN_VLR_PAG.AsFloat = 0 )and (MovContasAReceberI_NRO_PAR.AsInteger <> 0);
   BEstornar.Enabled := (MovContasAReceberD_DAT_PAG.AsFloat <> 0);
   BEstornaDesconto.Enabled := (MovContasAReceberC_DUP_DES.AsString = 'S');
+  BEstornaFundoPerdido.Enabled := (MovContasAReceberC_FUN_PER.AsString = 'S');
   BPagamento.Enabled := (MovContasAReceberD_DAT_PAG.AsFloat = 0 ) and (MovContasAReceberI_NRO_PAR.AsInteger <> 0);
   GradeMov.ReadOnly := MovContasAReceberN_VLR_PAG.AsFloat <> 0;
   BAtleraFormaPagamento.Enabled := BPagamento.Enabled;
@@ -643,6 +646,29 @@ begin
     begin
       RollbackTransacao;
       aviso('ESTORNO DO DESCONTO CANCELADO!!!'#13#13+VpfREsultado);
+    end
+    else
+    begin
+      AtualizaSQLTabela(MovContasAReceber);
+      CommitTransacao;
+    end;
+    Tempo.Fecha;
+  end;
+end;
+
+procedure TFManutencaoCR.BEstornaFundoPerdidoClick(Sender: TObject);
+var
+  VpfResultado : string;
+begin
+  if Confirmacao('Tem certeza que deseja estornar o Fundo Perdido?') then
+  begin
+    AbreTransacao;
+    Tempo.Execute('Estornando Fundo Perdido ... ');
+    VpfResultado := FunContasAreceber.EstornaFundoPerdido(MovContasAReceberI_EMP_FIL.AsInteger, MovContasAReceberI_LAN_REC.AsInteger, MovContasAReceberI_NRO_PAR.AsInteger);
+    if VpfResultado <> '' then
+    begin
+      RollbackTransacao;
+      aviso('ESTORNO DO FUNDO PERDIDO CANCELADO!!!'#13#13+VpfREsultado);
     end
     else
     begin

@@ -865,7 +865,6 @@ begin
                                ' FROM FRACAOOPCONSUMO FOC, COR, CADPRODUTOS PRO, FACA FAC, FRACAOOP FRA '+
                                ' WHERE FOC.CODFILIAL = '+IntToStr(VpaCodFilial)+
                                ' AND FOC.SEQORDEM = '+IntToStr(VpaSeqOrdem)+
-                               ' AND FOC.SEQFRACAO = '+IntToStr(VpaSeqFracao)+
                                ' AND '+SQLTextoRightJoin('FOC.CODCOR','COR.COD_COR')+
                                ' AND '+SQLTextoRightJoin('FOC.CODFACA','FAC.CODFACA')+
                                ' AND FOC.CODFILIAL = FRA.CODFILIAL '+
@@ -884,6 +883,8 @@ begin
   if varia.TipoOrdemProducao = toSubMontagem then
     Tabela.sql.add('AND FRA.DATFINALIZACAO IS NULL');
 
+  if VpaSeqFracao > 0 then
+    Tabela.sql.add(' AND FOC.SEQFRACAO = '+IntToStr(VpaSeqFracao));
   Tabela.Open;
 
   while not Tabela.Eof do
@@ -3908,10 +3909,13 @@ begin
       VpfIndice1 := RetornaInteiro(VpfQtdAltura * VpaAltMolde +(Varia.AcrescimoCMEnfesto *2))/100;
     VpfQtdLargura := RetornaInteiro(VpaAltProduto/VpaLarMolde);
     VpfQtdMedida1 := VpfQtdAltura * VpfQtdLargura * VpaQtdProvas;
-    if ((100 * VpfIndice1)/VpfQtdMedida1) < ((100 * VpaIndice)/result) then
+    if VpfQtdMedida1 > 0  then
     begin
-      Result := VpfQtdMedida1;
-      VpaIndice := VpfIndice1;
+      if ((100 * VpfIndice1)/VpfQtdMedida1) < ((100 * VpaIndice)/result) then
+      begin
+        Result := VpfQtdMedida1;
+        VpaIndice := VpfIndice1;
+      end;
     end;
   end;
 end;

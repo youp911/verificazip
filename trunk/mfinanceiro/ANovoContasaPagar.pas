@@ -121,6 +121,7 @@ type
     procedure EConsultaProjetoRetorno(VpaColunas: TRBColunasLocaliza);
     procedure EProjetoFimConsulta(Sender: TObject);
     procedure PaginasChange(Sender: TObject);
+    procedure ECondicaoPagamentoCadastrar(Sender: TObject);
   private
     VprDContasAPagar : TRBDContasaPagar;
     VprDatEmissao :TDAteTime;
@@ -153,8 +154,9 @@ var
 implementation
 
 uses ConstMsg,  FunData, APrincipal, funString,
-  ANovoCliente, funObjeto, funsql, AFormasPagamento,
-  ADespesas, APlanoConta,  UnClassesImprimir, ACentroCusto, AProjetos, dmRave, UnSistema;
+  ANovoCliente, funObjeto, funsql, AFormasPagamento, FunNumeros,
+  ADespesas, APlanoConta,  UnClassesImprimir, ACentroCusto, AProjetos, dmRave, UnSistema,
+  ACondicaoPagamento, ANovaCondicaoPagamento;
 
 {$R *.DFM}
 
@@ -207,9 +209,15 @@ begin
   VprDContasAPagar.DesPathFoto := LFoto.Caption;
   VprDContasAPagar.CodCondicaoPagamento := ECondicaoPagamento.AInteiro;
   if EValorparcelas.AValor = 0 then
-    VprDContasAPagar.ValParcela := EValorTotal.AValor / sistema.RQtdParcelasCondicaoPagamento(ECondicaoPagamento.AInteiro)
+  begin
+    VprDContasAPagar.ValParcela :=ArredondaDecimais(EValorTotal.AValor / sistema.RQtdParcelasCondicaoPagamento(ECondicaoPagamento.AInteiro),2);
+    VprDContasAPagar.ValTotal := EValorTotal.AValor;
+  end
   else
+  begin
     VprDContasAPagar.ValParcela := EValorparcelas.AValor;
+    VprDContasAPagar.ValTotal := EValorparcelas.AValor * sistema.RQtdParcelasCondicaoPagamento(ECondicaoPagamento.AInteiro);
+  end;
   VprDContasAPagar.PerDescontoAcrescimo := 0;
   VprDContasAPagar.IndMostrarParcelas :=  true;
   VprDContasAPagar.IndEsconderConta := VprEsconderParcela;
@@ -822,6 +830,15 @@ begin
     InterpretaCodigoBarras;
 end;
 
+{***************************************************************************** }
+procedure TFNovoContasAPagar.ECondicaoPagamentoCadastrar(Sender: TObject);
+begin
+  FNovaCondicaoPagamento := TFNovaCondicaoPagamento.CriarSDI(self,'',true);
+  FNovaCondicaoPagamento.NovaCondicaoPagamento;
+  FNovaCondicaoPagamento.free;
+end;
+
+{***************************************************************************** }
 procedure TFNovoContasAPagar.EConsultaProjetoRetorno(VpaColunas: TRBColunasLocaliza);
 begin
   if VpaColunas.items[0].AValorRetorno <> '' then
