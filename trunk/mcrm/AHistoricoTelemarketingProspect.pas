@@ -81,7 +81,7 @@ var
 implementation
 uses
   APrincipal, FunString, FunNumeros, FunSQL, FunData, Constantes,
-  ANovoTelemarketingProspect;
+  ANovoTelemarketingProspect, ANovoTeleMarketing;
 
 {$R *.DFM}
 
@@ -253,9 +253,19 @@ procedure TFHistoricoTelemarketingProspect.TelemarketingReceptivo1Click(
 begin
   if not LIGACOESCODPROSPECT.AsInteger <> 0 then
   begin
-    FNovoTeleMarketingProspect:= TFNovoTeleMarketingProspect.CriarSDI(Application,'',True);
-    FNovoTeleMarketingProspect.TeleMarketingProspect(LIGACOESCODPROSPECT.AsInteger);
-    FNovoTeleMarketingProspect.Free;
+    if LIGACOESTIPO.AsString = 'SUSPECT' then
+    BEGIN
+      FNovoTeleMarketingProspect:= TFNovoTeleMarketingProspect.CriarSDI(Application,'',True);
+      FNovoTeleMarketingProspect.TeleMarketingProspect(LIGACOESCODPROSPECT.AsInteger);
+      FNovoTeleMarketingProspect.Free;
+    END
+    else
+      if LIGACOESTIPO.AsString = 'PROSPECT' then
+      begin
+        FNovoTeleMarketing := TFNovoTeleMarketing.CriarSDI(self,'',true);
+        FNovoTeleMarketing.TeleMarketingCliente(LIGACOESCODPROSPECT.AsInteger);
+        FNovoTeleMarketing.Free;
+      end;
   end;
 end;
 

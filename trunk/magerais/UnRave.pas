@@ -214,7 +214,8 @@ type
       VprDatFim : TDateTime;
       VprAgruparPorEstado,
       VprTodosProdutos,
-      VprAnalitico : Boolean;
+      VprAnalitico,
+      VprNotasFiscais : Boolean;
       VprDOPEtikArt : TRBDOrdemProducaoEtiqueta;
       FunClassificacao : TFuncoesClassificacao;
       VprNiveis : TList;
@@ -303,6 +304,7 @@ type
       procedure ConfiguraRelatorioPDF;
       procedure ImprimeRelEstoqueMinimo(VpaObjeto : TObject);
       procedure ImprimeRelAnaliseFaturamentoAnual(VpaObjeto : TObject);
+      procedure ImprimeRelAnalisePedidoAnual(VpaObjeto : TObject);
       procedure ImprimeRelFechamentoEstoque(VpaObjeto : TObject);
       procedure ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
       procedure ImprimeRelCPporPlanoContasSintetico(VpaObjeto : TObject);
@@ -331,7 +333,7 @@ type
       procedure EnviaParametrosFilial(VpaProjeto : TrvProject;VpaDFilial : TRBDFilial);
       procedure ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaCodClienteMaster  : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao, VpaNomClienteMaster : String;VpaAgruparPorEstado, VpaPDF : Boolean);
       procedure ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados,VpaSomenteComQtd : Boolean);
-      procedure ImprimeAnaliseFaturamentoMensal(VpaCodFilial,VpaCodCliente,VpaCodVendedor : Integer;VpaCaminho, VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaDatInicio, VpaDatFim : TDateTime);
+      procedure ImprimeAnaliseFaturamentoMensal(VpaCodFilial,VpaCodCliente,VpaCodVendedor, VpaCodPreposto : Integer;VpaCaminho, VpaNomFilial,VpaNomCliente,VpaNomVendedor, VpaNomPreposto : String;VpaDatInicio, VpaDatFim : TDateTime;VpaNotasFiscais : Boolean);
       procedure ImprimeQtdMinimasEstoque(VpaCodFilial, VpaCodFornecedor : Integer;VpaCaminho,VpaCodClassificacao,VpaNomFilial, VpaNomClassificacao, VpaNomFornecedor : String);
       procedure ImprimeEstoqueFiscalProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
       procedure ImprimeFechamentoMes(VpaCodFilial : Integer;VpaCaminho, VpaNomFilial : String;VpaData : TDateTime;VpaMostarTodos : Boolean);
@@ -3124,7 +3126,9 @@ var
   VpfDVendaMes : TRBDVendaClienteMes;
 begin
   InicializaVendaCliente(VpaDatInicio,VpaDatFim,VpaDVenda);
-  AdicionaSQLAbreTabela(Tabela,'select SUM(N_TOT_NOT) TOTAL, EXTRACT(Year FROM D_DAT_EMI) ANO, EXTRACT(MONTH FROM D_DAT_EMI) MES '+
+  if VprNotasFiscais then
+  begin
+    AdicionaSQLAbreTabela(Tabela,'select SUM(N_TOT_NOT) TOTAL, EXTRACT(Year FROM D_DAT_EMI) ANO, EXTRACT(MONTH FROM D_DAT_EMI) MES '+
                                ' from CADNOTAFISCAIS NOF '+
                                ' Where NOF.I_COD_CLI = '+IntToStr(VpaCodCliente)+
                                ' AND NOF.C_NOT_CAN = ''N'''+
@@ -3132,6 +3136,17 @@ begin
                                SQLTextoDataEntreAAAAMMDD('D_DAT_EMI',VpaDatInicio,VpaDatFim,true)+
                                ' GROUP BY EXTRACT(Year FROM D_DAT_EMI), EXTRACT(MONTH FROM D_DAT_EMI) '+
                                ' ORDER BY 2,3');
+  end
+  else
+  begin
+    AdicionaSQLAbreTabela(Tabela,'select SUM(N_VLR_TOT) TOTAL, EXTRACT(Year FROM D_DAT_ORC) ANO, EXTRACT(MONTH FROM D_DAT_ORC) MES '+
+                               ' from CADORCAMENTOS ORC '+
+                               ' Where ORC.I_COD_CLI = '+IntToStr(VpaCodCliente)+
+                               ' AND ORC.C_IND_CAN = ''N'''+
+                               SQLTextoDataEntreAAAAMMDD('D_DAT_ORC',VpaDatInicio,VpaDatFim,true)+
+                               ' GROUP BY EXTRACT(Year FROM D_DAT_ORC), EXTRACT(MONTH FROM D_DAT_ORC) '+
+                               ' ORDER BY 2,3');
+  end;
   result := not Tabela.Eof;
   while not Tabela.Eof do
   begin
@@ -3654,6 +3669,7 @@ begin
           VprNomVendedor := Clientes.FieldByName('C_NOM_VEN').AsString;
           NewPage;
         end;
+        VpfVendedorAnterior := Clientes.FieldByName('I_COD_VEN').AsInteger;
       end;
       if CarValoresFaturadosCliente(Clientes.FieldByName('I_COD_CLI').AsInteger,VprDatInicio,VprDatFim,VpfDVenda) then
       begin
@@ -3707,6 +3723,12 @@ begin
   end;
   Clientes.Close;
   VpfDVenda.free;
+end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeRelAnalisePedidoAnual(VpaObjeto: TObject);
+begin
+
 end;
 
 {******************************************************************************}
@@ -4906,7 +4928,7 @@ begin
      AdjustLine;
      case RvSystem.Tag of
        1,2,4,6,11,19 : ImprimeTituloClassificacao(VprNiveis,true);
-       3 : ImprimeCabecalhoAnaliseFaturamento;
+       3,25 : ImprimeCabecalhoAnaliseFaturamento;
        8 : ImprimeCabecalhoEntradaMetros;
        9 : ImprimeCabecalhoExtratoProdutividade;
       13 : ImprimeCabecalhoTotalAmostrasVendedor;
@@ -5087,11 +5109,12 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.ImprimeAnaliseFaturamentoMensal(VpaCodFilial,VpaCodCliente,VpaCodVendedor : Integer;VpaCaminho, VpaNomFilial,VpaNomCliente,VpaNomVendedor : String;VpaDatInicio, VpaDatFim : TDateTime);
+procedure TRBFunRave.ImprimeAnaliseFaturamentoMensal(VpaCodFilial,VpaCodCliente,VpaCodVendedor, VpaCodPreposto  : Integer;VpaCaminho, VpaNomFilial,VpaNomCliente,VpaNomVendedor, VpaNomPreposto : String;VpaDatInicio, VpaDatFim : TDateTime;VpaNotasFiscais : Boolean);
 begin
   RvSystem.Tag := 3;
   VprDatInicio := VpaDatInicio;
   VprDatFim := VpaDatFim;
+  VprNotasFiscais := VpaNotasFiscais;
   LimpaSQlTabela(Clientes);
   AdicionaSqltabela(Clientes,'SELECT VEN.C_NOM_VEN, VEN.I_COD_VEN, I_COD_CLI, C_NOM_CLI '+
                              ' FROM CADCLIENTES CLI, CADVENDEDORES VEN '+
@@ -5102,6 +5125,9 @@ begin
 
   if VpaCodVendedor <> 0  then
     AdicionaSqlTabela(Clientes,' and CLI.I_COD_VEN = '+InttoStr(VpaCodVendedor));
+
+  if VpaCodPreposto <> 0  then
+    AdicionaSqlTabela(Clientes,' and CLI.I_VEN_PRE = '+InttoStr(VpaCodPreposto));
 
   AdicionaSqlTabela(Clientes,'ORDER BY C_NOM_VEN, C_NOM_CLI');
   Clientes.open;
@@ -5114,7 +5140,11 @@ begin
   rvSystem.onPrint := ImprimeRelAnaliseFaturamentoAnual;
 
   VprCaminhoRelatorio := VpaCaminho;
-  VprNomeRelatorio := 'Analise Faturamento Anual';
+  if VpaNotasFiscais then
+    VprNomeRelatorio := 'Analise Faturamento Anual'
+  else
+    VprNomeRelatorio := 'Analise Pedido Anual';
+
   VprCabecalhoEsquerdo.Clear;
   VprCabecalhoEsquerdo.add('Filial : ' +VpaNomFilial);
 
@@ -5122,6 +5152,8 @@ begin
   if VpaCodCliente <> 0  then
     VprCabecalhoDireito.add('Cliente : ' +VpaNomCliente);
 
+  if VpaCodPreposto <> 0  then
+    VprCabecalhoDireito.add('Preposto : ' +VpaNomPreposto);
   ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
@@ -6007,6 +6039,5 @@ begin
   ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
-
 
 end.

@@ -114,7 +114,7 @@ var
 implementation
 
 uses APrincipal, ALocalizaProdutos, ConstMsg, FunString,
-  ACores, AImpOrdemProducao, ANovoProdutoPro;
+  ACores, AImpOrdemProducao, ANovoProdutoPro, dmRave;
 
 {$R *.DFM}
 
@@ -699,9 +699,9 @@ end;
 {******************************************************************************}
 procedure TFNovaOrdemProducaoCadarco.BImprimirClick(Sender: TObject);
 begin
-  FImpOrdemProducao := TFImpOrdemProducao.create(self);
-  FImpOrdemProducao.ImprimeOPEspulaCadarco(IntToStr(VprDOrdemProducao.CodEmpresafilial),IntToStr(VprDOrdemProducao.SeqOrdem));
-  FImpOrdemProducao.free;
+  dtRave := TdtRave.Create(self);
+  dtRave.ImprimeOPCadarcoTrancado(VprDOrdemProducao.CodEmpresafilial,VprDOrdemProducao.SeqOrdem,false);
+  dtRave.Free;
 end;
 
 {******************************************************************************}

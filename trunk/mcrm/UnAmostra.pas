@@ -28,6 +28,7 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     function GravaDPrecoClienteAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
     procedure CarCoeficientesTabelaPreco(VpaDAmostra : TRBDAmostra);
     function RValCustoMateriaPrima(VpaDAmostra : TRBDAmostra):Double;
+    function CalculaCustoMaodeObraBordado(VpaDAmostra : TRBDAmostra) : Double;
   public
     constructor cria(VpaBaseDados : TSqlConnection);
     destructor destroy;override;
@@ -58,6 +59,7 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     procedure ExportaFichaTecnicaAmostra(VpaDAmostra : TRBDAmostra);
     procedure CarQtdPontos(VpaDAmostra : TRBDAmostra);
     function AtualizaTrocaLinhasQtdTotalPontosAmostra(VpaDAmostra : TRBDAmostra) : string;
+    function AlteraDesenvolvedor(VpaCodAmostra : Integer; VpaCodDesenvolvedor : Integer):string;
 end;
 
 
@@ -154,15 +156,20 @@ end;
 procedure TRBFuncoesAmostra.CarQtdPontos(VpaDAmostra: TRBDAmostra);
 var
   VpfLaco : Integer;
+  VpfDConsumo : TRBDConsumoAmostra;
 begin
   VpaDAmostra.QtdTotalPontos := 0;
   VpaDAmostra.QtdTrocasLinhaBordado := 0;
+  VpaDAmostra.QtdAplique := 0;
   for Vpflaco := 0 to VpaDAmostra.Consumos.Count - 1 do
   begin
+    VpfDConsumo := TRBDConsumoAmostra(VpaDAmostra.Consumos.Items[Vpflaco]);
     if TRBDConsumoAmostra(VpaDAmostra.Consumos.Items[Vpflaco]).QtdPontos > 0 then
     begin
-      VpaDAmostra.QtdTotalPontos := VpaDAmostra.QtdTotalPontos + TRBDConsumoAmostra(VpaDAmostra.Consumos.Items[Vpflaco]).QtdPontos;
+      VpaDAmostra.QtdTotalPontos := VpaDAmostra.QtdTotalPontos + VpfDConsumo.QtdPontos;
       VpaDAmostra.QtdTrocasLinhaBordado := VpaDAmostra.QtdTrocasLinhaBordado +1;
+      if VpfDConsumo.CodTipoMateriaPrima = 2 then
+        inc(VpaDAmostra.QtdAplique);
     end;
   end;
 end;
@@ -380,6 +387,19 @@ begin
 end;
 
 {******************************************************************************}
+function TRBFuncoesAmostra.AlteraDesenvolvedor(VpaCodAmostra : Integer; VpaCodDesenvolvedor: Integer): string;
+begin
+  result := '';
+  AdicionaSQLAbreTabela(Cadastro,'Select * from AMOSTRA '+
+                                 ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
+  Cadastro.edit;
+  Cadastro.FieldByname('CODDESENVOLVEDOR').AsInteger := VpaCodDesenvolvedor;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
+  Cadastro.close;
+end;
+
+{******************************************************************************}
 function TRBFuncoesAmostra.AprovaAmostra(VpaCodAmostra : Integer) : string;
 begin
   result := '';
@@ -419,6 +439,45 @@ begin
   Cadastro.post;
   result := Cadastro.AMensagemErroGravacao;
   Cadastro.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.CalculaCustoMaodeObraBordado(VpaDAmostra: TRBDAmostra): Double;
+var
+  VpfG5, VpfG6, VpfF7, VpfSoma, VpfG8, VpfAux, vpfMinutos : Double;
+begin
+{ Explicativo custo
+  Calcular minuto peca - bordado
+
+  G5 = PONTOS / PAR_ROTACAO
+
+  G6 = (CORTES + TROCA_LINHA) * 0,159
+
+  F7 = PAR_TEMPO_APLIQUE + (PAR_TEMPO_APLIQUE * QTD_APLIQUE)
+
+  SOMA = G5 + G6 + F7
+
+  G8 = (SOMA * PAR_INTERFERENCIA)/100
+
+  AUX = (SOMA + G8) / PAR_QTD_CABECAS
+
+  MINUTOS = AUX + PAR_OPERADOR_MAQUINA
+
+  CUSTO_MO = (PAR_CUSTO_MO_DIRETA * MINUTOS) + (PAR_CUSTO_MO_INDIRETA * MINUTOS) }
+
+  CarQtdPontos(VpaDAmostra);
+
+  VpfG5 := VpaDAmostra.QtdTotalPontos / Varia.RotacaoMaquina;
+  VpfG6  := (VpaDAmostra.QtdCortesBordado + VpaDAmostra.QtdTrocasLinhaBordado) * 0.159;
+  VpfF7 := Varia.TempoAplique + (VpaDAmostra.QtdAplique * Varia.TempoAplique);
+
+  VpfSoma := VpfG5 + VpfG6 + VpfF7;
+
+  VpfG8 := (VpfSoma * Varia.Interferencia) / 100;
+  VpfAux := (VpfSoma + VpfG8)/Varia.QtdCabecas;
+  vpfMinutos := VpfAux * varia.OperadorPorMaquina;
+  VpaDAmostra.CustoMaodeObraBordado := (Varia.ValMaodeObraDireta * vpfMinutos) +
+             (varia.ValMaodeObraIndireta * vpfMinutos);
 end;
 
 {******************************************************************************}
@@ -794,6 +853,9 @@ var
   VpfDValorVenda : TRBDValorVendaAmostra;
 begin
 {Explicativo do custo
+  CALCULAR MINUTOS PEÇA - BORDADO;
+
+
   COEFICIENTE = %ICMS + %PIS + %COMISSAO + %FRETE + %ADM_VENDAS + %PROPAGANDA
 
   CUSTO_IMPOSTOS = CUSTO_PRODUTO /(1-(COEFICIENTE/100))
@@ -805,8 +867,10 @@ begin
 //  if VpaDAmostra.ValoresVenda.Count = 0 then
     CarCoeficientesTabelaPreco(VpaDAmostra);
   VpaDAmostra.CustoMateriaPrima := RValCustoMateriaPrima(VpaDAmostra);
+  CalculaCustoMaodeObraBordado(VpaDAmostra);
   VpaDAmostra.CustoProcessos := 0;
-  VpaDAmostra.CustoProduto := VpaDAmostra.CustoProcessos + VpaDAmostra.CustoMateriaPrima;
+  VpaDAmostra.CustoProduto := VpaDAmostra.CustoProcessos + VpaDAmostra.CustoMateriaPrima + VpaDAmostra.CustoMaodeObraBordado;;
+
 
   for VpfLaco := 0 to VpaDAmostra.ValoresVenda.Count - 1 do
   begin

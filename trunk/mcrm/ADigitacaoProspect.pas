@@ -120,8 +120,9 @@ begin
   Grade.Cells[8,0] := 'Contato';
   Grade.Cells[9,0] := 'e-mail';
   Grade.Cells[10,0] := 'Ramo Atividade';
-  Grade.Cells[11,0] := 'Fone';
-  Grade.Cells[12,0] := 'Histórico';
+  Grade.Cells[11,0] := 'Fone 1';
+  Grade.Cells[12,0] := 'Fone 2';
+  Grade.Cells[13,0] := 'Histórico';
 end;
 
 {******************************************************************************}
@@ -153,8 +154,9 @@ begin
     VprDProspect.NomContato := UpperCase(RetiraAcentuacao(Grade.Cells[8,Grade.ALinha]));
     VprDProspect.DesEmail := UpperCase(RetiraAcentuacao(Grade.Cells[9,Grade.ALinha]));
     VprDProspect.DesFone := UpperCase(RetiraAcentuacao(Grade.Cells[11,Grade.ALinha]));
+    VprDProspect.DesFone2 := UpperCase(RetiraAcentuacao(Grade.Cells[12,Grade.ALinha]));
   end;
-  VprDProspect.DesHistorico := UpperCase(RetiraAcentuacao(Grade.Cells[12,Grade.ALinha]));
+  VprDProspect.DesHistorico := UpperCase(RetiraAcentuacao(Grade.Cells[13,Grade.ALinha]));
   VprUltimaCidade := UpperCase(RetiraAcentuacao(VprDProspect.DesCidade));
   VprUltimaData := VprDProspect.DatVisita;
   VprUltimoUF := UpperCase(RetiraAcentuacao(VprDProspect.DesUF));
@@ -186,7 +188,8 @@ begin
   Grade.Cells[9,VpaLinha] := VprDProspect.DesEmail;
   Grade.Cells[10,VpaLinha] := VprDProspect.NomRamoAtividade;
   Grade.Cells[11,VpaLinha] := VprDProspect.DesFone;
-  Grade.Cells[12,VpaLinha] := VprDProspect.DesHistorico;
+  Grade.Cells[12,VpaLinha] := VprDProspect.DesFone2;
+  Grade.Cells[13,VpaLinha] := VprDProspect.DesHistorico;
 end;
 
 {******************************************************************************}
@@ -251,7 +254,7 @@ procedure TFDigitacaoProspect.GradeGetEditMask(Sender: TObject; ACol,
 begin
   case ACol of
     1 :  Value := '!99/00/0000;1;_';
-    11 : Value := '!\(00\)>#000-0000;1; ';
+    11,12 : Value := '!\(00\)>#000-0000;1; ';
   end;
 end;
 
@@ -313,6 +316,7 @@ begin
     Grade.Cells[8,Grade.ALinha] := VprDCliente.NomContato;
     Grade.Cells[9,Grade.ALinha] := VprDCliente.DesEmail;
     Grade.Cells[11,Grade.ALinha] := VprDCliente.DesFone1;
+    Grade.Cells[12,Grade.ALinha] := VprDCliente.DesFone2;
     VprDProspect.NomProspect := VprDCliente.NomFantasia;
     VprDProspect.DesEndereco := VprDCliente.DesEndereco;
     VprDProspect.DesBairro := VprDCliente.DesBairro;
@@ -333,6 +337,7 @@ begin
       Grade.Cells[8,Grade.ALinha] := '';
       Grade.Cells[9,Grade.ALinha] := '';
       Grade.Cells[11,Grade.ALinha] := '';
+      Grade.Cells[12,Grade.ALinha] := '';
       VprDProspect.CodProspect := 0;
     end;
   end;
@@ -448,6 +453,7 @@ begin
     Grade.Cells[8,Grade.ALinha] := VprDSuspect.NomContato;
     Grade.Cells[9,Grade.ALinha] := VprDSuspect.DesEmail;
     Grade.Cells[11,Grade.ALinha] := VprDSuspect.DesFone1;
+    Grade.Cells[12,Grade.ALinha] := VprDSuspect.DesFone2;
     VprDProspect.NomProspect := VprDSuspect.NomFantasia;
     VprDProspect.DesEndereco := VprDSuspect.DesEndereco;
     VprDProspect.DesBairro := VprDSuspect.DesBairro;
@@ -468,6 +474,7 @@ begin
       Grade.Cells[8,Grade.ALinha] := '';
       Grade.Cells[9,Grade.ALinha] := '';
       Grade.Cells[11,Grade.ALinha] := '';
+      Grade.Cells[12,Grade.ALinha] := '';
       VprDProspect.CodProspect := 0;
     end;
   end;

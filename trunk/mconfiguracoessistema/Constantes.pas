@@ -457,6 +457,14 @@ type
       CodDesenvolvedorRequisicaoAmostra,
       CodCoeficienteCustoPadrao : Integer;
 
+      //custo
+      RotacaoMaquina,
+      TempoAplique,
+      Interferencia,
+      QtdCabecas,
+      OperadorPorMaquina,
+      ValMaodeObraDireta,
+      ValMaodeObraIndireta : Double;
 
       constructor cria(VpaBaseDados : TSQLConnection);
       destructor destroy;override;
@@ -1416,6 +1424,16 @@ begin
        AltMesaBalancim := VpfTabela.FieldByName('I_ALT_BAL').AsInteger;
        LarMesaPrensa := VpfTabela.FieldByName('I_LAR_PRE').AsInteger;
        AltMesaPrensa := VpfTabela.FieldByName('I_ALT_PRE').AsInteger;
+
+       //custo
+       RotacaoMaquina := 850 ;
+       TempoAplique  := 1.0920;
+       Interferencia := 27.8;
+       QtdCabecas := 12;
+       OperadorPorMaquina := 1;
+       ValMaodeObraDireta := 0.0865;
+       ValMaodeObraIndireta := 0.1522;
+
     end;
 
     with Config do   // boolean

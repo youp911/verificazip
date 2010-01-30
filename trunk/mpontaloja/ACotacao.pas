@@ -253,6 +253,8 @@ type
     Label27: TLabel;
     SpeedButton12: TSpeedButton;
     Label28: TLabel;
+    MovOrcamentosNOM_EMBALAGEM: TWideStringField;
+    MovOrcamentosNOMECOR: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FlagClick(Sender: TObject);
@@ -1502,24 +1504,27 @@ begin
   begin
     MovOrcamentos.sql.clear;
     MovOrcamentos.sql.add('Select Mov.I_Emp_Fil, Mov.I_Lan_Orc,Mov.N_Qtd_Pro, Mov.N_Vlr_Pro, Mov.N_Vlr_Tot, Mov.C_Cod_Uni,  '+
-                          ' C_Imp_Fot, C_Fla_Res, Mov.N_Qtd_Bai, MOV.N_QTD_CON, MOV.I_COD_COR ||''-''||MOV.C_DES_COR C_DES_COR, Pro.C_Nom_Pro, Pro.I_Seq_Pro, MOV.I_SEQ_MOV, MOV.C_NOM_PRO PRODUTOCOTACAO,' +
-                          ' MOV.C_COD_PRO');
+                          ' C_Imp_Fot, C_Fla_Res, Mov.N_Qtd_Bai, MOV.N_QTD_CON, MOV.I_COD_COR ||''-''||MOV.C_DES_COR C_DES_COR, MOV.C_DES_COR NOMECOR, '+
+                          ' Pro.C_Nom_Pro, Pro.I_Seq_Pro, MOV.I_SEQ_MOV, MOV.C_NOM_PRO PRODUTOCOTACAO,' +
+                          ' MOV.C_COD_PRO,'+
+                          ' EMB.NOM_EMBALAGEM ');
 
-    MovOrcamentos.sql.add(' from MovOrcamentos Mov, CadProdutos Pro, MovQdadeProduto QTD' +
+    MovOrcamentos.sql.add(' from MovOrcamentos Mov, CadProdutos Pro, MovQdadeProduto QTD, EMBALAGEM EMB' +
                           ' Where mov.I_Emp_Fil = ' + VpaCodfilial +
                           ' and Mov.I_Lan_Orc = ' + VpaOrcamento +
                           ' and Mov.I_Seq_Pro = Pro.I_Seq_Pro '+
                           ' and Mov.I_Seq_Pro = Qtd.I_Seq_Pro '+
                           ' and Mov.I_Emp_Fil = QTd.I_Emp_Fil '+
+                          ' and ' + SQLTextoRightJoin('MOV.I_COD_EMB','EMB.COD_EMBALAGEM')+
                           ' union ' +
                           ' Select Orc.I_Emp_Fil, Orc.I_Lan_Orc,Orc.N_Qtd_Ser, '+
                           ' Orc.N_Vlr_Ser,Orc.N_Vlr_Tot, ''SE''  Unis,  ''-'' Foto, '+
-                          ' ''-'' Res, N_QTD_BAI, 0,'' '' ,Ser.C_Nom_Ser, Ser.I_Cod_ser,ORC.I_COD_SER,SER.C_NOM_SER, Cast(Ser.I_Cod_Ser as VARChar2(20)) C_Cod_Pro '+
+                          ' ''-'' Res, N_QTD_BAI, 0,'' '', '' '' ,Ser.C_Nom_Ser, Ser.I_Cod_ser,ORC.I_COD_SER,SER.C_NOM_SER, Cast(Ser.I_Cod_Ser as VARChar2(20)) C_Cod_Pro , '' '''+
                           ' from movservicoorcamento orc, cadservico ser ' +
                           ' Where orc.I_Emp_Fil = ' + VpaCodfilial +
                           ' and Orc.I_Lan_Orc = ' + VpaOrcamento +
                           ' and Orc.I_Cod_Ser = Ser.I_Cod_Ser ');
-    MovOrcamentos.sql.add(' order by 13 ');
+    MovOrcamentos.sql.add(' order by 15 ');
     MovOrcamentos.open;
   end;
 end;
@@ -1978,6 +1983,7 @@ procedure TFCotacao.BImprimeOPClick(Sender: TObject);
 var
   VpfQtdVias : String;
   VpfLaco : Integer;
+  VpfOps : TList;
 begin
   if CadOrcamentoI_Lan_Orc.AsInteger <> 0 then
   begin
@@ -1999,6 +2005,14 @@ begin
       for Vpflaco := 1 to StrToInt(VpfQtdVias) do
         Rave.execute;
       Rave.close;
+
+      VpfOps := TList.Create;
+      VprDOrcamento.Free;
+      VprDOrcamento := TRBDOrcamento.cria;
+      FunCotacao.CarDOrcamento(VprDOrcamento,CadOrcamentoI_EMP_FIL.AsInteger,CadOrcamentoI_Lan_Orc.AsInteger);
+      VpfOps.Add(VprDOrcamento);
+      FunCotacao.SetaOPImpressa(VpfOps);
+      VpfOps.Free;
 
       ECotacao.Clear;
       AtualizaConsulta(true);

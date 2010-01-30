@@ -833,8 +833,7 @@ begin
       except
         on e : exception do
         begin
-          aviso('erro no envio');
-//          result := E.Message;
+          result := E.Message;
         end;
       end;
       VpaDNota.NumReciboNFE := nfe.WebServices.Retorno.Recibo;
@@ -893,7 +892,7 @@ end;
 function TRBFuncoesNFe.InutilizaNumero(VpaNumNota: Integer): String;
 begin
   result := '';
-  NFe.WebServices.Inutiliza(varia.CNPJFilial,'NUMERO PERDIDO',ANO(DATE),55,StrtoInt(Varia.SerieNota),VpaNumNota,VpaNumNota);
+  NFe.WebServices.Inutiliza(DeletaChars(DeletaChars(DeletaChars(varia.CNPJFilial,'.'),'-'),'/'),'NUMERO PERDIDO DO FORMULARIO PRINCIPAL',ANO(DATE),55,StrtoInt(Varia.SerieNota),VpaNumNota,VpaNumNota);
 end;
 
 {******************************************************************************}

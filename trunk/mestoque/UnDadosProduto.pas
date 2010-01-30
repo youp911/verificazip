@@ -441,6 +441,7 @@ Type TRBDAmostra = class
     QtdTotalPontos,
     QtdTrocasLinhaBordado,
     QtdCortesBordado,
+    QtdAplique,
     CodEmpresa : Integer;
 
     CodClassificacao,
@@ -467,6 +468,7 @@ Type TRBDAmostra = class
     QtdPrevisaoCompra,
     CustoMateriaPrima,
     CustoProcessos,
+    CustoMaodeObraBordado,
     CustoProduto: Double;
 
     Consumos,

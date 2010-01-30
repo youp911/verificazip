@@ -435,6 +435,7 @@ begin
   cliCadastro.FieldByName('C_EST_CLI').AsString := VpaDProspect.DesUF;
   cliCadastro.FieldByName('C_CID_CLI').AsString := VpaDProspect.DesCidade;
   cliCadastro.FieldByName('C_FO1_CLI').AsString := VpaDProspect.DesFone;
+  cliCadastro.FieldByName('C_FO2_CLI').AsString := VpaDProspect.DesFone2;
   cliCadastro.FieldByName('C_CON_CLI').AsString := VpaDProspect.NomContato;
   cliCadastro.FieldByName('C_END_ELE').AsString := VpaDProspect.DesEmail;
   cliCadastro.FieldByName('I_COD_SIT').AsInteger := varia.SituacaoPadraoCliente;
@@ -479,6 +480,7 @@ begin
   cliCadastro.FieldByName('DESCIDADE').AsString := VpaDProspect.DesCidade;
   cliCadastro.FieldByName('DESUF').AsString := VpaDProspect.DesUF;
   cliCadastro.FieldByName('DESFONE1').AsString := VpaDProspect.DesFone;
+  cliCadastro.FieldByName('DESFONE2').AsString := VpaDProspect.DesFone2;
   cliCadastro.FieldByName('NOMCONTATO').AsString := VpaDProspect.NomContato;
   cliCadastro.FieldByName('DESEMAILCONTATO').AsString := VpaDProspect.DesEmail;
   cliCadastro.FieldByName('INDACEITASPAM').AsString := 'S';

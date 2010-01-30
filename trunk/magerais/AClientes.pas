@@ -334,6 +334,13 @@ begin
       CadClientes.GotoBookmark(Vpfposicao);
       cadclientes.freebookmark(vpfposicao);
     except
+      try
+        CadClientes.Last;
+        CadClientes.GotoBookmark(Vpfposicao);
+        cadclientes.freebookmark(vpfposicao);
+      except
+
+      end;
     end;
   VprNomCliente :=  ENomCliente.text;
   VprNomFantasia := ENomFantasia.Text;

@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1576;
+  CT_VersaoBanco = 1577;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1371,6 +1371,13 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE CADORCAMENTOS ADD I_COD_REP NUMBER(10) NULL');
         ExecutaComandoSql(Aux,'CREATE INDEX CADORCAMENTOS_REP ON CADORCAMENTOS(I_COD_REP)');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1576');
+      end;
+      if VpaNumAtualizacao < 1577 Then
+      begin
+        VpfErro := '1577';
+        ExecutaComandoSql(Aux,'ALTER TABLE OPITEMCADARCO ADD DESTAB VARCHAR2(150) NULL');
+        ExecutaComandoSql(Aux,'UPDATE OPITEMCADARCO SET DESTAB = NUMTAB');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1577');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

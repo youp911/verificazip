@@ -173,6 +173,11 @@ type
     CheckBox1: TCheckBox;
     BitBtn1: TBitBtn;
     SaveDialog: TSaveDialog;
+    PRamoAtividade: TPanelColor;
+    Label30: TLabel;
+    SpeedButton26: TSpeedButton;
+    LRamoAtividade: TLabel;
+    ERamoAtividade: TRBEditLocaliza;
     procedure FormCreate(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
     procedure BFecharClick(Sender: TObject);
@@ -404,8 +409,9 @@ begin
                     LTextoCliente.Caption := 'Fornecedor : ';
                   end
                   else
-                    if (VPANOMRELATORIO = 'ANALISE FATURAMENTO ANUAL') then
-                      AlterarVisibleDet([PPeriodo,PCliente,PVendedor],true)
+                    if (VPANOMRELATORIO = 'ANALISE FATURAMENTO ANUAL') or
+                       (VPANOMRELATORIO = 'ANALISE PEDIDO ANUAL') then
+                      AlterarVisibleDet([PPeriodo,PCliente,PVendedor,PPreposto],true)
                     else
                       if (VPANOMRELATORIO = 'DEVOLUCOES PENDENTES') then
                       begin
@@ -459,7 +465,7 @@ begin
                                                 AlterarVisibleDet([PPeriodo,PTipoCotacao,PCliente,PCidade,PEstado,PCondPgto, PTransportadora],true)
                                               else
                                                 if (VPANOMRELATORIO = 'CLIENTES POR VENDEDOR') then
-                                                  AlterarVisibleDet([PVendedor,PSitCliente,PCidade,PEstado],true)
+                                                  AlterarVisibleDet([PVendedor,PSitCliente,PCidade,PEstado,PPreposto],true)
                                                 else
                                                   if (VPANOMRELATORIO = 'TOTAL VENDAS POR CLIENTE') or
                                                      (VPANOMRELATORIO = 'TOTAL VENDAS POR CLIENTE(CURVA ABC)')then
@@ -506,7 +512,7 @@ begin
                 AlterarVisibleDet([PFilial,PVendedor,PCliente,PPeriodo,PClassificacaoProduto],true)
             else
               if (VPANOMRELATORIO = 'PROSPECTS CADASTRADOS POR VENDEDOR') then
-                AlterarVisibleDet([PVendedor,PPeriodo],true)
+                AlterarVisibleDet([PVendedor,PPeriodo,PRamoAtividade,PCidade],true)
             else
               if (VPANOMRELATORIO = 'AGENDA USUARIO') then
                 AlterarVisibleDet([PUsuario,PPeriodo],true)
@@ -577,8 +583,8 @@ begin
                                            ECodClassifcacao.Text, LFilial.Caption,LNomClassificacao.Caption,LCliente.Caption)
                 else
                   if (VPRNOMRELATORIO = 'ANALISE FATURAMENTO ANUAL') then
-                    FunRave.ImprimeAnaliseFaturamentoMensal(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro, VprCaminhoRelatorio,
-                                             LFilial.Caption,LCliente.Caption,LVendedor.Caption,CDataIni.DateTime,CDataFim.Date)
+                    FunRave.ImprimeAnaliseFaturamentoMensal(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro, EPreposto.AInteiro, VprCaminhoRelatorio,
+                                             LFilial.Caption,LCliente.Caption,LVendedor.Caption,LPreposto.Caption,CDataIni.DateTime, CDataFim.Date,true)
                   else
                     if (VPRNOMRELATORIO = 'DEVOLUCOES PENDENTES') then
                       dtRave.ImprimeDevolucoesPendente(EFilial.AInteiro,ECliente.AInteiro,ETransportadora.AInteiro,ECodEstagio.AInteiro,EVendedor.AInteiro,CDataFinal.Date,VprCaminhoRelatorio,
@@ -630,7 +636,7 @@ begin
                                                 dtRave.ImprimeTotalVendasPorEstadoeCidade(ECliente.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,ETransportadora.AInteiro, VprCaminhoRelatorio,LCliente.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LCidade.CAPTION,EEstado.text,LTransportadora.Caption, CDataIni.Date,CDataFim.Date)
                                               else
                                                 if (VPRNOMRELATORIO = 'CLIENTES POR VENDEDOR') then
-                                                  dtRave.ImprimeClientesPorVendedor(EVendedor.AInteiro,ESituacaoCliente.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LSituacaoCliente.Caption,LCidade.CAPTION,EEstado.text)
+                                                  dtRave.ImprimeClientesPorVendedor(EVendedor.AInteiro,EPreposto.AInteiro, ESituacaoCliente.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LPreposto.Caption, LSituacaoCliente.Caption,LCidade.CAPTION,EEstado.text)
                                                 else
                                                   if (VPRNOMRELATORIO = 'TOTAL VENDAS POR CLIENTE') then
                                                     dtRave.ImprimeTotalVendasCliente(EVendedor.AInteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,EFilial.AInteiro,vprCaminhoRelatorio,LVendedor.Caption,LCondPgto.Caption,LTipoCotacao.Caption,LFilial.Caption, LCidade.CAPTION,EEstado.text,CDataIni.Date,CDataFim.Date,false)
@@ -691,7 +697,7 @@ begin
               FunRave.ImprimeProdutosVendidosComDefeito(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,CDataIni.Date,CDataFiM.Date,VprCaminhoRelatorio,LFilial.Caption,LCliente.Caption,LVendedor.Caption,ECodClassifcacao.Text,LNomClassificacao.Caption,VpfPdf)
           else
             if (VPRNOMRELATORIO = 'PROSPECTS CADASTRADOS POR VENDEDOR') then
-              dtRave.ImprimeProspectCadastradosporVendedor(CDataIni.Date,CdataFim.Date,EVendedor.AInteiro,VprCaminhoRelatorio,lVendedor.caption)
+              dtRave.ImprimeProspectCadastradosporVendedor(CDataIni.Date,CdataFim.Date,EVendedor.AInteiro,ERamoAtividade.AInteiro, VprCaminhoRelatorio, lVendedor.caption,LRamoAtividade.Caption,DeletaEspacoDE(LCidade.Caption))
           else
             if (VPRNOMRELATORIO = 'AGENDA USUARIO') then
               dtRave.ImprimeAgenda(ECodUsuario.AInteiro,VprCaminhoRelatorio,LNomUsuario.caption, CDataIni.Date,CdataFim.Date)
@@ -706,7 +712,11 @@ begin
               FunRave.ImprimeAnaliseContratosLocacao(ETipoCotacao.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,VprCaminhoRelatorio,LNomTipoContrato.Caption,LVendedor.Caption,LCliente.Caption,CDataIni.Date,CDataFim.Date,CFundoPerdido.Checked,true)
           else
             if (VPRNOMRELATORIO = 'ANALISE CONTRATOS SINTETICO')then
-              FunRave.ImprimeAnaliseContratosLocacao(ETipoCotacao.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,VprCaminhoRelatorio,LNomTipoContrato.Caption,LVendedor.Caption,LCliente.Caption,CDataIni.Date,CDataFim.Date,CFundoPerdido.Checked,false);
+              FunRave.ImprimeAnaliseContratosLocacao(ETipoCotacao.AInteiro,ECliente.AInteiro,EVendedor.AInteiro,VprCaminhoRelatorio,LNomTipoContrato.Caption,LVendedor.Caption,LCliente.Caption,CDataIni.Date,CDataFim.Date,CFundoPerdido.Checked,false)
+            else
+              if (VPRNOMRELATORIO = 'ANALISE PEDIDO ANUAL') then
+                FunRave.ImprimeAnaliseFaturamentoMensal(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro, EPreposto.AInteiro, VprCaminhoRelatorio,
+                                         LFilial.Caption,LCliente.Caption,LVendedor.Caption,LPreposto.Caption,CDataIni.DateTime, CDataFim.Date,false);
   dtRave.free;
 end;
 

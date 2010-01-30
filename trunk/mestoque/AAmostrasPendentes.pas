@@ -39,6 +39,9 @@ type
     AmostrasNOMDESENVOLVEDOR: TWideStringField;
     AmostrasCODDEPARTAMENTOAMOSTRA: TFMTBCDField;
     AmostrasNOMDEPARTAMENTOAMOSTRA: TWideStringField;
+    N3: TMenuItem;
+    AlterarDesenvolvedor1: TMenuItem;
+    EDesenvolvedor: TRBEditLocaliza;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -47,6 +50,7 @@ type
     procedure EDepartamentoClick(Sender: TObject);
     procedure EDepartamentoFimConsulta(Sender: TObject);
     procedure GerarAmostra1Click(Sender: TObject);
+    procedure AlterarDesenvolvedor1Click(Sender: TObject);
   private
     { Private declarations }
     FunAmostra : TRBFuncoesAmostra;
@@ -101,6 +105,19 @@ end;
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                             Ações Diversas
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+procedure TFAmostrasPendentes.AlterarDesenvolvedor1Click(Sender: TObject);
+var
+  VpfResultado : string;
+begin
+  if EDesenvolvedor.AAbreLocalizacao then
+    VpfResultado :=  FunAmostra.AlteraDesenvolvedor(AmostrasCODAMOSTRA.AsInteger,EDesenvolvedor.AInteiro);
+  if VpfResultado <> '' then
+    aviso(VpfResultado)
+  else
+    AtualizaConsulta;
+end;
 
 {******************************************************************************}
 procedure TFAmostrasPendentes.AtualizaConsulta;

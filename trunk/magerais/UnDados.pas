@@ -66,6 +66,7 @@ Type
       DesCidade,
       DesUF,
       DesFone,
+      DesFone2,
       DesEmail,
       DesHistorico : String;
       DatVisita : TDateTime;

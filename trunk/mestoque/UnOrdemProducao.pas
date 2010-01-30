@@ -853,6 +853,7 @@ begin
     OrdCadastro.FieldByName('QTDMET').AsFloat := VpfDOPItem.QtdMetrosProduto;
     OrdCadastro.FieldByName('QTDPRO').AsFloat := VpfDOPItem.QtdProduto;
     OrdCadastro.FieldByName('NUMTAB').AsFloat := VpfDOPItem.NumTabuas;
+    OrdCadastro.FieldByName('DESTAB').AsString := RNumTabuasExtenso(VpaDOrdem.TipPedido,VpfDOPItem.NumTabuas, VpfDOPItem.QtdMetrosProduto);
 
     OrdCadastro.Post;
     result := OrdCadastro.AMensagemErroGravacao;
@@ -873,7 +874,7 @@ begin
                            ' Where EMPFIL = '+IntToStr(VpaDOrdem.CodEmpresafilial)+
                            ' AND SEQORD = ' +IntToStr(VpaDOrdem.SeqOrdem));
   AdicionaSQLAbreTabela(OrdCadastro,'Select * from OPITEMCADARCOMAQUINA '+
-                                    '  WHERE EMPFIL = 0 AND SEQORD = 0 AND SEQITEM = 0 AND SEQMAQ = 0');
+                                    '  WHERE EMPFIL = 0 AND SEQORD = 0 AND SEQITE = 0 AND SEQMAQ = 0');
   for VpfLacoItem := 0 to  VpaDOrdem.ItemsCadarco.Count - 1 do
   begin
     VpfDOPItem := TRBDOPItemCadarco(VpaDOrdem.ItemsCadarco.Items[VpfLacoItem]);

@@ -534,7 +534,7 @@ object FRelPedido: TFRelPedido
       end
       object PPeriodo: TPanelColor
         Left = 0
-        Top = 812
+        Top = 840
         Width = 554
         Height = 28
         Align = alTop
@@ -794,7 +794,7 @@ object FRelPedido: TFRelPedido
       end
       object PSituacao: TPanelColor
         Left = 0
-        Top = 784
+        Top = 812
         Width = 554
         Height = 28
         Align = alTop
@@ -833,7 +833,7 @@ object FRelPedido: TFRelPedido
       end
       object PDataFinal: TPanelColor
         Left = 0
-        Top = 840
+        Top = 868
         Width = 554
         Height = 28
         Align = alTop
@@ -1613,7 +1613,7 @@ object FRelPedido: TFRelPedido
       end
       object PQtdVias: TPanelColor
         Left = 0
-        Top = 924
+        Top = 952
         Width = 554
         Height = 28
         Align = alTop
@@ -1656,7 +1656,7 @@ object FRelPedido: TFRelPedido
       end
       object PEstagio: TPanelColor
         Left = 0
-        Top = 672
+        Top = 700
         Width = 554
         Height = 28
         Align = alTop
@@ -1849,7 +1849,7 @@ object FRelPedido: TFRelPedido
       end
       object PFundoPerdido: TPanelColor
         Left = 0
-        Top = 896
+        Top = 924
         Width = 554
         Height = 28
         Align = alTop
@@ -2070,7 +2070,7 @@ object FRelPedido: TFRelPedido
       end
       object PTecnico: TPanelColor
         Left = 0
-        Top = 644
+        Top = 672
         Width = 554
         Height = 28
         Align = alTop
@@ -2166,7 +2166,7 @@ object FRelPedido: TFRelPedido
       end
       object POperacaoEstoque: TPanelColor
         Left = 0
-        Top = 616
+        Top = 644
         Width = 554
         Height = 28
         Align = alTop
@@ -2262,7 +2262,7 @@ object FRelPedido: TFRelPedido
       end
       object PCor: TPanelColor
         Left = 0
-        Top = 588
+        Top = 616
         Width = 554
         Height = 28
         Align = alTop
@@ -2358,7 +2358,7 @@ object FRelPedido: TFRelPedido
       end
       object PCotacaoCancelada: TPanelColor
         Left = 0
-        Top = 756
+        Top = 784
         Width = 554
         Height = 28
         Align = alTop
@@ -2502,7 +2502,7 @@ object FRelPedido: TFRelPedido
       end
       object PCentroCusto: TPanelColor
         Left = 0
-        Top = 560
+        Top = 588
         Width = 554
         Height = 28
         Align = alTop
@@ -2607,7 +2607,7 @@ object FRelPedido: TFRelPedido
       end
       object PNumerico1: TPanelColor
         Left = 0
-        Top = 700
+        Top = 728
         Width = 554
         Height = 28
         Align = alTop
@@ -2651,7 +2651,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoPeriodo: TPanelColor
         Left = 0
-        Top = 728
+        Top = 756
         Width = 554
         Height = 28
         Align = alTop
@@ -2700,7 +2700,7 @@ object FRelPedido: TFRelPedido
       end
       object PProjeto: TPanelColor
         Left = 0
-        Top = 532
+        Top = 560
         Width = 554
         Height = 28
         Align = alTop
@@ -2805,7 +2805,7 @@ object FRelPedido: TFRelPedido
       end
       object PCheckBox1: TPanelColor
         Left = 0
-        Top = 868
+        Top = 896
         Width = 554
         Height = 28
         Align = alTop
@@ -2829,6 +2829,111 @@ object FRelPedido: TFRelPedido
           Checked = True
           State = cbChecked
           TabOrder = 0
+        end
+      end
+      object PRamoAtividade: TPanelColor
+        Left = 0
+        Top = 532
+        Width = 554
+        Height = 28
+        Align = alTop
+        BevelOuter = bvNone
+        Color = clSilver
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 34
+        AUsarCorForm = False
+        ACorForm = FPrincipal.CorForm
+        object Label30: TLabel
+          Left = 20
+          Top = 6
+          Width = 103
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Ramo Atividade :'
+        end
+        object SpeedButton26: TSpeedButton
+          Left = 198
+          Top = 2
+          Width = 26
+          Height = 25
+          Glyph.Data = {
+            76010000424D7601000000000000760000002800000020000000100000000100
+            04000000000000010000CE0E0000D80E00001000000000000000000000000000
+            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+            33033333333333333F7F3333333333333000333333333333F777333333333333
+            000333333333333F777333333333333000333333333333F77733333333333300
+            033333333FFF3F777333333700073B703333333F7773F77733333307777700B3
+            33333377333777733333307F8F8F7033333337F3333337F3333377F8FFF8F773
+            333337333333373F3333078F8F8F870333337F333333337F333307FFF8FFF703
+            33337F333333337F3333078F8F8F8703333373F333333373333377F8FFF8F773
+            333337F3333337F33333307F8F8F70333333373FF333F7333333330777770333
+            333333773FF77333333333370007333333333333777333333333}
+          NumGlyphs = 2
+        end
+        object LRamoAtividade: TLabel
+          Left = 227
+          Top = 6
+          Width = 249
+          Height = 16
+          AutoSize = False
+          Caption = '            '
+        end
+        object ERamoAtividade: TRBEditLocaliza
+          Left = 128
+          Top = 1
+          Width = 68
+          Height = 24
+          Color = clInfoBk
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlue
+          Font.Height = -13
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          ACampoObrigatorio = False
+          AIgnorarCor = False
+          ACorFoco = FPrincipal.CorFoco
+          AInteiro = 0
+          ATexto = LRamoAtividade
+          ABotao = SpeedButton26
+          ADataBase = FPrincipal.BaseDados
+          ACorForm = FPrincipal.CorForm
+          ACorPainelGra = FPrincipal.CorPainelGra
+          ALocaliza = Localiza
+          ASelectValida.Strings = (
+            'Select COD_RAMO_ATIVIDADE, NOM_RAMO_ATIVIDADE '
+            ' from RAMO_ATIVIDADE '
+            ' Where COD_RAMO_ATIVIDADE = @')
+          ASelectLocaliza.Strings = (
+            'Select COD_RAMO_ATIVIDADE, NOM_RAMO_ATIVIDADE '
+            ' from RAMO_ATIVIDADE ')
+          APermitirVazio = True
+          AColunas = <
+            item
+              ATituloColuna = 'C'#243'digo'
+              ATamanhoColuna = 8
+              ACampoFiltro = False
+              ANomeCampo = 'COD_RAMO_ATIVIDADE'
+              AMostrarNaGrade = True
+              AOrdemInicial = False
+            end
+            item
+              ATituloColuna = 'Descri'#231#227'o'
+              ATamanhoColuna = 40
+              ACampoFiltro = True
+              ANomeCampo = 'NOM_RAMO_ATIVIDADE'
+              AMostrarNaGrade = True
+              AOrdemInicial = True
+            end>
+          ALocalizaPadrao = lpRamoAtividade
+          ATituloFormulario = '   Localiza Ramo Atividade '
         end
       end
     end

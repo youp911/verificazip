@@ -808,10 +808,12 @@ object FNovaAmostra: TFNovaAmostra
             ALocaliza = Localiza
             ASelectValida.Strings = (
               'Select * from DESENVOLVEDOR'
-              'Where CODDESENVOLVEDOR = @')
+              'Where CODDESENVOLVEDOR = @'
+              'AND INDATIVO = '#39'S'#39)
             ASelectLocaliza.Strings = (
               'Select * from DESENVOLVEDOR'
               'Where NOMDESENVOLVEDOR Like '#39'@%'#39' '
+              'and INDATIVO = '#39'S'#39
               'order by NOMDESENVOLVEDOR')
             ACorForm = FPrincipal.CorForm
             ACorPainelGra = FPrincipal.CorPainelGra

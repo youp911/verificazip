@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Grids, CGrades, Componentes1, ExtCtrls, PainelGradiente, Localizacao,
   StdCtrls, Buttons, UnDadosProduto, UnProdutos, Constantes, UnAmostra,
-  ComCtrls, UnServicos, Mask, numericos, UnDadosLocaliza;
+  ComCtrls, UnServicos, Mask, numericos, UnDadosLocaliza, Menus;
 
 type
   TFAmostraConsumo = class(TFormularioPermissao)
@@ -51,6 +51,9 @@ type
     Label7: TLabel;
     Label8: TLabel;
     EQtdCortes: Tnumerico;
+    PopupMenu1: TPopupMenu;
+    Copiar1: TMenuItem;
+    Colar1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
@@ -113,12 +116,21 @@ type
       var VpaValidos: Boolean);
     procedure GItensEspeciaisKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure PaginasChange(Sender: TObject);
+    procedure GItensEspeciaisKeyPress(Sender: TObject; var Key: Char);
+    procedure GItensEspeciaisMudouLinha(Sender: TObject; VpaLinhaAtual,
+      VpaLinhaAnterior: Integer);
+    procedure GItensEspeciaisNovaLinha(Sender: TObject);
+    procedure GItensEspeciaisSelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
+    procedure Copiar1Click(Sender: TObject);
+    procedure Colar1Click(Sender: TObject);
   private
     VprServicoAnterior,
     VprServicoFixoAnterior,
     VprProdutoAnterior,
     VprItemEspecialAnterior: String;
-    VprCorAmostraAnterior : Integer;
+    VprCorAmostraAnterior, VprCorAmostraCopia : Integer;
     VprAcao : Boolean;
     VprPerLucro,
     VprPerComissao,
@@ -152,6 +164,8 @@ type
     procedure CalculaConsumos;
     procedure CalculaValorTotalServicoFixo;
     procedure CarComissaoLucroPadrao;
+    procedure InicializaPaginaValorVenda;
+    procedure CopiaConsumo;
   public
     function ConsumosAmostra(VpaDAmostra: TRBDAmostra): Boolean;
   end;
@@ -246,9 +260,10 @@ begin
   GValorVenda.Cells[6,0] := '%Comissão';
   GValorVenda.Cells[7,0] := 'Custo Mat Prima';
   GValorVenda.Cells[8,0] := 'Custo Processos';
-  GValorVenda.Cells[9,0] := 'Custo Produto';
-  GValorVenda.Cells[10,0] := 'Custo com Impostos';
-  GValorVenda.Cells[11,0] := 'Preço sem Items Especiais';
+  GValorVenda.Cells[9,0] := 'Custo M.O Bordado';
+  GValorVenda.Cells[10,0] := 'Custo Produto';
+  GValorVenda.Cells[11,0] := 'Custo com Impostos';
+  GValorVenda.Cells[12,0] := 'Preço sem Items Especiais';
 
   GPrecoCliente.Cells[1,0] := 'Quantidade';
   GPrecoCliente.Cells[2,0] := 'Valor Venda';
@@ -285,8 +300,9 @@ begin
   GValorVenda.Cells[6,GValorVenda.ALinha]:= FormatFloat('#,##0.00',VprDValorVendaAmostra.PerComissao);
   GValorVenda.Cells[7,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDAmostra.CustoMateriaPrima);
   GValorVenda.Cells[8,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDAmostra.CustoProcessos);
-  GValorVenda.Cells[9,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDAmostra.CustoProduto);
-  GValorVenda.Cells[10,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDValorVendaAmostra.CustoComImposto);
+  GValorVenda.Cells[9,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDAmostra.CustoMaodeObraBordado);
+  GValorVenda.Cells[10,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDAmostra.CustoProduto);
+  GValorVenda.Cells[11,GValorVenda.ALinha]:= FormatFloat('#,###,###,##0.00',VprDValorVendaAmostra.CustoComImposto);
 end;
 
 {******************************************************************************}
@@ -317,6 +333,22 @@ begin
   begin
     VprDValorVendaAmostra := TRBDValorVendaAmostra(VprDAmostra.ValoresVenda.Items[VpaLinhaAtual-1]);
   end;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.InicializaPaginaValorVenda;
+begin
+  if VprDAmostra.ValoresVenda.Count = 0  then
+  begin
+    FreeTObjectsList(VprDAmostra.Quantidades);
+    VprDQuantidadeAmostra:= VprDAmostra.addQuantidade;
+    VprDQuantidadeAmostra.Quantidade := 500;
+    VprDQuantidadeAmostra:= VprDAmostra.addQuantidade;
+    VprDQuantidadeAmostra.Quantidade := 1000;
+    GQuantidade.CarregaGrade;
+    FunAmostra.CalculaValorVendaUnitario(VprDAmostra);
+  end;
+  GValorVenda.CarregaGrade;
 end;
 
 {******************************************************************************}
@@ -369,6 +401,7 @@ begin
   end;
 end;
 
+{******************************************************************************}
 procedure TFAmostraConsumo.GQuantidadeMudouLinha(Sender: TObject; VpaLinhaAtual, VpaLinhaAnterior: Integer);
 begin
   if VprDAmostra.Quantidades.Count > 0 then
@@ -377,6 +410,7 @@ begin
   end;
 end;
 
+{******************************************************************************}
 procedure TFAmostraConsumo.GQuantidadeNovaLinha(Sender: TObject);
 begin
   VprDQuantidadeAmostra:= VprDAmostra.addQuantidade;
@@ -1013,6 +1047,14 @@ begin
   end;
 end;
 
+procedure TFAmostraConsumo.PaginasChange(Sender: TObject);
+begin
+  if Paginas.ActivePage = PValorVenda then
+  begin
+    InicializaPaginaValorVenda;
+  end;
+end;
+
 {******************************************************************************}
 procedure TFAmostraConsumo.EValSugeridoEnter(Sender: TObject);
 begin
@@ -1029,6 +1071,13 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFAmostraConsumo.Colar1Click(Sender: TObject);
+begin
+  if VprCorAmostraCopia <> 0 then
+    CopiaConsumo;
+end;
+
+{******************************************************************************}
 function TFAmostraConsumo.ConsumosAmostra(VpaDAmostra: TRBDAmostra): Boolean;
 begin
   VprDAmostra:= VpaDAmostra;
@@ -1038,6 +1087,21 @@ begin
   EQtdCortes.AValor := VprDAmostra.QtdCortesBordado;
   ShowModal;
   result := VprAcao;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.CopiaConsumo;
+begin
+  FunAmostra.CarConsumosAmostra(VprDAmostra,VprCorAmostraCopia);
+  Grade.ADados := VprDAmostra.Consumos;
+  Grade.CarregaGrade;
+  VprCorAmostraAnterior := ECorKit.AInteiro;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.Copiar1Click(Sender: TObject);
+begin
+  VprCorAmostraCopia := ECorKit.AInteiro;
 end;
 
 {******************************************************************************}
@@ -1300,6 +1364,7 @@ begin
   end;
 end;
 
+{******************************************************************************}
 procedure TFAmostraConsumo.GItensEspeciaisKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
@@ -1307,6 +1372,52 @@ begin
     114: case Grade.Col of
            1: LocalizaItemEspecial;
          end;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GItensEspeciaisKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  case GItensEspeciais.Col of
+    3 : if Key = '.' then
+         Key:= ',';
+  end;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GItensEspeciaisMudouLinha(Sender: TObject;
+  VpaLinhaAtual, VpaLinhaAnterior: Integer);
+begin
+  if VprDAmostra.ItensEspeciais.Count > 0 then
+  begin
+    VprDItemEspecial := TRBDItensEspeciaisAmostra(VprDAmostra.ItensEspeciais.Items[VpaLinhaAtual-1]);
+    VprItemEspecialAnterior := VprDItemEspecial.CodProduto;
+  end;
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GItensEspeciaisNovaLinha(Sender: TObject);
+begin
+  VprDItemEspecial := VprDAmostra.addItemEspecial;
+  VprItemEspecialAnterior := '-1';
+end;
+
+{******************************************************************************}
+procedure TFAmostraConsumo.GItensEspeciaisSelectCell(Sender: TObject; ACol,
+  ARow: Integer; var CanSelect: Boolean);
+begin
+  if GItensEspeciais.AEstadoGrade in [egInsercao, egEdicao] then
+  begin
+    if GItensEspeciais.AColuna <> ACol then
+      case GItensEspeciais.AColuna of
+        1: if not ExisteItemEspecial then
+             if not LocalizaItemEspecial then
+             begin
+               GItensEspeciais.Cells[1,GItensEspeciais.ALinha]:= '';
+               Abort;
+             end;
+      end;
   end;
 end;
 

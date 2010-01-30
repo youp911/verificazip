@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Grids, DBGrids, Tabela, DBKeyViolation, Componentes1, ExtCtrls, UnDadosProduto, UnOrdemProducao,
-  PainelGradiente, Db, DBTables, StdCtrls, Mask, numericos, Buttons;
+  PainelGradiente, Db, DBTables, StdCtrls, Mask, numericos, Buttons, DBClient;
 
 type
   TFOrdensProducaoCadarco = class(TFormularioPermissao)
@@ -14,39 +14,37 @@ type
     PanelColor2: TPanelColor;
     Label1: TLabel;
     ENumPedido: Tnumerico;
-    OrdemProducaoCorpo: TQuery;
+    OrdemProducaoCorpo: TSQL;
     DataOrdemProducaoCorpo: TDataSource;
-    OrdemProducaoCorpoEMPFIL: TIntegerField;
-    OrdemProducaoCorpoSEQORD: TIntegerField;
-    OrdemProducaoCorpoDATEMI: TDateTimeField;
-    OrdemProducaoCorpoDATENP: TDateTimeField;
-    OrdemProducaoCorpoCODCLI: TIntegerField;
-    OrdemProducaoCorpoNUMPED: TIntegerField;
-    OrdemProducaoCorpoTIPPED: TIntegerField;
-    OrdemProducaoCorpoCODUSU: TIntegerField;
-    OrdemProducaoCorpoC_NOM_USU: TStringField;
-    OrdemProducaoCorpoC_NOM_CLI: TStringField;
-    OrdemProducaoCorpoTipoPedido: TStringField;
+    OrdemProducaoCorpoEMPFIL: TFMTBCDField;
+    OrdemProducaoCorpoSEQORD: TFMTBCDField;
+    OrdemProducaoCorpoCODCLI: TFMTBCDField;
+    OrdemProducaoCorpoNUMPED: TFMTBCDField;
+    OrdemProducaoCorpoTIPPED: TFMTBCDField;
+    OrdemProducaoCorpoCODUSU: TFMTBCDField;
+    OrdemProducaoCorpoC_NOM_USU: TWideStringField;
+    OrdemProducaoCorpoC_NOM_CLI: TWideStringField;
+    OrdemProducaoCorpoTipoPedido: TWideStringField;
     BAlterar: TBitBtn;
     BImprimir: TBitBtn;
     BFechar: TBitBtn;
-    OpItem: TQuery;
+    OpItem: TSQL;
     DataOpItem: TDataSource;
-    OpItemQTDMET: TFloatField;
-    OpItemGROPRO: TFloatField;
-    OpItemDESENG: TStringField;
-    OpItemQTDFUS: TIntegerField;
-    OpItemNROFIO: TIntegerField;
-    OpItemTITFIO: TStringField;
-    OpItemDESENC: TStringField;
-    OpItemNROMAQ: TIntegerField;
-    OpItemNUMTAB: TFloatField;
-    OpItemC_NOM_PRO: TStringField;
-    OpItemNOM_COR: TStringField;
+    OpItemQTDMET: TFMTBCDField;
+    OpItemDESENG: TWideStringField;
+    OpItemQTDFUS: TFMTBCDField;
+    OpItemNROFIO: TFMTBCDField;
+    OpItemTITFIO: TWideStringField;
+    OpItemDESENC: TWideStringField;
+    OpItemNROMAQ: TFMTBCDField;
+    OpItemNUMTAB: TFMTBCDField;
+    OpItemC_NOM_PRO: TWideStringField;
+    OpItemNOM_COR: TWideStringField;
     PanelColor3: TPanelColor;
     GridIndice1: TGridIndice;
     GridIndice2: TGridIndice;
     Splitter1: TSplitter;
+    OpItemGROPRO: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure OrdemProducaoCorpoCalcFields(DataSet: TDataSet);
@@ -74,7 +72,7 @@ var
 
 implementation
 
-uses APrincipal, FunSql, AImpOrdemProducao, ANovaOrdemProducaoCadarco;
+uses APrincipal, FunSql, AImpOrdemProducao, ANovaOrdemProducaoCadarco, dmRave;
 
 {$R *.DFM}
 
@@ -194,9 +192,9 @@ procedure TFOrdensProducaoCadarco.BImprimirClick(Sender: TObject);
 begin
   if OrdemProducaoCorpoSEQORD.AsInteger <> 0 then
   begin
-    FImpOrdemProducao := TFImpOrdemProducao.create(self);
-    FImpOrdemProducao.ImprimeOPEspulaCadarco(OrdemProducaoCorpoEMPFIL.AsString,OrdemProducaoCorpoSEQORD.AsString);
-    FImpOrdemProducao.free;
+    dtRave := TdtRave.Create(self);
+    dtRave.ImprimeOPCadarcoTrancado(OrdemProducaoCorpoEMPFIL.AsInteger,OrdemProducaoCorpoSEQORD.AsInteger,true);
+    dtRave.Free;
   end;
 end;
 

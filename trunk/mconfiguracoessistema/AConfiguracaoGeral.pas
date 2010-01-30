@@ -831,7 +831,7 @@ begin
     if Entrada('Senha','Senha Secreta :',VpfTexto,true,DBEditLocaliza2.Color,PanelColor1.color) then
     begin
       if Uppercase(VpfTexto) = 'MORRO' then
-        CFGC_DIR_REL.AsString := 'C:\Eficacia\siscorp\minstalacao\relatorios';
+        CFGC_DIR_REL.AsString := 'D:\Eficacia\siscorp\minstalacao\relatorios';
     end;
 end;
 

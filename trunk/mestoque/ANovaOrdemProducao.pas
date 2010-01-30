@@ -7,7 +7,7 @@ uses
   Componentes1, ExtCtrls, PainelGradiente, StdCtrls, Buttons, numericos,
   Mask, Localizacao,UnDados, ComCtrls, UnordemProducao,UnProdutos,
   DBKeyViolation, EditorImagem, Grids, CGrades, Db, DBTables, DBCtrls,
-  Tabela, DBGrids, UnDadosProduto, DBClient;
+  Tabela, DBGrids, UnDadosProduto, DBClient, UnRave;
 
 type
   TRBStatusCadastro = (scInserindo,scAlterando,scConsultando);
@@ -218,6 +218,7 @@ type
     VprUMPedidoAnterior, VprOrdemMetroFaturado : String;
     FunOrdemProducao : TRBFuncoesOrdemProducao;
     FunProduto : TFuncoesProduto;
+    FunRave : TRBFunRave;
     function RetornaCodPro(SeqPro: integer): string;
     procedure PosHistoricoColeta(VpaEmpFil, VpaSeqOrdem : String);
     procedure PosRevisaoExterna(VpaEmpFil, VpaSeqOrdem : String);
@@ -260,6 +261,7 @@ procedure TFNovaOrdemProducao.FormCreate(Sender: TObject);
 begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
+  FunRave := TRBFunRave.cria(FPrincipal.BaseDados);
   VprOrdemMetroFaturado := 'order by NOTA.I_NRO_NOT';
   PageControl1.ActivePageIndex := 0;
   VprSeqProdutoAnterior := -1;
@@ -287,6 +289,7 @@ procedure TFNovaOrdemProducao.FormClose(Sender: TObject; var Action: TCloseActio
 begin
   { fecha tabelas }
   { chamar a rotina de atualização de menus }
+  FunRave.Free;
   VprDOrdem.free;
   VprDProduto.free;
   FunOrdemProducao.free;
@@ -1014,12 +1017,7 @@ end;
 {******************************************************************************}
 procedure TFNovaOrdemProducao.BImpOPClick(Sender: TObject);
 begin
-  FImpOrdemProducao := TFImpOrdemProducao.Create(Application);
-//  VprDOrdem.CodEmpresafilial;
-//  VprDOrdem.SeqOrdem;
-//  FunOrdem.CarDOrdemProducao(VprDOrdem);
-  FImpOrdemProducao.ImprimeOP(VprDOrdem,true);
-  FImpOrdemProducao.Free;
+  FunRave.ImprimeOrdemProducaoEtikArt(VprDOrdem,true);
 end;
 
 {******************************************************************************}

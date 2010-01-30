@@ -11,82 +11,60 @@ object dtRave: TdtRave
     ASqlQuery.MaxBlobSize = -1
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
+      'select CLI.I_COD_CLI, CLI.C_NOM_CLI, '
       
-        'select CAD.I_EMP_FIL, CAD.I_LAN_ORC, CAD.C_CON_ORC, CAD.D_DAT_OR' +
-        'C, CAD.T_HOR_ORC, CAD.C_ORD_COM, CAD.N_VLR_TOT, '
+        'OP.EMPFIL, OP.TIPPED, OP.DATEMI, OP.DATENP, OP.SEQORD, OP.DESOBS' +
+        ','
       
-        ' CAD.D_DAT_PRE, CAD.L_OBS_ORC, CAD.I_TIP_FRE, CAD.N_VLR_PRO, CAD' +
-        '.N_VLR_DES, CAD.N_PER_DES, CAD.T_HOR_ENT, '
+        ' ITE.QTDMET, ITE.INDALG, ITE.INDPOL, ITE.GROPRO, ITE.CODCOR, ITE' +
+        '.DESENG, '
       
-        ' CAD.N_VLR_TRO, CAD.N_QTD_TRA, CAD.C_ESP_TRA, CAD.C_MAR_TRA, CAD' +
-        '.N_PES_BRU, CAD.N_PES_LIQ, '
-      ' CAD.D_DAT_VAL, CAD.N_VAL_TAX,'
-      ' TIP.I_COD_TIP, TIP.C_NOM_TIP, '
+        ' ITE.QTDFUS, ITE.NROFIO, ITE.TITFIO, ITE.DESENC, ITE.NUMTAB, ITE' +
+        '.NROMAQ, '
+      'ITE.DESTAB, '
+      ' PRO.C_NOM_PRO, '
+      'COR.NOM_COR,'
+      ' USU.I_COD_USU, USU.C_NOM_USU '
       
-        ' CLI.I_COD_CLI, CLI.C_NOM_CLI,  CLI.C_NOM_FAN, CLI.C_END_CLI, CL' +
-        'I.I_NUM_END, '
-      
-        '  CLI.C_COM_END, CLI.C_BAI_CLI, CLI.C_CEP_CLI, CLI.C_CID_CLI, CL' +
-        'I.C_EST_CLI, CLI.C_CGC_CLI, '
-      ' CLI.C_INS_CLI, CLI.C_FO1_CLI, CLI.C_FON_FAX, CLI.C_END_ELE, '
-      
-        ' CLI.C_END_COB, CLI.C_BAI_COB, CLI.I_NUM_COB, CLI.C_CID_COB, CLI' +
-        '.C_EST_COB, CLI.C_CEP_COB,'
-      ' VEN.I_COD_VEN, VEN.C_NOM_VEN, '
-      ' TRA.C_NOM_TRA, TRA.C_FON_TRA,'
-      ' PAG.C_NOM_PAG, '
-      ' FRM.C_NOM_FRM '
-      
-        ' from CADORCAMENTOS CAD, CADTIPOORCAMENTO TIP, CADCLIENTES CLI, ' +
-        'CADVENDEDORES VEN, CADTRANSPORTADORAS TRA, '
-      ' CADCONDICOESPAGTO PAG, CADFORMASPAGAMENTO FRM '
-      ' where CAD.I_TIP_ORC = TIP.I_COD_TIP '
-      ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '
-      ' AND CAD.I_COD_VEN = VEN.I_COD_VEN '
-      ' AND CAD.I_COD_TRA = TRA.I_COD_TRA(+)'
-      ' AND CAD.I_COD_PAG = PAG.I_COD_PAG '
-      ' AND CAD.I_COD_FRM = FRM.I_COD_FRM '
-      ' and CAD.I_EMP_FIL = 11'
-      ' and CAD.I_LAN_ORC = 2423')
+        ' from ORDEMPRODUCAOCORPO OP, OPITEMCADARCO ITE, CADCLIENTES CLI,' +
+        ' CADPRODUTOS PRO, CADUSUARIOS USU, COR'
+      ' WHERE OP.EMPFIL = ITE.EMPFIL '
+      ' AND OP.SEQORD = ITE.SEQORD '
+      ' AND OP.CODCLI = CLI.I_COD_CLI '
+      ' AND ITE.SEQPRO = PRO.I_SEQ_PRO '
+      ' AND OP.CODUSU = USU.I_COD_USU '
+      'AND ITE.CODCOR = COR.COD_COR'
+      ' and OP.EMPFIL = 11'
+      ' AND OP.SEQORD = 5018'
+      ' ORDER BY SEQITE')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
+      'select CLI.I_COD_CLI, CLI.C_NOM_CLI, '
       
-        'select CAD.I_EMP_FIL, CAD.I_LAN_ORC, CAD.C_CON_ORC, CAD.D_DAT_OR' +
-        'C, CAD.T_HOR_ORC, CAD.C_ORD_COM, CAD.N_VLR_TOT, '
+        'OP.EMPFIL, OP.TIPPED, OP.DATEMI, OP.DATENP, OP.SEQORD, OP.DESOBS' +
+        ','
       
-        ' CAD.D_DAT_PRE, CAD.L_OBS_ORC, CAD.I_TIP_FRE, CAD.N_VLR_PRO, CAD' +
-        '.N_VLR_DES, CAD.N_PER_DES, CAD.T_HOR_ENT, '
+        ' ITE.QTDMET, ITE.INDALG, ITE.INDPOL, ITE.GROPRO, ITE.CODCOR, ITE' +
+        '.DESENG, '
       
-        ' CAD.N_VLR_TRO, CAD.N_QTD_TRA, CAD.C_ESP_TRA, CAD.C_MAR_TRA, CAD' +
-        '.N_PES_BRU, CAD.N_PES_LIQ, '
-      ' CAD.D_DAT_VAL, CAD.N_VAL_TAX,'
-      ' TIP.I_COD_TIP, TIP.C_NOM_TIP, '
+        ' ITE.QTDFUS, ITE.NROFIO, ITE.TITFIO, ITE.DESENC, ITE.NUMTAB, ITE' +
+        '.NROMAQ, '
+      'ITE.DESTAB, '
+      ' PRO.C_NOM_PRO, '
+      'COR.NOM_COR,'
+      ' USU.I_COD_USU, USU.C_NOM_USU '
       
-        ' CLI.I_COD_CLI, CLI.C_NOM_CLI,  CLI.C_NOM_FAN, CLI.C_END_CLI, CL' +
-        'I.I_NUM_END, '
-      
-        '  CLI.C_COM_END, CLI.C_BAI_CLI, CLI.C_CEP_CLI, CLI.C_CID_CLI, CL' +
-        'I.C_EST_CLI, CLI.C_CGC_CLI, '
-      ' CLI.C_INS_CLI, CLI.C_FO1_CLI, CLI.C_FON_FAX, CLI.C_END_ELE, '
-      
-        ' CLI.C_END_COB, CLI.C_BAI_COB, CLI.I_NUM_COB, CLI.C_CID_COB, CLI' +
-        '.C_EST_COB, CLI.C_CEP_COB,'
-      ' VEN.I_COD_VEN, VEN.C_NOM_VEN, '
-      ' TRA.C_NOM_TRA, TRA.C_FON_TRA,'
-      ' PAG.C_NOM_PAG, '
-      ' FRM.C_NOM_FRM '
-      
-        ' from CADORCAMENTOS CAD, CADTIPOORCAMENTO TIP, CADCLIENTES CLI, ' +
-        'CADVENDEDORES VEN, CADTRANSPORTADORAS TRA, '
-      ' CADCONDICOESPAGTO PAG, CADFORMASPAGAMENTO FRM '
-      ' where CAD.I_TIP_ORC = TIP.I_COD_TIP '
-      ' AND CAD.I_COD_CLI = CLI.I_COD_CLI '
-      ' AND CAD.I_COD_VEN = VEN.I_COD_VEN '
-      ' AND CAD.I_COD_TRA = TRA.I_COD_TRA(+)'
-      ' AND CAD.I_COD_PAG = PAG.I_COD_PAG '
-      ' AND CAD.I_COD_FRM = FRM.I_COD_FRM '
-      ' and CAD.I_EMP_FIL = 11'
-      ' and CAD.I_LAN_ORC = 2423')
+        ' from ORDEMPRODUCAOCORPO OP, OPITEMCADARCO ITE, CADCLIENTES CLI,' +
+        ' CADPRODUTOS PRO, CADUSUARIOS USU, COR'
+      ' WHERE OP.EMPFIL = ITE.EMPFIL '
+      ' AND OP.SEQORD = ITE.SEQORD '
+      ' AND OP.CODCLI = CLI.I_COD_CLI '
+      ' AND ITE.SEQPRO = PRO.I_SEQ_PRO '
+      ' AND OP.CODUSU = USU.I_COD_USU '
+      'AND ITE.CODCOR = COR.COD_COR'
+      ' and OP.EMPFIL = 11'
+      ' AND OP.SEQORD = 5018'
+      ' ORDER BY SEQITE')
     Left = 80
     Top = 8
   end
@@ -264,36 +242,42 @@ object dtRave: TdtRave
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
       
-        'Select ITE.SEQITEM, ITE.CODPRODUTO, ITE.CODCOR, ITE.DESUM, ITE.N' +
-        'OMCOR NOMECORITEM, '
+        'select  MOV.C_COD_PRO, MOV.N_QTD_PRO, MOV.C_COD_UNI, MOV.N_VLR_P' +
+        'RO, MOV.N_VLR_TOT, MOV.C_NOM_PRO PRODUTOCOTACAO, '
+      ' MOV.C_IND_BRI, MOV.N_SAL_BRI, MOV.C_DES_COR, MOV.N_ALT_PRO, '
       
-        '            ITE.NOMPRODUTO NOMEPRODUTOITE, ITE.QTDPRODUTO, ITE.V' +
-        'ALUNITARIO, ITE.VALTOTAL,'
-      '    ITE.NUMOPCAO, ITE.VALDESCONTO,'
-      '   PRO.C_NOM_PRO,'
-      '  COR.NOM_COR'
-      'FROM PROPOSTAPRODUTO ITE, CADPRODUTOS PRO, COR'
-      'Where ITE.SEQPRODUTO = PRO.I_SEQ_PRO'
-      'AND ITE.CODFILIAL = 11'
-      'AND ITE.SEQPROPOSTA = 6'
-      'AND ITE.CODCOR = COR.COD_COR(+)'
+        ' MOV.C_DES_COR CORCOTACAO, MOV.C_PRO_REF, MOV.N_PER_DES, MOV.C_O' +
+        'RD_COM, MOV.I_COD_TAM, '
+      ' COR.COD_COR, COR.NOM_COR, '
+      ' PRO.C_NOM_PRO, '
+      ' TAM.NOMTAMANHO '
+      ' from MOVORCAMENTOS MOV, CADPRODUTOS PRO, COR, TAMANHO TAM '
+      ' where MOV.I_EMP_FIL = 11'
+      ' AND MOV.I_LAN_ORC =12'
+      ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO'
+      ' AND MOV.I_COD_COR = COR.COD_COR(+)'
+      ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+)'
+      ' ORDER BY MOV.I_SEQ_MOV'
       '')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
       
-        'Select ITE.SEQITEM, ITE.CODPRODUTO, ITE.CODCOR, ITE.DESUM, ITE.N' +
-        'OMCOR NOMECORITEM, '
+        'select  MOV.C_COD_PRO, MOV.N_QTD_PRO, MOV.C_COD_UNI, MOV.N_VLR_P' +
+        'RO, MOV.N_VLR_TOT, MOV.C_NOM_PRO PRODUTOCOTACAO, '
+      ' MOV.C_IND_BRI, MOV.N_SAL_BRI, MOV.C_DES_COR, MOV.N_ALT_PRO, '
       
-        '            ITE.NOMPRODUTO NOMEPRODUTOITE, ITE.QTDPRODUTO, ITE.V' +
-        'ALUNITARIO, ITE.VALTOTAL,'
-      '    ITE.NUMOPCAO, ITE.VALDESCONTO,'
-      '   PRO.C_NOM_PRO,'
-      '  COR.NOM_COR'
-      'FROM PROPOSTAPRODUTO ITE, CADPRODUTOS PRO, COR'
-      'Where ITE.SEQPRODUTO = PRO.I_SEQ_PRO'
-      'AND ITE.CODFILIAL = 11'
-      'AND ITE.SEQPROPOSTA = 6'
-      'AND ITE.CODCOR = COR.COD_COR(+)'
+        ' MOV.C_DES_COR CORCOTACAO, MOV.C_PRO_REF, MOV.N_PER_DES, MOV.C_O' +
+        'RD_COM, MOV.I_COD_TAM, '
+      ' COR.COD_COR, COR.NOM_COR, '
+      ' PRO.C_NOM_PRO, '
+      ' TAM.NOMTAMANHO '
+      ' from MOVORCAMENTOS MOV, CADPRODUTOS PRO, COR, TAMANHO TAM '
+      ' where MOV.I_EMP_FIL = 11'
+      ' AND MOV.I_LAN_ORC =12'
+      ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO'
+      ' AND MOV.I_COD_COR = COR.COD_COR(+)'
+      ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+)'
+      ' ORDER BY MOV.I_SEQ_MOV'
       '')
     Left = 136
     Top = 8

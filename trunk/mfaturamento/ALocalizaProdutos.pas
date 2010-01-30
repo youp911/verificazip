@@ -795,6 +795,7 @@ begin
   begin
     VpaDItemEspecial.SeqProduto:= CadProdutosI_SEQ_PRO.AsInteger;
     VpaDItemEspecial.CodProduto:= CadProdutosC_COD_PRO.AsString;
+    VpaDItemEspecial.NomProduto := CadProdutosC_NOM_PRO.AsString;
     VpaDItemEspecial.ValProduto := CadProdutosN_VLR_CUS.AsFloat;
   end;
   CadProdutos.close;
