@@ -24,8 +24,10 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     function RSeqRequisicaoMaquinaDisponivel : Integer;
     procedure CarServicosFixoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
     procedure CarPrecosClienteAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
+    procedure CarAmostracor(VpaDAmotra : TRBDAmostra; vpaCorAmostra : Integer);
     function GravaDServicoFixoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
     function GravaDPrecoClienteAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
+    function GravaDAmostracor(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
     procedure CarCoeficientesTabelaPreco(VpaDAmostra : TRBDAmostra);
     function RValCustoMateriaPrima(VpaDAmostra : TRBDAmostra):Double;
     function CalculaCustoMaodeObraBordado(VpaDAmostra : TRBDAmostra) : Double;
@@ -38,6 +40,7 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     function ConcluiDesenhoAmostra(VpaSeqRequisicao : Integer) : string;
     function AprovaAmostra(VpaCodAmostra : Integer) : string;
     function ConcluirFichaTecnica(VpaCodAmostra : Integer) : string;
+    function ConcluirFichaAmostra(VpaCodAmostra : Integer) : string;
     function EstornarAprovacao(VpaCodAmostra : Integer) : string;
     procedure CarConsumosAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer);
     function GravaConsumoAmostra(VpaDAmostra : TRBDAmostra;VpaCorAmostra : Integer):string;
@@ -276,6 +279,23 @@ begin
 end;
 
 {******************************************************************************}
+function TRBFuncoesAmostra.GravaDAmostracor(VpaDAmostra: TRBDAmostra; VpaCorAmostra: Integer): string;
+begin
+  ExecutaComandoSql(Aux,'Delete from AMOSTRACOR '+
+                        ' Where CODAMOSTRA = '+IntToStr(VpaDAmostra.CodAmostra)+
+                        '  and CODCOR = '+IntToStr(VpaCorAmostra));
+  AdicionaSQLAbreTabela(Cadastro,'Select * from AMOSTRACOR '+
+                                 ' Where CODAMOSTRA = 0 AND CODCOR = 0');
+  Cadastro.Insert;
+  Cadastro.FieldByName('CODAMOSTRA').AsInteger := VpaDAmostra.CodAmostra;
+  Cadastro.FieldByName('CODCOR').AsInteger := VpaCorAmostra;
+  Cadastro.FieldByName('DESIMAGEM').AsString := VpaDAmostra.DesImagemCor;
+  Cadastro.Post;
+  result := Cadastro.AMensagemErroGravacao;
+  Cadastro.Close;
+end;
+
+{******************************************************************************}
 function TRBFuncoesAmostra.GravaDPrecoClienteAmostra(VpaDAmostra: TRBDAmostra; VpaCorAmostra: Integer): string;
 var
   VpfLaco : Integer;
@@ -416,6 +436,19 @@ begin
 end;
 
 {******************************************************************************}
+function TRBFuncoesAmostra.ConcluirFichaAmostra(VpaCodAmostra: Integer): string;
+begin
+  result := '';
+  AdicionaSQLAbreTabela(Cadastro,'Select * from AMOSTRA '+
+                                 ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
+  Cadastro.edit;
+  Cadastro.FieldByname('DATFICHAAMOSTRA').AsDateTime := now;
+  Cadastro.post;
+  result := Cadastro.AMensagemErroGravacao;
+  Cadastro.close;
+end;
+
+{******************************************************************************}
 function TRBFuncoesAmostra.ConcluirFichaTecnica(VpaCodAmostra : Integer) : string;
 begin
   result := '';
@@ -506,6 +539,17 @@ begin
   VpfCoeficiente := VpaDValorVenda.PerCoeficientes + VpaDValorVenda.PerComissao + VpaDValorVenda.PerLucro+VpaDValorVenda.PerVendaPrazo;
   VpaDValorVenda.CustoComImposto := VpaDAmostra.CustoProduto /(1-((VpaDValorVenda.PerCoeficientes+VpaDValorVenda.PerComissao)/100));
   VpaDValorVenda.ValVenda := VpaDAmostra.CustoProduto /(1-(vpfCoeficiente/100));
+end;
+
+{******************************************************************************}
+procedure TRBFuncoesAmostra.CarAmostracor(VpaDAmotra: TRBDAmostra;vpaCorAmostra: Integer);
+begin
+  AdicionaSQLAbreTabela(Amostra,'Select DESIMAGEM ' +
+                               ' from AMOSTRACOR' +
+                               ' Where CODAMOSTRA = ' +IntToStr(VpaDAmotra.CodAmostra)+
+                               ' and CODCOR = ' +IntToStr(vpaCorAmostra));
+  VpaDAmotra.DesImagemCor := Amostra.fieldbyname('DESIMAGEM').AsString;
+  Amostra.Close;
 end;
 
 {******************************************************************************}
@@ -603,6 +647,7 @@ begin
   Amostra.close;
   CarServicosFixoAmostra(VpaDAmostra,VpaCorAmostra);
   CarPrecosClienteAmostra(VpaDAmostra,VpaCorAmostra);
+  CarAmostracor(VpaDAmostra,VpaCorAmostra);
 end;
 
 {******************************************************************************}
@@ -667,7 +712,11 @@ begin
       begin
         result := GravaDPrecoClienteAmostra(VpaDAmostra,VpaCorAmostra);
         if result = '' then
+        begin
           result := AtualizaTrocaLinhasQtdTotalPontosAmostra(VpaDAmostra);
+          if result = '' then
+            result := GravaDAmostracor(VpaDAmostra,VpaCorAmostra)
+        end;
       end;
     end;
   end;
@@ -719,6 +768,7 @@ begin
   VpaDAmostra.QtdTotalPontos := Amostra.FieldByName('QTDTOTALPONTOSBORDADO').AsInteger;
   VpaDAmostra.QtdCortesBordado := Amostra.FieldByName('QTDCORTES').AsInteger;
   VpaDAmostra.QtdTrocasLinhaBordado := Amostra.FieldByName('QTDTROCALINHA').AsInteger;
+  VpaDAmostra.CodClassificacao := Amostra.FieldByName('CODCLASSIFICACAO').AsString;
 
   Amostra.Close;
 end;
@@ -883,8 +933,6 @@ end;
 procedure TRBFuncoesAmostra.ExcluiAmostra(VpaCodAmostra: Integer);
 begin
   ExecutaComandoSql(Aux,'Delete from AMOSTRAPRECOCLIENTE '+
-                        ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
-  ExecutaComandoSql(Aux,'Delete from AMOSTRASERVICO '+
                         ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
   ExecutaComandoSql(Aux,'Delete from AMOSTRACONSUMO '+
                         ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));

@@ -158,7 +158,9 @@ type
     procedure ConsultaSolicitaoCompra1Click(Sender: TObject);
   private
     FunNotaFor: TFuncoesNFFor;
-    VprSeqProduto: Integer;
+    VprSeqProduto,
+    VprFilialNotaEntrada,
+    VprSeqNotaEntrada: Integer;
     FunPedidoCompra: TRBFunPedidoCompra;
     VprOrdem: String;
     VprOrdemItens: String;
@@ -174,6 +176,7 @@ type
   public
     procedure ConsultaPedidosSolicitacao(VpaSeqSolicitacao: Integer);
     procedure ConsultaPedidosOrdemProducao(VpaCodFilial, VpaSeqOrdemProducao, VpaSeqFracao : Integer);
+    procedure ConsultaNotaEntrada(VpaCodFilial, VpaSeqNota  : Integer);
   end;
 
 var
@@ -295,8 +298,13 @@ begin
       VpaSelect.add('AND FRA.CODFILIAL = PCC.CODFILIAL '+
                     ' AND FRA.SEQPEDIDO = PCC.SEQPEDIDO )');
     end;
+    if VprSeqNotaEntrada <> 0 then
+      VpaSelect.Add('  and EXISTS ( SELECT * FROM PEDIDOCOMPRANOTAFISCAL PNF'+
+                               ' WHERE PNF.SEQPEDIDO = PCC.SEQPEDIDO ' +
+                               '  AND PNF.CODFILIAL = PCC.CODFILIAL ' +
+                               '  AND PNF.CODFILIAL = ' +IntToStr(VprFilialNotaEntrada)+
+                               '  AND PNF.SEQNOTA = ' +IntToStr(VprSeqNotaEntrada)+' )' );
   end;
-
 end;
 
 {******************************************************************************}
@@ -752,18 +760,12 @@ procedure TFPedidoCompra.BFiltrosClick(Sender: TObject);
 begin
   if BFiltros.Caption = '>>' then
   begin
-    if screen.Height = 768 then
-      PanelColor1.Height := 260
-    else
-      PanelColor1.Height := 211;
+    PanelColor1.Height := EComprador.Top + EComprador.Height + 5;
     BFiltros.Caption := '<<';
   end
   else
   begin
-    if screen.Height = 768 then
-      PanelColor1.Height := 67
-    else
-      PanelColor1.Height := 52;
+    PanelColor1.Height := EPedidoCompra.Top + EPedidoCompra.Height + 5;
     BFiltros.Caption := '>>';
   end;
 end;
@@ -823,6 +825,16 @@ begin
     FAgendamentos.ConsultaPedidoCompra(PEDIDOCOMPRACORPOCODFILIAL.AsInteger,PEDIDOCOMPRACORPOSEQPEDIDO.AsInteger);
     FAgendamentos.free;
   end;
+end;
+
+{******************************************************************************}
+procedure TFPedidoCompra.ConsultaNotaEntrada(VpaCodFilial, VpaSeqNota: Integer);
+begin
+  VprFilialNotaEntrada := VpaCodFilial;
+  VprSeqNotaEntrada :=  VpaSeqNota;
+  CPeriodo.Checked := false;
+  AtualizaConsulta;
+  showmodal;
 end;
 
 Initialization

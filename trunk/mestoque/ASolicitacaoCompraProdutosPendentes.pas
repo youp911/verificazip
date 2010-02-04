@@ -147,6 +147,12 @@ begin
     Grade.ColWidths[5] := -1;
     Grade.ColWidths[3] := RetornaInteiro(Grade.ColWidths[3] *1.9);
   end;
+  if not config.ControlarEstoquedeChapas then
+  begin
+    Grade.ColWidths[10] := -1;
+    Grade.ColWidths[11] := -1;
+    Grade.ColWidths[12] := -1;
+  end;
 end;
 
 {******************************************************************************}
@@ -160,6 +166,10 @@ begin
   Grade.Cells[7,0]:= 'Qtd Aprovada';
   Grade.Cells[8,0]:= 'UM';
   Grade.Cells[9,0]:= 'Data Aprovação';
+  Grade.Cells[10,0]:= 'Qtd Chapa';
+  Grade.Cells[11,0]:= 'Largura';
+  Grade.Cells[12,0]:= 'Comprimento';
+
 end;
 
 {******************************************************************************}
@@ -217,6 +227,18 @@ begin
     Grade.Cells[7,VpaLinha]:= '';
   Grade.Cells[8,VpaLinha]:= VprDProdutoPendente.DesUM;
   Grade.Cells[9,VpaLinha] := FormatDateTime('DD/MM/YYYY',VprDProdutoPendente.DatAprovacao);
+  if VprDProdutoPendente.QtdChapa <> 0 then
+    Grade.Cells[10,VpaLinha]:= FormatFloat('#,###,##0',VprDProdutoPendente.QtdChapa)
+  else
+    Grade.Cells[10,VpaLinha]:= '';
+  if VprDProdutoPendente.LarChapa <> 0 then
+    Grade.Cells[11,VpaLinha]:= FormatFloat('#,###,##0',VprDProdutoPendente.LarChapa)
+  else
+    Grade.Cells[11,VpaLinha]:= '';
+  if VprDProdutoPendente.ComChapa <> 0 then
+    Grade.Cells[12,VpaLinha]:= FormatFloat('#,###,##0',VprDProdutoPendente.ComChapa)
+  else
+    Grade.Cells[12,VpaLinha]:= '';
 end;
 
 {******************************************************************************}

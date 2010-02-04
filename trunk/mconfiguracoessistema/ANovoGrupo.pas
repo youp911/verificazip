@@ -248,6 +248,14 @@ type
     ScrollBox2: TScrollBox;
     DBCheckBox71: TDBCheckBox;
     CadGruposC_EST_INV: TWideStringField;
+    DBCheckBox72: TDBCheckBox;
+    CadGruposC_EST_FAP: TWideStringField;
+    CadGruposC_EST_MAP: TWideStringField;
+    CadGruposC_EST_MCP: TWideStringField;
+    DBCheckBox73: TDBCheckBox;
+    DBCheckBox74: TDBCheckBox;
+    CadGruposC_CRM_CAM: TWideStringField;
+    DBCheckBox75: TDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadGruposAfterInsert(DataSet: TDataSet);

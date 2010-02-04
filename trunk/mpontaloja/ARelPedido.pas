@@ -716,7 +716,10 @@ begin
             else
               if (VPRNOMRELATORIO = 'ANALISE PEDIDO ANUAL') then
                 FunRave.ImprimeAnaliseFaturamentoMensal(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro, EPreposto.AInteiro, VprCaminhoRelatorio,
-                                         LFilial.Caption,LCliente.Caption,LVendedor.Caption,LPreposto.Caption,CDataIni.DateTime, CDataFim.Date,false);
+                                         LFilial.Caption,LCliente.Caption,LVendedor.Caption,LPreposto.Caption,CDataIni.DateTime, CDataFim.Date,false)
+            else
+              if (VPRNOMRELATORIO = 'AMOSTRAS FALTAM FINALIZAR') then
+                dtRave.ImprimeAmostrasqueFaltamFinalizar;
   dtRave.free;
 end;
 

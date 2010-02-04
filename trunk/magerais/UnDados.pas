@@ -210,7 +210,10 @@ type
       DesUM: String;
       QtdUtilizada,
       QtdAprovada,
-      QtdComprada: Double;
+      QtdComprada,
+      QtdChapa,
+      LarChapa,
+      ComChapa : Double;
       DatAprovacao : TDateTime;
       OrcamentosCompra : TList;
       constructor Cria;
@@ -371,7 +374,10 @@ type
       UnidadesParentes: TStringList;
       QtdProduto,
       QtdAprovado,
-      QtdComprado : Double;
+      QtdComprado,
+      QtdChapa,
+      LarChapa,
+      ComChapa : Double;
       constructor Cria;
       destructor Destroy; override;
 end;

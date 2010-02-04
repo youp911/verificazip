@@ -7,7 +7,7 @@ uses
   Componentes1, ExtCtrls, PainelGradiente, StdCtrls, Localizacao, Db, Constantes,
   DBTables, Buttons, Mask, DBCtrls, Tabela, Grids, DBGrids, ConstMsg,UnNotasFiscaisFor,
   unContasAPagar, DBKeyViolation, ComCtrls, numericos, UnDadosProduto, UnDAdosLocaliza, UnCrystal,
-  SqlExpr, DBClient;
+  SqlExpr, DBClient, Menus;
 
 type
   TFExtornoEntrada = class(TFormularioPermissao)
@@ -69,6 +69,8 @@ type
     BImprimir: TBitBtn;
     MovNotasfiscaisForNOMPRODUTONOTA: TWideStringField;
     MovNotasfiscaisForNOMEPRODUTO: TWideStringField;
+    PopupMenu1: TPopupMenu;
+    VisualizaPedidosCompra1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -84,6 +86,7 @@ type
     procedure RBEditLocaliza1Retorno(VpaColunas: TRBColunasLocaliza);
     procedure BImprimirClick(Sender: TObject);
     procedure MovNotasfiscaisForCalcFields(DataSet: TDataSet);
+    procedure VisualizaPedidosCompra1Click(Sender: TObject);
   private
     { Private declarations }
     UnNotasFiscaisFor : TFuncoesNFFor;
@@ -103,7 +106,7 @@ var
 
 implementation
 
-uses APrincipal,funsql, FunData, ANovaNotaFiscaisFor, dmRave;
+uses APrincipal,funsql, FunData, ANovaNotaFiscaisFor, dmRave, APedidoCompra;
 
 {$R *.DFM}
 
@@ -300,6 +303,16 @@ begin
     VprSeqProduto := 0;
   end;
   AtualizaConsulta;
+end;
+
+procedure TFExtornoEntrada.VisualizaPedidosCompra1Click(Sender: TObject);
+begin
+  if CadNotasFiscaisForI_Emp_Fil.AsInteger <> 0 then
+  begin
+    FPedidoCompra := TFPedidoCompra.CriarSDI(self,'',true);
+    FPedidoCompra.ConsultaNotaEntrada(CadNotasFiscaisForI_Emp_Fil.AsInteger,CadNotasFiscaisForI_Seq_Not.AsInteger);
+    FPedidoCompra.Free;
+  end;
 end;
 
 {******************************************************************************}

@@ -926,8 +926,8 @@
 			<DCCReference Include="AMotivoParada.pas">
 				<Form>FMotivoParada</Form>
 			</DCCReference>
-			<DCCReference Include="AAmostrasPendentes.pas">
-				<Form>FAmostrasPendentes</Form>
+			<DCCReference Include="AFichaAmostrasPendentes.pas">
+				<Form>FFichaAmostrasPendentes</Form>
 			</DCCReference>
 			<DCCReference Include="..\mcrm\ATipoMateriaPrima.pas">
 				<Form>FTipoMateriaPrima</Form>
@@ -943,6 +943,9 @@
 			</DCCReference>
 			<DCCReference Include="AImprimeEtiquetaPrateleira.pas">
 				<Form>FImprimeEtiquetaPrateleira</Form>
+			</DCCReference>
+			<DCCReference Include="AAmostrasPendentes.pas">
+				<Form>FAmostrasPendentes</Form>
 			</DCCReference>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
@@ -969,7 +972,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">SisCorp RAFAEL MORRO 1 12</Parameters>
+						<Parameters Name="RunParams">SisCorp RAFAEL MORRO 1 11</Parameters>
 					</Parameters>
 					<Language>
 						<Language Name="ProjectLang">$00000416</Language>

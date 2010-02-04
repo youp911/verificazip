@@ -1,4 +1,4 @@
-unit AAmostrasPendentes;
+unit AFichaAmostrasPendentes;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   DBGrids, Tabela, DBKeyViolation, DBTables, Menus, UnAmostra, DBClient, Localizacao;
 
 type
-  TFAmostrasPendentes = class(TFormularioPermissao)
+  TFFichaAmostrasPendentes = class(TFormularioPermissao)
     PainelGradiente1: TPainelGradiente;
     PanelColor1: TPanelColor;
     PanelColor2: TPanelColor;
@@ -42,8 +42,10 @@ type
     N3: TMenuItem;
     AlterarDesenvolvedor1: TMenuItem;
     EDesenvolvedor: TRBEditLocaliza;
-    ESituacao: TComboBoxColor;
-    Label9: TLabel;
+    EDesenvolvedorFiltro: TRBEditLocaliza;
+    Label3: TLabel;
+    SpeedButton2: TSpeedButton;
+    Label4: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -64,7 +66,7 @@ type
   end;
 
 var
-  FAmostrasPendentes: TFAmostrasPendentes;
+  FFichaAmostrasPendentes: TFFichaAmostrasPendentes;
 
 implementation
 
@@ -74,19 +76,17 @@ uses APrincipal, AAmostras, Constantes, FunObjeto, Constmsg, ANovaAmostra;
 
 
 { ****************** Na criação do Formulário ******************************** }
-procedure TFAmostrasPendentes.FormCreate(Sender: TObject);
+procedure TFFichaAmostrasPendentes.FormCreate(Sender: TObject);
 begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
   FunAmostra := TRBFuncoesAmostra.cria(FPrincipal.BaseDados);
   ConfiguraPermissaoUsuario;
-  if varia.CNPJFilial = CNPJ_VENETO  then
-    ESituacao.ItemIndex := 1;
   AtualizaConsulta;
 end;
 
 
-procedure TFAmostrasPendentes.GerarAmostra1Click(Sender: TObject);
+procedure TFFichaAmostrasPendentes.GerarAmostra1Click(Sender: TObject);
 begin
   if AmostrasCODAMOSTRA.AsInteger <> 0 then
   begin
@@ -98,7 +98,7 @@ begin
 end;
 
 { ******************* Quando o formulario e fechado ************************** }
-procedure TFAmostrasPendentes.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TFFichaAmostrasPendentes.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   { fecha tabelas }
   { chamar a rotina de atualização de menus }
@@ -112,7 +112,7 @@ end;
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
 
 {******************************************************************************}
-procedure TFAmostrasPendentes.AlterarDesenvolvedor1Click(Sender: TObject);
+procedure TFFichaAmostrasPendentes.AlterarDesenvolvedor1Click(Sender: TObject);
 var
   VpfResultado : string;
 begin
@@ -125,7 +125,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFAmostrasPendentes.AtualizaConsulta;
+procedure TFFichaAmostrasPendentes.AtualizaConsulta;
 begin
   Amostras.close;
   Amostras.sql.clear;
@@ -135,7 +135,7 @@ begin
                    ' DES.CODDESENVOLVEDOR, DES.NOMDESENVOLVEDOR, '+
                    ' DEP.CODDEPARTAMENTOAMOSTRA, DEP.NOMDEPARTAMENTOAMOSTRA '+
                    ' FROM AMOSTRA AMO, CADVENDEDORES VEN, CADCLIENTES CLI, DESENVOLVEDOR DES, DEPARTAMENTOAMOSTRA DEP '+
-                   ' WHERE AMO.DATENTREGA IS NULL '+
+                   ' WHERE AMO.DATFICHAAMOSTRA IS NULL '+
                    ' AND AMO.TIPAMOSTRA = ''I'''+
                    ' AND AMO.CODVENDEDOR = VEN.I_COD_VEN '+
                    ' AND AMO.CODCLIENTE = CLI.I_COD_CLI '+
@@ -147,33 +147,31 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFAmostrasPendentes.AdicionaFiltros(VpaConsulta : TStrings);
+procedure TFFichaAmostrasPendentes.AdicionaFiltros(VpaConsulta : TStrings);
 begin
   if EDepartamento.AInteiro <> 0 then
     Amostras.SQL.add('AND AMO.CODDEPARTAMENTOAMOSTRA = '+EDepartamento.Text);
-  case ESituacao.ItemIndex of
-    1 : Amostras.SQL.Add('AND AMO.DATFICHAAMOSTRA IS NOT NULL');
-  end;
+  if EDesenvolvedorFiltro.AInteiro <> 0 then
+    Amostras.SQL.Add('AND AMO.CODESENVOLVEDOR = '+EDesenvolvedorFiltro.Text);
 end;
 
 {******************************************************************************}
-procedure TFAmostrasPendentes.ConfiguraPermissaoUsuario;
+procedure TFFichaAmostrasPendentes.ConfiguraPermissaoUsuario;
 begin
   MConcluiAmostra.Visible := true;
   if not((puAdministrador in varia.PermissoesUsuario) or (puPLCompleto in varia.PermissoesUsuario)) then
   begin
-    AlterarVisibleDet([MConcluiAmostra],(puCRConcluirAmostra in varia.PermissoesUsuario));
   end;
 end;
 
 {******************************************************************************}
-procedure TFAmostrasPendentes.BFecharClick(Sender: TObject);
+procedure TFFichaAmostrasPendentes.BFecharClick(Sender: TObject);
 begin
   close;
 end;
 
 {******************************************************************************}
-procedure TFAmostrasPendentes.MConsultaAmostraClick(
+procedure TFFichaAmostrasPendentes.MConsultaAmostraClick(
   Sender: TObject);
 begin
   FAmostras := TFAmostras.CriarSDI(self,'',FPrincipal.VerificaPermisao('FAmostras'));
@@ -182,11 +180,11 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFAmostrasPendentes.MConcluiAmostraClick(Sender: TObject);
+procedure TFFichaAmostrasPendentes.MConcluiAmostraClick(Sender: TObject);
 var
   VpfResultado : string;
 begin
-  VpfREsultado := FunAmostra.ConcluiAmostra(AmostrasCODAMOSTRA.AsInteger,date);
+  VpfREsultado := FunAmostra.ConcluirFichaAmostra(AmostrasCODAMOSTRA.AsInteger);
   if VpfREsultado <> '' then
     aviso(VpfREsultado)
   else
@@ -194,13 +192,13 @@ begin
 end;
 
 {******************************************************************************}
-procedure TFAmostrasPendentes.EDepartamentoClick(Sender: TObject);
+procedure TFFichaAmostrasPendentes.EDepartamentoClick(Sender: TObject);
 begin
   AtualizaConsulta;
 end;
 
 {******************************************************************************}
-procedure TFAmostrasPendentes.EDepartamentoFimConsulta(Sender: TObject);
+procedure TFFichaAmostrasPendentes.EDepartamentoFimConsulta(Sender: TObject);
 begin
   AtualizaConsulta;
 end;
@@ -208,5 +206,5 @@ end;
 {******************************************************************************}
 Initialization
 { *************** Registra a classe para evitar duplicidade ****************** }
- RegisterClasses([TFAmostrasPendentes]);
+ RegisterClasses([TFFichaAmostrasPendentes]);
 end.

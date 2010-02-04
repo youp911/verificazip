@@ -1505,7 +1505,8 @@ function TFuncoesProduto.AdicionaConsumoExtraFracaoOP(VpaCodFilial,VpaSeqOrdemPr
 begin
   if VpaTipOperacao = 'E' then
     VpaQtdProduto := VpaQtdProduto *-1;
-  AdicionaSQLAbreTabela(ProCadastro,'Select * from FRACAOOPCONSUMO ');
+  AdicionaSQLAbreTabela(ProCadastro,'Select * from FRACAOOPCONSUMO '+
+                                    ' Where CODFILIAL = 0 AND SEQORDEM = 0 AND SEQFRACAO = 0');
   ProCadastro.Insert;
   ProCadastro.FieldByName('CODFILIAL').AsInteger := VpaCodFilial;
   ProCadastro.FieldByName('SEQORDEM').AsInteger := VpaSeqOrdemProducao;

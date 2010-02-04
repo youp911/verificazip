@@ -163,6 +163,12 @@ begin
       Cadastro.FieldByName('INDCOMPRADO').AsString := 'N';
     Cadastro.FieldByName('QTDSOLICITADA').AsFloat := VpfDProdutoCompra.QtdSolicitada;
     Cadastro.FieldByName('QTDCOMPRADA').AsFloat := VpfDProdutoCompra.QtdComprado;
+    if VpfDProdutoCompra.QtdChapa <> 0 then
+      Cadastro.FieldByName('QTDCHAPA').AsFloat := VpfDProdutoCompra.QtdChapa;
+    if VpfDProdutoCompra.LarChapa <> 0 then
+      Cadastro.FieldByName('LARCHAPA').AsFloat := VpfDProdutoCompra.LarChapa;
+    if VpfDProdutoCompra.ComChapa <> 0 then
+      Cadastro.FieldByName('COMCHAPA').AsFloat := VpfDProdutoCompra.ComChapa;
     Cadastro.FieldByName('PERIPI').AsFloat := VpfDProdutoCompra.PerIPI;
     if VpfDProdutoCompra.DatAprovacao > montadata(1,1,1900) then
       Cadastro.FieldByName('DATAPROVACAO').AsDateTime := VpfDProdutoCompra.DatAprovacao
@@ -229,7 +235,7 @@ Var
   VpfDOrcProduto : TRBDOrcamentoCompraProduto;
 begin
   result := '';
-  AdicionaSQLAbreTabela(Cadastro,'Select * from ORCAMENTOCOMPRAFORNECEDORITEM'+
+  AdicionaSQLAbreTabela(Cadastro,'Select * from ORCAMENTOCOMPRAFORNECEDORITEM '+
                                  ' Where CODFILIAL = 0 AND SEQORCAMENTO = 0 AND CODCLIENTE = 0 AND SEQITEM = 0');
   for VpfLacoFornecedor := 0 to VpadOrcamento.Fornecedores.Count - 1 do
   begin
@@ -254,6 +260,12 @@ begin
       Cadastro.FieldByName('VALUNITARIO').AsFloat := VpfDOrcProduto.ValUnitario;
       Cadastro.FieldByName('VALTOTAL').AsFloat := VpfDOrcProduto.ValTotal;
       Cadastro.FieldByName('PERIPI').AsFloat := VpfDOrcProduto.PerIPI;
+      if VpfDOrcProduto.QtdChapa <> 0 then
+        Cadastro.FieldByName('QTDCHAPA').AsFloat := VpfDOrcProduto.QtdChapa;
+      if VpfDOrcProduto.LarChapa <> 0 then
+        Cadastro.FieldByName('LARCHAPA').AsFloat := VpfDOrcProduto.LarChapa;
+      if VpfDOrcProduto.ComChapa <> 0 then
+        Cadastro.FieldByName('COMCHAPA').AsFloat := VpfDOrcProduto.ComChapa;
 
       Cadastro.post;
       Result := Cadastro.AMensagemErroGravacao;
@@ -274,6 +286,7 @@ var
 begin
   AdicionaSQLAbreTabela(Tabela,'Select ORI.SEQITEM, ORI.SEQPRODUTO, ORI.CODCOR, ORI.DESUM, ORI.QTDPRODUTO, '+
                                ' ORI.INDCOMPRADO, ORI.QTDSOLICITADA, ORI.QTDCOMPRADA, ORI.DATAPROVACAO, ORI.PERIPI, '+
+                               ' ORI.QTDCHAPA, ORI.LARCHAPA, ORI.COMCHAPA, '+
                                ' PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_COD_UNI UMORIGINAL, PRO.L_DES_TEC,  '+
                                ' COR.NOM_COR '+
                                ' from ORCAMENTOCOMPRAITEM ORI, CADPRODUTOS PRO, COR '+
@@ -301,6 +314,9 @@ begin
     VpfDProOrcamento.QtdSolicitada := Tabela.FieldByName('QTDSOLICITADA').AsFloat;
     VpfDProOrcamento.QtdComprado := Tabela.FieldByName('QTDCOMPRADA').AsFloat;
     VpfDProOrcamento.PerIPI := Tabela.FieldByName('PERIPI').AsFloat;
+    VpfDProOrcamento.QtdChapa := Tabela.FieldByName('QTDCHAPA').AsFloat;
+    VpfDProOrcamento.LarChapa := Tabela.FieldByName('LARCHAPA').AsFloat;
+    VpfDProOrcamento.ComChapa := Tabela.FieldByName('COMCHAPA').AsFloat;
     VpfDProOrcamento.DatAprovacao := Tabela.FieldByName('DATAPROVACAO').AsDateTime;
     Tabela.next;
   end;
@@ -345,7 +361,7 @@ begin
   begin
     VpfDProFornecedor := TRBDOrcamentoCompraFornecedor(VpaDOrcamento.Fornecedores.Items[VpfLaco]);
     AdicionaSQLAbreTabela(Tabela,'Select ORI.SEQITEM, ORI.SEQPRODUTO, ORI.CODCOR, ORI.DESUM, ORI.QTDPRODUTO, '+
-                               ' ORI.QTDCOMPRADA, ORI.PERIPI, '+
+                               ' ORI.QTDCOMPRADA, ORI.PERIPI, ORI.QTDCHAPA, ORI.LARCHAPA, ORI.COMCHAPA, '+
                                ' PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_COD_UNI UMORIGINAL, PRO.L_DES_TEC,  '+
                                ' COR.NOM_COR, '+
                                ' PRF.DESREFERENCIA '+
@@ -377,6 +393,9 @@ begin
       VpfDProOrcamento.QtdSolicitada := Tabela.FieldByName('QTDPRODUTO').AsFloat;
       VpfDProOrcamento.QtdComprado := Tabela.FieldByName('QTDCOMPRADA').AsFloat;
       VpfDProOrcamento.PerIPI := Tabela.FieldByName('PERIPI').AsFloat;
+      VpfDProOrcamento.QtdChapa := Tabela.FieldByName('QTDCHAPA').AsFloat;
+      VpfDProOrcamento.LarChapa := Tabela.FieldByName('LARCHA').AsFloat;
+      VpfDProOrcamento.Comchapa := Tabela.FieldByName('COMCHAPA').AsFloat;
       VpfDProOrcamento.DesReferenciaFornecedor := Tabela.FieldByName('DESREFERENCIA').AsString;
       Tabela.next;
     end;
@@ -681,6 +700,9 @@ begin
     VpaDProDestino.QtdSolicitada := VpaDProOrigem.QtdSolicitada;
     VpaDProDestino.QtdComprado := VpaDProOrigem.QtdComprado;
     VpaDProDestino.ValUnitario := VpaDProOrigem.ValUnitario;
+    VpaDProDestino.QtdChapa := VpaDProOrigem.QtdChapa;
+    VpaDProDestino.LarChapa := VpaDProOrigem.LarChapa;
+    VpaDProDestino.ComChapa := VpaDProOrigem.ComChapa;
     VpaDProDestino.ValTotal := VpaDProOrigem.ValTotal;
     VpaDProDestino.PerIPI := VpaDProOrigem.PerIPI;
     VpaDProDestino.DatAprovacao := VpaDProOrigem.DatAprovacao;

@@ -511,6 +511,8 @@ type
     DBEditColor32: TDBEditColor;
     CFGI_MES_SCS: TFMTBCDField;
     PanelColor7: TPanelColor;
+    DBCheckBox48: TDBCheckBox;
+    CFGC_AMO_FTC: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

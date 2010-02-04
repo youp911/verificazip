@@ -373,6 +373,8 @@ type
     SpeedButton43: TSpeedButton;
     DBEditLocaliza38: TDBEditLocaliza;
     CFGI_ORC_SLO: TFMTBCDField;
+    CFGC_EST_CHA: TWideStringField;
+    DBCheckBox18: TDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

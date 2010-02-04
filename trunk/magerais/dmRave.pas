@@ -4,7 +4,8 @@ interface
 
 uses
   SysUtils, Classes, DSServer, FMTBcd, RpDefine, RpCon, RpConDS, DB, SqlExpr,RPDevice, Windows,
-  RpRave, DBClient, Tabela, RpBase, RpSystem, UnRave, UnDados,RvLDCompiler, RpRender, RpRenderPDF;
+  RpRave, DBClient, Tabela, RpBase, RpSystem, UnRave, UnDados,RvLDCompiler, RpRender, RpRenderPDF,
+  UnProdutos;
 
 type
   TdtRave = class(TDSServerModule)
@@ -106,7 +107,8 @@ type
     procedure ImprimeVendasporVendedor(VpaDatInicio,VpaDatFim : TDateTime;VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao : Integer;VpaCaminhoRelatorio,VpaNomFilial,VpaNomCliente,VpaNomVendedor,VpaNomTipoCotacao: String);
     procedure ImprimeSolicitacaoCompra(VpaCodFilial, VpaSeqSolicitacao : Integer; VpaVisualizar : Boolean);
     procedure ImprimeProposta(VpaCodFilial, VpaSeqProposta : Integer; VpaVisualizar : Boolean);
-    procedure ImprimeFichaTecnicaAmostra(VpaCodAmostra : Integer;VpaVisulizar : Boolean;VpaNomArquivo : String);
+    procedure ImprimeFichaTecnicaAmostra(VpaCodAmostra : Integer; VpaVisulizar : Boolean;VpaNomArquivo : String);
+    procedure ImprimeFichaTecnicaAmostraCor(VpaCodAmostra, VpaCodCor : Integer; VpaVisulizar : Boolean;VpaNomArquivo : String);
     procedure ImprimeTotalClientesAtendidoseProdutosVendidos(VpaCodClienteMaster : INteger;VpaCaminho, VpaNomClienteMaster : String;VpaDatInicio, VpaDatFim : TDateTime);
     procedure ImprimeCortePendente;
     procedure ImprimeDiasCorte(VpaDatInicio,VpaDatFim : TDateTime;VpaCaminho : String);
@@ -118,6 +120,7 @@ type
     procedure ImprimeDuplicata(VpaCodFilial,VpaLanReceber, VpaNumParcela : integer;vpaVisualizar : Boolean);
     procedure ImprimeColetaOP(VpaCodFilial,VpaSeqOrdem,VpaSeqColeta : Integer;VpaVisualizar : Boolean);
     procedure ImprimeOPCadarcoTrancado(VpaCodFilial,VpaSeqOrdem : Integer;VpaVisualizar : Boolean);
+    procedure ImprimeAmostrasqueFaltamFinalizar;
   end;
 
 
@@ -2529,7 +2532,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TdtRave.ImprimeFichaTecnicaAmostra(VpaCodAmostra: Integer; VpaVisulizar: Boolean;VpaNomArquivo : String);
+procedure TdtRave.ImprimeFichaTecnicaAmostra(VpaCodAmostra : Integer; VpaVisulizar: Boolean;VpaNomArquivo : String);
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Ficha Tecnica Amostra';
@@ -2537,7 +2540,7 @@ begin
   Rave.clearParams;
   LimpaSqlTabela(Principal);
   AdicionaSqlAbreTabeLa(Principal,'select AMO.CODAMOSTRA, AMO.NOMAMOSTRA, AMO.DATAMOSTRA, AMO.DATENTREGACLIENTE, AMO.INDCOPIA, '+
-                              ' AMO.TIPAMOSTRA, AMO.DESOBSERVACAO, AMO.QTDAMOSTRA,'''+varia.DriveFoto+'''|| AMO.DESIMAGEM DESIMAGEM, '+
+                              ' AMO.TIPAMOSTRA, AMO.DESOBSERVACAO, AMO.QTDAMOSTRA, '''+varia.DriveFoto+'''|| AMO.DESIMAGEM DESIMAGEM, '+
                               ' AMO.CODAMOSTRAINDEFINIDA, '+
                               ' CLI.I_COD_CLI, CLI.C_NOM_CLI, '+
                               ' VEN.I_COD_VEN, VEN.C_NOM_VEN, '+
@@ -2568,6 +2571,56 @@ begin
                              ' AND ' +SQLTextoRightJoin('CON.CODFACA','FAC.CODFACA')+
                              ' AND ' +SQLTextoRightJoin('CON.CODTIPOMATERIAPRIMA','TIP.CODTIPOMATERIAPRIMA')+
                              ' ORDER BY CON.CODTIPOMATERIAPRIMA, CON.NUMSEQUENCIA, CON.DESLEGENDA');
+  if VpaNomArquivo <> '' then
+    VplArquivoPDF := VpaNomArquivo;
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeFichaTecnicaAmostraCor(VpaCodAmostra, VpaCodCor: Integer; VpaVisulizar: Boolean; VpaNomArquivo: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Ficha Tecnica Amostra';
+  Rave.projectfile := varia.PathRelatorios+'\Amostra\xx_FichaTecnicaCor.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlAbreTabeLa(Principal,'select AMO.CODAMOSTRA, AMO.NOMAMOSTRA, AMO.DATAMOSTRA, AMO.DATENTREGACLIENTE, AMO.INDCOPIA, '+
+                              ' AMO.TIPAMOSTRA, AMO.DESOBSERVACAO, AMO.QTDAMOSTRA, '''+varia.DriveFoto+'''|| AMC.DESIMAGEM DESIMAGEM, '+
+                              ' AMO.CODAMOSTRAINDEFINIDA, '+
+                              ' CLI.I_COD_CLI, CLI.C_NOM_CLI, '+
+                              ' VEN.I_COD_VEN, VEN.C_NOM_VEN, '+
+                              ' COL.NOMCOLECAO, '+
+                              ' DES.NOMDESENVOLVEDOR, '+
+                              ' CLA.C_COD_CLA, CLA.C_NOM_CLA '+
+                              ' from AMOSTRA AMO, CADCLIENTES CLI, CADVENDEDORES VEN, COLECAO COL, DESENVOLVEDOR DES, CADCLASSIFICACAO CLA, AMOSTRACOR AMC '+
+                              ' Where AMO.CODCOLECAO = COL.CODCOLECAO '+
+                              ' AND AMO.CODDESENVOLVEDOR = DES.CODDESENVOLVEDOR '+
+                              ' AND AMO.CODVENDEDOR = VEN.I_COD_VEN '+
+                              ' AND AMO.CODCLIENTE = CLI.I_COD_CLI '+
+                              ' AND AMO.CODEMPRESA = CLA.I_COD_EMP '+
+                              ' AND AMO.CODCLASSIFICACAO = CLA.C_COD_CLA '+
+                              ' AND AMO.DESTIPOCLASSIFICACAO = CLA.C_TIP_CLA '+
+                              ' AND AMO.CODAMOSTRA = AMC.CODAMOSTRA ' +
+                              ' AND AMC.CODCOR = '+IntToStr(VpaCodCor)+
+                              ' AND AMO.CODAMOSTRA = '+IntToStr(VpaCodAmostra));
+
+  AdicionaSqlAbreTabeLa(Item,'select  CON.SEQCONSUMO, CON.QTDPRODUTO, CON.VALUNITARIO, CON.VALTOTAL, CON.DESOBSERVACAO, '+
+                             ' CON.DESUM, CON.CODFACA, CON.ALTMOLDE, CON.LARMOLDE, CON.CODMAQUINA, CON.QTDPECAEMMETRO, '+
+                             ' CON.VALINDICEMETRO, CON.DESLEGENDA, '+
+                             ' PRO.C_NOM_PRO,I_ALT_PRO, '+
+                             ' COR.COD_COR, COR.NOM_COR, '+
+                             ' FAC.NOMFACA,' +
+                             ' CON.CODTIPOMATERIAPRIMA, TIP.NOMTIPOMATERIAPRIMA '+
+                             ' from AMOSTRACONSUMO CON, CADPRODUTOS PRO, COR, FACA FAC, TIPOMATERIAPRIMA TIP '+
+                             ' Where CON.CODAMOSTRA = '+IntToStr(VpaCodAmostra)+
+                             ' AND CON.SEQPRODUTO = PRO.I_SEQ_PRO '+
+                             ' AND ' +SQLTextoRightJoin('CON.CODCOR','COR.COD_COR')+
+                             ' AND ' +SQLTextoRightJoin('CON.CODFACA','FAC.CODFACA')+
+                             ' AND ' +SQLTextoRightJoin('CON.CODTIPOMATERIAPRIMA','TIP.CODTIPOMATERIAPRIMA')+
+                             ' AND CON.CODCORAMOSTRA = '+IntToStr(VpaCodCor)+
+                             ' ORDER BY CON.CODTIPOMATERIAPRIMA, CON.NUMSEQUENCIA, CON.DESLEGENDA');
+  Rave.SetParam('NOMCOR',FunProdutos.RNomeCor(IntToStr(VpaCodCor)));
+
   if VpaNomArquivo <> '' then
     VplArquivoPDF := VpaNomArquivo;
   Rave.Execute;
@@ -2878,5 +2931,29 @@ begin
 
   Rave.Execute;
 end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeAmostrasqueFaltamFinalizar;
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Amostras que faltam finalizar';
+  Rave.projectfile := varia.PathRelatorios+'\Amostra\1300CR_Amostras Faltam Finalizar.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlAbreTabeLa(Principal,'SELECT  OD.CODAMOSTRA CODOD, OD.DATENTREGACLIENTE, OD.DATAMOSTRA , ' +
+                                  ' AMO.CODAMOSTRA, AMO.NOMAMOSTRA, ' +
+                                  ' CLI.C_NOM_CLI, ' +
+                                  ' CLA.C_NOM_CLA ' +
+                                  ' FROM AMOSTRA OD,  AMOSTRA AMO, CADCLIENTES CLI, CADCLASSIFICACAO CLA ' +
+                                  ' WHERE OD.CODAMOSTRA = AMO.CODAMOSTRAINDEFINIDA ' +
+                                  ' AND AMO.CODCLIENTE = CLI.I_COD_CLI ' +
+                                  ' AND AMO.CODCLASSIFICACAO = CLA.C_COD_CLA ' +
+                                  ' AND AMO.DATENTREGA IS NULL '+
+                                  ' ORDER BY OD.DATENTREGACLIENTE, AMO.CODAMOSTRA');
+//  Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
+
+
 
 end.

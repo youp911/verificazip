@@ -82,7 +82,7 @@ type
     puSomenteClientesdoVendedor,puFIBloquearClientes, puVendedorAlteraContrato, puPLImprimirPedidoDuasVezes, puPLImprimirValoresRelatorioPedidosPendentes,
     puESPlanoCorte,puCRSomenteCadastraProspect,puESColetaQtdProduzidoOP,puESReprocessarProdutividade, puESAcertoEstoque,
     puESMenuGerencial, puESRegerarProjeto,puSomenteCondicoesPgtoAutorizadas, puESCadastrarCelulaTrabalho, puESReservaEstoque, puESConsultaProduto,
-    puAlterarLimiteCredito, puESInventario);
+    puAlterarLimiteCredito, puESInventario, puESMenuGerencialFichaAmostraPendente,puESMenuGerencialAmostraPendente, puESCustoPendente, puCRConcluirAmostra );
 
   TRBDPermisaoUsuario = set of TRBDOpcoesPermisaoUsuario;
   TRBDTipoValorComissao = (vcTotalNota,vcTotalProdutos);
@@ -539,6 +539,7 @@ type
     ReferenciaClienteCadastrarAutomatica : Boolean;
     MostrarOrdemProducaoNoAcertoEstoque : Boolean;
     MostrarCodBarrasCorNoAcertoEstoque : Boolean;
+    ControlarEstoquedeChapas : Boolean;
 
 //-------------------Financeiro
     CapaLote : Boolean;            // verica capa de lote
@@ -704,7 +705,8 @@ type
     NFEDanfeRetrato : Boolean;
 
     //Amostra
-    CodigoAmostraGeradoPelaClassificacao : Boolean;
+    CodigoAmostraGeradoPelaClassificacao,
+    FichaTecnicaAmotraporCor : Boolean;
 
     //SolidWork
     NaImportacaodoSolidWorkAMateriaPrimabuscarPeloCodigo : Boolean;
@@ -973,6 +975,17 @@ begin
    VpaDPermissao := VpaDPermissao + [puAlterarLimiteCredito];
   if TipoCheck(VarAux.FieldByName('C_EST_INV').AsString) then
    VpaDPermissao := VpaDPermissao + [puESInventario];
+  if TipoCheck(VarAux.FieldByName('C_EST_FAP').AsString) then
+   VpaDPermissao := VpaDPermissao + [puESMenuGerencialFichaAmostraPendente];
+  if TipoCheck(VarAux.FieldByName('C_EST_MAP').AsString) then
+   VpaDPermissao := VpaDPermissao + [puESMenuGerencialAmostraPendente];
+  if TipoCheck(VarAux.FieldByName('C_EST_MCP').AsString) then
+   VpaDPermissao := VpaDPermissao + [puESCustoPendente];
+  if TipoCheck(VarAux.FieldByName('C_CRM_CAM').AsString) then
+   VpaDPermissao := VpaDPermissao + [puCRConcluirAmostra];
+
+
+
 
   config.UtilizarPercentualConsulta := TipoCheck(VarAux.fieldByName('C_IND_PER').AsString);
   config.ResponsavelLeituraLocacao := TipoCheck(VarAux.fieldByName('C_RES_LEL').AsString);
@@ -1489,6 +1502,7 @@ begin
       ConverterMTeCMparaMM := TipoCheck( VpfTabela.fieldByName('C_ORP_CMM').AsString);
       ImprimirCodigoCorNaNota := TipoCheck( VpfTabela.fieldByName('C_NOF_ICO').AsString);
       CodigoAmostraGeradoPelaClassificacao := TipoCheck( VpfTabela.fieldByName('C_AMO_CAC').AsString);
+      FichaTecnicaAmotraporCor := TipoCheck( VpfTabela.fieldByName('C_AMO_FTC').AsString);
       NaImportacaodoSolidWorkAMateriaPrimabuscarPeloCodigo := TipoCheck( VpfTabela.fieldByName('C_SOW_IMC').AsString);
       AlturadoProdutonaGradedaCotacao := TipoCheck( VpfTabela.fieldByName('C_COT_APG').AsString);
     end;
@@ -1608,6 +1622,7 @@ begin
         MostrarOrdemProducaoNoAcertoEstoque := TipoCheck( VpfTabela.fieldByName('C_ORP_ACE').AsString);
         MostrarCodBarrasCorNoAcertoEstoque := TipoCheck( VpfTabela.fieldByName('C_EAN_ACE').AsString);
         EstoquePorNumeroSerie := TipoCheck( VpfTabela.fieldByName('C_EST_SER').AsString);
+        ControlarEstoquedeChapas := TipoCheck( VpfTabela.fieldByName('C_EST_CHA').AsString);
       end;
     end;
     if not Config.EstoqueCentralizado then

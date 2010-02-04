@@ -990,7 +990,7 @@ object FNovaAmostra: TFNovaAmostra
             Top = 212
             Width = 85
             Height = 24
-            Color = clInfoBk
+            Color = 11661566
             DataField = 'QTDAMOSTRA'
             DataSource = DataAmostra
             Font.Charset = DEFAULT_CHARSET
@@ -1000,7 +1000,8 @@ object FNovaAmostra: TFNovaAmostra
             Font.Style = []
             ParentFont = False
             TabOrder = 16
-            ACampoObrigatorio = False
+            OnChange = ECodigoChange
+            ACampoObrigatorio = True
             AIgnorarCor = False
             ACorFoco = FPrincipal.CorFoco
             AFormatoData = False

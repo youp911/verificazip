@@ -516,6 +516,7 @@ type
     procedure GCombinacaoCadarcoMudouLinha(Sender: TObject; VpaLinhaAtual, VpaLinhaAnterior: Integer);
     procedure GCombinacaoCadarcoNovaLinha(Sender: TObject);
     procedure GCombinacaoCadarcoSelectCell(Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
+    procedure ECorCadastrar(Sender: TObject);
   private
     VprCodClassificacao,
     VprCodClassificacaoAnterior : String;
@@ -2398,6 +2399,15 @@ begin
       VprDProTabelaPreco.NomMoeda := '';
     end;
   end;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.ECorCadastrar(Sender: TObject);
+begin
+  FCores := TFCores.CriarSDI(SELF,'',true);
+  FCores.ShowModal;
+  FCores.Free;
+  Localiza.AtualizaConsulta;
 end;
 
 {******************************************************************************}

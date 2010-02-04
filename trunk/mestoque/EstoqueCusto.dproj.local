@@ -22,5 +22,7 @@
     <Transaction>2009/11/30 08:51:43.953.dfm,C:\Eficacia\siscorp\mestoque\formpadraopermissao.dfm=C:\Eficacia\SisCorp\mestoque\AOrdemCortePendente.dfm</Transaction>
     <Transaction>2009/12/17 10:23:25.265.pas,C:\Eficacia\siscorp\mestoque\formpadraopermissao.pas=C:\Eficacia\SisCorp\mestoque\AImprimeEtiquetaPrateleira.pas</Transaction>
     <Transaction>2009/12/17 10:23:25.265.dfm,C:\Eficacia\siscorp\mestoque\formpadraopermissao.dfm=C:\Eficacia\SisCorp\mestoque\AImprimeEtiquetaPrateleira.dfm</Transaction>
+    <Transaction>2010/02/02 15:00:45.536.pas,D:\Eficacia\Siscorp\mestoque\AAmostrasPendentes.pas=D:\Eficacia\Siscorp\mestoque\AFichaAmostrasPendentes.pas</Transaction>
+    <Transaction>2010/02/02 15:00:45.536.dfm,D:\Eficacia\Siscorp\mestoque\AAmostrasPendentes.dfm=D:\Eficacia\Siscorp\mestoque\AFichaAmostrasPendentes.dfm</Transaction>
   </Transactions>
 </BorlandProject>

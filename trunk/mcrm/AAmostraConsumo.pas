@@ -54,6 +54,11 @@ type
     PopupMenu1: TPopupMenu;
     Copiar1: TMenuItem;
     Colar1: TMenuItem;
+    BImprimir: TBitBtn;
+    PImagem: TTabSheet;
+    PanelColor6: TPanelColor;
+    EImagem: TEditColor;
+    Label9: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
@@ -125,6 +130,7 @@ type
       var CanSelect: Boolean);
     procedure Copiar1Click(Sender: TObject);
     procedure Colar1Click(Sender: TObject);
+    procedure BImprimirClick(Sender: TObject);
   private
     VprServicoAnterior,
     VprServicoFixoAnterior,
@@ -146,6 +152,7 @@ type
     procedure CarTitulosGrade;
     procedure CarQtdPecaMetroGrade;
     procedure CarregaDadosClasse;
+    procedure CarDClasse;
     procedure CarDServicoFixoAmostra;
     procedure CarDItensEspeciais;
     function LocalizaProduto: Boolean;
@@ -161,6 +168,7 @@ type
     procedure CalculaValorTotalItem;
     procedure CalculaValorVenda;
     procedure CarGrade;
+    function GravaConsumo : string;
     procedure CalculaConsumos;
     procedure CalculaValorTotalServicoFixo;
     procedure CarComissaoLucroPadrao;
@@ -176,7 +184,7 @@ var
 implementation
 uses
   APrincipal, ConstMSG, ALocalizaProdutos, funString, ACores, FunObjeto,
-  ALocalizaServico, ATipoMateriaPrima, UnClientes;
+  ALocalizaServico, ATipoMateriaPrima, UnClientes, dmRave;
 
 {$R *.DFM}
 
@@ -638,6 +646,12 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFAmostraConsumo.CarDClasse;
+begin
+  VprDAmostra.DesImagemCor := EImagem.Text;
+end;
+
+{******************************************************************************}
 procedure TFAmostraConsumo.CarDItensEspeciais;
 begin
   VprDItemEspecial.ValProduto := StrToFloat(DeletaChars(GItensEspeciais.Cells[3,GItensEspeciais.ALinha],'.'));
@@ -737,6 +751,13 @@ begin
              end;
       end;
   end;
+end;
+
+{******************************************************************************}
+function TFAmostraConsumo.GravaConsumo: string;
+begin
+  CarDClasse;
+  result := FunAmostra.GravaConsumoAmostra(VprDAmostra,VprCorAmostraAnterior );
 end;
 
 {******************************************************************************}
@@ -882,6 +903,15 @@ begin
   GItensEspeciais.ADados := VprDAmostra.ItensEspeciais;
   GItensEspeciais.CarregaGrade;
   VprCorAmostraAnterior := ECorKit.AInteiro;
+  if (VprDAmostra.DesImagemCor = '') and
+     (Config.FichaTecnicaAmotraporCor) and
+     (config.CodigoAmostraGeradoPelaClassificacao)  then
+  begin
+    VprDAmostra.DesImagemCor := DeletaEspaco(CopiaAteChar(FunProdutos.RNomeClassificacao(varia.CodigoEmpresa,VprDAmostra.CodClassificacao),'-'))+'\'+IntToStr(VprDAmostra.CodAmostra)+ DeletaEspaco(DeleteAteChar(FunProdutos.RNomeCor(IntToStr(ECorKit.AInteiro)),' '))+ '.BMP';
+
+  end;
+  EImagem.Text := VprDAmostra.DesImagemCor;
+
 end;
 
 {******************************************************************************}
@@ -1134,7 +1164,7 @@ begin
   if retorno1 <> '' then
   begin
     if (ECorKit.AInteiro <> VprCorAmostraAnterior) and (VprCorAmostraAnterior <> 0) then
-      VpfResultado := FunAmostra.GravaConsumoAmostra(VprDAmostra,VprCorAmostraAnterior );
+      VpfResultado := GravaConsumo;
     if VpfResultado <> '' then
     begin
       ECorKit.AInteiro := VprCorAmostraAnterior;
@@ -1151,7 +1181,7 @@ procedure TFAmostraConsumo.BGravarClick(Sender: TObject);
 Var
   VpfResultado :String;
 begin
-  VpfResultado := FunAmostra.GravaConsumoAmostra(VprDAmostra,ECorKit.Ainteiro);
+  VpfResultado := GravaConsumo;
   if VpfResultado <> '' then
     aviso(VpfResultado)
   else
@@ -1161,6 +1191,22 @@ begin
   end;
 end;
 
+{******************************************************************************}
+procedure TFAmostraConsumo.BImprimirClick(Sender: TObject);
+Var
+  VpfResultado :String;
+begin
+  VpfResultado := GravaConsumo;
+  if VpfResultado <> '' then
+    aviso(VpfResultado)
+  else
+  begin
+    VprAcao := true;
+  end;
+  dtRave := TdtRave.create(self);
+  dtRave.ImprimeFichaTecnicaAmostraCor(VprDAmostra.CodAmostra, ECorKit.AInteiro, true,'');
+  dtRave.free;
+end;
 
 {******************************************************************************}
 procedure TFAmostraConsumo.BitBtn1Click(Sender: TObject);

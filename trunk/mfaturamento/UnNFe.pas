@@ -828,14 +828,14 @@ begin
     nfe.DANFE := nil;
     if config.EmiteNFe then
     begin
-      try
+//      try
         NFe.Enviar(0);
-      except
+{      except
         on e : exception do
         begin
           result := E.Message;
         end;
-      end;
+      end;}
       VpaDNota.NumReciboNFE := nfe.WebServices.Retorno.Recibo;
       VpaDNota.NumProtocoloNFE := nfe.WebServices.Retorno.Protocolo;
       VpaDNota.CodMotivoNFE := IntTostr(nfe.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].cStat);

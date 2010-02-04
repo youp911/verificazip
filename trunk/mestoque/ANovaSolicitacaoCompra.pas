@@ -238,7 +238,18 @@ begin
   begin
     GProdutos.ColWidths[3] := -1;
     GProdutos.ColWidths[4] := -1;
+    GProdutos.TabStops[3] := false;
+    GProdutos.TabStops[4] := false;
     GProdutos.ColWidths[2] := RetornaInteiro(GProdutos.ColWidths[2] *1.9);
+  end;
+  if not config.ControlarEstoquedeChapas then
+  begin
+    GProdutos.ColWidths[5] := -1;
+    GProdutos.ColWidths[6] := -1;
+    GProdutos.ColWidths[7] := -1;
+    GProdutos.TabStops[5] := false;
+    GProdutos.TabStops[6] := false;
+    GProdutos.TabStops[7] := false;
   end;
 end;
 
@@ -275,9 +286,12 @@ begin
   GProdutos.Cells[2,0]:= 'Produto';
   GProdutos.Cells[3,0]:= 'Código';
   GProdutos.Cells[4,0]:= 'Cor';
-  GProdutos.Cells[5,0]:= 'UM';
-  GProdutos.Cells[6,0]:= 'Qtd Utilizada';
-  GProdutos.Cells[7,0]:= 'Qtd Aprovada';
+  GProdutos.Cells[5,0]:= 'Qtd Chapas';
+  GProdutos.Cells[6,0]:= 'Largura';
+  GProdutos.Cells[7,0]:= 'Comprimento';
+  GProdutos.Cells[8,0]:= 'UM';
+  GProdutos.Cells[9,0]:= 'Qtd Utilizada';
+  GProdutos.Cells[10,0]:= 'Qtd Aprovada';
 
   GFracaoOP.Cells[1,0]:= 'Filial';
   GFracaoOP.Cells[2,0]:= 'Ordem Produção';
@@ -329,7 +343,7 @@ begin
   if EComprador.AInteiro = 0 then
     ActiveControl:= EComprador
   else
-    ActiveControl:= EPrazo; 
+    ActiveControl:= EPrazo;
 end;
 
 {******************************************************************************}
@@ -359,7 +373,7 @@ begin
   EDataFim.Clear;
   EObservacoes.Clear;
   AtualizaLocalizas(PanelColor2);
-  FocoInicial;  
+  FocoInicial;
 end;
 
 {******************************************************************************}
@@ -374,15 +388,27 @@ begin
   else
     GProdutos.Cells[3,GProdutos.ALinha]:= '';
   GProdutos.Cells[4,GProdutos.ALinha]:= VprDOrcamentoItens.NomCor;
-  GProdutos.Cells[5,GProdutos.ALinha]:= VprDOrcamentoItens.DesUM;
-  if VprDOrcamentoItens.QtdProduto <> 0 then
-    GProdutos.Cells[6,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDOrcamentoItens.QtdProduto)
+  GProdutos.Cells[8,GProdutos.ALinha]:= VprDOrcamentoItens.DesUM;
+  if VprDOrcamentoItens.QtdChapa <> 0 then
+    GProdutos.Cells[5,GProdutos.ALinha]:= FormatFloat('#,###,###0',VprDOrcamentoItens.QtdChapa)
+  else
+    GProdutos.Cells[5,GProdutos.ALinha]:= '';
+  if VprDOrcamentoItens.LarChapa <> 0 then
+    GProdutos.Cells[6,GProdutos.ALinha]:= FormatFloat('#,###,###0',VprDOrcamentoItens.LarChapa)
   else
     GProdutos.Cells[6,GProdutos.ALinha]:= '';
-  if VprDOrcamentoItens.QtdAprovado <> 0 then
-    GProdutos.Cells[7,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDOrcamentoItens.QtdAprovado)
+  if VprDOrcamentoItens.ComChapa <> 0 then
+    GProdutos.Cells[7,GProdutos.ALinha]:= FormatFloat('#,###,###0',VprDOrcamentoItens.ComChapa)
   else
     GProdutos.Cells[7,GProdutos.ALinha]:= '';
+  if VprDOrcamentoItens.QtdProduto <> 0 then
+    GProdutos.Cells[9,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDOrcamentoItens.QtdProduto)
+  else
+    GProdutos.Cells[9,GProdutos.ALinha]:= '';
+  if VprDOrcamentoItens.QtdAprovado <> 0 then
+    GProdutos.Cells[10,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDOrcamentoItens.QtdAprovado)
+  else
+    GProdutos.Cells[10,GProdutos.ALinha]:= '';
 end;
 
 {******************************************************************************}
@@ -406,18 +432,18 @@ begin
         GProdutos.Col:= 3;
       end
       else
-        if VprDOrcamentoItens.UnidadesParentes.IndexOf(GProdutos.Cells[5,GProdutos.ALinha]) < 0 then
+        if VprDOrcamentoItens.UnidadesParentes.IndexOf(GProdutos.Cells[8,GProdutos.ALinha]) < 0 then
         begin
           VpaValidos:= False;
           aviso(CT_UNIDADEVAZIA);
-          GProdutos.Col:= 5;
+          GProdutos.Col:= 8;
         end
         else
-          if GProdutos.Cells[6,GProdutos.ALinha] = '' then
+          if GProdutos.Cells[9,GProdutos.ALinha] = '' then
           begin
             VpaValidos:= False;
             aviso('QUANTIDADE NÃO PREENCHIDA!!!'#13'É necessário preencer a quantidade do produto.');
-            GProdutos.Col:= 6;
+            GProdutos.Col:= 9;
           end;
 
     if VpaValidos then
@@ -433,13 +459,26 @@ begin
     VprDOrcamentoItens.CodCor:= StrToInt(GProdutos.Cells[3,GProdutos.ALinha])
   else
     VprDOrcamentoItens.CodCor:= 0;
-  VprDOrcamentoItens.DesUM:= GProdutos.Cells[5,GProdutos.ALinha];
+  VprDOrcamentoItens.DesUM:= GProdutos.Cells[8,GProdutos.ALinha];
+  if GProdutos.Cells[5,GProdutos.ALinha] <> '' then
+    VprDOrcamentoItens.QtdChapa := StrToFloat(DeletaChars(GProdutos.Cells[5,GProdutos.ALinha],'.'))
+  else
+    VprDOrcamentoItens.QtdChapa:= 0;
   if GProdutos.Cells[6,GProdutos.ALinha] <> '' then
-    VprDOrcamentoItens.QtdProduto:= StrToFloat(DeletaChars(GProdutos.Cells[6,GProdutos.ALinha],'.'))
+    VprDOrcamentoItens.LarChapa := StrToFloat(DeletaChars(GProdutos.Cells[6,GProdutos.ALinha],'.'))
+  else
+    VprDOrcamentoItens.LarChapa:= 0;
+  if GProdutos.Cells[7,GProdutos.ALinha] <> '' then
+    VprDOrcamentoItens.ComChapa := StrToFloat(DeletaChars(GProdutos.Cells[7,GProdutos.ALinha],'.'))
+  else
+    VprDOrcamentoItens.ComChapa:= 0;
+
+  if GProdutos.Cells[9,GProdutos.ALinha] <> '' then
+    VprDOrcamentoItens.QtdProduto:= StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'))
   else
     VprDOrcamentoItens.QtdProduto:= 0;
-  if GProdutos.Cells[7,GProdutos.ALinha] <> '' then
-    VprDOrcamentoItens.QtdAprovado:= StrToFloat(DeletaChars(GProdutos.Cells[7,GProdutos.ALinha],'.'))
+  if GProdutos.Cells[10,GProdutos.ALinha] <> '' then
+    VprDOrcamentoItens.QtdAprovado:= StrToFloat(DeletaChars(GProdutos.Cells[10,GProdutos.ALinha],'.'))
   else
     VprDOrcamentoItens.QtdAprovado:= VprDOrcamentoItens.QtdProduto;
 end;
@@ -449,7 +488,7 @@ procedure TFNovaSolicitacaoCompras.GProdutosGetEditMask(Sender: TObject;
   ACol, ARow: Integer; var Value: String);
 begin
   case ACol of
-    3: Value:= '000000;0; ';
+    3,5,6,7: Value:= '0000000;0; ';
   end;
 end;
 
@@ -523,8 +562,8 @@ begin
 
         GProdutos.Cells[1,GProdutos.ALinha]:= VprDOrcamentoItens.CodProduto;
         GProdutos.Cells[2,GProdutos.ALinha]:= VprDOrcamentoItens.NomProduto;
-        GProdutos.Cells[5,GProdutos.ALinha]:= VprDOrcamentoItens.DesUM;
-        GProdutos.Cells[6,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDOrcamentoItens.Qtdproduto);
+        GProdutos.Cells[8,GProdutos.ALinha]:= VprDOrcamentoItens.DesUM;
+        GProdutos.Cells[9,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDOrcamentoItens.Qtdproduto);
       end;
     end;
   end
@@ -542,8 +581,8 @@ begin
 
     GProdutos.Cells[1,GProdutos.ALinha]:= VprDOrcamentoItens.CodProduto;
     GProdutos.Cells[2,GProdutos.ALinha]:= VprDOrcamentoItens.NomProduto;
-    GProdutos.Cells[5,GProdutos.ALinha]:= VprDOrcamentoItens.DesUM;
-    GProdutos.Cells[6,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDOrcamentoItens.Qtdproduto);
+    GProdutos.Cells[8,GProdutos.ALinha]:= VprDOrcamentoItens.DesUM;
+    GProdutos.Cells[9,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDOrcamentoItens.Qtdproduto);
     GProdutos.Col:= 3;
   end;
 end;
@@ -618,7 +657,7 @@ begin
     GFracaoOP.Cells[3,GFracaoOP.ALinha]:= IntToStr(VprDOrcamentoFracoes.SeqFracao)
   else
     GFracaoOP.Cells[3,GFracaoOP.ALinha]:= '';
-  GFracaoOP.Cells[4,GFracaoOP.ALinha]:= VprDOrcamentoFracoes.NomCliente;    
+  GFracaoOP.Cells[4,GFracaoOP.ALinha]:= VprDOrcamentoFracoes.NomCliente;
 end;
 
 {******************************************************************************}
@@ -791,7 +830,7 @@ procedure TFNovaSolicitacaoCompras.CarDClasseCorpo;
 begin
   VprDOrcamentoCorpo.CodFilial:= EFilial.AInteiro;
   VprDOrcamentoCorpo.CodUsuario:= EUsuario.AInteiro;
-  VprDOrcamentoCorpo.CodComprador:= EComprador.AInteiro;  
+  VprDOrcamentoCorpo.CodComprador:= EComprador.AInteiro;
   VprDOrcamentoCorpo.DesObservacao:= EObservacoes.Text;
   VprDOrcamentoCorpo.DatEmissao:= StrToDate(EData.Text);
   VprDOrcamentoCorpo.HorEmissao:= StrToTime(EHora.Text);
@@ -849,7 +888,7 @@ begin
   EHora.Text:= FormatDateTime('HH:MM',VprDOrcamentoCorpo.HorEmissao);
   EFilial.AInteiro:= VprDOrcamentoCorpo.CodFilial;
   EUsuario.AInteiro:= VprDOrcamentoCorpo.CodUsuario;
-  EComprador.AInteiro:= VprDOrcamentoCorpo.CodComprador;  
+  EComprador.AInteiro:= VprDOrcamentoCorpo.CodComprador;
   if VprDOrcamentoCorpo.DatPrevista > MontaData(1,1,1900) then
     EPrazo.Text:= FormatDateTime('DD/MM/YYYY',VprDOrcamentoCorpo.DatPrevista)
   else
@@ -1110,7 +1149,7 @@ begin
   FCores.BotaoCadastrar1.click;
   FCores.showmodal;
   FCores.free;
-  Localiza.AtualizaConsulta;    
+  Localiza.AtualizaConsulta;
 end;
 
 Initialization

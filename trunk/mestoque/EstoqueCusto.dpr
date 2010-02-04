@@ -336,12 +336,13 @@ uses
   UnCondicaoPagamento in '..\mfinanceiro\UnCondicaoPagamento.pas',
   AProjetos in '..\mfinanceiro\AProjetos.pas' {FProjetos},
   AMotivoParada in 'AMotivoParada.pas' {FMotivoParada},
-  AAmostrasPendentes in 'AAmostrasPendentes.pas' {FAmostrasPendentes},
+  AFichaAmostrasPendentes in 'AFichaAmostrasPendentes.pas' {FFichaAmostrasPendentes},
   ATipoMateriaPrima in '..\mcrm\ATipoMateriaPrima.pas' {FTipoMateriaPrima},
   AGeraFracaoOPProdutos in 'AGeraFracaoOPProdutos.pas' {FGeraFracaoOPProdutos},
   ABaixaOrdemCorte in 'ABaixaOrdemCorte.pas' {FBaixaOrdemCorte},
   AOrdemCortePendente in 'AOrdemCortePendente.pas' {FOrdemCortePendente},
-  AImprimeEtiquetaPrateleira in 'AImprimeEtiquetaPrateleira.pas' {FImprimeEtiquetaPrateleira};
+  AImprimeEtiquetaPrateleira in 'AImprimeEtiquetaPrateleira.pas' {FImprimeEtiquetaPrateleira},
+  AAmostrasPendentes in 'AAmostrasPendentes.pas' {FAmostrasPendentes};
 
 {$R *.RES}
 

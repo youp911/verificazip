@@ -23,7 +23,7 @@ type
       function GravaDProdutos(VpaDOrcamentoCompraCorpo: TRBDSolicitacaoCompraCorpo): String;
       function GravaDFracaoOP(VpaDOrcamentoCompraCorpo: TRBDSolicitacaoCompraCorpo): String;
       function GravaLogEstagio(VpaCodFilial, VpaSeqOrcamento, VpaCodEstagio: Integer; VpaDesMotivo: String): String;
-      function RProdutoPendente(VpaSeqProduto, VpaCodCor: Integer; VpaProdutosPendentes: TList): TRBDProdutoPendenteCompra;
+      function RProdutoPendente(VpaSeqProduto, VpaCodCor: Integer; VpaLarChapa, VpaComChapa : Double; VpaProdutosPendentes: TList): TRBDProdutoPendenteCompra;
       function VerifTodosProdutosComprados(VpaDOrcamentoCompraCorpo: TRBDSolicitacaoCompraCorpo): Boolean;
       procedure AtualizaClasseProdutosComprados(VpaDProdutoFinalizado: TRBDProdutoPendenteCompra; VpaDOrcamentoCompraCorpo: TRBDSolicitacaoCompraCorpo);
       function FracaOPAdicionada(VpaDFracaoOP : TRBDSolicitacaoCompraFracaoOP;VpaFracoes : TList):Boolean;
@@ -249,6 +249,13 @@ begin
     Cadastro.FieldByName('QTDPRODUTO').AsFloat:= ArredondaDecimais(VpfOrcamentoCompraProduto.QtdProduto,Varia.DecimaisQtd);
     Cadastro.FieldByName('QTDAPROVADO').AsFloat:= ArredondaDecimais(VpfOrcamentoCompraProduto.QtdAprovado,Varia.DecimaisQtd);
     Cadastro.FieldByName('QTDCOMPRADA').AsFloat:= ArredondaDecimais(VpfOrcamentoCompraProduto.QtdComprado,Varia.DecimaisQtd);
+    if VpfOrcamentoCompraProduto.QtdChapa <> 0 then
+      Cadastro.FieldByName('QTDCHAPA').AsFloat:= VpfOrcamentoCompraProduto.QtdChapa;
+    if VpfOrcamentoCompraProduto.LarChapa <> 0 then
+      Cadastro.FieldByName('LARCHAPA').AsFloat:= VpfOrcamentoCompraProduto.LarChapa;
+    if VpfOrcamentoCompraProduto.ComChapa <> 0 then
+      Cadastro.FieldByName('COMCHAPA').AsFloat:= VpfOrcamentoCompraProduto.ComChapa;
+
     if VpfOrcamentoCompraProduto.IndComprado then
       Cadastro.FieldByName('INDCOMPRADO').AsString:= 'S'
     else
@@ -336,6 +343,7 @@ var
 begin
   AdicionaSQLAbreTabela(Tabela,'SELECT SCI.CODFILIAL, SCI.SEQSOLICITACAO, SCI.SEQITEM, SCI.SEQPRODUTO, SCI.CODCOR,'+
                                ' SCI.DESUM, SCI.QTDPRODUTO, SCI.QTDAPROVADO, SCI.QTDCOMPRADA, PRO.C_COD_PRO, PRO.C_COD_UNI UMORIGINAL, '+
+                               ' SCI.QTDCHAPA, SCI.LARCHAPA, SCI.COMCHAPA, ' +
                                ' PRO.C_NOM_PRO, PRO.L_DES_TEC, PRO.C_COD_CLA, '+
                                ' COR.NOM_COR, SCI.INDCOMPRADO'+
                                ' FROM SOLICITACAOCOMPRAITEM SCI, CADPRODUTOS PRO, COR COR'+
@@ -362,6 +370,9 @@ begin
     VpfOrcamentoProduto.QtdProduto:= Tabela.FieldByName('QTDPRODUTO').AsFloat;
     VpfOrcamentoProduto.QtdAprovado:= Tabela.FieldByName('QTDAPROVADO').AsFloat;
     VpfOrcamentoProduto.QtdComprado:= Tabela.FieldByName('QTDCOMPRADA').AsFloat;
+    VpfOrcamentoProduto.QtdChapa:= Tabela.FieldByName('QTDCHAPA').AsFloat;
+    VpfOrcamentoProduto.LarChapa:= Tabela.FieldByName('LARCHAPA').AsFloat;
+    VpfOrcamentoProduto.ComChapa:= Tabela.FieldByName('COMCHAPA').AsFloat;
     VpfOrcamentoProduto.UMOriginal:= Tabela.FieldByName('UMORIGINAL').AsString;
     VpfOrcamentoProduto.IndComprado:= (Tabela.FieldByName('INDCOMPRADO').AsString = 'S');
 
@@ -536,7 +547,7 @@ begin
 //        aviso('oi');
       if not VpfDOrcamentoCompraProduto.IndComprado then
       begin
-        VpfDProdutoPendente := RProdutoPendente(VpfDOrcamentoCompraProduto.SeqProduto,VpfDOrcamentoCompraProduto.CodCor,VpaListaProdutosPendentes);
+        VpfDProdutoPendente := RProdutoPendente(VpfDOrcamentoCompraProduto.SeqProduto,VpfDOrcamentoCompraProduto.CodCor,VpfDOrcamentoCompraProduto.LarChapa,VpfDOrcamentoCompraProduto.ComChapa,VpaListaProdutosPendentes);
         if VpfDProdutoPendente = nil then
         begin
           VpfDProdutoPendente:= TRBDProdutoPendenteCompra.Cria;
@@ -557,7 +568,10 @@ begin
           VpfDProdutoPendente.DesUM:= VpfDOrcamentoCompraProduto.UMOriginal;
           VpfDProdutoPendente.QtdUtilizada := 0;
           VpfDProdutoPendente.QtdAprovada := 0 ;
+          VpfDProdutoPendente.QtdChapa := 0 ;
           VpfDProdutoPendente.DatAprovacao := VpfDOrcamentoCompraCorpo.DatAprovacao;
+          VpfDProdutoPendente.LarChapa := VpfDOrcamentoCompraProduto.LarChapa;
+          VpfDProdutoPendente.ComChapa := VpfDOrcamentoCompraProduto.ComChapa;
         end;
         if VpfDOrcamentoCompraCorpo.DatAprovacao < VpfDProdutoPendente.DatAprovacao then
           VpfDProdutoPendente.DatAprovacao := VpfDOrcamentoCompraCorpo.DatAprovacao;
@@ -576,6 +590,7 @@ begin
                                                                         VpfDOrcamentoCompraProduto.UMOriginal,
                                                                         VpfDOrcamentoCompraProduto.QtdComprado,
                                                                          IntToStr(VpfDOrcamentoCompraProduto.SeqProduto)),varia.DecimaisQtd);
+        VpfDProdutoPendente.QtdChapa := VpfDProdutoPendente.QtdChapa+ VpfDOrcamentoCompraProduto.QtdChapa;
         VpfDProdutoPendente.OrcamentosCompra.Add(VpfDOrcamentoCompraCorpo);
       end;
     end;
@@ -584,7 +599,7 @@ begin
 end;
 
 {******************************************************************************}
-function TRBFunSolicitacaoCompra.RProdutoPendente(VpaSeqProduto, VpaCodCor : Integer; VpaProdutosPendentes : TList):TRBDProdutoPendenteCompra;
+function TRBFunSolicitacaoCompra.RProdutoPendente(VpaSeqProduto, VpaCodCor : Integer;VpaLarChapa, VpaComChapa : Double;  VpaProdutosPendentes : TList):TRBDProdutoPendenteCompra;
 var
   VpfLaco: Integer;
   VpfDProdutoPendente: TRBDProdutoPendenteCompra;
@@ -594,7 +609,9 @@ begin
   begin
     VpfDProdutoPendente:= TRBDProdutoPendenteCompra(VpaProdutosPendentes.Items[VpfLaco]);
     if (VpfDProdutoPendente.SeqProduto = VpaSeqProduto) and
-       (VpfDProdutoPendente.CodCor = VpaCodCor) then
+       (VpfDProdutoPendente.CodCor = VpaCodCor) and
+       (VpfDProdutoPendente.LarChapa = VpaLarChapa) and
+       (VpfDProdutoPendente.ComChapa = VpaComChapa) then
     begin
       Result:= VpfDProdutoPendente;
       Break;
@@ -923,6 +940,9 @@ begin
           if VpfDProdutoOrcamentoCompra.QtdSolicitada < 0 then
             VpfDProdutoOrcamentoCompra.QtdSolicitada:= 0;
           VpfDProdutoOrcamentoCompra.QtdProduto:= VpfDProdutoPendente.QtdAprovada - VpfDProdutoPendente.QtdComprada;
+          VpfDProdutoOrcamentoCompra.QtdChapa := VpfDProdutoPendente.QtdChapa;
+          VpfDProdutoOrcamentoCompra.LarChapa := VpfDProdutoPendente.LarChapa;
+          VpfDProdutoOrcamentoCompra.ComChapa := VpfDProdutoPendente.ComChapa;
           VpfDProdutoOrcamentoCompra.DatAprovacao := VpfDProdutoPendente.DatAprovacao;
         end;
         AdicionaFracaoOPProdutoPendente(VpfDProdutoPendente,VpaFracoesOP);

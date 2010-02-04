@@ -207,6 +207,13 @@ begin
     Grade.ColWidths[4] := -1;
     Grade.ColWidths[2] := RetornaInteiro(Grade.ColWidths[2] *1.9);
   end;
+  if not config.ControlarEstoquedeChapas then
+  begin
+    Grade.ColWidths[5] := -1;
+    Grade.ColWidths[6] := -1;
+    Grade.ColWidths[7] := -1;
+  end;
+
 end;
 
 {******************************************************************************}
@@ -216,9 +223,12 @@ begin
   Grade.cells[2,0] := 'Produto';
   Grade.cells[3,0] := 'Código';
   Grade.cells[4,0] := 'Cor';
-  Grade.cells[5,0] := 'UM';
-  Grade.cells[6,0] := 'Qtd Solicitada';
-  Grade.cells[7,0] := 'Qtd Orçamento';
+  Grade.cells[5,0] := 'Qtd Chapa';
+  Grade.cells[6,0] := 'Largura';
+  Grade.cells[7,0] := 'Comprimento';
+  Grade.cells[8,0] := 'UM';
+  Grade.cells[9,0] := 'Qtd Solicitada';
+  Grade.cells[10,0] := 'Qtd Orçamento';
 end;
 
 {******************************************************************************}
@@ -228,9 +238,23 @@ begin
   VpaGrade.cells[2,0] := 'Produto';
   VpaGrade.cells[3,0] := 'Código';
   VpaGrade.cells[4,0] := 'Cor';
-  VpaGrade.cells[5,0] := 'UM';
-  VpaGrade.cells[6,0] := 'Qtd Solicitada';
-  VpaGrade.cells[7,0] := 'Qtd Orçamento';
+  VpaGrade.cells[5,0] := 'Qtd Chapa';
+  VpaGrade.cells[6,0] := 'Largura';
+  VpaGrade.cells[7,0] := 'Comprimento';
+  VpaGrade.cells[8,0] := 'UM';
+  VpaGrade.cells[9,0] := 'Qtd Solicitada';
+  VpaGrade.cells[10,0] := 'Qtd Orçamento';
+  if not config.EstoquePorCor then
+  begin
+    VpaGrade.ColWidths[3] := -1;
+    VpaGrade.ColWidths[4] := -1;
+  end;
+  if not config.ControlarEstoquedeChapas then
+  begin
+    VpaGrade.ColWidths[5] := -1;
+    VpaGrade.ColWidths[6] := -1;
+    VpaGrade.ColWidths[7] := -1;
+  end;
 end;
 
 {******************************************************************************}
@@ -360,13 +384,13 @@ begin
     VprDProdutoOrcamento.CodCor:= StrToInt(Grade.Cells[3,Grade.ALinha])
   else
     VprDProdutoOrcamento.CodCor:= 0;
-  VprDProdutoOrcamento.DesUM:= Grade.Cells[5,Grade.ALinha];
-  if Grade.Cells[6,Grade.ALinha] <> '' then
-    VprDProdutoOrcamento.QtdSolicitada:= StrToFloat(DeletaChars(Grade.Cells[6,Grade.ALinha],'.'))
+  VprDProdutoOrcamento.DesUM:= Grade.Cells[8,Grade.ALinha];
+  if Grade.Cells[9,Grade.ALinha] <> '' then
+    VprDProdutoOrcamento.QtdSolicitada:= StrToFloat(DeletaChars(Grade.Cells[9,Grade.ALinha],'.'))
   else
     VprDProdutoOrcamento.QtdSolicitada:= 0;
-  if Grade.Cells[7,Grade.ALinha] <> '' then
-    VprDProdutoOrcamento.QtdProduto:= StrToFloat(DeletaChars(Grade.Cells[7,Grade.ALinha],'.'))
+  if Grade.Cells[10,Grade.ALinha] <> '' then
+    VprDProdutoOrcamento.QtdProduto:= StrToFloat(DeletaChars(Grade.Cells[10,Grade.ALinha],'.'))
   else
     VprDProdutoOrcamento.QtdProduto:= 0;
 end;
@@ -388,10 +412,10 @@ begin
         VprCorAnterior:= '';
 
         Grade.Cells[2,Grade.ALinha]:= VprDProdutoOrcamento.NomProduto;
-        Grade.Cells[5,Grade.ALinha]:= VprDProdutoOrcamento.DesUM;
-        Grade.Cells[7,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoOrcamento.Qtdproduto);
-        Grade.Cells[8,Grade.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoOrcamento.ValUnitario);
-        Grade.Cells[11,Grade.ALinha]:= FormatFloat('0.00',VprDProdutoOrcamento.PerIPI);
+        Grade.Cells[8,Grade.ALinha]:= VprDProdutoOrcamento.DesUM;
+        Grade.Cells[9,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoOrcamento.Qtdproduto);
+        Grade.Cells[11,Grade.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoOrcamento.ValUnitario);
+        Grade.Cells[14,Grade.ALinha]:= FormatFloat('0.00',VprDProdutoOrcamento.PerIPI);
       end;
     end;
   end
@@ -410,9 +434,9 @@ begin
 
     Grade.Cells[1,Grade.ALinha]:= VprDProdutoOrcamento.CodProduto;
     Grade.Cells[2,Grade.ALinha]:= VprDProdutoOrcamento.NomProduto;
-    Grade.Cells[5,Grade.ALinha]:= VprDProdutoOrcamento.DesUM;
-    Grade.Cells[6,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoOrcamento.QtdSolicitada);
-    Grade.Cells[7,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoOrcamento.Qtdproduto);
+    Grade.Cells[8,Grade.ALinha]:= VprDProdutoOrcamento.DesUM;
+    Grade.Cells[9,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoOrcamento.QtdSolicitada);
+    Grade.Cells[10,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoOrcamento.Qtdproduto);
 
     Grade.Col:= 3;
     if Grade.AEstadoGrade = egNavegacao then
@@ -501,10 +525,13 @@ begin
     ExisteCor;
     VprDProdutoOrcamento.QtdSolicitada:= VpfDProdutoOrcamentoCompraAux.QtdSolicitada;
     VprDProdutoOrcamento.QtdProduto:= VpfDProdutoOrcamentoCompraAux.QtdProduto;
+    VprDProdutoOrcamento.QtdChapa := VpfDProdutoOrcamentoCompraAux.QtdChapa;
+    VprDProdutoOrcamento.LarChapa := VpfDProdutoOrcamentoCompraAux.LarChapa;
+    VprDProdutoOrcamento.ComChapa := VpfDProdutoOrcamentoCompraAux.ComChapa;
     // carregar corretamente a quantidade do produto, já que ela é redefinida
     // para 1 dentro do ExisteProduto
-    Grade.Cells[6,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VpfDProdutoOrcamentoCompraAux.QtdSolicitada);
-    Grade.Cells[7,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VpfDProdutoOrcamentoCompraAux.QtdProduto);
+    Grade.Cells[9,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VpfDProdutoOrcamentoCompraAux.QtdSolicitada);
+    Grade.Cells[10,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VpfDProdutoOrcamentoCompraAux.QtdProduto);
     CarDClasseProdutos;
   end;
   Grade.CarregaGrade;
@@ -661,15 +688,27 @@ begin
   else
     Grade.Cells[3,Grade.ALinha]:= '';
   Grade.Cells[4,Grade.ALinha]:= VprDProdutoOrcamento.NomCor;
-  Grade.Cells[5,Grade.ALinha]:= VprDProdutoOrcamento.DesUM;
-  if VprDProdutoOrcamento.QtdSolicitada <> 0 then
-    Grade.Cells[6,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoOrcamento.QtdSolicitada)
+  if VprDProdutoOrcamento.QtdChapa <> 0 then
+    Grade.Cells[5,Grade.ALinha]:= FormatFloat('#,###,###0',VprDProdutoOrcamento.QtdChapa)
+  else
+    Grade.Cells[5,Grade.ALinha]:= '';
+  if VprDProdutoOrcamento.LarChapa <> 0 then
+    Grade.Cells[6,Grade.ALinha]:= FormatFloat('#,###,###0',VprDProdutoOrcamento.LarChapa)
   else
     Grade.Cells[6,Grade.ALinha]:= '';
-  if VprDProdutoOrcamento.QtdProduto <> 0 then
-    Grade.Cells[7,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoOrcamento.QtdProduto)
+  if VprDProdutoOrcamento.ComChapa <> 0 then
+    Grade.Cells[7,Grade.ALinha]:= FormatFloat('#,###,###0',VprDProdutoOrcamento.ComChapa)
   else
     Grade.Cells[7,Grade.ALinha]:= '';
+  Grade.Cells[8,Grade.ALinha]:= VprDProdutoOrcamento.DesUM;
+  if VprDProdutoOrcamento.QtdSolicitada <> 0 then
+    Grade.Cells[9,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoOrcamento.QtdSolicitada)
+  else
+    Grade.Cells[9,Grade.ALinha]:= '';
+  if VprDProdutoOrcamento.QtdProduto <> 0 then
+    Grade.Cells[10,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoOrcamento.QtdProduto)
+  else
+    Grade.Cells[10,Grade.ALinha]:= '';
 end;
 
 {******************************************************************************}
@@ -745,25 +784,25 @@ begin
       Grade.Col:= 3;
     end
     else
-      if VprDProdutoOrcamento.UnidadesParentes.IndexOf(Grade.Cells[5,Grade.ALinha]) < 0 then
+      if VprDProdutoOrcamento.UnidadesParentes.IndexOf(Grade.Cells[8,Grade.ALinha]) < 0 then
       begin
         VpaValidos:= False;
         aviso(CT_UNIDADEVAZIA);
-        Grade.Col:= 5;
+        Grade.Col:= 8;
       end
       else
-        if Grade.Cells[6,Grade.ALinha] = '' then
+        if Grade.Cells[9,Grade.ALinha] = '' then
         begin
           VpaValidos:= False;
           aviso('QUANTIDADE SOLICITADA NÃO PREENCHIDA!!!'#13'É necessário preencer a quantidade solicitada do produto.');
-          Grade.Col:= 6;
+          Grade.Col:= 9;
         end
         else
-          if Grade.Cells[7,Grade.ALinha] = '' then
+          if Grade.Cells[10,Grade.ALinha] = '' then
           begin
             VpaValidos:= False;
             aviso('QUANTIDADE  NÃO PREENCHIDA!!!'#13'É necessário preencer a quantidade  do produto.');
-            Grade.Col:= 7;
+            Grade.Col:= 10;
           end;
 
   if VpaValidos then
@@ -773,14 +812,14 @@ begin
     begin
       VpaValidos:= False;
       aviso('QUANTIDADE SOLICITADA NÃO PREENCHIDA!!!'#13'É necessário preencher a quantidade solicitada.');
-      Grade.Col:= 6;
+      Grade.Col:= 9;
     end
     else
       if VprDProdutoOrcamento.QtdProduto = 0 then
       begin
         VpaValidos:= False;
         aviso('QUANTIDADE NÃO PREENCHIDA!!!'#13'É necessário preencher a quantidade do produto');
-        Grade.Col:= 7;
+        Grade.Col:= 10;
       end;
   end;
   if VpaValidos then
@@ -801,7 +840,7 @@ procedure TFNovoOrcamentoCompra.GradeGetEditMask(Sender: TObject; ACol,
   ARow: Integer; var Value: String);
 begin
   case ACol of
-    3: Value:= '000000;0; ';
+    3,5,6,7: Value:= '0000000;0; ';
   end;
 end;
 
@@ -831,7 +870,7 @@ begin
     VprDProdutoOrcamento:= TRBDOrcamentoCompraProduto(VprDOrcamento.Produtos.Items[VpaLinhaAtual-1]);
     VprProdutoAnterior:= VprDProdutoOrcamento.CodProduto;
     VprCorAnterior:= IntToStr(VprDProdutoOrcamento.CodCor);
-  end;                                            
+  end;
 end;
 
 procedure TFNovoOrcamentoCompra.GradeNovaLinha(Sender: TObject);
@@ -887,15 +926,27 @@ begin
   else
     VpfGrade.Cells[3,VpfGrade.ALinha]:= '';
   VpfGrade.Cells[4,VpfGrade.ALinha]:= VprDProFornecedorOrc.NomCor;
-  VpfGrade.Cells[5,VpfGrade.ALinha]:= VprDProFornecedorOrc.DesUM;
-  if VprDProFornecedorOrc.QtdSolicitada <> 0 then
-    VpfGrade.Cells[6,VpfGrade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProFornecedorOrc.QtdSolicitada)
+  if VprDProFornecedorOrc.QtdChapa <> 0 then
+    VpfGrade.Cells[5,VpfGrade.ALinha]:= FormatFloat('#,###,##0',VprDProFornecedorOrc.QtdChapa)
+  else
+    VpfGrade.Cells[5,VpfGrade.ALinha]:= '';
+  if VprDProFornecedorOrc.LarChapa <> 0 then
+    VpfGrade.Cells[6,VpfGrade.ALinha]:= FormatFloat('#,###,##0',VprDProFornecedorOrc.LarChapa)
   else
     VpfGrade.Cells[6,VpfGrade.ALinha]:= '';
-  if VprDProFornecedorOrc.QtdProduto <> 0 then
-    VpfGrade.Cells[7,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProFornecedorOrc.QtdProduto)
+  if VprDProFornecedorOrc.ComChapa <> 0 then
+    VpfGrade.Cells[7,VpfGrade.ALinha]:= FormatFloat('#,###,##0',VprDProFornecedorOrc.ComChapa)
   else
     VpfGrade.Cells[7,VpfGrade.ALinha]:= '';
+  VpfGrade.Cells[8,VpfGrade.ALinha]:= VprDProFornecedorOrc.DesUM;
+  if VprDProFornecedorOrc.QtdSolicitada <> 0 then
+    VpfGrade.Cells[9,VpfGrade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProFornecedorOrc.QtdSolicitada)
+  else
+    VpfGrade.Cells[9,VpfGrade.ALinha]:= '';
+  if VprDProFornecedorOrc.QtdProduto <> 0 then
+    VpfGrade.Cells[10,VpfGrade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProFornecedorOrc.QtdProduto)
+  else
+    VpfGrade.Cells[10,VpfGrade.ALinha]:= '';
 end;
 
 {******************************************************************************}
@@ -955,17 +1006,30 @@ begin
   else
     VpfGrade.Cells[3,VpfGrade.ALinha]:= '';
   VpfGrade.Cells[4,VpfGrade.ALinha]:= VprDProNaoAdicionadoFornecedorOrc.NomCor;
-  VpfGrade.Cells[5,VpfGrade.ALinha]:= VprDProNaoAdicionadoFornecedorOrc.DesUM;
-  if VprDProNaoAdicionadoFornecedorOrc.QtdSolicitada <> 0 then
-    VpfGrade.Cells[6,VpfGrade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProNaoAdicionadoFornecedorOrc.QtdSolicitada)
+  if VprDProNaoAdicionadoFornecedorOrc.QtdChapa <> 0 then
+    VpfGrade.Cells[5,VpfGrade.ALinha]:= FormatFloat('#,###,###,##0',VprDProNaoAdicionadoFornecedorOrc.QtdChapa)
+  else
+    VpfGrade.Cells[5,VpfGrade.ALinha]:= '';
+  if VprDProNaoAdicionadoFornecedorOrc.LarChapa <> 0 then
+    VpfGrade.Cells[6,VpfGrade.ALinha]:= FormatFloat('#,###,###,##0',VprDProNaoAdicionadoFornecedorOrc.LarChapa)
   else
     VpfGrade.Cells[6,VpfGrade.ALinha]:= '';
-  if VprDProNaoAdicionadoFornecedorOrc.QtdProduto <> 0 then
-    VpfGrade.Cells[7,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProNaoAdicionadoFornecedorOrc.QtdProduto)
+  if VprDProNaoAdicionadoFornecedorOrc.ComChapa <> 0 then
+    VpfGrade.Cells[7,VpfGrade.ALinha]:= FormatFloat('#,###,###,##0',VprDProNaoAdicionadoFornecedorOrc.ComChapa)
   else
     VpfGrade.Cells[7,VpfGrade.ALinha]:= '';
+  VpfGrade.Cells[8,VpfGrade.ALinha]:= VprDProNaoAdicionadoFornecedorOrc.DesUM;
+  if VprDProNaoAdicionadoFornecedorOrc.QtdSolicitada <> 0 then
+    VpfGrade.Cells[9,VpfGrade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProNaoAdicionadoFornecedorOrc.QtdSolicitada)
+  else
+    VpfGrade.Cells[9,VpfGrade.ALinha]:= '';
+  if VprDProNaoAdicionadoFornecedorOrc.QtdProduto <> 0 then
+    VpfGrade.Cells[10,Grade.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProNaoAdicionadoFornecedorOrc.QtdProduto)
+  else
+    VpfGrade.Cells[10,VpfGrade.ALinha]:= '';
 end;
 
+{******************************************************************************}
 procedure TFNovoOrcamentoCompra.AdicionarClick(Sender: TObject);
 Var
   VpfGrade : TRBStringGridColor;

@@ -147,6 +147,7 @@ type
     procedure EstadoBotoes(VpaEstado : Boolean);
     function LocalizaClassificacao : boolean;
     procedure CarNomeImagemPadrao(VpaNomClassificacao : String);
+    procedure ConfiguraPermissaoUsuario;
   public
     { Public declarations }
     procedure NovaAmostra(VpaCodRequisicaoAmostra : Integer);
@@ -168,6 +169,7 @@ procedure TFNovaAmostra.FormCreate(Sender: TObject);
 begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
+  ConfiguraPermissaoUsuario;
   EditorImagem1.DirServidor := varia.DriveFoto;
   Amostra.open;
   VprAcao := false;
@@ -362,7 +364,12 @@ begin
   begin
     AmostraDESIMAGEM.AsString := DeletaEspaco(CopiaAteChar(VpaNomClassificacao,'-'))+'\'+AmostraCODAMOSTRA.AsString +'A.BMP';
   end;
+end;
 
+{******************************************************************************}
+procedure TFNovaAmostra.ConfiguraPermissaoUsuario;
+begin
+  AlterarVisibleDet([BConcluir],(puCRConcluirAmostra in varia.PermissoesUsuario));
 end;
 
 {******************************************************************************}

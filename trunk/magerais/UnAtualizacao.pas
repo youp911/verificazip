@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1577;
+  CT_VersaoBanco = 1586;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1378,6 +1378,81 @@ begin
         ExecutaComandoSql(Aux,'ALTER TABLE OPITEMCADARCO ADD DESTAB VARCHAR2(150) NULL');
         ExecutaComandoSql(Aux,'UPDATE OPITEMCADARCO SET DESTAB = NUMTAB');
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1577');
+      end;
+      if VpaNumAtualizacao < 1578 Then
+      begin
+        VpfErro := '1578';
+        ExecutaComandoSql(Aux,'CREATE TABLE AMOSTRACOR ('+
+                              ' CODAMOSTRA NUMBER(10) NOT NULL,' +
+                              ' CODCOR NUMBER(10) NOT NULL, ' +
+                              ' DESIMAGEM VARCHAR2(200) NULL, ' +
+                              ' PRIMARY KEY(CODAMOSTRA,CODCOR))');
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRACOR add CONSTRAINT AMOSTRACORAMO '+
+                              ' FOREIGN KEY (CODAMOSTRA) '+
+                              '  REFERENCES AMOSTRA (CODAMOSTRA) ');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1578');
+      end;
+      if VpaNumAtualizacao < 1579 Then
+      begin
+        VpfErro := '1579';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD C_AMO_FTC CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CFG_GERAL SET C_AMO_FTC = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1579');
+      end;
+      if VpaNumAtualizacao < 1580 Then
+      begin
+        VpfErro := '1580';
+        ExecutaComandoSql(Aux,'ALTER TABLE AMOSTRA ADD DATFICHAAMOSTRA DATE NULL');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1580');
+      end;
+      if VpaNumAtualizacao < 1581 Then
+      begin
+        VpfErro := '1581';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADGRUPOS ADD(C_EST_FAP CHAR(1), '+
+                              ' C_EST_MAP CHAR(1) NULL, '+
+                              ' C_EST_MCP CHAR(1) NULL)');
+        ExecutaComandoSql(Aux,'UPDATE CADGRUPOS SET C_EST_FAP =''F'' ,'+
+                              ' C_EST_MAP = ''F'','+
+                              ' C_EST_MCP = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1581');
+      end;
+      if VpaNumAtualizacao < 1582 Then
+      begin
+        VpfErro := '1582';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADGRUPOS ADD(C_CRM_CAM CHAR(1))');
+        ExecutaComandoSql(Aux,'UPDATE CADGRUPOS SET C_CRM_CAM =''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1582');
+      end;
+      if VpaNumAtualizacao < 1583 Then
+      begin
+        VpfErro := '1583';
+        ExecutaComandoSql(Aux,'ALTER TABLE SOLICITACAOCOMPRAITEM ADD(QTDCHAPA NUMBER(10,2) NULL,' +
+                              ' LARCHAPA NUMBER(8,2) NULL, ' +
+                              ' COMCHAPA NUMBER(8,2) NULL) ' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1583');
+      end;
+      if VpaNumAtualizacao < 1584 Then
+      begin
+        VpfErro := '1584';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_PRODUTO ADD C_EST_CHA CHAR(1) NULL');
+        ExecutaComandoSql(Aux,'UPDATE CFG_PRODUTO SET C_EST_CHA = ''F''');
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1584');
+      end;
+      if VpaNumAtualizacao < 1585 Then
+      begin
+        VpfErro := '1585';
+        ExecutaComandoSql(Aux,'ALTER TABLE ORCAMENTOCOMPRAITEM ADD(QTDCHAPA NUMBER(10,2) NULL,' +
+                              ' LARCHAPA NUMBER(8,2) NULL, ' +
+                              ' COMCHAPA NUMBER(8,2) NULL) ' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1585');
+      end;
+      if VpaNumAtualizacao < 1586 Then
+      begin
+        VpfErro := '1586';
+        ExecutaComandoSql(Aux,'ALTER TABLE ORCAMENTOCOMPRAFORNECEDORITEM ADD(QTDCHAPA NUMBER(10,2) NULL,' +
+                              ' LARCHAPA NUMBER(8,2) NULL, ' +
+                              ' COMCHAPA NUMBER(8,2) NULL) ' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1586');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

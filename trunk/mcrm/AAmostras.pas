@@ -73,6 +73,10 @@ type
     AmostraTIPAMOSTRA: TWideStringField;
     BExcluir: TBitBtn;
     BExportaFicha: TBitBtn;
+    Label12: TLabel;
+    ETipo: TComboBoxColor;
+    AmostraDATFICHAAMOSTRA: TSQLTimeStampField;
+    MConcluirFichaAmostra: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -95,12 +99,14 @@ type
     procedure MRequisicaoMaquinaClick(Sender: TObject);
     procedure BExcluirClick(Sender: TObject);
     procedure BExportaFichaClick(Sender: TObject);
+    procedure MConcluirFichaAmostraClick(Sender: TObject);
   private
     { Private declarations }
     VprOrdem : String;
     FunAmostra : TRBFuncoesAmostra;
     procedure AtualizaConsulta;
     procedure AdicionaFiltros(VpaSelect : TStrings);
+    procedure Configurapermissaousuario;
   public
     { Public declarations }
     procedure ConsultaAmostrasIndefinidas(VpaCodAmostrasIndefinida : Integer);
@@ -112,7 +118,7 @@ var
 implementation
 
 uses APrincipal, ANovaAmostra, funSql, unCrystal, Constantes, Fundata, Constmsg,
-  ARequisicaoMaquina, dmRave;
+  ARequisicaoMaquina, dmRave, FunObjeto;
 
 {$R *.DFM}
 
@@ -181,7 +187,7 @@ begin
   Amostra.close;
   Amostra.Sql.clear;
   Amostra.sql.add('SELECT CODAMOSTRA, NOMAMOSTRA, DATAMOSTRA, DATENTREGACLIENTE, AMO.DATENTREGA, DATAPROVACAO, ' +
-                  ' AMO.DATFICHA, AMO.DATPRECO, AMO.TIPAMOSTRA,  '+
+                  ' AMO.DATFICHA, AMO.DATPRECO, AMO.TIPAMOSTRA, AMO.DATFICHAAMOSTRA, '+
                   ' VEN.C_NOM_VEN,  COL.NOMCOLECAO, DES.NOMDESENVOLVEDOR, '+
                   ' CLI.C_NOM_CLI '+
                   ' FROM AMOSTRA AMO, CADVENDEDORES VEN, COLECAO COL,  DESENVOLVEDOR DES, CADCLIENTES CLI '+
@@ -211,6 +217,7 @@ begin
     else
       case ESituacao.ItemIndex of
         1 : VpaSelect.add('AND AMO.DATFICHA IS NULL AND DATAPROVACAO IS NOT NULL');
+        2 : VpaSelect.add('AND AMO.DATFICHAAMOSTRA IS NULL');
       else
         case ETipoPeriodo.ItemIndex of
           0 : VpaSelect.add(SQLTextoDataEntreAAAAMMDD('AMO.DATAMOSTRA',EDatInicio.DateTime,incDia(EDatFim.DateTime,1),true));
@@ -220,6 +227,10 @@ begin
         end;
         case ESituacao.ItemIndex of
           1 : VpaSelect.add('AND AMO.DATAPROVACAO IS NOT NULL AND DATFICHA IS NULL');
+        end;
+        case ETipo.ItemIndex of
+          1 : VpaSelect.add('AND AMO.TIPAMOSTRA = ''I''');
+          2 : VpaSelect.add('AND AMO.TIPAMOSTRA = ''D''');
         end;
         if ECliente.AInteiro <> 0 then
           VpaSelect.Add(' and AMO.CODCLIENTE = ' + ECliente.text);
@@ -336,6 +347,24 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFAmostras.MConcluirFichaAmostraClick(Sender: TObject);
+var
+  VpfResultado : String;
+begin
+  if AmostraCODAMOSTRA.AsInteger <> 0 then
+  begin
+    if Confirmacao('Tem certeza que deseja concluir a ficha técnica da amostra?') then
+    begin
+      VpfREsultado := FunAmostra.ConcluirFichaAmostra(AmostraCODAMOSTRA.AsInteger);
+      if VpfREsultado <> '' then
+        aviso(VpfREsultado)
+      else
+        AtualizaConsulta;
+    end;
+  end;
+end;
+
+{******************************************************************************}
 procedure TFAmostras.ConcluirFichaTcnica1Click(Sender: TObject);
 var
   VpfResultado : String;
@@ -353,6 +382,13 @@ begin
   end;
 end;
 
+{******************************************************************************}
+procedure TFAmostras.Configurapermissaousuario;
+begin
+  AlterarVisibleDet([MConcluiAmostra],(puCRConcluirAmostra in varia.PermissoesUsuario));
+end;
+
+{******************************************************************************}
 procedure TFAmostras.ExtornarAprovao1Click(Sender: TObject);
 var
   VpfResultado : String;
@@ -413,6 +449,7 @@ begin
   MConcluiAmostra.Enabled := (AmostraDATENTREGA.IsNull) and (AmostraTIPAMOSTRA.AsString = 'D');
   MConcluiPreco.Enabled := AmostraDATPRECO.IsNull;
   MRequisicaoMaquina.Enabled := AmostraTIPAMOSTRA.AsString = 'I';
+  MConcluirFichaAmostra.Enabled := AmostraDATFICHAAMOSTRA.IsNull;
 end;
 
 {******************************************************************************}

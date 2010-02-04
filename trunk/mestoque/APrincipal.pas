@@ -221,6 +221,7 @@ type
     N46: TMenuItem;
     ImprimeEtiquetaPrateleira1: TMenuItem;
     SQL1: TSQL;
+    MFichaAmostraPendente: TMenuItem;
     procedure MostraHint(Sender : TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -291,7 +292,8 @@ uses Constantes, UnRegistro, funsql,
   ADesenhosPendentes, AOrcamentoCompras, ANovoOrcamentoCompra,
   AConsultaLogSeparacaoConsumo, APrecoPendente, AAmostrasPendentes,
   AExcluiProdutoDuplicado, APendenciasCompras, AAgendamentos, AFiguraGRF,
-  AComposicoes, UnOrdemProducao, AEmbalagem, AMotivoParada, ABaixaOrdemCorte, AOrdemCortePendente, AImprimeEtiquetaPrateleira;
+  AComposicoes, UnOrdemProducao, AEmbalagem, AMotivoParada, ABaixaOrdemCorte, AOrdemCortePendente, AImprimeEtiquetaPrateleira,
+  AFichaAmostrasPendentes;
 
 {$R *.DFM}
 
@@ -401,6 +403,12 @@ begin
       AlterarVisibleDet([MProdutos,MFLocalizaProduto],true);
     if (puESInventario in varia.PermissoesUsuario) then
       AlterarVisibleDet([MEstoque,MInventario],true);
+    if (puESMenuGerencialFichaAmostraPendente in varia.PermissoesUsuario) then
+      AlterarVisibleDet([MGerencial,MFichaAmostraPendente],true);
+    if (puESMenuGerencialAmostraPendente in varia.PermissoesUsuario) then
+      AlterarVisibleDet([MGerencial,MAmostrasPendentes],true);
+    if (puESCustoPendente in varia.PermissoesUsuario) then
+      AlterarVisibleDet([MGerencial,MCustoPendente],true);
   end;
 
   if not (config.ManutencaoImpressoras) then
@@ -1125,6 +1133,11 @@ begin
               FOrdemCortePendente := TFOrdemCortePendente.CriarSDI(self,'',true);
               FOrdemCortePendente.showmodal;
               FOrdemCortePendente.free;
+            end;
+    19700 : begin
+              FFichaAmostrasPendentes := TFFichaAmostrasPendentes.CriarSDI(self,'',true);
+              FFichaAmostrasPendentes.ShowModal;
+              FFichaAmostrasPendentes.Free;
             end;
     20100 : begin
              FAgendamentos := TFAgendamentos.CriarSDI(self,'',FPrincipal.VerificaPermisao('FAgendamentos'));

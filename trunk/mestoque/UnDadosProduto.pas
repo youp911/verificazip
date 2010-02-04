@@ -56,6 +56,9 @@ Type
       QtdProduto,
       QtdSolicitada,
       QtdComprado,
+      QtdChapa,
+      LarChapa,
+      ComChapa,
       ValUnitario,
       ValTotal,
       PerIPI : Double;
@@ -449,6 +452,7 @@ Type TRBDAmostra = class
     NomAmostra,
     DesImagem,
     DesImagemCliente,
+    DesImagemCor,
     IndCopia,
     TipAmostra,
     DesObservacao,
