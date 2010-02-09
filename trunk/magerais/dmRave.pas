@@ -122,6 +122,9 @@ type
     procedure ImprimeOPCadarcoTrancado(VpaCodFilial,VpaSeqOrdem : Integer;VpaVisualizar : Boolean);
     procedure ImprimeAmostrasqueFaltamFinalizar;
     procedure ImprimeQtdAmostrasPorDesenvolvedor(VpaCodDesenvolvedor : Integer;VpaCaminho, VpaNomDesenvolvedor : string;VpaDatInicio, VpaDatFim : TDateTime);
+    procedure ImprimeClientesPorSituacaoAnalitico(VpaCodVendedor: Integer; VpaCaminho, VpaCidade, VpaNomVendedor: String);
+    procedure ImprimeClientesPorSituacaoSintetico(VpaCodVendedor: Integer; VpaCaminho, VpaCidade, VpaNomVendedor: String);
+
   end;
 
 
@@ -2985,5 +2988,60 @@ begin
   Rave.Execute;
 end;
 
+{******************************************************************************}
+procedure TdtRave.ImprimeClientesPorSituacaoAnalitico(VpaCodVendedor: Integer; VpaCaminho, VpaCidade, VpaNomVendedor: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Clientes por Situação Analítico';
+  Rave.projectfile := varia.PathRelatorios+'\Cliente\0300PLFAFI_Clientes Por Situacao Analitico.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'SELECT CLI.C_NOM_CLI, CLI.C_BAI_CLI, CLI.C_CID_CLI, CLI.C_END_CLI, '+
+                              ' CLI.C_FON_COM, CLI.I_COD_SIT, SIT.C_NOM_SIT '+
+                              ' FROM CADCLIENTES CLI ,   CADSITUACOESCLIENTES SIT '+
+                              ' WHERE CLI.I_COD_SIT = SIT.I_COD_SIT ');
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.I_COD_VEN = '+IntToStr(VpaCodVendedor));
+    Rave.SetParam('VENDEDOR',VpaNomVendedor);
+  end;
+  if DeletaEspaco(VpaCidade) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_CID_CLI = '''+ VpaCidade + '''');
+    Rave.SetParam('CIDADE',VpaCidade);
+  end;
+  AdicionaSqlTabeLa(Principal,'ORDER BY CLI.I_COD_SIT, CLI.C_NOM_CLI ');
+  Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeClientesPorSituacaoSintetico(VpaCodVendedor: Integer; VpaCaminho, VpaCidade, VpaNomVendedor: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Clientes por Situação Sintético';
+  Rave.projectfile := varia.PathRelatorios+'\Cliente\0400PLFAFI_Clientes Por Situacao Sintetico.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'SELECT COUNT(CLI.I_COD_CLI) QTD, CLI.I_COD_SIT, SIT.C_NOM_SIT ' +
+                              '  FROM CADCLIENTES CLI , CADSITUACOESCLIENTES SIT             ' +
+                              ' WHERE CLI.I_COD_SIT = SIT.I_COD_SIT                          ');
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSqlTabela(Principal,'AND CLI.I_COD_VEN = '+IntToStr(VpaCodVendedor));
+    Rave.SetParam('VENDEDOR',VpaNomVendedor);
+  end;
+  if DeletaEspaco(VpaCidade) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_CID_CLI = '''+ VpaCidade + '''');
+    Rave.SetParam('CIDADE',VpaCidade);
+  end;
+  AdicionaSqlTabeLa(Principal,' GROUP BY CLI.I_COD_SIT, SIT.C_NOM_SIT                       ' +
+                              ' ORDER BY SIT.C_NOM_SIT                                      ');
+  Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
 
 end.
