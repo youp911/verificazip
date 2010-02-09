@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1586;
+  CT_VersaoBanco = 1587;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1453,6 +1453,12 @@ begin
                               ' LARCHAPA NUMBER(8,2) NULL, ' +
                               ' COMCHAPA NUMBER(8,2) NULL) ' );
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1586');
+      end;
+      if VpaNumAtualizacao < 1587 Then
+      begin
+        VpfErro := '1587';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADVENDEDORES ADD C_PAS_FTP VARCHAR2(150) NULL' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1587');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

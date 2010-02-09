@@ -59,6 +59,7 @@ type
     PanelColor6: TPanelColor;
     EImagem: TEditColor;
     Label9: TLabel;
+    BExportaFicha: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure GradeCarregaItemGrade(Sender: TObject; VpaLinha: Integer);
@@ -131,6 +132,7 @@ type
     procedure Copiar1Click(Sender: TObject);
     procedure Colar1Click(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
+    procedure BExportaFichaClick(Sender: TObject);
   private
     VprServicoAnterior,
     VprServicoFixoAnterior,
@@ -1177,18 +1179,43 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFAmostraConsumo.BExportaFichaClick(Sender: TObject);
+Var
+  VpfResultado :String;
+begin
+  if ECorKit.AInteiro <> 0 then
+  begin
+    VpfResultado := GravaConsumo;
+    if VpfResultado <> '' then
+      aviso(VpfResultado)
+    else
+    begin
+      VprAcao := true;
+    end;
+    FunAmostra.ExportaFichaTecnicaAmostra(VprDAmostra);
+  end
+  ELSE
+    aviso('COR DA AMOSTRA NÃO PREENCHIDA!!!'#13'Antes de preencher o consumo da amostra é necessário selecionar a que cor a amostra se refere.');
+end;
+
+{******************************************************************************}
 procedure TFAmostraConsumo.BGravarClick(Sender: TObject);
 Var
   VpfResultado :String;
 begin
-  VpfResultado := GravaConsumo;
-  if VpfResultado <> '' then
-    aviso(VpfResultado)
-  else
+  if ECorKit.AInteiro <> 0 then
   begin
-    VprAcao := true;
-    close;
-  end;
+    VpfResultado := GravaConsumo;
+    if VpfResultado <> '' then
+      aviso(VpfResultado)
+    else
+    begin
+      VprAcao := true;
+      close;
+    end;
+  end
+  else
+    aviso('COR DA AMOSTRA NÃO PREENCHIDA!!!'#13'Antes de preencher o consumo da amostra é necessário selecionar a que cor a amostra se refere.');
 end;
 
 {******************************************************************************}
@@ -1196,16 +1223,21 @@ procedure TFAmostraConsumo.BImprimirClick(Sender: TObject);
 Var
   VpfResultado :String;
 begin
-  VpfResultado := GravaConsumo;
-  if VpfResultado <> '' then
-    aviso(VpfResultado)
-  else
+  if ECorKit.AInteiro <> 0 then
   begin
-    VprAcao := true;
-  end;
-  dtRave := TdtRave.create(self);
-  dtRave.ImprimeFichaTecnicaAmostraCor(VprDAmostra.CodAmostra, ECorKit.AInteiro, true,'');
-  dtRave.free;
+    VpfResultado := GravaConsumo;
+    if VpfResultado <> '' then
+      aviso(VpfResultado)
+    else
+    begin
+      VprAcao := true;
+    end;
+    dtRave := TdtRave.create(self);
+    dtRave.ImprimeFichaTecnicaAmostraCor(VprDAmostra.CodAmostra, ECorKit.AInteiro, true,'');
+    dtRave.free;
+  end
+  else
+    aviso('COR DA AMOSTRA NÃO PREENCHIDA!!!'#13'Antes de preencher o consumo da amostra é necessário selecionar a que cor a amostra se refere.');
 end;
 
 {******************************************************************************}

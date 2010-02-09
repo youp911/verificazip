@@ -142,7 +142,7 @@ begin
                    ' AND AMO.CODDESENVOLVEDOR = DES.CODDESENVOLVEDOR ' +
                    ' AND AMO.CODDEPARTAMENTOAMOSTRA = DEP.CODDEPARTAMENTOAMOSTRA');
   AdicionaFiltros(Amostras.sql);
-  Amostras.sql.add(' ORDER BY AMO.DATAMOSTRA');
+  Amostras.sql.add(' ORDER BY AMO.DATENTREGACLIENTE');
   Amostras.open;
 end;
 

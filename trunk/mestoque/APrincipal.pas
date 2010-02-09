@@ -293,7 +293,7 @@ uses Constantes, UnRegistro, funsql,
   AConsultaLogSeparacaoConsumo, APrecoPendente, AAmostrasPendentes,
   AExcluiProdutoDuplicado, APendenciasCompras, AAgendamentos, AFiguraGRF,
   AComposicoes, UnOrdemProducao, AEmbalagem, AMotivoParada, ABaixaOrdemCorte, AOrdemCortePendente, AImprimeEtiquetaPrateleira,
-  AFichaAmostrasPendentes;
+  AFichaAmostrasPendentes, UnCotacao;
 
 {$R *.DFM}
 
@@ -325,6 +325,7 @@ begin
   FunClientes := TRBFuncoesClientes.cria(FPrincipal.BaseDados);
   FunContasAReceber := TFuncoesContasAReceber.cria(BaseDados);
   FunOrdemProducao := TRBFuncoesOrdemProducao.cria(BaseDAdos);
+  FunCotacao := TFuncoesCotacao.Cria(BaseDados);
   Sistema := TRBFuncoesSistema.cria(FPrincipal.BaseDados);
   Application.OnHint := MostraHint;
   Application.HintColor := $00EDEB9E;        // cor padrão dos hints
@@ -462,6 +463,7 @@ begin
   FunNotaFiscal.free;
   FunClientes.free;
   FunOrdemProducao.free;
+  FunCotacao.Free;
   Action := CaFree;
 end;
 

@@ -178,6 +178,11 @@ type
     SpeedButton26: TSpeedButton;
     LRamoAtividade: TLabel;
     ERamoAtividade: TRBEditLocaliza;
+    PDesenvolvedor: TPanelColor;
+    Label31: TLabel;
+    SpeedButton27: TSpeedButton;
+    LDesenvolvedor: TLabel;
+    EDesenvolvedor: TRBEditLocaliza;
     procedure FormCreate(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
     procedure BFecharClick(Sender: TObject);
@@ -526,6 +531,11 @@ begin
                 AlterarVisibleDet([PPeriodo,PTipoContrato,PCliente,PVendedor,PFundoPerdido],true);
                 CFundoPerdido.Caption := 'Somente contratos não cancelados';
                 CFundoPerdido.Checked := true;
+              end
+            else
+              if (VPANOMRELATORIO = 'AMOSTRAS POR DESENVOLVEDOR') then
+              begin
+                AlterarVisibleDet([PPeriodo,PDesenvolvedor],true);
               end;
 end;
 
@@ -719,7 +729,10 @@ begin
                                          LFilial.Caption,LCliente.Caption,LVendedor.Caption,LPreposto.Caption,CDataIni.DateTime, CDataFim.Date,false)
             else
               if (VPRNOMRELATORIO = 'AMOSTRAS FALTAM FINALIZAR') then
-                dtRave.ImprimeAmostrasqueFaltamFinalizar;
+                dtRave.ImprimeAmostrasqueFaltamFinalizar
+            else
+              if (VPRNOMRELATORIO = 'AMOSTRAS POR DESENVOLVEDOR') then
+                dtRave.ImprimeQtdAmostrasPorDesenvolvedor(EDesenvolvedor.AInteiro,VprCaminhoRelatorio,LDesenvolvedor.Caption,CDataIni.Date,CDataFim.Date);
   dtRave.free;
 end;
 

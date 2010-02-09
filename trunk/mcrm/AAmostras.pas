@@ -72,7 +72,6 @@ type
     ECliente: TRBEditLocaliza;
     AmostraTIPAMOSTRA: TWideStringField;
     BExcluir: TBitBtn;
-    BExportaFicha: TBitBtn;
     Label12: TLabel;
     ETipo: TComboBoxColor;
     AmostraDATFICHAAMOSTRA: TSQLTimeStampField;
@@ -98,7 +97,6 @@ type
     procedure AmostraAfterScroll(DataSet: TDataSet);
     procedure MRequisicaoMaquinaClick(Sender: TObject);
     procedure BExcluirClick(Sender: TObject);
-    procedure BExportaFichaClick(Sender: TObject);
     procedure MConcluirFichaAmostraClick(Sender: TObject);
   private
     { Private declarations }
@@ -160,18 +158,6 @@ begin
   end;
 end;
 
-procedure TFAmostras.BExportaFichaClick(Sender: TObject);
-var
-  VpfDAmostra : TRBDAmostra;
-begin
-  if AmostraCODAMOSTRA.AsInteger <> 0 then
-  begin
-    VpfDAmostra := TRBDAmostra.cria;
-    FunAmostra.CarDAmostra(VpfDAmostra,AmostraCODAMOSTRA.AsInteger);
-    FunAmostra.ExportaFichaTecnicaAmostra(VpfDAmostra);
-    VpfDAmostra.free;
-  end;
-end;
 
 procedure TFAmostras.BFecharClick(Sender: TObject);
 begin

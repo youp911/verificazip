@@ -70,7 +70,7 @@ end;
 implementation
 
 Uses FunSql, FunObjeto, UnProdutos, Constantes, FunData, dmRave, UnCotacao,
-     UnClientes, UnSistema, FunString;
+     UnClientes, UnSistema, FunString, constmsg;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                               eventos da classe TRBLocalizaAmostra
@@ -502,7 +502,12 @@ begin
 
   VpfG5 := VpaDAmostra.QtdTotalPontos / Varia.RotacaoMaquina;
   VpfG6  := (VpaDAmostra.QtdCortesBordado + VpaDAmostra.QtdTrocasLinhaBordado) * 0.159;
-  VpfF7 := Varia.TempoAplique + (VpaDAmostra.QtdAplique * Varia.TempoAplique);
+  if VpaDAmostra.QtdAplique <> 0 then
+  begin
+    VpfF7 := Varia.TempoAplique + (VpaDAmostra.QtdAplique * Varia.TempoAplique);
+  end
+  else
+    VpfF7 := 0;
 
   VpfSoma := VpfG5 + VpfG6 + VpfF7;
 
@@ -537,7 +542,7 @@ var
   VpfCoeficiente  : Double;
 begin
   VpfCoeficiente := VpaDValorVenda.PerCoeficientes + VpaDValorVenda.PerComissao + VpaDValorVenda.PerLucro+VpaDValorVenda.PerVendaPrazo;
-  VpaDValorVenda.CustoComImposto := VpaDAmostra.CustoProduto /(1-((VpaDValorVenda.PerCoeficientes+VpaDValorVenda.PerComissao)/100));
+  VpaDValorVenda.CustoComImposto := VpaDAmostra.CustoProduto /(1-((VpaDValorVenda.PerCoeficientes + VpaDValorVenda.PerComissao)/100));
   VpaDValorVenda.ValVenda := VpaDAmostra.CustoProduto /(1-(vpfCoeficiente/100));
 end;
 
@@ -952,13 +957,36 @@ end;
 {******************************************************************************}
 procedure TRBFuncoesAmostra.ExportaFichaTecnicaAmostra(VpaDAmostra: TRBDAmostra);
 var
-  VpfNomArquivo, VpfTextoEmail, VpfNomVendedor, VpfEmailVendedor : String;
+  VpfNomArquivo, VpfNomAmostraArquivo, VpfTextoEmail, VpfNomPastaVendedor, VpfNomVendedor, VpfEmailVendedor : String;
 begin
+  VpfNomPastaVendedor := FunCotacao.RPastaFTPVendedor(VpaDAmostra.CodVendedor);
   VpfNomVendedor := FunCotacao.RNomVendedor(VpaDAmostra.CodVendedor);
-  VpfNomArquivo := Varia.PathFichaAmostra+'\Arquivos '+VpfNomVendedor+'\Ficha Técnica\'+FunClientes.RNomeFantasia(VpaDAmostra.CodProspect)+'\'+IntToStr(VpaDAmostra.CodAmostra)+'A.PDF';
-  dtRave := TdtRave.Create(nil);
-  dtRave.ImprimeFichaTecnicaAmostra(VpaDAmostra.CodAmostra,false,VpfNomArquivo);
-  dtRave.free;
+  if VpfNomPastaVendedor = '' then
+    aviso('PASTA FTP DO VENDEDOR NÃO CONFIGURADA!!!'#13'É necessário configurar a pasta FTP no cadastro do vendedor.');
+
+  AdicionaSQLAbreTabela(Amostra,'Select * from AMOSTRACOR ' +
+                               '  Where CODAMOSTRA = ' +IntToStr(VpaDAmostra.CodAmostra)+
+                               '  ORDER BY CODCOR ' );
+  while not amostra.eof do
+  begin
+    if ExisteLetraString('\',Amostra.FieldByName('DESIMAGEM').AsString) then
+      VpfNomAmostraArquivo := DeleteAteChar(Amostra.FieldByName('DESIMAGEM').AsString,'\')
+    else
+      VpfNomAmostraArquivo := Amostra.FieldByName('DESIMAGEM').AsString;
+    VpfNomAmostraArquivo :=CopiaAteChar(VpfNomAmostraArquivo,'.');
+    VpfNomArquivo := Varia.PathFichaAmostra+'\'+VpfNomPastaVendedor+'\Ficha Técnica\'+FunClientes.RNomeFantasia(VpaDAmostra.CodProspect)+'\'+VpfNomAmostraArquivo+'.PDF';
+    dtRave := TdtRave.Create(nil);
+    dtRave.ImprimeFichaTecnicaAmostraCor(VpaDAmostra.CodAmostra,Amostra.FieldByName('CODCOR').AsInteger,false,VpfNomArquivo);
+    if Varia.CNPJFilial = CNPJ_VENETO then
+    begin
+      VpfNomArquivo := varia.DriveFoto +'\PDF\'+VpfNomAmostraArquivo+'.PDF';
+      dtRave.ImprimeFichaTecnicaAmostraCor(VpaDAmostra.CodAmostra,Amostra.FieldByName('CODCOR').AsInteger,false,VpfNomArquivo);
+    end;
+
+    dtRave.free;
+    Amostra.Next;
+  end;
+
   VpfEmailVendedor := FunCotacao.REmailVencedor(VpaDAmostra.CodVendedor);
   if VpfEmailVendedor <> '' then
   begin

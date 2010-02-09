@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, formularios,
   Componentes1, ExtCtrls, PainelGradiente, StdCtrls, Buttons, Db, Grids,
-  DBGrids, Tabela, DBKeyViolation, DBTables, Menus, UnAmostra, DBClient, Localizacao;
+  DBGrids, Tabela, DBKeyViolation, DBTables, Menus, UnAmostra, DBClient, Localizacao,
+  Mask, numericos, FMTBcd, SqlExpr;
 
 type
   TFAmostrasPendentes = class(TFormularioPermissao)
@@ -44,6 +45,10 @@ type
     EDesenvolvedor: TRBEditLocaliza;
     ESituacao: TComboBoxColor;
     Label9: TLabel;
+    PanelColor4: TPanelColor;
+    ETotal: Tnumerico;
+    Label3: TLabel;
+    Aux: TSQLDataSet;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -135,20 +140,20 @@ begin
                    ' DES.CODDESENVOLVEDOR, DES.NOMDESENVOLVEDOR, '+
                    ' DEP.CODDEPARTAMENTOAMOSTRA, DEP.NOMDEPARTAMENTOAMOSTRA '+
                    ' FROM AMOSTRA AMO, CADVENDEDORES VEN, CADCLIENTES CLI, DESENVOLVEDOR DES, DEPARTAMENTOAMOSTRA DEP '+
-                   ' WHERE AMO.DATENTREGA IS NULL '+
-                   ' AND AMO.TIPAMOSTRA = ''I'''+
-                   ' AND AMO.CODVENDEDOR = VEN.I_COD_VEN '+
+                   ' WHERE AMO.CODVENDEDOR = VEN.I_COD_VEN '+
                    ' AND AMO.CODCLIENTE = CLI.I_COD_CLI '+
                    ' AND AMO.CODDESENVOLVEDOR = DES.CODDESENVOLVEDOR ' +
                    ' AND AMO.CODDEPARTAMENTOAMOSTRA = DEP.CODDEPARTAMENTOAMOSTRA');
   AdicionaFiltros(Amostras.sql);
-  Amostras.sql.add(' ORDER BY AMO.DATAMOSTRA');
+  Amostras.sql.add(' ORDER BY AMO.DATENTREGACLIENTE');
   Amostras.open;
 end;
 
 {******************************************************************************}
 procedure TFAmostrasPendentes.AdicionaFiltros(VpaConsulta : TStrings);
 begin
+  VpaConsulta.Add(' AND AMO.DATENTREGA IS NULL '+
+                   ' AND AMO.TIPAMOSTRA = ''I''');
   if EDepartamento.AInteiro <> 0 then
     Amostras.SQL.add('AND AMO.CODDEPARTAMENTOAMOSTRA = '+EDepartamento.Text);
   case ESituacao.ItemIndex of

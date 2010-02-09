@@ -860,27 +860,41 @@ function TRBFuncoesArgox.ImprimeNumerosModulo10(VpaLista : TStringList): string;
 var
   VpfLaco, VpfIndice, VpfColuna : Integer;
   VpfNumero :  string;
+  VpfTexto, VpfTexto2 : AnsiString;
 begin
   VpfIndice := 0;
   for VpfLaco := 0 to VpaLista.Count - 1 do
   begin
     VpfNumero := VpaLista.Strings[VpfLaco];
-    VpfColuna := 195 *(VpfLaco mod 2);
-{    A_Get_Graphic(VpfColuna+15,65,1,'B',StrToPAnsiChar(varia.PathVersoes+'\'+intToStr(varia.CodigoEmpFil)+'a.bmp'));
-    A_Prn_Text(VpfColuna+90,78,1,9,3,1,1,'N',0,StrToPAnsiChar('Suporte tecnico'));
-    A_Prn_Text(VpfColuna+95,63,1,9,3,1,1,'N',0,StrToPAnsiChar('e suprimentos' ));
-    A_Prn_Text(VpfColuna+79,42,1,9,4,1,1,'N',0,StrToPAnsiChar(DeletaChars(varia.FoneFilial,'*') ));
-    A_Prn_Text(VpfColuna+70,31,1,9,2,1,1,'N',0,StrToPAnsiChar('sac@copylinebnu.com.br'));
-    A_Prn_Text(VpfColuna+100,5,1,9,5,1,1,'N',0,StrToPAnsiChar('N.'));
-    A_Prn_Text(VpfColuna+115,15,1,9,1,1,1,'N',0,StrToPAnsiChar('o'));
-    A_Prn_Text(VpfColuna+130,5,1,9,5,1,1,'N',0,StrToPAnsiChar(AdicionaCharE('0',VpfNumero,5)));
-    A_Prn_Text(VpfColuna+10,37,1,9,2,1,1,'N',0,StrToPAnsiChar('assistencia'));
-    A_Prn_Text(VpfColuna+10,26,1,9,2,1,1,'N',0,StrToPAnsiChar('toner'));
-    A_Prn_Text(VpfColuna+10,14,1,9,2,1,1,'N',0,StrToPAnsiChar('impressoras'));
-    A_Prn_Text(VpfColuna+10,3,1,9,2,1,1,'N',0,StrToPAnsiChar('multifuncionais'));
+    VpfColuna := 197 *(VpfLaco mod 2);
+
+    VpfTexto := varia.PathVersoes+'\'+intToStr(varia.CodigoEmpFil)+'a.bmp';
+    A_Get_Graphic(VpfColuna+15,65,1,PAnsiChar('B'),PAnsiChar(VpfTexto));
+    VpfTexto := 'Suporte tecnico';
+    A_Prn_Text(VpfColuna+90,78,1,9,3,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+    VpfTexto := 'e suprimentos';
+    A_Prn_Text(VpfColuna+95,63,1,9,3,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+    VpfTexto := DeletaChars(varia.FoneFilial,'*');
+    A_Prn_Text(VpfColuna+79,42,1,9,4,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+    VpfTexto := 'sac@copylinebnu.com.br';
+    A_Prn_Text(VpfColuna+70,31,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+    VpfTexto := 'N.';
+    A_Prn_Text(VpfColuna+100,5,1,9,5,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+    VpfTexto := 'o';
+    A_Prn_Text(VpfColuna+115,15,1,9,1,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+    VpfTexto := AdicionaCharE('0',VpfNumero,5);
+    A_Prn_Text(VpfColuna+130,5,1,9,5,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+    VpfTexto := 'assistencia';
+    A_Prn_Text(VpfColuna+10,37,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+    VpfTexto := 'toner';
+    A_Prn_Text(VpfColuna+10,26,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+    VpfTexto := 'impressoras';
+    A_Prn_Text(VpfColuna+10,14,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
+    VpfTexto := 'multifuncionais';
+    A_Prn_Text(VpfColuna+10,3,1,9,2,1,1,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
     if (VpfLaco mod 2) = 1 then
       if A_Print_Out(1,1,1,1) <> 0 then
-        result := 'ERRO AO IMPRIMIR!!!'#13'Não foi possível imprimir';}
+        result := 'ERRO AO IMPRIMIR!!!'#13'Não foi possível imprimir';
   end;
   if VpaLista.Count > 0 then
   begin

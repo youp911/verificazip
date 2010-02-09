@@ -103,6 +103,9 @@ type
     CadVendedoresN_PER_PRE: TFMTBCDField;
     DBEditNumerico2: TDBEditNumerico;
     Label20: TLabel;
+    Label21: TLabel;
+    CadVendedoresC_PAS_FTP: TWideStringField;
+    DBEditColor9: TDBEditColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CadVendedoresAfterInsert(DataSet: TDataSet);

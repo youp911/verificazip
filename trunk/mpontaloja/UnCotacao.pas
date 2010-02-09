@@ -116,6 +116,7 @@ type TFuncoesCotacao = class(TLocalizaCotacao)
     function RVendedorUltimaCotacao : Integer;
     function RNomTransportadora(VpaCodTransportadora : Integer) : string;
     function RNomVendedor(VpaCodVendedor : Integer):string;
+    function RPastaFTPVendedor(VpaCodVendedor : Integer) : string;
     function RNomFantasiaRepresentada(VpaCodRepresentada : Integer) : String;
     function REmailVencedor(VpaCodVendedor : Integer) : string;
     function ROrdemProducao(VpaCodFilial,VpaLanOrcamento, VpaItemOrcamento : Integer) : Integer;
@@ -2124,6 +2125,18 @@ begin
   begin
     VpfDProdutoChamado := TRBDChamadoProduto(VpaDChamado.Produtos.Items[VpfLaco]);
     VpaDCotacao.DesObservacao.add(VpfDProdutoChamado.DesServicoExecutado);
+  end;
+end;
+
+{******************************************************************************}
+function TFuncoesCotacao.RPastaFTPVendedor(VpaCodVendedor: Integer): string;
+begin
+  result := '';
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSQLAbreTabela(Aux,'Select C_PAS_FTP from CADVENDEDORES '+
+                              ' Where I_COD_VEN = ' +IntToStr(VpaCodVendedor));
+    result := Aux.FieldByname('C_PAS_FTP').AsString;
   end;
 end;
 

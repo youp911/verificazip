@@ -121,6 +121,7 @@ type
     procedure ImprimeColetaOP(VpaCodFilial,VpaSeqOrdem,VpaSeqColeta : Integer;VpaVisualizar : Boolean);
     procedure ImprimeOPCadarcoTrancado(VpaCodFilial,VpaSeqOrdem : Integer;VpaVisualizar : Boolean);
     procedure ImprimeAmostrasqueFaltamFinalizar;
+    procedure ImprimeQtdAmostrasPorDesenvolvedor(VpaCodDesenvolvedor : Integer;VpaCaminho, VpaNomDesenvolvedor : string;VpaDatInicio, VpaDatFim : TDateTime);
   end;
 
 
@@ -2604,7 +2605,7 @@ begin
                               ' AND AMC.CODCOR = '+IntToStr(VpaCodCor)+
                               ' AND AMO.CODAMOSTRA = '+IntToStr(VpaCodAmostra));
 
-  AdicionaSqlAbreTabeLa(Item,'select  CON.SEQCONSUMO, CON.QTDPRODUTO, CON.VALUNITARIO, CON.VALTOTAL, CON.DESOBSERVACAO, '+
+  AdicionaSqlAbreTabeLa(Item,'select  CON.NUMSEQUENCIA, CON.SEQCONSUMO, CON.QTDPRODUTO, CON.VALUNITARIO, CON.VALTOTAL, CON.DESOBSERVACAO, '+
                              ' CON.DESUM, CON.CODFACA, CON.ALTMOLDE, CON.LARMOLDE, CON.CODMAQUINA, CON.QTDPECAEMMETRO, '+
                              ' CON.VALINDICEMETRO, CON.DESLEGENDA, '+
                              ' PRO.C_NOM_PRO,I_ALT_PRO, '+
@@ -2937,7 +2938,7 @@ procedure TdtRave.ImprimeAmostrasqueFaltamFinalizar;
 begin
   Rave.close;
   RvSystem1.SystemPrinter.Title := 'Eficácia - Amostras que faltam finalizar';
-  Rave.projectfile := varia.PathRelatorios+'\Amostra\1300CR_Amostras Faltam Finalizar.rav';
+  Rave.projectfile := varia.PathRelatorios+'\Amostra\1100CR_Amostras por Desenvolvedor.rav';
   Rave.clearParams;
   LimpaSqlTabela(Principal);
   AdicionaSqlAbreTabeLa(Principal,'SELECT  OD.CODAMOSTRA CODOD, OD.DATENTREGACLIENTE, OD.DATAMOSTRA , ' +
@@ -2954,6 +2955,35 @@ begin
   Rave.Execute;
 end;
 
+
+{******************************************************************************}
+procedure TdtRave.ImprimeQtdAmostrasPorDesenvolvedor(VpaCodDesenvolvedor: Integer; VpaCaminho, VpaNomDesenvolvedor: string;VpaDatInicio, VpaDatFim: TDateTime);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Amostras por Desenvolvedor';
+  Rave.projectfile := varia.PathRelatorios+'\Amostra\1100CR_Amostras por Desenvolvedor.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'select EXTRACT(DAY FROM DATAMOSTRA) DIA, EXTRACT(DAY FROM DATAMOSTRA) ||''/''|| EXTRACT(MONTH FROM DATAMOSTRA) DATAMOSTRA, DES.NOMDESENVOLVEDOR, COUNT(AMO.CODAMOSTRA) QTD '+
+                              ' from AMOSTRA AMO, DESENVOLVEDOR DES '+
+                              ' WHERE AMO.TIPAMOSTRA = ''D'''+
+                              ' AND AMO.CODDESENVOLVEDOR = DES.CODDESENVOLVEDOR '+
+                              SQLTextoDataEntreAAAAMMDD('AMO.DATAMOSTRA',VpaDatInicio,incDia(VpaDatFim,1),true));
+  Rave.SetParam('PERIODO','Período de '+FormatDatetime('DD/MM/YYYY',VpaDatInicio)+' até '+FormatDatetime('DD/MM/YYYY',VpaDatFim));
+  if VpaCodDesenvolvedor <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND AMO.CODDESENVOLVEDOR = '+InttoStr(VpaCodDesenvolvedor));
+    Rave.SetParam('DESENVOLVEDOR',VpaNomDesenvolvedor);
+  end;
+
+  Rave.SetParam('CAMINHO',VpaCaminho);
+
+  AdicionaSqlTabeLa(Principal,' GROUP BY EXTRACT(DAY FROM DATAMOSTRA) , EXTRACT(DAY FROM DATAMOSTRA) ||''/''|| EXTRACT(MONTH FROM DATAMOSTRA), DES.NOMDESENVOLVEDOR '+
+                              ' ORDER BY 1');
+  Principal.open;
+
+  Rave.Execute;
+end;
 
 
 end.
