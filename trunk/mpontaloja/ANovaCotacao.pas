@@ -370,6 +370,7 @@ type
     VprAgrupandoCotacao : Boolean;
     VprServicoAnterior,
     VprProdutoAnterior,
+    VprTamanhoAnterior,
     VprProdutoComposeAnterior,
     VprReferenciaAnterior : String;
     VprCotacoes : TList;
@@ -442,6 +443,7 @@ type
     procedure PosEmails;
     procedure AdicionaProdutosChamado(VpaDChamado : TRBDChamado);
     procedure CarFoto;
+    procedure ValVendaTamanho;
   public
     { Public declarations }
     function NovaCotacao : Integer;
@@ -694,6 +696,7 @@ begin
         GProdutos.Cells[4,GProdutos.ALinha] := VprDProCotacao.DesCor;
         ReferenciaProduto;
         VprCorAnterior := VprDProCotacao.CodCor;
+        ValVendaTamanho;
       end;
     end;
   end;
@@ -708,13 +711,21 @@ end;
 function TFNovaCotacao.ExisteTamanho : Boolean;
 begin
   result := true;
-  if (GProdutos.Cells[5,GProdutos.Alinha]<> '') then
+  if (GProdutos.Cells[5,GProdutos.Alinha]<> VprTamanhoAnterior) then
   begin
-      result := FunCotacao.ExisteTamanho(GProdutos.Cells[5,GProdutos.ALinha],VprDProCotacao.nomTamanho);
-      if result then
-        GProdutos.Cells[6,GProdutos.ALinha] := VprDProCotacao.NomTamanho
-      else
-        GProdutos.Cells[6,GProdutos.ALinha] := '';
+    if (GProdutos.Cells[5,GProdutos.Alinha]<> '') then
+    begin
+        result := FunCotacao.ExisteTamanho(GProdutos.Cells[5,GProdutos.ALinha],VprDProCotacao.nomTamanho);
+        if result then
+        begin
+          VprDProCotacao.CodTamanho := StrToInt(GProdutos.Cells[5,GProdutos.Alinha]);
+          VprTamanhoAnterior := GProdutos.Cells[5,GProdutos.Alinha];
+          GProdutos.Cells[6,GProdutos.ALinha] := VprDProCotacao.NomTamanho;
+          ValVendaTamanho;
+        end
+        else
+          GProdutos.Cells[6,GProdutos.ALinha] := '';
+    end;
   end;
 end;
 
@@ -2641,6 +2652,18 @@ begin
     end;
     if VpaValidos then
     begin
+      if config.BloquearProdutosnaCotacaosemCadastrodePreco then
+      begin
+        if not FunProdutos.ProdutoCadastradonaTabeladePreco(VprDProCotacao.SeqProduto,VprDProCotacao.CodCor,VprDProCotacao.CodTamanho) then
+        begin
+          VpaValidos := false;
+          aviso('PRODUTO NÃO CADASTRADO NA TABELA DE PRECO!!!'#13'Esse produto não existe cadastrado na tabela de preço.');
+        end;
+      end;
+    end;
+
+    if VpaValidos then
+    begin
       if VprDProCopia <> nil then
         VprDProCopia.free;
       VprDProCopia := TRBDOrcProduto.cria;
@@ -2728,6 +2751,7 @@ begin
     VprDProCotacao := TRBDOrcProduto(VprDCotacao.Produtos.Items[VpaLinhaAtual-1]);
     VprProdutoAnterior := VprDProCotacao.CodProduto;
     VprCorAnterior := VprDProCotacao.CodCor;
+    VprTamanhoAnterior := IntToStr(VprDProCotacao.CodTamanho);
     if config.UtilizarCompose then
     begin
       GCompose.ADados := VprDProCotacao.Compose;
@@ -3211,6 +3235,21 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovaCotacao.ValVendaTamanho;
+Var
+  VpfValVenda : Double;
+begin
+  VpfValVenda := FunProdutos.RValVendaTamanhoeCor(VprDProCotacao.SeqProduto,VprDProCotacao.CodCor,VprDProCotacao.CodTamanho);
+  if VpfValVenda <> 0 then
+  begin
+    VprDProCotacao.ValUnitario := VpfValVenda;
+    VprDProCotacao.ValTotal := VprDProCotacao.ValUnitario * VprDProCotacao.QtdProduto;
+    ReferenciaProduto;
+    CalculaValorTotalProduto;
+  end;
+end;
+
+{******************************************************************************}
 procedure TFNovaCotacao.EClienteAlterar(Sender: TObject);
 begin
   if ECliente.ALocaliza.Loca.Tabela.FieldByName(ECliente.AInfo.CampoCodigo).AsInteger <> 0 then
@@ -3618,6 +3657,7 @@ begin
     GProdutos.Cells[6,GProdutos.ALinha] := Retorno1;
     VprDProCotacao.CodTamanho := ETamanho.AInteiro;
     VprDProCotacao.NomTamanho := retorno1;
+    VprTamanhoAnterior := ETamanho.Text;
     GProdutos.AEstadoGrade := egEdicao;
   end;
 end;

@@ -516,13 +516,15 @@ begin
     if VpfColuna > 3 then
     begin
       A_Print_Out(1,1,1,1);
-      VpfColuna := -1;
+      VpfColuna := 0;
     end;
     VpfPosicaoX := VpfColuna * 100;
-    A_Prn_Text(VpfPosicaoX+25,10,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('Fl'));
+    VpfTexto := 'Fl';
+    A_Prn_Text(VpfPosicaoX+25,10,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
     VpfTExto := IntToStr(VpaDordemOrdemProducao.CodEmpresafilial);
     A_Prn_Text(VpfPosicaoX+25,35,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
-    A_Prn_Text(VpfPosicaoX+25,65,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('OP'));
+    VpfTexto := 'OP';
+    A_Prn_Text(VpfPosicaoX+25,65,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTexto));
     VpfTExto := FormatFloat('#,###,##0',VpaDordemOrdemProducao.SeqOrdem);
     A_Prn_Text(VpfPosicaoX+25,90,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
     A_Prn_Text(VpfPosicaoX+25,140,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('Fra'));
@@ -534,7 +536,7 @@ begin
     A_Prn_Text(VpfPosicaoX+45,50,4,9,1,1,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
     A_Prn_Text(VpfPosicaoX+45,110,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar('Lote'));
     VpfTExto := IntToStr(VpfDFracao.SeqFracao)+'/'+IntToStr(VpaDordemOrdemProducao.Fracoes.Count);
-    A_Prn_Text(VpfPosicaoX+45,150,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
+     A_Prn_Text(VpfPosicaoX+45,150,4,9,1,2,2,PAnsiChar('N'),0,PAnsiChar(VpfTExto));
 
     A_Prn_Text(VpfPosicaoX+55,10,4,9,1,1,1,PAnsiChar('N'),0,PAnsiChar('Pro'));
     VpfTExto := VpfDProduto.CodProduto + '-'+VpfDProduto.NomProduto;

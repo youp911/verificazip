@@ -282,13 +282,16 @@ begin
   GProdutos.Cells[4,0]:= 'Cor';
   GProdutos.Cells[5,0]:= 'Código';
   GProdutos.Cells[6,0]:= 'Tamanho';
-  GProdutos.Cells[7,0]:= 'UM';
-  GProdutos.Cells[8,0]:= 'Qtd Solicitado';
-  GProdutos.Cells[9,0]:= 'Qtd Pedido';
-  GProdutos.Cells[10,0]:= 'Valor Unitário';
-  GProdutos.Cells[11,0]:= 'Valor Total';
-  GProdutos.Cells[12,0]:= 'Ref. Fornecedor';
-  GProdutos.Cells[13,0]:= '%IPI';
+  GProdutos.Cells[7,0]:= 'Qtd Chapa';
+  GProdutos.Cells[8,0]:= 'Largura';
+  GProdutos.Cells[9,0]:= 'Comprimento';
+  GProdutos.Cells[10,0]:= 'UM';
+  GProdutos.Cells[11,0]:= 'Qtd Solicitado';
+  GProdutos.Cells[12,0]:= 'Qtd Pedido';
+  GProdutos.Cells[13,0]:= 'Valor Unitário';
+  GProdutos.Cells[14,0]:= 'Valor Total';
+  GProdutos.Cells[15,0]:= 'Ref. Fornecedor';
+  GProdutos.Cells[16,0]:= '%IPI';
 
   GFracaoOP.Cells[1,0]:= 'Filial';
   GFracaoOP.Cells[2,0]:= 'Ordem Produção';
@@ -309,6 +312,15 @@ begin
     GProdutos.ColWidths[6] := -1;
     GProdutos.TabStops[5] := false;
     GProdutos.TabStops[6] := false;
+  end;
+  if not config.ControlarEstoquedeChapas then
+  begin
+    GProdutos.ColWidths[7] := -1;
+    GProdutos.ColWidths[8] := -1;
+    GProdutos.ColWidths[9] := -1;
+    GProdutos.TabStops[7] := false;
+    GProdutos.TabStops[8] := false;
+    GProdutos.TabStops[9] := false;
   end;
 
 end;
@@ -368,10 +380,10 @@ begin
         VprCorAnterior:= '';
 
         GProdutos.Cells[2,GProdutos.ALinha]:= VprDProdutoPedido.NomProduto;
-        GProdutos.Cells[7,GProdutos.ALinha]:= VprDProdutoPedido.DesUM;
-        GProdutos.Cells[8,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.Qtdproduto);
-        GProdutos.Cells[10,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoPedido.ValUnitario);
-        GProdutos.Cells[13,GProdutos.ALinha]:= FormatFloat('0.00',VprDProdutoPedido.PerIPI);
+        GProdutos.Cells[10,GProdutos.ALinha]:= VprDProdutoPedido.DesUM;
+        GProdutos.Cells[11,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.Qtdproduto);
+        GProdutos.Cells[13,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoPedido.ValUnitario);
+        GProdutos.Cells[16,GProdutos.ALinha]:= FormatFloat('0.00',VprDProdutoPedido.PerIPI);
 
         VerificaPrecoFornecedor;
       end;
@@ -419,11 +431,11 @@ begin
 
     GProdutos.Cells[1,GProdutos.ALinha]:= VprDProdutoPedido.CodProduto;
     GProdutos.Cells[2,GProdutos.ALinha]:= VprDProdutoPedido.NomProduto;
-    GProdutos.Cells[7,GProdutos.ALinha]:= VprDProdutoPedido.DesUM;
-    GProdutos.Cells[8,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.QtdSolicitada);
-    GProdutos.Cells[9,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.Qtdproduto);
-    GProdutos.Cells[10,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoPedido.ValUnitario);
-    GProdutos.Cells[13,GProdutos.ALinha]:= FormatFloat('0.00',VprDProdutoPedido.PerIPI);
+    GProdutos.Cells[10,GProdutos.ALinha]:= VprDProdutoPedido.DesUM;
+    GProdutos.Cells[11,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.QtdSolicitada);
+    GProdutos.Cells[12,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.Qtdproduto);
+    GProdutos.Cells[13,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoPedido.ValUnitario);
+    GProdutos.Cells[16,GProdutos.ALinha]:= FormatFloat('0.00',VprDProdutoPedido.PerIPI);
     if config.EstoquePorTamanho then
     begin
       ETamanho.AInteiro := VprDProdutoPedido.CodTamanho;
@@ -536,30 +548,42 @@ begin
   else
     GProdutos.Cells[5,GProdutos.ALinha]:= '';
   GProdutos.Cells[6,GProdutos.ALinha]:= VprDProdutoPedido.NomTamanho;
-  GProdutos.Cells[7,GProdutos.ALinha]:= VprDProdutoPedido.DesUM;
-  if VprDProdutoPedido.QtdSolicitada <> 0 then
-    GProdutos.Cells[8,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.QtdSolicitada)
+  if VprDProdutoPedido.QtdChapa <> 0 then
+    GProdutos.Cells[7,GProdutos.ALinha]:= FormatFloat('#,###,###0',VprDProdutoPedido.QtdChapa)
+  else
+    GProdutos.Cells[7,GProdutos.ALinha]:= '';
+  if VprDProdutoPedido.LarChapa <> 0 then
+    GProdutos.Cells[8,GProdutos.ALinha]:= FormatFloat('#,###,###0',VprDProdutoPedido.LarChapa)
   else
     GProdutos.Cells[8,GProdutos.ALinha]:= '';
-  if VprDProdutoPedido.QtdProduto <> 0 then
-    GProdutos.Cells[9,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.QtdProduto)
+  if VprDProdutoPedido.ComChapa <> 0 then
+    GProdutos.Cells[9,GProdutos.ALinha]:= FormatFloat('#,###,###0',VprDProdutoPedido.ComChapa)
   else
     GProdutos.Cells[9,GProdutos.ALinha]:= '';
-  if VprDProdutoPedido.ValUnitario <> 0 then
-    GProdutos.Cells[10,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoPedido.ValUnitario)
+  GProdutos.Cells[10,GProdutos.ALinha]:= VprDProdutoPedido.DesUM;
+  if VprDProdutoPedido.QtdSolicitada <> 0 then
+    GProdutos.Cells[11,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.QtdSolicitada)
   else
-    GProdutos.Cells[10,GProdutos.ALinha]:= '';
+    GProdutos.Cells[11,GProdutos.ALinha]:= '';
+  if VprDProdutoPedido.QtdProduto <> 0 then
+    GProdutos.Cells[12,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.QtdProduto)
+  else
+    GProdutos.Cells[12,GProdutos.ALinha]:= '';
+  if VprDProdutoPedido.ValUnitario <> 0 then
+    GProdutos.Cells[13,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoPedido.ValUnitario)
+  else
+    GProdutos.Cells[13,GProdutos.ALinha]:= '';
   CalculaValorTotalProduto;
   CalculaValorTotal;
   if VprDProdutoPedido.ValTotal <> 0 then
-    GProdutos.Cells[11,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoPedido.ValTotal)
+    GProdutos.Cells[14,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoPedido.ValTotal)
   else
-    GProdutos.Cells[11,GProdutos.ALinha]:= '';
-  GProdutos.Cells[12,GProdutos.ALinha]:= VprDProdutoPedido.DesReferenciaFornecedor;
+    GProdutos.Cells[14,GProdutos.ALinha]:= '';
+  GProdutos.Cells[15,GProdutos.ALinha]:= VprDProdutoPedido.DesReferenciaFornecedor;
   if VprDProdutoPedido.ValTotal <> 0 then
-    GProdutos.Cells[13,GProdutos.ALinha]:= FormatFloat('0.00',VprDProdutoPedido.PerIPI)
+    GProdutos.Cells[16,GProdutos.ALinha]:= FormatFloat('0.00',VprDProdutoPedido.PerIPI)
   else
-    GProdutos.Cells[13,GProdutos.ALinha]:= '';
+    GProdutos.Cells[16,GProdutos.ALinha]:= '';
 end;
 
 {******************************************************************************}
@@ -611,37 +635,37 @@ begin
       GProdutos.Col := 5;
     end
     else
-      if VprDProdutoPedido.UnidadesParentes.IndexOf(GProdutos.Cells[7,GProdutos.ALinha]) < 0 then
+      if VprDProdutoPedido.UnidadesParentes.IndexOf(GProdutos.Cells[10,GProdutos.ALinha]) < 0 then
       begin
         VpaValidos:= False;
         aviso(CT_UNIDADEVAZIA);
-        GProdutos.Col:= 7;
+        GProdutos.Col:= 10;
       end
       else
-        if GProdutos.Cells[8,GProdutos.ALinha] = '' then
+        if GProdutos.Cells[11,GProdutos.ALinha] = '' then
         begin
           VpaValidos:= False;
           aviso('QUANTIDADE SOLICITADA NÃO PREENCHIDA!!!'#13'É necessário preencher a quantidade solicitada.');
-          GProdutos.Col:= 8;
+          GProdutos.Col:= 11;
         end
         else
-          if GProdutos.Cells[9,GProdutos.ALinha] = '' then
+          if GProdutos.Cells[12,GProdutos.ALinha] = '' then
           begin
             VpaValidos:= False;
             aviso('QUANTIDADE NÃO PREENCHIDA!!!'#13'É necessário preencher a quantidade do produto.');
-            GProdutos.Col:= 9;
+            GProdutos.Col:= 12;
           end
           else
           begin
             CalculaValorTotalProduto;
-            if GProdutos.Cells[11,GProdutos.ALinha] <> '' then
-              if StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.')) <> 0 then
+            if GProdutos.Cells[14,GProdutos.ALinha] <> '' then
+              if StrToFloat(DeletaChars(GProdutos.Cells[12,GProdutos.ALinha],'.')) <> 0 then
                 CalculaValorUnitarioProduto;
-            if GProdutos.Cells[10,GProdutos.ALinha] = '' then
+            if GProdutos.Cells[13,GProdutos.ALinha] = '' then
             begin
               VpaValidos:= False;
               aviso('VALOR UNITÁRIO NÃO PREENCHIDO!!!'#13'É necessário preencher o valor unitário.');
-              GProdutos.Col:= 10;
+              GProdutos.Col:= 13;
             end;
           end;
   end;
@@ -657,28 +681,28 @@ begin
     begin
       VpaValidos:= False;
       aviso('QUANTIDADE SOLICITADA NÃO PREENCHIDA!!!'#13'É necessário preencher a quantidade solicitada.');
-      GProdutos.Col:= 8;
+      GProdutos.Col:= 11;
     end
     else
       if VprDProdutoPedido.QtdProduto = 0 then
       begin
         VpaValidos:= False;
         aviso('QUANTIDADE NÃO PREENCHIDA!!!'#13'É necessário preencher a quantidade do produto');
-        GProdutos.Col:= 9;
+        GProdutos.Col:= 12;
       end
       else
         if VprDProdutoPedido.ValUnitario = 0 then
         begin
           VpaValidos:= False;
           aviso('VALOR UNITÁRIO NÃO PREENCHIDO!!!'#13'É necessário preencher o valor unitário.');
-          GProdutos.Col:= 10;
+          GProdutos.Col:= 13;
         end
         else
           if VprDProdutoPedido.PerIPI >100 then
           begin
             VpaValidos:= False;
             aviso('PERCENTUAL DE IPI INVÁLIDO!!!'#13'O percentual de IPI não pode ser maior que 99%');
-            GProdutos.Col:= 13;
+            GProdutos.Col:= 16;
           end;
     CalculaValorTotal;
   end;
@@ -735,27 +759,39 @@ begin
   else
     VprDProdutoPedido.CodTamanho:= 0;
   VprDProdutoPedido.NomTamanho:= GProdutos.Cells[6,GProdutos.ALinha];
-  VprDProdutoPedido.DesUM:= GProdutos.Cells[7,GProdutos.ALinha];
+  if GProdutos.Cells[7,GProdutos.ALinha] <> '' then
+    VprDProdutoPedido.QtdChapa:= StrToFloat(DeletaChars(GProdutos.Cells[7,GProdutos.ALinha],'.'))
+  else
+    VprDProdutoPedido.QtdChapa := 0;
   if GProdutos.Cells[8,GProdutos.ALinha] <> '' then
-    VprDProdutoPedido.QtdSolicitada:= StrToFloat(DeletaChars(GProdutos.Cells[8,GProdutos.ALinha],'.'))
+    VprDProdutoPedido.LarChapa:= StrToFloat(DeletaChars(GProdutos.Cells[8,GProdutos.ALinha],'.'))
+  else
+    VprDProdutoPedido.LarChapa := 0;
+  if GProdutos.Cells[9,GProdutos.ALinha] <> '' then
+    VprDProdutoPedido.ComChapa:= StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'))
+  else
+    VprDProdutoPedido.ComChapa := 0;
+  VprDProdutoPedido.DesUM:= GProdutos.Cells[10,GProdutos.ALinha];
+  if GProdutos.Cells[11,GProdutos.ALinha] <> '' then
+    VprDProdutoPedido.QtdSolicitada:= StrToFloat(DeletaChars(GProdutos.Cells[11,GProdutos.ALinha],'.'))
   else
     VprDProdutoPedido.QtdSolicitada:= 0;
-  if GProdutos.Cells[9,GProdutos.ALinha] <> '' then
-    VprDProdutoPedido.QtdProduto:= StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'))
+  if GProdutos.Cells[12,GProdutos.ALinha] <> '' then
+    VprDProdutoPedido.QtdProduto:= StrToFloat(DeletaChars(GProdutos.Cells[12,GProdutos.ALinha],'.'))
   else
     VprDProdutoPedido.QtdProduto:= 0;
-  if GProdutos.Cells[10,GProdutos.ALinha] <> '' then
-    VprDProdutoPedido.ValUnitario:= StrToFloat(DeletaChars(GProdutos.Cells[10,GProdutos.ALinha],'.'))
+  if GProdutos.Cells[13,GProdutos.ALinha] <> '' then
+    VprDProdutoPedido.ValUnitario:= StrToFloat(DeletaChars(GProdutos.Cells[13,GProdutos.ALinha],'.'))
   else
     VprDProdutoPedido.ValUnitario:= 0;
-  if GProdutos.Cells[11,GProdutos.ALinha] <> '' then
+  if GProdutos.Cells[14,GProdutos.ALinha] <> '' then
     VprDProdutoPedido.ValTotal:= StrToFloat(DeletaChars(GProdutos.Cells[11,GProdutos.ALinha],'.'))
   else
     VprDProdutoPedido.ValTotal:= 0;
   CalculaValorTotal;
-  VprDProdutoPedido.DesReferenciaFornecedor:= GProdutos.Cells[12,GProdutos.ALinha];
-  if GProdutos.Cells[13,GProdutos.ALinha] <> '' then
-    VprDProdutoPedido.PerIPI:= StrToFloat(DeletaChars(GProdutos.Cells[13,GProdutos.ALinha],'.'))
+  VprDProdutoPedido.DesReferenciaFornecedor:= GProdutos.Cells[15,GProdutos.ALinha];
+  if GProdutos.Cells[16,GProdutos.ALinha] <> '' then
+    VprDProdutoPedido.PerIPI:= StrToFloat(DeletaChars(GProdutos.Cells[16,GProdutos.ALinha],'.'))
   else
     VprDProdutoPedido.PerIPI:= 0;
   if VprDProdutoPedido.QtdSolicitada > VprDProdutoPedido.QtdProduto then
@@ -796,10 +832,7 @@ procedure TFNovoPedidoCompra.GProdutosKeyPress(Sender: TObject;
 begin
   if Key = '.' then
     case GProdutos.Col of
-      8: Key:= DecimalSeparator;
-      9: Key:= DecimalSeparator;
-     10: Key:= DecimalSeparator;
-     11: Key:= DecimalSeparator;
+      11,12,13,14: Key:= DecimalSeparator;
     end;
 end;
 
@@ -850,10 +883,10 @@ begin
                GProdutos.Cells[6,GProdutos.ALinha]:= '';
                Abort;
               end;
-        9,10: begin
+        12,13: begin
                CalculaValorTotalProduto;
              end;
-       11: begin
+       14: begin
              CalculaValorUnitarioProduto;
            end;
       end;
@@ -1346,37 +1379,37 @@ procedure TFNovoPedidoCompra.VerificaPrecoFornecedor;
 begin
   VprDPedidoCorpo.CodCliente:= EFornecedor.AInteiro;
   FunProdutos.CarDProdutoFornecedor(VprDPedidoCorpo.CodCliente,VprDProdutoPedido);
-  GProdutos.Cells[10,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoPedido.ValUnitario);
-  GProdutos.Cells[12,GProdutos.ALinha]:= VprDProdutoPedido.DesReferenciaFornecedor;
+  GProdutos.Cells[13,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValor,VprDProdutoPedido.ValUnitario);
+  GProdutos.Cells[15,GProdutos.ALinha]:= VprDProdutoPedido.DesReferenciaFornecedor;
 end;
 
 {******************************************************************************}
 procedure TFNovoPedidoCompra.CalculaValorTotalProduto;
 begin
-  if GProdutos.Cells[9,GProdutos.ALinha] <> '' then
-    VprDProdutoPedido.QtdProduto:= StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'))
+  if GProdutos.Cells[12,GProdutos.ALinha] <> '' then
+    VprDProdutoPedido.QtdProduto:= StrToFloat(DeletaChars(GProdutos.Cells[12,GProdutos.ALinha],'.'))
   else
     VprDProdutoPedido.QtdProduto:= 0;
-  if GProdutos.Cells[10,GProdutos.ALinha] <> '' then
-    VprDProdutoPedido.ValUnitario:= StrToFloat(DeletaChars(GProdutos.Cells[10,GProdutos.ALinha],'.'))
+  if GProdutos.Cells[13,GProdutos.ALinha] <> '' then
+    VprDProdutoPedido.ValUnitario:= StrToFloat(DeletaChars(GProdutos.Cells[13,GProdutos.ALinha],'.'))
   else
     VprDProdutoPedido.ValUnitario:= 0;
 
   VprDProdutoPedido.ValTotal:= VprDProdutoPedido.ValUnitario * VprDProdutoPedido.QtdProduto;
-  GProdutos.Cells[9,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.QtdProduto);
-  GProdutos.Cells[10,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValorUnitario,VprDProdutoPedido.ValUnitario);
-  GProdutos.Cells[11,GProdutos.ALinha]:= FormatFloat(varia.MascaraValor,VprDProdutoPedido.ValTotal);
+  GProdutos.Cells[12,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.QtdProduto);
+  GProdutos.Cells[13,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValorUnitario,VprDProdutoPedido.ValUnitario);
+  GProdutos.Cells[14,GProdutos.ALinha]:= FormatFloat(varia.MascaraValor,VprDProdutoPedido.ValTotal);
 end;
 
 {******************************************************************************}
 procedure TFNovoPedidoCompra.CalculaValorUnitarioProduto;
 begin
-  if GProdutos.Cells[9,GProdutos.ALinha] <> '' then
-    VprDProdutoPedido.QtdProduto:= StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'))
+  if GProdutos.Cells[12,GProdutos.ALinha] <> '' then
+    VprDProdutoPedido.QtdProduto:= StrToFloat(DeletaChars(GProdutos.Cells[12,GProdutos.ALinha],'.'))
   else
     VprDProdutoPedido.QtdProduto:= 0;
-  if GProdutos.Cells[11,GProdutos.ALinha] <> '' then
-    VprDProdutoPedido.ValTotal:= StrToFloat(DeletaChars(GProdutos.Cells[11,GProdutos.ALinha],'.'))
+  if GProdutos.Cells[14,GProdutos.ALinha] <> '' then
+    VprDProdutoPedido.ValTotal:= StrToFloat(DeletaChars(GProdutos.Cells[14,GProdutos.ALinha],'.'))
   else
     VprDProdutoPedido.ValTotal:= 0;
 
@@ -1385,9 +1418,9 @@ begin
   except
     VprDProdutoPedido.ValUnitario:= 0;
   end;
-  GProdutos.Cells[9,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.QtdProduto);
-  GProdutos.Cells[10,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValorUnitario,VprDProdutoPedido.ValUnitario);
-  GProdutos.Cells[11,GProdutos.ALinha]:= FormatFloat(varia.MascaraValor,VprDProdutoPedido.ValTotal);
+  GProdutos.Cells[12,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDProdutoPedido.QtdProduto);
+  GProdutos.Cells[13,GProdutos.ALinha]:= FormatFloat(Varia.MascaraValorUnitario,VprDProdutoPedido.ValUnitario);
+  GProdutos.Cells[14,GProdutos.ALinha]:= FormatFloat(varia.MascaraValor,VprDProdutoPedido.ValTotal);
 end;
 
 {******************************************************************************}
@@ -1542,12 +1575,15 @@ begin
     VprDProdutoPedido:= TRBDProdutoPedidoCompra(VprDPedidoCorpo.Produtos.Items[VpfLaco-1]);
     ExisteProduto;
     ExisteCor;
+    VprDProdutoPedido.QtdChapa:= VpfDProdutoPedidoCompraAux.QtdChapa;
+    VprDProdutoPedido.LarChapa:= VpfDProdutoPedidoCompraAux.LarChapa;
+    VprDProdutoPedido.ComChapa:= VpfDProdutoPedidoCompraAux.ComChapa;
     VprDProdutoPedido.QtdSolicitada:= VpfDProdutoPedidoCompraAux.QtdSolicitada;
     VprDProdutoPedido.QtdProduto:= VpfDProdutoPedidoCompraAux.QtdProduto;
     // carregar corretamente a quantidade do produto, já que ela é redefinida
     // para 1 dentro do ExisteProduto
-    GProdutos.Cells[8,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VpfDProdutoPedidoCompraAux.QtdSolicitada);
-    GProdutos.Cells[9,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VpfDProdutoPedidoCompraAux.QtdProduto);
+    GProdutos.Cells[11,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VpfDProdutoPedidoCompraAux.QtdSolicitada);
+    GProdutos.Cells[12,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VpfDProdutoPedidoCompraAux.QtdProduto);
     CarDClasseProdutos;
   end;
   GProdutos.CarregaGrade;

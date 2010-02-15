@@ -453,7 +453,7 @@ begin
         Grade.Cells[1,Grade.ALinha] := CodProduto;
         Grade.Cells[2,Grade.ALinha] := NomProduto;
         Grade.Cells[8,Grade.ALinha] := CodClassificacaoFiscal;
-        Grade.Cells[10,Grade.ALinha] := UM;
+        Grade.Cells[13,Grade.ALinha] := UM;
         if VprIndTroca then
           VprDItemNota.ValUnitario := VprDItemNota.ValRevenda;
         if config.EstoquePorTamanho then
@@ -499,7 +499,7 @@ begin
           VprProdutoAnterior := VprDItemNota.CodProduto;
           Grade.Cells[1,Grade.ALinha] := VprDItemNota.CodProduto;
           Grade.Cells[2,Grade.ALinha] := VprDItemNota.NomProduto;
-          Grade.Cells[10,Grade.ALinha] := VprDItemNota.UM;
+          Grade.Cells[13,Grade.ALinha] := VprDItemNota.UM;
           if VprIndTroca then
             VprDItemNota.ValUnitario := VprDItemNota.ValRevenda;
 
@@ -536,14 +536,14 @@ end;
 {******************************************************************************}
 function TFNovaNotaFiscaisFor.ExisteUM : Boolean;
 begin
-  if (VprDItemNota.UMAnterior = Grade.cells[10,Grade.ALinha]) then
+  if (VprDItemNota.UMAnterior = Grade.cells[13,Grade.ALinha]) then
     result := true
   else
   begin
-    result := (VprDItemNota.UnidadeParentes.IndexOf(Grade.Cells[10,Grade.Alinha]) >= 0);
+    result := (VprDItemNota.UnidadeParentes.IndexOf(Grade.Cells[13,Grade.Alinha]) >= 0);
     if result then
     begin
-      VprDItemNota.UM := Grade.Cells[7,Grade.Alinha];
+      VprDItemNota.UM := Grade.Cells[13,Grade.Alinha];
       VprDItemNota.UMAnterior := VprDItemNota.UM;
     end;
   end;
@@ -679,6 +679,15 @@ begin
     Grade.TabStops[5] := false;
     Grade.TabStops[6] := false;
   end;
+  if not config.ControlarEstoquedeChapas then
+  begin
+    Grade.ColWidths[10] := -1;
+    Grade.ColWidths[11] := -1;
+    Grade.ColWidths[12] := -1;
+    Grade.TabStops[10] := false;
+    Grade.TabStops[11] := false;
+    Grade.TabStops[12] := false;
+  end;
 end;
 
 {******************************************************************************}
@@ -693,18 +702,21 @@ begin
   grade.Cells[7,0] := 'CFOP';
   grade.Cells[8,0] := 'Cl Fisc.';
   grade.Cells[9,0] := 'CST';
-  grade.Cells[10,0] := 'UM';
-  grade.Cells[11,0] := 'Qtd';
-  grade.Cells[12,0] := 'Valor Unitário';
-  grade.Cells[13,0] := 'Valor Total';
-  grade.Cells[14,0] := '%ICMS';
-  grade.Cells[15,0] := '%IPI';
-  grade.Cells[16,0] := 'Valor Venda';
-  grade.Cells[17,0] := 'Número Série';
+  grade.Cells[10,0] := 'Qtd Chapas';
+  grade.Cells[11,0] := 'Largura';
+  grade.Cells[12,0] := 'Comprimento';
+  grade.Cells[13,0] := 'UM';
+  grade.Cells[14,0] := 'Qtd';
+  grade.Cells[15,0] := 'Valor Unitário';
+  grade.Cells[16,0] := 'Valor Total';
+  grade.Cells[17,0] := '%ICMS';
+  grade.Cells[18,0] := '%IPI';
+  grade.Cells[19,0] := 'Valor Venda';
+  grade.Cells[20,0] := 'Número Série';
   if config.Farmacia then
-    grade.Cells[17,0] := 'Numero Lote';
-  grade.Cells[18,0] := 'Ref Fornecedor';
-  grade.Cells[19,0] := 'Etiquetas';
+    grade.Cells[20,0] := 'Numero Lote';
+  grade.Cells[21,0] := 'Ref Fornecedor';
+  grade.Cells[22,0] := 'Etiquetas';
 end;
 
 {******************************************************************************}
@@ -754,10 +766,10 @@ begin
   else
 //    if (VprDItemNota.ValUnitario <> 0) and (VprDItemNota.ValTotal = 0) then
     VprDItemNota.ValTotal := VprDItemNota.ValUnitario * VprDItemNota.QtdProduto;
-  Grade.Cells[11,Grade.ALinha] := FormatFloat(varia.MascaraQtd,VprDItemNota.QtdProduto);
-  Grade.Cells[12,Grade.ALinha] := FormatFloat('###,###,###,##0.0000',VprDItemNota.ValUnitario);
-  Grade.Cells[13,Grade.ALinha] := FormatFloat(Varia.MascaraValor,VprDItemNota.ValTotal);
-  Grade.Cells[16,Grade.ALinha] := FormatFloat(Varia.MascaraValorUnitario,VprDItemNota.ValNovoVenda);
+  Grade.Cells[14,Grade.ALinha] := FormatFloat(varia.MascaraQtd,VprDItemNota.QtdProduto);
+  Grade.Cells[15,Grade.ALinha] := FormatFloat('###,###,###,##0.0000',VprDItemNota.ValUnitario);
+  Grade.Cells[16,Grade.ALinha] := FormatFloat(Varia.MascaraValor,VprDItemNota.ValTotal);
+  Grade.Cells[19,Grade.ALinha] := FormatFloat(Varia.MascaraValorUnitario,VprDItemNota.ValNovoVenda);
 end;
 
 
@@ -921,20 +933,34 @@ begin
   else
     VprDItemNota.CodTamanho := 0;
   VprDItemNota.DesTamanho := Grade.Cells[6,Grade.ALinha];
-  VprDItemNota.UM := Grade.Cells[10,Grade.ALinha];
-  VprDItemNota.QtdProduto := StrToFloat(DeletaChars(Grade.Cells[11,Grade.ALinha],'.'));
-  if DeletaChars(DeletaChars(Grade.Cells[12,Grade.ALinha],'0'),',') <> '' then
-    VprDItemNota.ValUnitario := StrToFloat(DeletaChars(Grade.Cells[12,Grade.ALinha],'.'))
+
+  if Grade.Cells[10,Grade.ALinha] <> '' then
+    VprDItemNota.QtdChapa:= StrToFloat(DeletaChars(Grade.Cells[10,Grade.ALinha],'.'))
   else
-    if DeletaChars(DeletaChars(Grade.Cells[13,Grade.ALinha],'0'),',') <> '' then
-      VprDItemNota.ValTotal := StrToFloat(DeletaChars(Grade.Cells[13,Grade.ALinha],'.'));
-  VprDItemNota.PerICMS := StrToFloat(DeletaChars(Grade.Cells[14,Grade.ALinha],'.'));
-  VprDItemNota.PerIPI := StrToFloat(DeletaChars(Grade.Cells[15,Grade.ALinha],'.'));
-  VprDItemNota.ValNovoVenda := StrToFloat(DeletaChars(Grade.Cells[16,Grade.ALinha],'.'));
-  VprDItemNota.DesNumSerie := Grade.Cells[17,Grade.ALinha];
-  VprDItemNota.DesReferenciaFornecedor := Grade.Cells[18,Grade.ALinha];
-  if Grade.Cells[19,Grade.ALinha] <> '' then
-    VprDItemNota.QtdEtiquetas := StrToInt(Grade.Cells[19,Grade.Alinha])
+    VprDItemNota.QtdChapa := 0;
+  if Grade.Cells[11,Grade.ALinha] <> '' then
+    VprDItemNota.LarChapa:= StrToFloat(DeletaChars(Grade.Cells[11,Grade.ALinha],'.'))
+  else
+    VprDItemNota.LarChapa := 0;
+  if Grade.Cells[12,Grade.ALinha] <> '' then
+    VprDItemNota.ComChapa:= StrToFloat(DeletaChars(Grade.Cells[12,Grade.ALinha],'.'))
+  else
+    VprDItemNota.ComChapa := 0;
+
+  VprDItemNota.UM := Grade.Cells[13,Grade.ALinha];
+  VprDItemNota.QtdProduto := StrToFloat(DeletaChars(Grade.Cells[14,Grade.ALinha],'.'));
+  if DeletaChars(DeletaChars(Grade.Cells[15,Grade.ALinha],'0'),',') <> '' then
+    VprDItemNota.ValUnitario := StrToFloat(DeletaChars(Grade.Cells[15,Grade.ALinha],'.'))
+  else
+    if DeletaChars(DeletaChars(Grade.Cells[16,Grade.ALinha],'0'),',') <> '' then
+      VprDItemNota.ValTotal := StrToFloat(DeletaChars(Grade.Cells[16,Grade.ALinha],'.'));
+  VprDItemNota.PerICMS := StrToFloat(DeletaChars(Grade.Cells[17,Grade.ALinha],'.'));
+  VprDItemNota.PerIPI := StrToFloat(DeletaChars(Grade.Cells[18,Grade.ALinha],'.'));
+  VprDItemNota.ValNovoVenda := StrToFloat(DeletaChars(Grade.Cells[19,Grade.ALinha],'.'));
+  VprDItemNota.DesNumSerie := Grade.Cells[20,Grade.ALinha];
+  VprDItemNota.DesReferenciaFornecedor := Grade.Cells[21,Grade.ALinha];
+  if Grade.Cells[22,Grade.ALinha] <> '' then
+    VprDItemNota.QtdEtiquetas := StrToInt(Grade.Cells[22,Grade.Alinha])
   else
     VprDItemNota.QtdEtiquetas := 0;
 
@@ -1136,13 +1162,26 @@ begin
   Grade.Cells[7,VpaLinha] := VprDItemNota.CodNatureza ;
   Grade.Cells[8,VpaLinha] := VprDItemNota.CodClassificacaoFiscal;
   Grade.Cells[9,VpaLinha] := VprDItemNota.CodCST;
-  Grade.Cells[10,VpaLinha] := VprDItemNota.UM;
-  Grade.Cells[14,VpaLinha] := FormatFloat('0.00',VprDItemNota.PerICMS);
-  Grade.Cells[15,VpaLinha] := FormatFloat('0.00',VprDItemNota.PerIPI);
+  if VprDItemNota.QtdChapa <> 0 then
+    Grade.Cells[10,Grade.ALinha]:= FormatFloat('#,###,###0',VprDItemNota.QtdChapa)
+  else
+    Grade.Cells[10,Grade.ALinha]:= '';
+  if VprDItemNota.LarChapa <> 0 then
+    Grade.Cells[11,Grade.ALinha]:= FormatFloat('#,###,###0',VprDItemNota.LarChapa)
+  else
+    Grade.Cells[11,Grade.ALinha]:= '';
+  if VprDItemNota.ComChapa <> 0 then
+    Grade.Cells[12,Grade.ALinha]:= FormatFloat('#,###,###0',VprDItemNota.ComChapa)
+  else
+    Grade.Cells[12,Grade.ALinha]:= '';
+  Grade.Cells[17,VpaLinha] := FormatFloat('0.00',VprDItemNota.PerICMS);
+  Grade.Cells[13,VpaLinha] := VprDItemNota.UM;
+  Grade.Cells[17,VpaLinha] := FormatFloat('0.00',VprDItemNota.PerICMS);
+  Grade.Cells[18,VpaLinha] := FormatFloat('0.00',VprDItemNota.PerIPI);
   CalculaValorTotalProduto;
-  Grade.Cells[17,VpaLinha] := VprDItemNota.DesNumSerie;
-  Grade.Cells[18,VpaLinha] := VprDItemNota.DesReferenciaFornecedor;
-  Grade.Cells[19,VpaLinha] := IntToStr(VprDItemNota.QtdEtiquetas);
+  Grade.Cells[20,VpaLinha] := VprDItemNota.DesNumSerie;
+  Grade.Cells[21,VpaLinha] := VprDItemNota.DesReferenciaFornecedor;
+  Grade.Cells[22,VpaLinha] := IntToStr(VprDItemNota.QtdEtiquetas);
 end;
 
 procedure TFNovaNotaFiscaisFor.GradeContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
@@ -1166,7 +1205,7 @@ procedure TFNovaNotaFiscaisFor.GradeGetEditMask(Sender: TObject; ACol,
   ARow: Integer; var Value: String);
 begin
   case ACol of
-    3,19 :  Value := '00000;0; ';
+    3,22 :  Value := '00000;0; ';
   end;
 end;
 
@@ -1222,8 +1261,8 @@ begin
   VprDItemNota.CodNatureza := VprDNotaFor.CodNatureza;
   VprDItemNota.SeqNatureza := VprDNotaFor.SeqNatureza;
   Grade.Cells[7,Grade.ALinha] := VprDItemNota.CodNatureza ;
-  Grade.Cells[14,Grade.ALinha] := FormatFloat('0.00',VprDItemNota.PerICMS);
-  Grade.Cells[15,Grade.ALinha] := FormatFloat('0.00',VprDItemNota.PerIPI);
+  Grade.Cells[17,Grade.ALinha] := FormatFloat('0.00',VprDItemNota.PerICMS);
+  Grade.Cells[18,Grade.ALinha] := FormatFloat('0.00',VprDItemNota.PerIPI);
 end;
 
 {******************************************************************************}
@@ -1268,37 +1307,37 @@ begin
                 Grade.Col := 5;
               end;
             end;
-        10: if not ExisteUM then
+        13: if not ExisteUM then
             begin
               aviso(CT_UNIDADEVAZIA);
               Grade.col := 10;
               abort;
             end;
-        11: begin
-               if Grade.Cells[11,Grade.ALinha] <> '' then
-                 VprDItemNota.QtdProduto := StrToFloat(DeletaChars(Grade.Cells[11,Grade.ALinha],'.'))
+        14: begin
+               if Grade.Cells[14,Grade.ALinha] <> '' then
+                 VprDItemNota.QtdProduto := StrToFloat(DeletaChars(Grade.Cells[14,Grade.ALinha],'.'))
                else
                  VprDItemNota.QtdProduto := 0;
                CalculaValorTotalProduto;
                VprDItemNota.QtdEtiquetas := ArredondaPraMaior(VprDItemNota.QtdProduto);
-               Grade.Cells[19,Grade.ALinha] := IntToStr(VprDItemNota.QtdEtiquetas);
+               Grade.Cells[22,Grade.ALinha] := IntToStr(VprDItemNota.QtdEtiquetas);
             end;
-        12 : begin
-               if Grade.Cells[12,Grade.ALinha] <> '' then
+        15 : begin
+               if Grade.Cells[15,Grade.ALinha] <> '' then
                begin
                  VprDItemNota.ValTotal := 0;
-                 VprDItemNota.ValUnitario := StrToFloat(DeletaChars(Grade.Cells[12,Grade.ALinha],'.'));
+                 VprDItemNota.ValUnitario := StrToFloat(DeletaChars(Grade.Cells[15,Grade.ALinha],'.'));
                end
                else
                  VprDItemNota.ValUnitario := 0;
                CalculaValorTotalProduto;
              end;
-        13 :
+        16 :
              begin
-               if Grade.Cells[13,Grade.ALinha] <> '' then
+               if Grade.Cells[16,Grade.ALinha] <> '' then
                begin
                  VprDItemNota.ValUnitario := 0;
-                 VprDItemNota.ValTotal := StrToFloat(DeletaChars(Grade.Cells[13,Grade.ALinha],'.'));
+                 VprDItemNota.ValTotal := StrToFloat(DeletaChars(Grade.Cells[16,Grade.ALinha],'.'));
                end
                else
                  VprDItemNota.ValTotal := 0;
@@ -1365,25 +1404,25 @@ begin
       Grade.Col := 5;
     end
     else
-      if (VprDItemNota.UnidadeParentes.IndexOf(Grade.Cells[10,Grade.Alinha]) < 0) then
+      if (VprDItemNota.UnidadeParentes.IndexOf(Grade.Cells[13,Grade.Alinha]) < 0) then
       begin
         VpaValidos := false;
         aviso(CT_UNIDADEVAZIA);
-        Grade.col := 10;
+        Grade.col := 13;
       end
       else
-        if (Grade.Cells[11,Grade.ALinha] = '') then
+        if (Grade.Cells[14,Grade.ALinha] = '') then
         begin
           VpaValidos := false;
           aviso(CT_QTDPRODUTOINVALIDO);
-          Grade.Col := 11;
+          Grade.Col := 14;
         end
         else
-          if ((Grade.Cells[12,Grade.ALinha] = '') and (Grade.Cells[12,Grade.ALinha] = '')) then
+          if ((Grade.Cells[15,Grade.ALinha] = '') and (Grade.Cells[16,Grade.ALinha] = '')) then
           begin
             VpaValidos := false;
             aviso(CT_VALORUNITARIOINVALIDO);
-            Grade.Col := 12;
+            Grade.Col := 15;
           end;
   end;
 
@@ -1395,14 +1434,14 @@ begin
     begin
       VpaValidos := false;
       aviso(CT_QTDPRODUTOINVALIDO);
-      Grade.col := 11
+      Grade.col := 14
     end
     else
       if VprDItemNota.ValUnitario = 0 then
       begin
         VpaValidos := false;
         aviso(CT_VALORUNITARIOINVALIDO);
-        Grade.Col := 12;
+        Grade.Col := 15;
       end;
   end;
   if VpaValidos then
@@ -1413,7 +1452,7 @@ begin
       begin
         VpaValidos := false;
         aviso('NUMERO DO LOTE NÃO PREENCHIDO!!!'#13'É necessário preencher o numero do lote quando o medicamento é controlado.');
-        Grade.Col := 17;
+        Grade.Col := 20;
       end;
     end;
   end;
@@ -1505,7 +1544,7 @@ procedure TFNovaNotaFiscaisFor.GradeGetCellAlignment(sender: TObject; ARow,
   ACol: Integer; var HorAlignment: TAlignment;
   var VerAlignment: TVerticalAlignment);
 begin
-  if ACol = 16 then
+  if ACol = 19 then
     HorAlignment :=  taRightJustify;
 end;
 

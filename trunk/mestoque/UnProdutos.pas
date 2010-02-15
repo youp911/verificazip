@@ -253,12 +253,14 @@ type
     function RNomeClassificacao(VpaCodEmpresa : Integer;VpaCodClasssificacao : String):string;
     function RNomeComposicao(VpaCodComposicao : Integer):string;
     function RAlturaProduto(VpaSeqProduto : Integer) : Integer;
+    function RValVendaTamanhoeCor(VpaSeqProduto, VpaCodCor, VpaCodTamanho : Integer):Double;
     procedure CarUnidadesVenda(VpaUnidades: TStrings);
     function RUnidadesParentes(VpaUM : String):TStringList;
     function RSeqCartuchoDisponivel : Integer;
     function RQtdIdealEstoque(VpaCodFilial, VpaSeqProduto, VpaCodCor : Integer): Double;
     function RQtdMetrosFita(VpaCodProduto,VpaNomProduto, VpaCodUM : string;VpaQtdProduto,VpaComprimentoProduto : Double; Var VpfErro : string):Double;
     function RTabelaPreco(VpaDProduto : TRBDProduto;VpaCodTabela,VpaCodCliente,VpaCodTamanho,VpaCodMoeda : Integer): TRBDProdutoTabelaPreco;
+    function RQuilosChapa(VpaEspessuraChapa, VpaLarguraChapa, vpaComprimentoChapa,VpaQtdChapas, VpaIndiceVolumetrico : Double):double;
     function CombinacaoDuplicada(VpaDProduto : TRBDProduto):Boolean;
     function FiguraGRFDuplicada(VpaFiguras : TList) : Boolean;
     procedure ExcluiCombinacoes(VpaSeqProduto : String);
@@ -295,7 +297,7 @@ type
     procedure AdicionaTodasTabelasdePreco(VpaDProduto : TRBDProduto);
     function AdicionaRepeticaoInstalacaoTear(VpaDProduto : TRBDProduto; VpaColunaInicial, VpaColunaFinal,VpaQtdRepeticao : Integer) : String;
     procedure ImprimeEtiquetaPrateleira(VpaEstante, VpaPrateleiraInicial, VpaPrateleiraFinal : String;VpaNumeroInicial, VpaNumeroFinal : Integer);
-
+    function ProdutoCadastradonaTabeladePreco(VpaSeqProduto,VpaCodCor, VpaCodTamanho : Integer):Boolean;
  end;
 Var
   FunProdutos : TFuncoesProduto;
@@ -890,7 +892,7 @@ begin
   while not Tabela.Eof do
   begin
     VpfDBaixaConsumo := RDBaixaConsumoOp(VpaBaixas,Tabela.FieldByName('I_SEQ_PRO').AsInteger,Tabela.FieldByName('CODCOR').AsInteger,Tabela.FieldByName('INDMATERIALEXTRA').AsString = 'S');
-    if (VpfDBaixaConsumo = nil)or (Varia.TipoOrdemProducao = toFracionada) then
+    if (VpfDBaixaConsumo = nil){or (Varia.TipoOrdemProducao = toFracionada)} then
     begin
       VpfDBaixaConsumo:= TRBDConsumoFracaoOP.Create;
       VpaBaixas.Add(VpfDBaixaConsumo);
@@ -1592,6 +1594,20 @@ begin
   ExecutaComandoSql(Tabela,'update CADEMPRESAS '+
                            ' Set I_ULT_PRO = I_ULT_PRO - 1'+
                             ' where i_cod_emp = ' +IntToStr(varia.CodigoEmpresa) );
+end;
+
+{************************* Verifica se o produto ja foi cadastrado *********** }
+function TFuncoesProduto.ProdutoCadastradonaTabeladePreco(VpaSeqProduto,VpaCodCor, VpaCodTamanho: Integer): Boolean;
+begin
+  AdicionaSQLAbreTabela(AUX,'Select N_VLR_VEN FROM MOVTABELAPRECO '+
+                           ' Where I_COD_EMP = '+IntToStr(Varia.CodigoEmpresa)+
+                           ' AND I_COD_TAB = '+IntToStr(VARIA.TabelaPreco)+
+                           ' AND I_COD_CLI =  0 ' +
+                           ' AND I_SEQ_PRO = '+IntToStr(VpaSeqProduto)+
+                           ' AND I_COD_TAM = '+IntToStr(VpaCodTamanho)+
+                           ' AND I_COD_COR = ' + IntToStr(VpaCodCor));
+  result := not AUX.Eof;
+  Aux.Close;
 end;
 
 {************************* Verifica se o produto ja foi cadastrado *********** }
@@ -3195,7 +3211,7 @@ begin
   if VpaCodProduto <> '' then
   begin
     AdicionaSQLAbreTabela(ProProduto,'SELECT PRO.C_COD_PRO, PRO.I_SEQ_PRO, PRO.C_COD_UNI, PRO.C_NOM_PRO, '+
-                                     ' PRO.C_COD_CLA '+
+                                     ' PRO.C_COD_CLA, PRO.N_ESP_ACO, PRO.N_DEN_VOL '+
                                      ' FROM CADPRODUTOS PRO'+
                                      ' WHERE PRO.C_COD_PRO = '''+VpaCodProduto+'''');
     Result:= not ProProduto.Eof;
@@ -3206,6 +3222,8 @@ begin
       VpaDOrcamentoItem.CodClassificacao := ProProduto.FieldByName('C_COD_CLA').AsString;
       VpaDOrcamentoItem.DesUM:= ProProduto.FieldByName('C_COD_UNI').AsString;
       VpaDOrcamentoItem.NomProduto:= ProProduto.FieldByName('C_NOM_PRO').AsString;
+      VpaDOrcamentoItem.DensidadeVolumetricaAco := ProProduto.FieldByName('N_DEN_VOL').AsFloat;
+      VpaDOrcamentoItem.EspessuraAco := ProProduto.FieldByName('N_ESP_ACO').AsFloat;
 
       VpaDOrcamentoItem.UnidadesParentes.Free;
       VpaDOrcamentoItem.UnidadesParentes:= FunProdutos.RUnidadesParentes(VpaDOrcamentoItem.DesUM);
@@ -3854,6 +3872,20 @@ begin
 end;
 
 {******************************************************************************}
+function TFuncoesProduto.RValVendaTamanhoeCor(VpaSeqProduto, VpaCodCor,VpaCodTamanho: Integer): Double;
+begin
+  AdicionaSQLAbreTabela(AUX,'Select N_VLR_VEN FROM MOVTABELAPRECO '+
+                           ' Where I_COD_EMP = '+IntToStr(Varia.CodigoEmpresa)+
+                           ' AND I_COD_TAB = '+IntToStr(VARIA.TabelaPreco)+
+                           ' AND I_COD_CLI =  0 ' +
+                           ' AND I_SEQ_PRO = '+IntToStr(VpaSeqProduto)+
+                           ' AND I_COD_TAM = '+IntToStr(VpaCodTamanho)+
+                           ' AND I_COD_COR = ' + IntToStr(VpaCodCor));
+  result := AUX.FieldByName('N_VLR_VEN').AsFloat;
+  Aux.Close;
+end;
+
+{******************************************************************************}
 function TFuncoesProduto.RNomeFundo(VpaCodFundo : String):String;
 begin
   result := '';
@@ -3919,6 +3951,15 @@ begin
       end;
     end;
   end;
+end;
+
+{******************************************************************************}
+function TFuncoesProduto.RQuilosChapa(VpaEspessuraChapa, VpaLarguraChapa,vpaComprimentoChapa, VpaQtdChapas, VpaIndiceVolumetrico: Double): double;
+var
+  VpfVolume : Double;
+begin
+  VpfVolume := VpaEspessuraChapa * VpaLarguraChapa * vpaComprimentoChapa * VpaQtdChapas;
+  result :=  VpfVolume * (((VpaIndiceVolumetrico /1000)/1000)/1000) ;
 end;
 
 {******************************************************************************}
@@ -4129,7 +4170,8 @@ begin
                             ' CAD.I_TAB_PED, CAD.I_QTD_CTA, CAD.C_CAR_TEX,'+
                             ' CAD.D_DAT_CAD, CAD.I_COD_COM, CAD.C_IND_MON, '+
                             ' CAD.I_ORI_PRO, CAD.N_CAP_LIQ, CAD.C_KIT_PRO,  '+
-                            ' CAD.I_DES_PRO, CAD.C_AGR_BAL '+
+                            ' CAD.I_DES_PRO, CAD.C_AGR_BAL, CAD.N_DEN_VOL, '+
+                            ' CAD.N_ESP_ACO '+
                             ' FROM CADPRODUTOS CAD'+
                             ' WHERE CAD.I_SEQ_PRO = '+IntToStr(vpadproduto.Seqproduto));
 
@@ -4225,7 +4267,11 @@ begin
   VpaDProduto.DatFabricacao:= Tabela.FieldByName('D_DAT_FAB').AsDateTime;
   VpaDProduto.DatEncerProducao:= Tabela.FieldByName('D_DAT_ENC').AsDateTime;
 
-// Cartuchos
+// aco
+  VpaDProduto.DensidadeVolumetrica:= Tabela.FieldByName('N_DEN_VOL').AsFloat;
+  VpaDProduto.EspessuraAco := Tabela.FieldByName('N_ESP_ACO').AsFloat;
+
+  // Cartuchos
   VpaDProduto.QtdPaginas:= Tabela.FieldByName('I_QTD_PAG').AsInteger;
   VpaDProduto.PesCartucho:= Tabela.FieldByName('I_PES_CCH').AsInteger;
   VpaDProduto.PesCartuchoVazio:= Tabela.FieldByName('I_PES_CVA').AsInteger;
@@ -4473,6 +4519,10 @@ begin
   ProCadastro.FieldByName('I_VOL_MEN').AsInteger:= VpaDProduto.VolumeMensal;
   ProCadastro.FieldByName('D_DAT_FAB').AsDateTime:= VpaDProduto.DatFabricacao;
   ProCadastro.FieldByName('D_DAT_ENC').AsDateTime:= VpaDProduto.DatEncerProducao;
+
+// aco
+  ProCadastro.FieldByName('N_DEN_VOL').Value := VpaDProduto.DensidadeVolumetrica;
+  ProCadastro.FieldByName('N_ESP_ACO').AsFloat:= VpaDProduto.EspessuraAco;
 
 // Cartuchos
   ProCadastro.FieldByName('I_PES_CVA').AsInteger:= VpaDProduto.PesCartuchoVazio;

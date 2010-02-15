@@ -364,7 +364,11 @@ procedure TFNovoInventario.GradeMudouLinha(Sender: TObject; VpaLinhaAtual,
   VpaLinhaAnterior: Integer);
 begin
   if VprDInventario.ItemsInventario.Count > 0 then
+  begin
     VprDItemInventario := TRBDInventarioItem(VprDInventario.ItemsInventario.Items[VpaLinhaAtual-1]);
+    VprProdutoAnterior := VprDItemInventario.CodProduto;
+    VprCorAnterior :=  InttoStr(VprDItemInventario.CodCor);
+  end;
 end;
 
 {******************************************************************************}

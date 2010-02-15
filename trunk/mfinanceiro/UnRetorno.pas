@@ -457,7 +457,7 @@ begin
       Aux.sql.add('''N'',');
     Aux.sql.add(IntToStr(VpfDItem.CodOcorrencia)+','+
                 SqlTextoDataAAAAMMMDD(VpfDItem.DatOcorrencia)+','''+
-                copy(VpfDItem.NomSacado,1,30) +''','''+
+                DeletaChars(copy(VpfDItem.NomSacado,1,30),'''') +''','''+
                 VpfDItem.NumDuplicata+''','''+
                 VpfDItem.DesNossoNumero+''',');
     if VpfDItem.DatVencimento > MontaData(1,1,1900) then
@@ -479,6 +479,7 @@ begin
                 VpfDItem.DesLiquidacao+''','+
                 SQLRetornaValorTipoCampo(varia.CodigoUsuario)+','''+
                 VpfDItem.NomOcorrencia+''')');
+    Aux.SQL.SaveToFile('c:\comando.sql');
     Aux.execsql;
   end;
 end;

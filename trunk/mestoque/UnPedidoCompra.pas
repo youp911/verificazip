@@ -291,6 +291,12 @@ begin
     Cadastro.FieldByName('VALTOTAL').AsFloat:= VpfDProdutoPedido.ValTotal;
     Cadastro.FieldByName('DESREFERENCIAFORNECEDOR').AsString:= VpfDProdutoPedido.DesReferenciaFornecedor;
     Cadastro.FieldByName('QTDSOLICITADA').AsFloat:= VpfDProdutoPedido.QtdSolicitada;
+    if VpfDProdutoPedido.QtdChapa <> 0 then
+      Cadastro.FieldByName('QTDCHAPA').AsFloat:= VpfDProdutoPedido.QtdChapa;
+    if VpfDProdutoPedido.LarChapa <> 0 then
+      Cadastro.FieldByName('LARCHAPA').AsFloat:= VpfDProdutoPedido.LarChapa;
+    if VpfDProdutoPedido.ComChapa <> 0 then
+      Cadastro.FieldByName('COMCHAPA').AsFloat:= VpfDProdutoPedido.ComChapa;
     if VpfDProdutoPedido.PerIPI <> 0 then
       Cadastro.FieldByName('PERIPI').AsFloat:= VpfDProdutoPedido.PerIPI;
     if VpfDProdutoPedido.DatAprovacao > MontaData(1,1,1900) then
@@ -413,6 +419,7 @@ begin
   AdicionaSQLAbreTabela(Tabela,'SELECT PCI.SEQPRODUTO, PCI.CODCOR,  COR.NOM_COR,'+
                                ' PCI.DESREFERENCIAFORNECEDOR, PCI.DESUM, PCI.QTDPRODUTO, PCI.QTDBAIXADO, PCI.PERIPI,'+
                                ' PCI.VALUNITARIO, PCI.QTDSOLICITADA, PCI.VALTOTAL, PCI.CODTAMANHO, '+
+                               ' PCI.QTDCHAPA, PCI.LARCHAPA, PCI.COMCHAPA, '+
                                ' PRO.L_DES_TEC, PRO.C_COD_PRO, PRO.C_NOM_PRO, '+
                                ' TAM.NOMTAMANHO ' +
                                ' FROM PEDIDOCOMPRAITEM PCI, CADPRODUTOS PRO, COR COR, TAMANHO TAM'+
@@ -438,6 +445,9 @@ begin
     VpfDProdutoPedidoCompra.DesReferenciaFornecedor:= Tabela.FieldByName('DESREFERENCIAFORNECEDOR').AsString;
     VpfDProdutoPedidoCompra.DesUM:= Tabela.FieldByName('DESUM').AsString;
     VpfDProdutoPedidoCompra.UnidadesParentes:= FunProdutos.RUnidadesParentes(VpfDProdutoPedidoCompra.DesUM);
+    VpfDProdutoPedidoCompra.QtdChapa := Tabela.FieldByName('QTDCHAPA').AsFloat;
+    VpfDProdutoPedidoCompra.LarChapa := Tabela.FieldByName('LARCHAPA').AsFloat;
+    VpfDProdutoPedidoCompra.ComChapa := Tabela.FieldByName('COMCHAPA').AsFloat;
     VpfDProdutoPedidoCompra.QtdProduto:= Tabela.FieldByName('QTDPRODUTO').AsFloat;
     VpfDProdutoPedidoCompra.QtdBaixado:= Tabela.FieldByName('QTDBAIXADO').AsFloat;
     VpfDProdutoPedidoCompra.ValUnitario:= Tabela.FieldByName('VALUNITARIO').AsFloat;
@@ -822,10 +832,13 @@ var
   VpfObservacoes : TStringList;
   VpfCamposRetorno : String;
   VpfDTransportadora : TRBDTransportadora;
-  VpfTamanhoColCor, VpfTamanhoColTamanho : Integer;
+  VpfTamanhoColCor, VpfTamanhoColTamanho,VpfTamanhoColProduto, vpfTamanhoColReferencia : Integer;
 begin
+  vpfTamanhoColReferencia := 10;
+  VpfTamanhoColProduto := 45;
   if config.EstoquePorTamanho then
   begin
+    VpfTamanhoColProduto := 30;
     VpfTamanhoColCor := 9;
     VpfTamanhoColTamanho := 6;
   end
@@ -833,6 +846,21 @@ begin
   begin
     VpfTamanhoColCor := 15;
     VpfTamanhoColTamanho := 0;
+    VpfTamanhoColProduto := 30;
+    if config.EstoquePorCor and config.ControlarEstoquedeChapas then
+    begin
+      VpfTamanhoColCor := 10;
+      VpfTamanhoColProduto := 25;
+      vpfTamanhoColReferencia := 7;
+    end
+    else
+      if config.ControlarEstoquedeChapas then
+      begin
+        VpfTamanhoColCor := 0;
+        VpfTamanhoColProduto := 35;
+        vpfTamanhoColReferencia := 7;
+
+      end;
   end;
 
   VpfDTransportadora := TRBDTransportadora.Create;
@@ -930,13 +958,20 @@ begin
 
   VpaTexto.add('<table border=1 cellpadding="0" cellspacing="0" width="100%">');
   VpaTexto.add('<tr>');
-  VpaTexto.add('	<td colspan=8 align="center" bgcolor="#'+varia.CRMCorEscuraEmail+'"><font face="Verdana" size="3"><b>Produtos</td>');
+  VpaTexto.add('	<td colspan=11 align="center" bgcolor="#'+varia.CRMCorEscuraEmail+'"><font face="Verdana" size="3"><b>Produtos</td>');
   VpaTexto.add('</tr><tr>');
-  VpaTexto.add('        <td width="10%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Ref Fornecedor</td>');
-  VpaTexto.add('        <td width="30%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Produto</td>');
-  VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColCor) +'%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Cor</td>');
+  VpaTexto.add('        <td width="'+IntToStr(vpfTamanhoColReferencia) +'%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Ref Fornecedor</td>');
+  VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColProduto) +'%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Produto</td>');
+  if config.EstoquePorCor then
+    VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColCor) +'%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Cor</td>');
   if config.EstoquePorTamanho then
     VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColTamanho) +'%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Tamanho</td>');
+  if config.ControlarEstoquedeChapas then
+  begin
+    VpaTexto.add('        <td width="3%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Qtd Chapas</td>');
+    VpaTexto.add('        <td width="5%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Lar Chapa (MM)</td>');
+    VpaTexto.add('        <td width="5%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Cmp Chapa (MM)</td>');
+  end;
   VpaTexto.add('        <td width="5%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;UM</td>');
   VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Quantidade</td>');
   VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Valor Unitário</td>');
@@ -946,17 +981,26 @@ begin
   begin
     VpfDItem := TRBDProdutoPedidoCompra(VpaDPedidoCompra.Produtos.Items[VpfLaco]);
     VpaTexto.add('</tr><tr>');
-    VpaTexto.add('        <td width="10%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.DesReferenciaFornecedor +'</td>');
+    VpaTexto.add('        <td width="'+IntToStr(vpfTamanhoColReferencia) +'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.DesReferenciaFornecedor +'</td>');
     if (VpfDItem.DesTecnica <> '') and (config.ObservacaoProdutoPedidoCompra) then
-      VpaTexto.add('        <td width="30%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.DesTecnica+'</td>')
+      VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColProduto) +'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.DesTecnica+'</td>')
     else
-      VpaTexto.add('        <td width="30%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.CodProduto+'-'+VpfDItem.NomProduto+'</td>');
-    if VpfDItem.NomCor <> '' then
-      VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColCor) +'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+IntToStr(VpfDItem.CodCor)+'-'+ VpfDItem.NomCor+'</td>')
-    else
-      VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColCor) +'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.NomCor+'</td>');
+      VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColProduto) +'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.CodProduto+'-'+VpfDItem.NomProduto+'</td>');
+    if config.EstoquePorCor then
+    begin
+      if VpfDItem.NomCor <> '' then
+        VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColCor) +'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+IntToStr(VpfDItem.CodCor)+'-'+ VpfDItem.NomCor+'</td>')
+      else
+        VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColCor) +'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.NomCor+'</td>');
+    end;
     if config.EstoquePorTamanho then
       VpaTexto.add('        <td width="'+IntToStr(VpfTamanhoColTamanho) +'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.NomTamanho+'</td>');
+    if config.ControlarEstoquedeChapas then
+    begin
+      VpaTexto.add('      <td width="3%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+FormatFloat('#,###,###',VpfDItem.QtdChapa)+' </td>');
+      VpaTexto.add('      <td width="5%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+FormatFloat('#,###,###',VpfDItem.LarChapa)+' </td>');
+      VpaTexto.add('      <td width="5%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+FormatFloat('#,###,###',VpfDItem.ComChapa)+' </td>');
+    end;
     VpaTexto.add('        <td width="5%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+VpfDItem.DesUM+'</td>');
     VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+FormatFloat(varia.MascaraQtd,VpfDItem.QtdProduto)+'</td>');
     VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+FormatFloat(varia.MascaraValorUnitario,VpfDItem.ValUnitario)+'</td>');

@@ -130,6 +130,7 @@ type
     procedure InicializaDadosPadrao;
     procedure CarDPadraoTela;
     procedure CarDClasseProdutos;
+    procedure CarDChapaClasse;
     procedure CarDClasseOP;
     procedure CarDClasseCorpo;
     function ExisteProduto: Boolean;
@@ -144,6 +145,7 @@ type
     procedure CarregaProdutosPorposta(VpaDProposta : TRBDPropostaCorpo);
     procedure CarregaProdutosOrdemProducao(VpaCodFilial,VpaSeqOrdem : Integer);
     procedure AdicionaProdutosConsumoFracao(VpaDFracao : TRBDFracaoOrdemProducao);
+    procedure CalculaKilosChapa;
   public
     function NovoOrcamento: Boolean;
     function NovoOrcamentoConsumo(VpaCodFilial,VpaSeqOrdem, VpaSeqFracao : Integer;VpaProdutos : TList):Boolean;
@@ -460,19 +462,7 @@ begin
   else
     VprDOrcamentoItens.CodCor:= 0;
   VprDOrcamentoItens.DesUM:= GProdutos.Cells[8,GProdutos.ALinha];
-  if GProdutos.Cells[5,GProdutos.ALinha] <> '' then
-    VprDOrcamentoItens.QtdChapa := StrToFloat(DeletaChars(GProdutos.Cells[5,GProdutos.ALinha],'.'))
-  else
-    VprDOrcamentoItens.QtdChapa:= 0;
-  if GProdutos.Cells[6,GProdutos.ALinha] <> '' then
-    VprDOrcamentoItens.LarChapa := StrToFloat(DeletaChars(GProdutos.Cells[6,GProdutos.ALinha],'.'))
-  else
-    VprDOrcamentoItens.LarChapa:= 0;
-  if GProdutos.Cells[7,GProdutos.ALinha] <> '' then
-    VprDOrcamentoItens.ComChapa := StrToFloat(DeletaChars(GProdutos.Cells[7,GProdutos.ALinha],'.'))
-  else
-    VprDOrcamentoItens.ComChapa:= 0;
-
+  CarDChapaClasse;
   if GProdutos.Cells[9,GProdutos.ALinha] <> '' then
     VprDOrcamentoItens.QtdProduto:= StrToFloat(DeletaChars(GProdutos.Cells[9,GProdutos.ALinha],'.'))
   else
@@ -540,6 +530,7 @@ begin
                GProdutos.Cells[4,GProdutos.ALinha]:= '';
                Abort;
              end;
+         5,6,7 : CalculaKilosChapa;
       end;
     end;
   end;
@@ -823,6 +814,41 @@ begin
         close;
     end;
   end;
+end;
+
+{******************************************************************************}
+procedure TFNovaSolicitacaoCompras.CalculaKilosChapa;
+begin
+  if (GProdutos.Cells[5,GProdutos.ALinha] <> '') and
+     (GProdutos.Cells[6,GProdutos.ALinha] <> '') and
+     (GProdutos.Cells[7,GProdutos.ALinha] <> '') then
+  begin
+    CarDChapaClasse;
+    VprDOrcamentoItens.QtdProduto := FunProdutos.RQuilosChapa(VprDOrcamentoItens.EspessuraAco,VprDOrcamentoItens.LarChapa,VprDOrcamentoItens.ComChapa,
+                                                          VprDOrcamentoItens.QtdChapa,VprDOrcamentoItens.DensidadeVolumetricaAco );
+    if VprDOrcamentoItens.QtdProduto <> 0 then
+      GProdutos.Cells[9,GProdutos.ALinha]:= FormatFloat(Varia.MascaraQtd,VprDOrcamentoItens.QtdProduto)
+    else
+      GProdutos.Cells[9,GProdutos.ALinha]:= '';
+  end;
+
+end;
+
+{******************************************************************************}
+procedure TFNovaSolicitacaoCompras.CarDChapaClasse;
+begin
+  if GProdutos.Cells[5,GProdutos.ALinha] <> '' then
+    VprDOrcamentoItens.QtdChapa := StrToFloat(DeletaChars(GProdutos.Cells[5,GProdutos.ALinha],'.'))
+  else
+    VprDOrcamentoItens.QtdChapa:= 0;
+  if GProdutos.Cells[6,GProdutos.ALinha] <> '' then
+    VprDOrcamentoItens.LarChapa := StrToFloat(DeletaChars(GProdutos.Cells[6,GProdutos.ALinha],'.'))
+  else
+    VprDOrcamentoItens.LarChapa:= 0;
+  if GProdutos.Cells[7,GProdutos.ALinha] <> '' then
+    VprDOrcamentoItens.ComChapa := StrToFloat(DeletaChars(GProdutos.Cells[7,GProdutos.ALinha],'.'))
+  else
+    VprDOrcamentoItens.ComChapa:= 0;
 end;
 
 {******************************************************************************}

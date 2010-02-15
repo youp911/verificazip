@@ -27,7 +27,7 @@ object FRelPedido: TFRelPedido
     Alignment = taLeftJustify
     Font.Charset = ANSI_CHARSET
     Font.Color = clWhite
-    Font.Height = -24
+    Font.Height = -27
     Font.Name = 'Times New Roman'
     Font.Style = [fsBold]
     ParentFont = False
@@ -54,12 +54,12 @@ object FRelPedido: TFRelPedido
       Top = 1
       Width = 575
       Height = 632
-      VertScrollBar.Position = 352
+      VertScrollBar.Position = 256
       Align = alClient
       TabOrder = 0
       object PFilial: TPanelColor
         Left = 0
-        Top = -324
+        Top = -228
         Width = 554
         Height = 28
         Align = alTop
@@ -152,7 +152,7 @@ object FRelPedido: TFRelPedido
       end
       object PCliente: TPanelColor
         Left = 0
-        Top = -184
+        Top = -88
         Width = 554
         Height = 28
         Align = alTop
@@ -248,7 +248,7 @@ object FRelPedido: TFRelPedido
       end
       object PCidade: TPanelColor
         Left = 0
-        Top = -44
+        Top = 52
         Width = 554
         Height = 28
         Align = alTop
@@ -344,7 +344,7 @@ object FRelPedido: TFRelPedido
       end
       object PEstado: TPanelColor
         Left = 0
-        Top = -16
+        Top = 80
         Width = 554
         Height = 28
         Align = alTop
@@ -439,7 +439,7 @@ object FRelPedido: TFRelPedido
       end
       object PCondPgto: TPanelColor
         Left = 0
-        Top = 68
+        Top = 164
         Width = 554
         Height = 28
         Align = alTop
@@ -535,7 +535,7 @@ object FRelPedido: TFRelPedido
       end
       object PPeriodo: TPanelColor
         Left = 0
-        Top = 516
+        Top = 640
         Width = 554
         Height = 28
         Align = alTop
@@ -550,7 +550,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 15
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 488
         object LPeriodo: TLabel
           Left = 50
           Top = 6
@@ -602,7 +601,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoCotacao: TPanelColor
         Left = 0
-        Top = 152
+        Top = 248
         Width = 554
         Height = 28
         Align = alTop
@@ -698,7 +697,7 @@ object FRelPedido: TFRelPedido
       end
       object PVendedor: TPanelColor
         Left = 0
-        Top = -72
+        Top = 24
         Width = 554
         Height = 28
         Align = alTop
@@ -796,7 +795,7 @@ object FRelPedido: TFRelPedido
       end
       object PSituacao: TPanelColor
         Left = 0
-        Top = 488
+        Top = 612
         Width = 554
         Height = 28
         Align = alTop
@@ -811,7 +810,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 14
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 460
         object Label7: TLabel
           Left = 64
           Top = 6
@@ -836,7 +834,7 @@ object FRelPedido: TFRelPedido
       end
       object PDataFinal: TPanelColor
         Left = 0
-        Top = 544
+        Top = 668
         Width = 554
         Height = 28
         Align = alTop
@@ -851,7 +849,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 16
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 516
         object LDataFinal: TLabel
           Left = 56
           Top = 6
@@ -880,7 +877,7 @@ object FRelPedido: TFRelPedido
       end
       object PSitCliente: TPanelColor
         Left = 0
-        Top = 96
+        Top = 192
         Width = 554
         Height = 28
         Align = alTop
@@ -976,7 +973,7 @@ object FRelPedido: TFRelPedido
       end
       object PEmpresa: TPanelColor
         Left = 0
-        Top = -352
+        Top = -256
         Width = 554
         Height = 28
         Align = alTop
@@ -1069,7 +1066,7 @@ object FRelPedido: TFRelPedido
       end
       object PTabelaPreco: TPanelColor
         Left = 0
-        Top = -296
+        Top = -200
         Width = 554
         Height = 28
         Align = alTop
@@ -1166,7 +1163,7 @@ object FRelPedido: TFRelPedido
       end
       object PProduto: TPanelColor
         Left = 0
-        Top = -240
+        Top = -144
         Width = 554
         Height = 28
         Align = alTop
@@ -1257,7 +1254,7 @@ object FRelPedido: TFRelPedido
       end
       object PBanco: TPanelColor
         Left = 0
-        Top = -156
+        Top = -60
         Width = 554
         Height = 28
         Align = alTop
@@ -1351,7 +1348,7 @@ object FRelPedido: TFRelPedido
       end
       object PUsuario: TPanelColor
         Left = 0
-        Top = 12
+        Top = 108
         Width = 554
         Height = 28
         Align = alTop
@@ -1447,7 +1444,7 @@ object FRelPedido: TFRelPedido
       end
       object PFormaPagamento: TPanelColor
         Left = 0
-        Top = 40
+        Top = 136
         Width = 554
         Height = 28
         Align = alTop
@@ -1543,7 +1540,7 @@ object FRelPedido: TFRelPedido
       end
       object PClassificacaoProduto: TPanelColor
         Left = 0
-        Top = -268
+        Top = -172
         Width = 554
         Height = 28
         Align = alTop
@@ -1617,7 +1614,7 @@ object FRelPedido: TFRelPedido
       end
       object PQtdVias: TPanelColor
         Left = 0
-        Top = 628
+        Top = 752
         Width = 554
         Height = 28
         Align = alTop
@@ -1631,7 +1628,6 @@ object FRelPedido: TFRelPedido
         ParentFont = False
         TabOrder = 18
         AUsarCorForm = False
-        ExplicitTop = 600
         object Label18: TLabel
           Left = 17
           Top = 6
@@ -1661,7 +1657,7 @@ object FRelPedido: TFRelPedido
       end
       object PEstagio: TPanelColor
         Left = 0
-        Top = 376
+        Top = 472
         Width = 554
         Height = 28
         Align = alTop
@@ -1676,7 +1672,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 19
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 348
         object Label19: TLabel
           Left = 71
           Top = 6
@@ -1759,7 +1754,7 @@ object FRelPedido: TFRelPedido
       end
       object PTransportadora: TPanelColor
         Left = 0
-        Top = 124
+        Top = 220
         Width = 554
         Height = 28
         Align = alTop
@@ -1855,7 +1850,7 @@ object FRelPedido: TFRelPedido
       end
       object PFundoPerdido: TPanelColor
         Left = 0
-        Top = 600
+        Top = 724
         Width = 554
         Height = 28
         Align = alTop
@@ -1870,7 +1865,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 21
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 572
         object CFundoPerdido: TCheckBox
           Left = 128
           Top = 5
@@ -1884,7 +1878,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoContrato: TPanelColor
         Left = 0
-        Top = -128
+        Top = -32
         Width = 554
         Height = 28
         Align = alTop
@@ -1979,7 +1973,7 @@ object FRelPedido: TFRelPedido
       end
       object PPreposto: TPanelColor
         Left = 0
-        Top = -100
+        Top = -4
         Width = 554
         Height = 28
         Align = alTop
@@ -2077,7 +2071,7 @@ object FRelPedido: TFRelPedido
       end
       object PTecnico: TPanelColor
         Left = 0
-        Top = 348
+        Top = 444
         Width = 554
         Height = 28
         Align = alTop
@@ -2092,7 +2086,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 24
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 320
         object LTituloTecnico: TLabel
           Left = 68
           Top = 6
@@ -2174,7 +2167,7 @@ object FRelPedido: TFRelPedido
       end
       object POperacaoEstoque: TPanelColor
         Left = 0
-        Top = 320
+        Top = 416
         Width = 554
         Height = 28
         Align = alTop
@@ -2189,7 +2182,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 25
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 292
         object Label25: TLabel
           Left = 3
           Top = 6
@@ -2271,7 +2263,7 @@ object FRelPedido: TFRelPedido
       end
       object PCor: TPanelColor
         Left = 0
-        Top = 292
+        Top = 388
         Width = 554
         Height = 28
         Align = alTop
@@ -2286,7 +2278,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 26
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 264
         object Label27: TLabel
           Left = 96
           Top = 6
@@ -2368,7 +2359,7 @@ object FRelPedido: TFRelPedido
       end
       object PCotacaoCancelada: TPanelColor
         Left = 0
-        Top = 460
+        Top = 584
         Width = 554
         Height = 28
         Align = alTop
@@ -2383,10 +2374,9 @@ object FRelPedido: TFRelPedido
         TabOrder = 27
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 432
         object Label26: TLabel
           Left = 64
-          Top = 6
+          Top = 5
           Width = 59
           Height = 16
           Alignment = taRightJustify
@@ -2417,7 +2407,7 @@ object FRelPedido: TFRelPedido
       end
       object PClienteMaster: TPanelColor
         Left = 0
-        Top = -212
+        Top = -116
         Width = 554
         Height = 28
         Align = alTop
@@ -2513,7 +2503,7 @@ object FRelPedido: TFRelPedido
       end
       object PCentroCusto: TPanelColor
         Left = 0
-        Top = 264
+        Top = 360
         Width = 554
         Height = 28
         Align = alTop
@@ -2528,7 +2518,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 29
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 236
         object Label29: TLabel
           Left = 22
           Top = 6
@@ -2619,7 +2608,7 @@ object FRelPedido: TFRelPedido
       end
       object PNumerico1: TPanelColor
         Left = 0
-        Top = 404
+        Top = 500
         Width = 554
         Height = 28
         Align = alTop
@@ -2634,7 +2623,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 30
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 376
         object LNumerico1: TLabel
           Left = 64
           Top = 6
@@ -2664,7 +2652,7 @@ object FRelPedido: TFRelPedido
       end
       object PTipoPeriodo: TPanelColor
         Left = 0
-        Top = 432
+        Top = 556
         Width = 554
         Height = 28
         Align = alTop
@@ -2679,10 +2667,9 @@ object FRelPedido: TFRelPedido
         TabOrder = 31
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 404
         object Label1: TLabel
           Left = 46
-          Top = 6
+          Top = 5
           Width = 77
           Height = 16
           Alignment = taRightJustify
@@ -2714,7 +2701,7 @@ object FRelPedido: TFRelPedido
       end
       object PProjeto: TPanelColor
         Left = 0
-        Top = 236
+        Top = 332
         Width = 554
         Height = 28
         Align = alTop
@@ -2729,7 +2716,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 32
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 208
         object Label23: TLabel
           Left = 74
           Top = 6
@@ -2820,7 +2806,7 @@ object FRelPedido: TFRelPedido
       end
       object PCheckBox1: TPanelColor
         Left = 0
-        Top = 572
+        Top = 696
         Width = 554
         Height = 28
         Align = alTop
@@ -2835,7 +2821,6 @@ object FRelPedido: TFRelPedido
         TabOrder = 33
         AUsarCorForm = False
         ACorForm = FPrincipal.CorForm
-        ExplicitTop = 544
         object CheckBox1: TCheckBox
           Left = 128
           Top = 5
@@ -2849,7 +2834,7 @@ object FRelPedido: TFRelPedido
       end
       object PRamoAtividade: TPanelColor
         Left = 0
-        Top = 180
+        Top = 276
         Width = 554
         Height = 28
         Align = alTop
@@ -2954,7 +2939,7 @@ object FRelPedido: TFRelPedido
       end
       object PDesenvolvedor: TPanelColor
         Left = 0
-        Top = 208
+        Top = 304
         Width = 554
         Height = 28
         Align = alTop
@@ -3055,6 +3040,53 @@ object FRelPedido: TFRelPedido
             end>
           ALocalizaPadrao = lpDesenvolvedor
           ATituloFormulario = '   Localiza Desenvolvedor   '
+        end
+      end
+      object POrdemRelatorio: TPanelColor
+        Left = 0
+        Top = 528
+        Width = 554
+        Height = 28
+        Align = alTop
+        BevelOuter = bvNone
+        Color = clSilver
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 36
+        AUsarCorForm = False
+        ACorForm = FPrincipal.CorForm
+        object Label32: TLabel
+          Left = 45
+          Top = 5
+          Width = 78
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Ordenar por :'
+        end
+        object EOrdemRelatorio: TComboBoxColor
+          Left = 128
+          Top = 1
+          Width = 221
+          Height = 24
+          Style = csDropDownList
+          Color = clInfoBk
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlue
+          Font.Height = -13
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ItemHeight = 16
+          ParentFont = False
+          TabOrder = 0
+          Items.Strings = (
+            'Nome'
+            'Codigo')
+          ACampoObrigatorio = False
+          ACorFoco = FPrincipal.CorFoco
         end
       end
     end

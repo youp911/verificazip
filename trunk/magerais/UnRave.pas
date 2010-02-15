@@ -332,7 +332,7 @@ type
       destructor destroy;override;
       procedure EnviaParametrosFilial(VpaProjeto : TrvProject;VpaDFilial : TRBDFilial);
       procedure ImprimeProdutoVendidosPorClassificacao(VpaCodFilial,VpaCodCliente,VpaCodVendedor,VpaCodTipoCotacao, VpaCodClienteMaster  : Integer;VpaDatInicio, VpaDatFim : TDateTime;VpaCaminho,VpaNomFilial,VpaNomCliente, VpaNomVendedor,VpaNomTipoCotacao, VpaNomClienteMaster : String;VpaAgruparPorEstado, VpaPDF : Boolean);
-      procedure ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados,VpaSomenteComQtd : Boolean);
+      procedure ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados,VpaSomenteComQtd : Boolean;VpaOrdemRelatorio : Integer);
       procedure ImprimeAnaliseFaturamentoMensal(VpaCodFilial,VpaCodCliente,VpaCodVendedor, VpaCodPreposto : Integer;VpaCaminho, VpaNomFilial,VpaNomCliente,VpaNomVendedor, VpaNomPreposto : String;VpaDatInicio, VpaDatFim : TDateTime;VpaNotasFiscais : Boolean);
       procedure ImprimeQtdMinimasEstoque(VpaCodFilial, VpaCodFornecedor : Integer;VpaCaminho,VpaCodClassificacao,VpaNomFilial, VpaNomClassificacao, VpaNomFornecedor : String);
       procedure ImprimeEstoqueFiscalProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados : Boolean);
@@ -5057,7 +5057,7 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados,VpaSomenteComQtd : Boolean);
+procedure TRBFunRave.ImprimeEstoqueProdutos(VpaCodFilial : Integer;VpaCaminho,VpaCodClassificacao,VpaTipoRelatorio,VpaNomFilial, VpaNomClassificacao : String;VpaIndProdutosMonitorados,VpaSomenteComQtd : Boolean;VpaOrdemRelatorio : Integer);
 begin
   RvSystem.Tag := 2;
   FreeTObjectsList(VprNiveis);
@@ -5086,8 +5086,10 @@ begin
     AdicionaSQLTabela(Tabela,'and PRO.C_IND_MON = ''S''');
   if VpaSomenteComQtd then
     AdicionaSQLTabela(Tabela,' and MOV.N_QTD_PRO <> 0 ');
-
-  AdicionaSqlTabela(Tabela,' ORDER BY CLA.C_COD_CLA, PRO.C_NOM_PRO, COR.NOM_COR, TAM.NOMTAMANHO ');
+  if VpaOrdemRelatorio = 0 then
+    AdicionaSqlTabela(Tabela,' ORDER BY CLA.C_COD_CLA, PRO.C_NOM_PRO, COR.NOM_COR, TAM.NOMTAMANHO ')
+  else
+    AdicionaSqlTabela(Tabela,' ORDER BY CLA.C_COD_CLA, PRO.C_COD_PRO, COR.NOM_COR, TAM.NOMTAMANHO ');
   Tabela.open;
 
   rvSystem.onBeforePrint := DefineTabelaEstoqueProdutos;

@@ -377,7 +377,9 @@ type
       QtdComprado,
       QtdChapa,
       LarChapa,
-      ComChapa : Double;
+      ComChapa,
+      EspessuraAco,
+      DensidadeVolumetricaAco : Double;
       constructor Cria;
       destructor Destroy; override;
 end;
@@ -461,6 +463,9 @@ type
       UnidadesParentes: TStringList;
       QtdProduto,
       QtdBaixado,
+      QtdChapa,
+      LarChapa,
+      ComChapa,
       ValUnitario,
       ValTotal,
       QtdSolicitada,

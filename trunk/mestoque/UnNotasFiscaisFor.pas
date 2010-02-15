@@ -231,6 +231,18 @@ begin
       NotCadastro.FieldByName('I_COD_COR').AsInteger := VpfDItemNota.CodCor
     else
       NotCadastro.FieldByName('I_COD_COR').Clear;
+    if VpfDItemNota.QtdChapa <> 0 then
+      NotCadastro.FieldByName('N_QTD_CHA').AsFloat := VpfDItemNota.QtdChapa
+    else
+      NotCadastro.FieldByName('N_QTD_CHA').Clear;
+    if VpfDItemNota.LarChapa <> 0 then
+      NotCadastro.FieldByName('N_LAR_CHA').AsFloat := VpfDItemNota.LarChapa
+    else
+      NotCadastro.FieldByName('N_LAR_CHA').Clear;
+    if VpfDItemNota.ComChapa <> 0 then
+      NotCadastro.FieldByName('N_COM_CHA').AsFloat := VpfDItemNota.ComChapa
+    else
+      NotCadastro.FieldByName('N_COM_CHA').Clear;
     if VpfDItemNota.CodTamanho <> 0 then
       NotCadastro.FieldByName('I_COD_TAM').AsInteger := VpfDItemNota.CodTamanho
     else
@@ -263,7 +275,7 @@ begin
   AdicionaSQLAbreTabela(Tabela,'Select MOV.I_SEQ_PRO, MOV.I_COD_COR, MOV.I_ITE_NAT, MOV.C_COD_NAT, MOV.C_NUM_SER, '+
                                ' MOV.C_COD_UNI, MOV.N_QTD_PRO, MOV.N_VLR_PRO, MOV.N_TOT_PRO, MOV.N_PER_IPI, ' +
                                ' MOV.N_PER_ICM,MOV.C_CLA_FIS, MOV.C_COD_CST, MOV.C_NOM_COR, MOV.C_REF_FOR, '+
-                               ' MOV.C_NOM_PRO NOMPRODUTONOTA, MOV.I_COD_TAM, '+
+                               ' MOV.C_NOM_PRO NOMPRODUTONOTA, MOV.I_COD_TAM, MOV.N_QTD_CHA, MOV.N_LAR_CHA, MOV.N_COM_CHA,'+
                                ' PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_COD_UNI UNIORIGINAL, '+
                                ' TAM.NOMTAMANHO '+
                                ' from MOVNOTASFISCAISFOR MOV, CADPRODUTOS PRO, TAMANHO TAM'+
@@ -293,6 +305,9 @@ begin
     VpfDItemNota.UMAnterior := Tabela.FieldByName('C_COD_UNI').AsString;
     VpfDItemNota.UMOriginal := Tabela.FieldByName('UNIORIGINAL').AsString;
     VpfDItemNota.UnidadeParentes := FunProdutos.ValidaUnidade.UnidadesParentes(VpfDItemNota.UMOriginal);
+    VpfDItemNota.QtdChapa := Tabela.FieldByName('N_QTD_CHA').AsFloat;
+    VpfDItemNota.LarChapa := Tabela.FieldByName('N_LAR_CHA').AsFloat;
+    VpfDItemNota.ComChapa := Tabela.FieldByName('N_COM_CHA').AsFloat;
     VpfDItemNota.QtdProduto := Tabela.FieldByName('N_QTD_PRO').AsFloat;
     VpfDItemNota.ValUnitario := Tabela.FieldByName('N_VLR_PRO').AsFloat;
     VpfDItemNota.ValTotal := Tabela.FieldByName('N_TOT_PRO').AsFloat;
@@ -1150,6 +1165,8 @@ begin
           VpfDNotaItem.UnidadeParentes:= FunProdutos.RUnidadesParentes(VpfDNotaItem.UMOriginal);
           VpfDNotaItem.DesReferenciaFornecedor:= VpfDProdutoPedido.DesReferenciaFornecedor;
           VpfDNotaItem.ValUnitario:= VpfDProdutoPedido.ValUnitario;
+          VpfDNotaItem.LarChapa := VpfDProdutoPedido.LarChapa;
+          VpfDNotaItem.ComChapa := VpfDProdutoPedido.ComChapa;
           VpfDNotaItem.QtdProduto := 0;
           VpfDNotaItem.PerIPI := VpfDProdutoPedido.PerIPI;
           VpfDNotaItem.ValNovoVenda :=  FunProdutos.ValorDeVenda(VpfDProdutoPedido.SeqProduto,varia.TabelaPreco,VpfDProdutoPedido.CodTamanho);
@@ -1157,6 +1174,7 @@ begin
         // fazer o calculo de quanto eu posso utilizar de acordo com o QTDBAIXADO
         // este campo já está sendo carregado na rotina de carregar o pedido
         VpfDNotaItem.QtdProduto:= VpfDNotaItem.QtdProduto + (VpfDProdutoPedido.QtdProduto-VpfDProdutoPedido.QtdBaixado);
+        VpfDNotaItem.QtdChapa:= VpfDNotaItem.QtdChapa + VpfDProdutoPedido.QtdChapa;
         VpfDNotaItem.QtdEtiquetas := RetornaInteiro(VpfDNotaItem.QtdProduto);
       end;
     end;
@@ -1174,7 +1192,9 @@ begin
   begin
     VpfDNotaItem:= TRBDNotaFiscalForItem(VpaDNota.ItensNota.Items[VpfLaco]);
     if (VpaDProdutoPedido.SeqProduto = VpfDNotaItem.SeqProduto) and
-       (VpaDProdutoPedido.CodCor = VpfDNotaItem.CodCor) then
+       (VpaDProdutoPedido.CodCor = VpfDNotaItem.CodCor) and
+       (VpaDProdutoPedido.LarChapa = VpfDNotaItem.LarChapa) and
+       (VpaDProdutoPedido.ComChapa = VpfDNotaItem.ComChapa)  then
     begin
       Result:= VpfDNotaItem;
       Break;

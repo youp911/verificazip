@@ -213,44 +213,44 @@ object dtRave: TdtRave
     ASqlQuery.MaxBlobSize = -1
     ASqlQuery.Params = <>
     ASqlQuery.SQL.Strings = (
+      'select PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.L_DES_TEC, '
       
-        'select  MOV.C_COD_PRO, MOV.N_QTD_PRO, MOV.C_COD_UNI, MOV.N_VLR_P' +
-        'RO, MOV.N_VLR_TOT, MOV.C_NOM_PRO PRODUTOCOTACAO, '
-      ' MOV.C_IND_BRI, MOV.N_SAL_BRI, MOV.C_DES_COR, MOV.N_ALT_PRO, '
+        ' ITE.QTDPRODUTO,ITE.VALUNITARIO,ITE.VALTOTAL, ITE.CODCOR, ITE.CO' +
+        'DTAMANHO, '
       
-        ' MOV.C_DES_COR CORCOTACAO, MOV.C_PRO_REF, MOV.N_PER_DES, MOV.C_O' +
-        'RD_COM, MOV.I_COD_TAM, '
-      ' COR.COD_COR, COR.NOM_COR, '
-      ' PRO.C_NOM_PRO, '
+        ' ITE.DESUM, ITE.DESREFERENCIAFORNECEDOR, ITE.QTDCHAPA, ITE.COMCH' +
+        'APA, ITE.LARCHAPA, '
+      ' COR.NOM_COR, '
       ' TAM.NOMTAMANHO '
-      ' from MOVORCAMENTOS MOV, CADPRODUTOS PRO, COR, TAMANHO TAM '
-      ' where MOV.I_EMP_FIL = 11'
-      ' AND MOV.I_LAN_ORC =12'
-      ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO'
-      ' AND MOV.I_COD_COR = COR.COD_COR(+)'
-      ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+)'
-      ' ORDER BY MOV.I_SEQ_MOV'
-      '')
+      
+        ' from  PEDIDOCOMPRAITEM ITE, CADPRODUTOS PRO, COR COR, TAMANHO T' +
+        'AM '
+      ' WHERE ITE.SEQPRODUTO = PRO.I_SEQ_PRO '
+      ' and ITE.CODFILIAL =11'
+      ' and ITE.SEQPEDIDO =1258'
+      ' AND ITE.CODCOR = COR.COD_COR(+)'
+      ' AND ITE.CODTAMANHO = TAM.CODTAMANHO(+)'
+      ' ORDER BY SEQITEM ')
     ASqlQuery.SQLConnection = FPrincipal.BaseDados
     SQL.Strings = (
+      'select PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.L_DES_TEC, '
       
-        'select  MOV.C_COD_PRO, MOV.N_QTD_PRO, MOV.C_COD_UNI, MOV.N_VLR_P' +
-        'RO, MOV.N_VLR_TOT, MOV.C_NOM_PRO PRODUTOCOTACAO, '
-      ' MOV.C_IND_BRI, MOV.N_SAL_BRI, MOV.C_DES_COR, MOV.N_ALT_PRO, '
+        ' ITE.QTDPRODUTO,ITE.VALUNITARIO,ITE.VALTOTAL, ITE.CODCOR, ITE.CO' +
+        'DTAMANHO, '
       
-        ' MOV.C_DES_COR CORCOTACAO, MOV.C_PRO_REF, MOV.N_PER_DES, MOV.C_O' +
-        'RD_COM, MOV.I_COD_TAM, '
-      ' COR.COD_COR, COR.NOM_COR, '
-      ' PRO.C_NOM_PRO, '
+        ' ITE.DESUM, ITE.DESREFERENCIAFORNECEDOR, ITE.QTDCHAPA, ITE.COMCH' +
+        'APA, ITE.LARCHAPA, '
+      ' COR.NOM_COR, '
       ' TAM.NOMTAMANHO '
-      ' from MOVORCAMENTOS MOV, CADPRODUTOS PRO, COR, TAMANHO TAM '
-      ' where MOV.I_EMP_FIL = 11'
-      ' AND MOV.I_LAN_ORC =12'
-      ' AND MOV.I_SEQ_PRO = PRO.I_SEQ_PRO'
-      ' AND MOV.I_COD_COR = COR.COD_COR(+)'
-      ' AND MOV.I_COD_TAM = TAM.CODTAMANHO(+)'
-      ' ORDER BY MOV.I_SEQ_MOV'
-      '')
+      
+        ' from  PEDIDOCOMPRAITEM ITE, CADPRODUTOS PRO, COR COR, TAMANHO T' +
+        'AM '
+      ' WHERE ITE.SEQPRODUTO = PRO.I_SEQ_PRO '
+      ' and ITE.CODFILIAL =11'
+      ' and ITE.SEQPEDIDO =1258'
+      ' AND ITE.CODCOR = COR.COD_COR(+)'
+      ' AND ITE.CODTAMANHO = TAM.CODTAMANHO(+)'
+      ' ORDER BY SEQITEM ')
     Left = 136
     Top = 8
   end

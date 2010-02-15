@@ -124,6 +124,9 @@ type
     PopupMenu1: TPopupMenu;
     AdicionaraoFiltro1: TMenuItem;
     PainelTempo1: TPainelTempo;
+    SOLICITACAOCOMPRAITEMQTDCHAPA: TFMTBCDField;
+    SOLICITACAOCOMPRAITEMLARCHAPA: TFMTBCDField;
+    SOLICITACAOCOMPRAITEMCOMCHAPA: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -165,6 +168,7 @@ type
     procedure AtualizaTotais;
     function ExisteProduto: Boolean;
     function LocalizaProduto: Boolean;
+    procedure ConfiguraPermissaoUsuario;
   public
     procedure ConsultaOP(VpaCodFilial,VpaSeqOrdem : Integer);
     procedure ConsultaProposta(VpaCodFilial, VpaSeqProposta : Integer);
@@ -191,6 +195,7 @@ begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
   FunOrcamentoCompra:= TRBFunSolicitacaoCompra.Cria(FPrincipal.BaseDados);
+  ConfiguraPermissaoUsuario;
   InicializaTela;
   VprOrdem:= ' ORDER BY SEQSOLICITACAO';
   VprOrdemItens:= ' ORDER BY SEQITEM';
@@ -212,6 +217,15 @@ end;
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
                             Ações Diversas
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
+
+{******************************************************************************}
+procedure TFSolicitacaoCompra.ConfiguraPermissaoUsuario;
+begin
+  GItens.Columns[3].Visible := Config.ControlarEstoquedeChapas;
+  GItens.Columns[4].Visible := Config.ControlarEstoquedeChapas;
+  GItens.Columns[5].Visible := Config.ControlarEstoquedeChapas;
+  GItens.Columns[2].Visible := Config.EstoquePorCor;
+end;
 
 {******************************************************************************}
 procedure TFSolicitacaoCompra.ConsultaOP(VpaCodFilial,VpaSeqOrdem : Integer);
@@ -467,6 +481,7 @@ begin
     SOLICITACAOCOMPRAITEM.SQL.Clear;
     SOLICITACAOCOMPRAITEM.SQL.Add('SELECT SCI.CODFILIAL, SCI.SEQSOLICITACAO, SCI.SEQITEM, SCI.SEQPRODUTO, SCI.DESUM, '+
                                   ' SCI.QTDPRODUTO, SCI.QTDAPROVADO, PRO.C_COD_PRO, SCI.QTDCOMPRADA, '+
+                                  ' SCI.QTDCHAPA, SCI.LARCHAPA, SCI.COMCHAPA, ' +
                                   ' PRO.C_NOM_PRO, SCI.CODCOR, COR.NOM_COR '+
                                   ' FROM SOLICITACAOCOMPRAITEM SCI, CADPRODUTOS PRO, COR COR'+
                                   ' WHERE SCI.CODFILIAL = '+SOLICITACAOCOMPRACORPOCODFILIAL.AsString+

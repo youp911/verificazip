@@ -923,6 +923,9 @@ begin
           VpfDProdutoPedidoCompra.SeqProduto:= VpfDProdutoPendente.SeqProduto;
           VpfDProdutoPedidoCompra.CodCor:= VpfDProdutoPendente.CodCor;
           VpfDProdutoPedidoCompra.CodProduto:= VpfDProdutoPendente.CodProduto;
+          VpfDProdutoPedidoCompra.QtdChapa:= VpfDProdutoPendente.QtdChapa;
+          VpfDProdutoPedidoCompra.LarChapa:= VpfDProdutoPendente.LarChapa;
+          VpfDProdutoPedidoCompra.ComChapa:= VpfDProdutoPendente.ComChapa;
           VpfDProdutoPedidoCompra.QtdSolicitada:= VpfDProdutoPendente.QtdUtilizada - VpfDProdutoPendente.QtdComprada;
           if VpfDProdutoPedidoCompra.QtdSolicitada < 0 then
             VpfDProdutoPedidoCompra.QtdSolicitada:= 0;

@@ -285,7 +285,15 @@ end;
 procedure TFNovaAmostra.AmostraBeforePost(DataSet: TDataSet);
 begin
   if Amostra.State = dsinsert then
-    ECodigo.VerificaCodigoUtilizado;
+  begin
+    if config.CodigoAmostraGeradoPelaClassificacao then
+    begin
+      AmostraCODAMOSTRA.AsInteger := FunAmostra.RCodAmostraDisponivel(AmostraCODCLASSIFICACAO.AsString);
+      CarNomeImagemPadrao(LNomClassificacao.Caption);
+    end
+    else
+      ECodigo.VerificaCodigoUtilizado;
+  end;
 end;
 
 {******************************************************************************}
@@ -327,7 +335,6 @@ begin
     LNomClassificacao.Caption := VpfNomClassificacao;
     if (Amostra.State = dsinsert) and (config.CodigoAmostraGeradoPelaClassificacao) then
       AmostraCODAMOSTRA.AsInteger := FunAmostra.RCodAmostraDisponivel(AmostraCODCLASSIFICACAO.AsString);
-    CarNomeImagemPadrao(VpfNomClassificacao);
   end
   else
     result := false;

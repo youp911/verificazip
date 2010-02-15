@@ -513,6 +513,9 @@ type
     PanelColor7: TPanelColor;
     DBCheckBox48: TDBCheckBox;
     CFGC_AMO_FTC: TWideStringField;
+    DBCheckBox49: TDBCheckBox;
+    CFGC_COT_BPN: TWideStringField;
+    PanelColor8: TPanelColor;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CFGAfterPost(DataSet: TDataSet);

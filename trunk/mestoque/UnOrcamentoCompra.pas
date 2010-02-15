@@ -394,7 +394,7 @@ begin
       VpfDProOrcamento.QtdComprado := Tabela.FieldByName('QTDCOMPRADA').AsFloat;
       VpfDProOrcamento.PerIPI := Tabela.FieldByName('PERIPI').AsFloat;
       VpfDProOrcamento.QtdChapa := Tabela.FieldByName('QTDCHAPA').AsFloat;
-      VpfDProOrcamento.LarChapa := Tabela.FieldByName('LARCHA').AsFloat;
+      VpfDProOrcamento.LarChapa := Tabela.FieldByName('LARCHAPA').AsFloat;
       VpfDProOrcamento.Comchapa := Tabela.FieldByName('COMCHAPA').AsFloat;
       VpfDProOrcamento.DesReferenciaFornecedor := Tabela.FieldByName('DESREFERENCIA').AsString;
       Tabela.next;
@@ -459,6 +459,7 @@ var
   VpfObservacoes : TStringList;
   VpfCamposRetorno : String;
   VpfDTransportadora : TRBDTransportadora;
+  VpfColunaRefFornecedor, VpfColunaProduto, VpfColunaObs : Integer;
 begin
   VpfDTransportadora := TRBDTransportadora.Create;
   VpfCamposRetorno := '';
@@ -552,11 +553,30 @@ begin
 
   VpaTexto.add('<table width="100%" border=1 cellpadding="0" cellspacing="0">');
   VpaTexto.add('<tr>');
-  VpaTexto.add('	<td colspan=8 align="center" bgcolor="#'+varia.CRMCorEscuraEmail+'"><font face="Verdana" size="3"><b>Produtos</td>');
+  VpaTexto.add('	<td colspan=11 align="center" bgcolor="#'+varia.CRMCorEscuraEmail+'"><font face="Verdana" size="3"><b>Produtos</td>');
   VpaTexto.add('</tr><tr>');
-  VpaTexto.add('        <td width="10%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Ref Fornecedor</td>');
-  VpaTexto.add('        <td width="30%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Produto</td>');
-  VpaTexto.add('        <td width="15%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Obs</td>');
+  if config.ControlarEstoquedeChapas then
+  begin
+    VpfColunaRefFornecedor := 7;
+    VpfColunaProduto := 25;
+    VpfColunaObs := 10;
+  end
+  else
+  begin
+    VpfColunaRefFornecedor := 10;
+    VpfColunaProduto := 30;
+    VpfColunaObs := 15;
+  end;
+  VpaTexto.add('        <td width="'+IntToStr(VpfColunaRefFornecedor)+'%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Ref Fornecedor</td>');
+  VpaTexto.add('        <td width="'+IntToStr(VpfColunaProduto)+'%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Produto</td>');
+  if config.ControlarEstoquedeChapas then
+  begin
+    VpaTexto.add('        <td width="3%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Qtd Chapas</td>');
+    VpaTexto.add('        <td width="5%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Lar Chapa (MM)</td>');
+    VpaTexto.add('        <td width="5%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Cmp Chapa (MM)</td>');
+  end;
+
+  VpaTexto.add('        <td width="'+IntToStr(VpfColunaObs)+'%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Obs</td>');
   VpaTexto.add('        <td width="5%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;UM</td>');
   VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Quantidade</td>');
   VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorEscuraEmail+'" align="center"><font face="Verdana" size="-1"><b>&nbsp;Valor Unitário</td>');
@@ -566,12 +586,18 @@ begin
   begin
     VpfDItem := TRBDOrcamentoCompraProduto(VpaDOrcFornecedor.ProdutosAdicionados.Items[VpfLaco]);
     VpaTexto.add('</tr><tr>');
-    VpaTexto.add('        <td width="10%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+VpfDItem.DesReferenciaFornecedor+ '</td>');
+    VpaTexto.add('        <td width="'+IntToStr(VpfColunaRefFornecedor)+'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+VpfDItem.DesReferenciaFornecedor+ '</td>');
     if VpfDItem.DesTecnica <> '' then
-      VpaTexto.add('      <td width="30%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.CodProduto+'-'+VpfDItem.DesTecnica+'</td>')
+      VpaTexto.add('      <td width="'+IntToStr(VpfColunaProduto)+'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.CodProduto+'-'+VpfDItem.DesTecnica+'</td>')
     else
-      VpaTexto.add('      <td width="30%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.CodProduto+'-'+VpfDItem.NomProduto+'</td>');
-    VpaTexto.add('      <td width="15%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+VpfDItem.NomCor+' </td>');
+      VpaTexto.add('      <td width="'+IntToStr(VpfColunaProduto)+'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.CodProduto+'-'+VpfDItem.NomProduto+'</td>');
+    if config.ControlarEstoquedeChapas then
+    begin
+      VpaTexto.add('      <td width="3%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+FormatFloat('#,###,###',VpfDItem.QtdChapa)+' </td>');
+      VpaTexto.add('      <td width="5%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+FormatFloat('#,###,###',VpfDItem.LarChapa)+' </td>');
+      VpaTexto.add('      <td width="5%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+FormatFloat('#,###,###',VpfDItem.ComChapa)+' </td>');
+    end;
+    VpaTexto.add('      <td width="'+IntToStr(VpfColunaObs)+'%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">&nbsp;'+VpfDItem.NomCor+' </td>');
     VpaTexto.add('      <td width="5%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+VpfDItem.DesUM+'</td>');
     VpaTexto.add('	<td width="10%" bgcolor="#'+varia.CRMCorClaraEmail+'" align="center"><font face="Verdana" size="-1">'+FormatFloat(varia.MascaraQtd,VpfDItem.QtdProduto)+'</td>');
     VpaTexto.add('	<td width="10%" bgcolor="#FFFF00" align="center"><font face="Verdana" size="3">&nbsp; </td>');

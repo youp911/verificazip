@@ -183,6 +183,9 @@ type
     SpeedButton27: TSpeedButton;
     LDesenvolvedor: TLabel;
     EDesenvolvedor: TRBEditLocaliza;
+    POrdemRelatorio: TPanelColor;
+    Label32: TLabel;
+    EOrdemRelatorio: TComboBoxColor;
     procedure FormCreate(Sender: TObject);
     procedure BImprimirClick(Sender: TObject);
     procedure BFecharClick(Sender: TObject);
@@ -240,6 +243,7 @@ begin
   EFilial.AInteiro := varia.CodigoEmpFil;
   EFilial.Atualiza;
   ECodTabelaPreco.AInteiro := varia.TabelaPreco;
+  EOrdemRelatorio.ItemIndex := 0;
   ESituacaoCotacao.ItemIndex := 0;
   VprPressionadoR := false;
   FunClassificacao := TFuncoesClassificacao.criar(self,FPrincipal.BaseDados);
@@ -392,7 +396,7 @@ begin
             if (VPANOMRELATORIO = 'ESTOQUE PRODUTOS')or
                (VPANOMRELATORIO = 'ESTOQUE PRODUTOS RESERVADOS') then
             begin
-              AlterarVisibleDet([PClassificacaoProduto,PFilial,PFundoPerdido,PCheckBox1],true);
+              AlterarVisibleDet([PClassificacaoProduto,PFilial,PFundoPerdido,PCheckBox1,POrdemRelatorio],true);
               CFundoPerdido.Caption := 'Somente Produtos Monitorados';
               CFundoPerdido.Checked := false;
               Checkbox1.Caption := 'Somente Produtos que Possuem Qtd em Estoque';
@@ -577,7 +581,7 @@ begin
                                            LCliente.caption,LTecnico.Caption,LNomTipoContrato.Caption)
           else
             if (VPRNOMRELATORIO = 'ESTOQUE PRODUTOS') then
-              FunRave.ImprimeEstoqueProdutos(EFilial.AInteiro,VprCaminhoRelatorio,ECodClassifcacao.Text,'TOTAL',LFilial.caption,LNomClassificacao.Caption,CFundoPerdido.Checked,CheckBox1.Checked)
+              FunRave.ImprimeEstoqueProdutos(EFilial.AInteiro,VprCaminhoRelatorio,ECodClassifcacao.Text,'TOTAL',LFilial.caption,LNomClassificacao.Caption,CFundoPerdido.Checked,CheckBox1.Checked,EOrdemRelatorio.ItemIndex)
             else
               if (VPRNOMRELATORIO = 'VENDA ANALITICO') then
                 dtRave.ImprimeVendasAnalitico(EFilial.AInteiro,ECliente.Ainteiro,ECondPgto.AInteiro,ETipoCotacao.AInteiro,EVendedor.AInteiro,EPreposto.AInteiro,

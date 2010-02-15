@@ -621,6 +621,7 @@ type
     ImprimirPedidoPendentesPorPeriodo : Boolean;
     MostrarImagemProdutoNaTeladaCotacao : Boolean;
     AlturadoProdutonaGradedaCotacao : Boolean;
+    BloquearProdutosnaCotacaosemCadastrodePreco : boolean;
 
     //-----------------------Caixa
     VariosCaixasDia : Boolean;  // true permite abrir vários caixas no mesmo dia (um de cada vez).
@@ -1505,6 +1506,7 @@ begin
       FichaTecnicaAmotraporCor := TipoCheck( VpfTabela.fieldByName('C_AMO_FTC').AsString);
       NaImportacaodoSolidWorkAMateriaPrimabuscarPeloCodigo := TipoCheck( VpfTabela.fieldByName('C_SOW_IMC').AsString);
       AlturadoProdutonaGradedaCotacao := TipoCheck( VpfTabela.fieldByName('C_COT_APG').AsString);
+      BloquearProdutosnaCotacaosemCadastrodePreco := TipoCheck(VpfTabela.fieldByName('C_COT_BPN').AsString);
     end;
   end;
 

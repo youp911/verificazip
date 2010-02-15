@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1587;
+  CT_VersaoBanco = 1591;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1459,6 +1459,36 @@ begin
         VpfErro := '1587';
         ExecutaComandoSql(Aux,'ALTER TABLE CADVENDEDORES ADD C_PAS_FTP VARCHAR2(150) NULL' );
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1587');
+      end;
+      if VpaNumAtualizacao < 1588 Then
+      begin
+        VpfErro := '1588';
+        ExecutaComandoSql(Aux,'ALTER TABLE PEDIDOCOMPRAITEM ADD(QTDCHAPA NUMBER(10,2) NULL,' +
+                              ' LARCHAPA NUMBER(8,2) NULL, ' +
+                              ' COMCHAPA NUMBER(8,2) NULL) ' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1588');
+      end;
+      if VpaNumAtualizacao < 1589 Then
+      begin
+        VpfErro := '1589';
+        ExecutaComandoSql(Aux,'ALTER TABLE MOVNOTASFISCAISFOR ADD(N_QTD_CHA NUMBER(10,2) NULL,' +
+                              ' N_LAR_CHA NUMBER(8,2) NULL, ' +
+                              ' N_COM_CHA NUMBER(8,2) NULL) ' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1589');
+      end;
+      if VpaNumAtualizacao < 1590 Then
+      begin
+        VpfErro := '1590';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADPRODUTOS ADD(N_DEN_VOL NUMBER(15,4) NULL,' +
+                              ' N_ESP_ACO NUMBER(8,4) NULL) ' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1590');
+      end;
+      if VpaNumAtualizacao < 1591 Then
+      begin
+        VpfErro := '1591';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD(C_COT_BPN CHAR(1) NULL)' );
+        ExecutaComandoSql(Aux,'UPDATE CFG_GERAL  SET C_COT_BPN = ''F''' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1591');
       end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then

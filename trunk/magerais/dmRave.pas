@@ -124,7 +124,6 @@ type
     procedure ImprimeQtdAmostrasPorDesenvolvedor(VpaCodDesenvolvedor : Integer;VpaCaminho, VpaNomDesenvolvedor : string;VpaDatInicio, VpaDatFim : TDateTime);
     procedure ImprimeClientesPorSituacaoAnalitico(VpaCodVendedor: Integer; VpaCaminho, VpaCidade, VpaNomVendedor: String);
     procedure ImprimeClientesPorSituacaoSintetico(VpaCodVendedor: Integer; VpaCaminho, VpaCidade, VpaNomVendedor: String);
-
   end;
 
 
@@ -686,7 +685,7 @@ begin
                                   ' and COR.SEQPEDIDO = ' +IntToStr(VpaSeqPedido));
   AdicionaSqlAbreTabela(Item,'select PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.L_DES_TEC, '+
                              ' ITE.QTDPRODUTO,ITE.VALUNITARIO,ITE.VALTOTAL, ITE.CODCOR, ITE.CODTAMANHO, '+
-                             ' ITE.DESUM, ITE.DESREFERENCIAFORNECEDOR, '+
+                             ' ITE.DESUM, ITE.DESREFERENCIAFORNECEDOR, ITE.QTDCHAPA, ITE.COMCHAPA, ITE.LARCHAPA, '+
                              ' COR.NOM_COR, '+
                              ' TAM.NOMTAMANHO '+
                              ' from  PEDIDOCOMPRAITEM ITE, CADPRODUTOS PRO, COR COR, TAMANHO TAM '+
@@ -1447,28 +1446,19 @@ begin
   AdicionaSqlTabela(Principal,'select CLA.C_COD_CLA, CLA.C_NOM_CLA, '+
                                   ' MP.C_COD_PRO CODMP, MP.C_NOM_PRO NOMMP, '+
                                   ' IMP.DESUM, IMP.QTDPRODUTO, IMP.QTDBAIXADO, IMP.QTDRESERVADA, '+
-                                  ' IMP.QTDARESERVAR, IMP.INDMATERIALEXTRA, '+
-                                  ' FRA.CODFILIAL, FRA.SEQORDEM, FRA.SEQFRACAO '+
-                                  ' from CADCLASSIFICACAO CLA, CADPRODUTOS MP, FRACAOOP FRA, IMPRESSAOCONSUMOFRACAO IMP '+
+                                  ' IMP.QTDARESERVAR, IMP.INDMATERIALEXTRA, IMP.CODFILIAL, IMP.SEQORDEM '+
+                                  ' from CADCLASSIFICACAO CLA, CADPRODUTOS MP, IMPRESSAOCONSUMOFRACAO IMP '+
                                   ' Where MP.I_COD_EMP = CLA.I_COD_EMP '+
                                   ' AND MP.C_COD_CLA = CLA.C_COD_CLA '+
                                   ' AND MP.C_TIP_CLA = CLA.C_TIP_CLA '+
-                                  ' AND MP.I_SEQ_PRO = IMP.SEQMATERIAPRIMA '+
-                                  ' AND IMP.CODFILIAL = FRA.CODFILIAL '+
-                                  ' AND IMP.SEQORDEM = FRA.SEQORDEM ');
+                                  ' AND MP.I_SEQ_PRO = IMP.SEQMATERIAPRIMA ');
   if VpaSomenteAReservar  then
     AdicionaSQLTabela(Principal,'AND IMP.QTDARESERVAR > 0 ');
 
   AdicionaSqlTabela(Principal,' ORDER BY CLA.C_COD_CLA, MP.C_NOM_PRO');
   Principal.open;
-{    AdicionaSqlAbreTabela(Item,'select  FRA.QTDPRODUTO, FRA.DESUM, '+
-                             ' PRO.C_COD_PRO, PRO.C_NOM_PRO, PRO.C_PRA_PRO '+
-                             ' from FRACAOOP FRA, CADPRODUTOS PRO '+
-                             ' Where FRA.INDPOSSUIEMESTOQUE = ''S'''+
-                             ' AND PRO.I_SEQ_PRO = FRA.SEQPRODUTO '+
-                             ' AND FRA.CODFILIAL = '+IntToStr(VpaCodFilial)+
-                             ' AND SEQORDEM =  '+IntToStr(VpaSeqOrdemProduccao)+
-                             ' ORDER BY PRO.C_COD_PRO ');}
+  Rave.SetParam('CODFILIAL',IntToStr(VpaCodFilial));
+  Rave.SetParam('OP',IntToStr(VpaSeqOrdemProduccao));
   Rave.Execute;
 end;
 

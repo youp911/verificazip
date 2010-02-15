@@ -259,9 +259,6 @@
 			<DCCReference Include="..\magerais\AVendedores.pas">
 				<Form>FVendedores</Form>
 			</DCCReference>
-			<DCCReference Include="..\mfinanceiro\ACondicoesPgtos.pas">
-				<Form>FCondicoesPagamentos</Form>
-			</DCCReference>
 			<DCCReference Include="..\magerais\AConsultaCondicaoPgto.pas">
 				<Form>FConsultaCondicaoPgto</Form>
 			</DCCReference>

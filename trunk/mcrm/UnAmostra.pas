@@ -51,6 +51,7 @@ Type TRBFuncoesAmostra = class(TRBLocalizaAmostra)
     procedure CalculaValorVendaUnitario(VpaDAmostra : TRBDAmostra;VpaDValorVenda : TRBDValorVendaAmostra);overload;
     procedure CalculaValorVendaPeloValorSugerido(VpaDAmostra : TRBDAmostra;VpaValSugerido : Double);
     function ExisteAmostraDefinidaDesenvolvida(VpaCodAmostra : integer):Boolean;
+    function ExisteCodigoAmostra(VpaCodigo : Integer):Boolean;
     function RQtdAmostraSolicitada(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
     function RQtdAmostraEntregue(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
     function RQtdAmostraAprovada(VpaDatInicio,VpaDatFim : TDateTime;VpaCodVendedor : Integer):Integer;
@@ -187,10 +188,14 @@ begin
   AdicionaSQLAbreTabela(Aux,'Select MAX(CODAMOSTRA) ULTIMO FROM AMOSTRA '+
                             ' Where CODCLASSIFICACAO = '''+VpaCodClassificacao+'''');
   if Aux.FieldByName('ULTIMO').AsInteger = 0 then
-    result := StrToInt(VpfBaseCodigo+'1')
+    VpfProximoCodigoSemBase :=  1
   else
-  begin
     VpfProximoCodigoSemBase := StrtoInt(COPY(Aux.FieldByName('ULTIMO').AsString,length(VpfBaseCodigo),20))+1;
+
+  Result := StrToInt(VpfBaseCodigo + IntToStr(VpfProximoCodigoSemBase));
+  while ExisteCodigoAmostra(Result) do
+  begin
+    Inc(VpfProximoCodigoSemBase);
     Result := StrToInt(VpfBaseCodigo + IntToStr(VpfProximoCodigoSemBase));
   end;
 end;
@@ -939,6 +944,8 @@ procedure TRBFuncoesAmostra.ExcluiAmostra(VpaCodAmostra: Integer);
 begin
   ExecutaComandoSql(Aux,'Delete from AMOSTRAPRECOCLIENTE '+
                         ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
+  ExecutaComandoSql(Aux,'Delete from AMOSTRACOR '+
+                        ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
   ExecutaComandoSql(Aux,'Delete from AMOSTRACONSUMO '+
                         ' Where CODAMOSTRA = '+IntToStr(VpaCodAmostra));
   ExecutaComandoSql(Aux,'Delete from AMOSTRA '+
@@ -952,6 +959,15 @@ begin
                             ' Where CODAMOSTRAINDEFINIDA = '+IntToStr(VpaCodAmostra));
   result := not Aux.eof;
   Aux.close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesAmostra.ExisteCodigoAmostra(VpaCodigo: Integer): Boolean;
+begin
+  AdicionaSQLAbreTabela(Aux,'Select CODAMOSTRA FROM AMOSTRA '+
+                            ' Where CODAMOSTRA = '+IntToStr(VpaCodigo));
+  result := not Aux.eof;
+  Aux.Close;
 end;
 
 {******************************************************************************}

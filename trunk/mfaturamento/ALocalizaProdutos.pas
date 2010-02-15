@@ -127,6 +127,8 @@ type
     CadProdutosN_PER_PER: TFMTBCDField;
     Label8: TLabel;
     EPrateleira: TEditColor;
+    CadProdutosN_DEN_VOL: TFMTBCDField;
+    CadProdutosN_ESP_ACO: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CProAtiClick(Sender: TObject);
@@ -289,7 +291,7 @@ begin
                      ' PRO.I_PRI_ATI, PRO.C_IND_GEN, PRO.C_IND_CRA, PRO.C_PAT_FOT, PRO.C_REG_MSM, PRO.N_PER_COM, '+
                      ' Pro.N_PER_KIT, PRO.N_PES_LIQ, PRO.N_PES_BRU, PRO.N_PER_IPI, PRO.N_RED_ICM, PRO.C_IND_RET,' +
                      ' PRO.C_COD_CTB, C_CIL_NOV, C_CHI_NOV, C_CAR_TEX, C_IND_ORI, '+
-                     ' PRO.I_QTD_PAG, PRO.I_ALT_PRO, PRO.I_IND_COV, PRO.I_MES_GAR, '+
+                     ' PRO.I_QTD_PAG, PRO.I_ALT_PRO, PRO.I_IND_COV, PRO.I_MES_GAR, PRO.N_DEN_VOL, N_ESP_ACO, '+
                      ' CLA.C_COD_CLA, CLA.C_NOM_CLA, CLA.N_PER_COM PERCOMISSAOCLASSIFICACAO, '+
                      ' CLA.N_PER_PER, '+
                      ' Qtd.C_Cod_Bar, ' +
@@ -995,6 +997,8 @@ begin
     VpaDOrcamentoItens.DesUM:= CadProdutosC_COD_UNI.AsString;
     VpaDOrcamentoItens.UMOriginal:= CadProdutosC_COD_UNI.AsString;
     VpaDOrcamentoItens.CodClassificacao := CadProdutosC_COD_CLA.AsString;
+    VpaDOrcamentoItens.DensidadeVolumetricaAco := CadProdutosN_DEN_VOL.AsFloat;
+    VpaDOrcamentoItens.EspessuraAco := CadProdutosN_ESP_ACO.AsFloat;
 
     VpaDOrcamentoItens.UnidadesParentes.Free;
     VpaDOrcamentoItens.UnidadesParentes:= FunProdutos.RUnidadesParentes(VpaDOrcamentoItens.DesUM);

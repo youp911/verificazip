@@ -361,6 +361,13 @@ type
     GCombinacaoCadarco: TRBStringGridColor;
     ECorFioTrama: TRBEditLocaliza;
     ECorFioAjuda: TRBEditLocaliza;
+    PAco: TTabSheet;
+    PanelColor14: TPanelColor;
+    Label113: TLabel;
+    Label114: TLabel;
+    EDensidadeVolumetrica: Tnumerico;
+    EEspessuraAco: Tnumerico;
+    Label115: TLabel;
 
     procedure PaginasChange(Sender: TObject);
     procedure PaginasChanging(Sender: TObject; var AllowChange: Boolean);
@@ -528,7 +535,9 @@ type
     VprImpressoraAnterior: String;
     VprLinhaInicial,VprLinhaFinal, VprColunaInicial, VprColunaFinal : Integer;
     VprSeqProdutoInstalacao,
+    VprCodCorPreco,
     VprQtdRepeticao : Integer;
+    VprNomCorPreco : String;
 
     VprDProduto: TRBDProduto;
     VprDFornecedor: TRBDProdutoFornecedor;
@@ -591,6 +600,7 @@ type
     procedure PosDadosAcessorios;
     procedure PosDadosTabelaPreco;
     procedure PosDadosInstalacaoTear;
+    procedure PosDadosAco;
 
     procedure CarDClasseGerais;
     procedure CarDClasseCadarco;
@@ -598,6 +608,7 @@ type
     procedure CadDClasseAdicionais;
     procedure CarDClasseCopiadora;
     procedure CarDClasseCartucho;
+    procedure CarDClasseAco;
 
     procedure CarDFornecedoresClasse;
     procedure CarDCombinacaoCadarcoTear;
@@ -700,6 +711,7 @@ begin
   EValCusto.ACampoObrigatorio:= Config.ExigirPrecoCustoProdutonoCadastro;
   EValVenda.ACampoObrigatorio:= Config.ExigirPrecoVendaProdutonoCadastro;
   PAcessorios.TabVisible := config.MostrarAcessoriosnoProduto;
+  PAco.TabVisible := config.ControlarEstoquedeChapas;
   EClassificacaoFiscal.ACampoObrigatorio := (config.EmiteNFe or config.EmiteSped);
 end;
 
@@ -1624,7 +1636,10 @@ begin
                         PosDadosTabelaPreco
                       else
                         if Paginas.ActivePage = PInstalacaoTear then
-                          PosDadosInstalacaoTear;
+                          PosDadosInstalacaoTear
+                        else
+                          if Paginas.ActivePage = PAco then
+                            PosDadosAco;
 end;
 
 {******************************************************************************}
@@ -1898,6 +1913,13 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovoProdutoPro.PosDadosAco;
+begin
+  EDensidadeVolumetrica.AValor := VprDProduto.DensidadeVolumetrica;
+  EEspessuraAco.AValor:= VprDProduto.EspessuraAco;
+end;
+
+{******************************************************************************}
 procedure TFNovoProdutoPro.PosDadosTabelaPreco;
 begin
   GPreco.CarregaGrade;
@@ -1925,7 +1947,10 @@ begin
             CarDClasseCopiadora
           else
             if Paginas.ActivePage = PCartuchos then
-              CarDClasseCartucho;
+              CarDClasseCartucho
+            else
+              if Paginas.ActivePage = PAco then
+                CarDClasseAco;
 
   // Obs.: Não precisa carregar as páginas que trabalham apenas com grades.
 end;
@@ -1970,6 +1995,13 @@ begin
   VprDProduto.PatFoto:= LPatFoto.Caption;
   VprDProduto.DesDescricaoTecnica:= EDescricaoTecnica.Text;
   VprDProduto.IndKit := CKit.Checked;
+end;
+
+{******************************************************************************}
+procedure TFNovoProdutoPro.CarDClasseAco;
+begin
+  VprDProduto.DensidadeVolumetrica:= EDensidadeVolumetrica.AValor;
+  VprDProduto.EspessuraAco := EEspessuraAco.AValor;
 end;
 
 {******************************************************************************}
@@ -3124,6 +3156,8 @@ begin
   VprDProTabelaPreco.ValCusto := StrToFloat(DeletaChars(GPreco.Cells[7,GPreco.ALinha],'.'));
   VprDProTabelaPreco.QtdMinima := StrToFloat(DeletaChars(GPreco.Cells[16,GPreco.ALinha],'.'));
   VprDProTabelaPreco.QtdIdeal := StrToFloat(DeletaChars(GPreco.Cells[17,GPreco.ALinha],'.'));
+  VprCodCorPreco := VprDProTabelaPreco.CodCor;
+  VprNomCorPreco := VprDProTabelaPreco.NomCor;
 end;
 
 {******************************************************************************}
@@ -3671,6 +3705,8 @@ begin
   VprDProTabelaPreco.NomTabelaPreco := FunProdutos.RNomTabelaPreco(Varia.TabelaPreco);
   VprDProTabelaPreco.CodMoeda := VARIA.MoedaBase;
   VprDProTabelaPreco.NomMoeda := FunContasAReceber.RNomMoeda(Varia.MoedaBase);
+  VprDProTabelaPreco.CodCor := VprCodCorPreco;
+  VprDProTabelaPreco.NomCor := VprNomCorPreco;
 end;
 
 {******************************************************************************}

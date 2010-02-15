@@ -1100,6 +1100,9 @@ Type
       CodReduzidoCartucho: String;
       DInstalacaoCorTear : TRBDProdutoCorInstalacaoTear;
 
+    //Aco
+      DensidadeVolumetrica,
+      EspessuraAco : extended;
     // Listas
       Combinacoes,
       CombinacoesCadarcoTear,
@@ -1900,6 +1903,9 @@ Type
       DesReferenciaFornecedor,
       DesRegistroMSM :String;
       QtdProduto,
+      QtdChapa,
+      LarChapa,
+      ComChapa,
       ValUnitario,
       ValTotal,
       ValVenda,

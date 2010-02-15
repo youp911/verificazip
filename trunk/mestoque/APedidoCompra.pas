@@ -124,6 +124,9 @@ type
     ConsultaSolicitaoCompra1: TMenuItem;
     PRODUTOPEDIDOC_COD_PRO: TWideStringField;
     PEDIDOCOMPRACORPOCODCONDICAOPAGAMENTO: TFMTBCDField;
+    PRODUTOPEDIDOLARCHAPA: TFMTBCDField;
+    PRODUTOPEDIDOCOMCHAPA: TFMTBCDField;
+    PRODUTOPEDIDOQTDCHAPA: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BFecharClick(Sender: TObject);
@@ -173,6 +176,7 @@ type
     procedure CarDClassePedidos(VpaListaPedidos: TList);
     function ExisteProduto: Boolean;
     function LocalizaProduto: Boolean;
+    procedure ConfiguraPermissaoUsuario;
   public
     procedure ConsultaPedidosSolicitacao(VpaSeqSolicitacao: Integer);
     procedure ConsultaPedidosOrdemProducao(VpaCodFilial, VpaSeqOrdemProducao, VpaSeqFracao : Integer);
@@ -198,6 +202,7 @@ begin
   { chamar a rotina de atualização de menus }
   FunNotaFor:= TFuncoesNFFor.criar(Self,FPrincipal.BaseDados);
   FunPedidoCompra:= TRBFunPedidoCompra.Cria(FPrincipal.BaseDados);
+  ConfiguraPermissaoUsuario;
   InicializaTela;
   VprOrdem:= ' ORDER BY PCC.SEQPEDIDO';
   VprOrdemItens:= ' ORDER BY PRO.C_NOM_PRO';
@@ -386,7 +391,8 @@ begin
     PRODUTOPEDIDO.SQL.Clear;
     PRODUTOPEDIDO.SQL.Add('SELECT'+
                           ' PRO.C_COD_PRO, PRO.C_NOM_PRO, COR.NOM_COR, PCI.DESREFERENCIAFORNECEDOR,'+
-                          ' PCI.QTDPRODUTO, PCI.QTDBAIXADO, PCI.DESUM, PCI.VALUNITARIO, PCI.VALTOTAL, PCI.QTDSOLICITADA'+
+                          ' PCI.QTDPRODUTO, PCI.QTDBAIXADO, PCI.DESUM, PCI.VALUNITARIO, PCI.VALTOTAL, PCI.QTDSOLICITADA,' +
+                          ' PCI.QTDCHAPA, PCI.LARCHAPA, PCI.COMCHAPA '+
                           ' FROM PEDIDOCOMPRAITEM PCI, CADPRODUTOS PRO, COR COR'+
                           ' WHERE'+
                           ' PRO.I_SEQ_PRO = PCI.SEQPRODUTO'+
@@ -571,6 +577,15 @@ begin
   end
   else
     Informacao('Pedido já concluído.');
+end;
+
+{******************************************************************************}
+procedure TFPedidoCompra.ConfiguraPermissaoUsuario;
+begin
+  GPedidoItem.Columns[4].Visible := Config.ControlarEstoquedeChapas;
+  GPedidoItem.Columns[5].Visible := Config.ControlarEstoquedeChapas;
+  GPedidoItem.Columns[6].Visible := Config.ControlarEstoquedeChapas;
+  GPedidoItem.Columns[2].Visible := Config.EstoquePorCor;
 end;
 
 {******************************************************************************}

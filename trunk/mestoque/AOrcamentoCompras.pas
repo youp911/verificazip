@@ -67,6 +67,9 @@ type
     ITENSCOD_COR: TFMTBCDField;
     ITENSNOM_COR: TWideStringField;
     PanelColor3: TPanelColor;
+    ITENSLARCHAPA: TFMTBCDField;
+    ITENSCOMCHAPA: TFMTBCDField;
+    ITENSQTDCHAPA: TFMTBCDField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BCadastrarClick(Sender: TObject);
@@ -83,6 +86,7 @@ type
     procedure EProdutoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure SpeedButton2Click(Sender: TObject);
     procedure OrcamentoCompraAfterScroll(DataSet: TDataSet);
+    procedure BImprimirClick(Sender: TObject);
   private
     { Private declarations }
     VprOrdem : string;
@@ -93,6 +97,7 @@ type
     function ExisteProduto: Boolean;
     function LocalizaProduto: Boolean;
     procedure PosItensORCAMENTO;
+    procedure ConfiguraPermissaoUsuario;
   public
     { Public declarations }
   end;
@@ -114,6 +119,7 @@ begin
   {  abre tabelas }
   { chamar a rotina de atualização de menus }
   VprOrdem := 'order by ORC.CODFILIAL, ORC.SEQORCAMENTO';
+  ConfiguraPermissaoUsuario;
   InicializaTela;
   AtualizaConsulta;
 end;
@@ -174,7 +180,8 @@ procedure TFOrcamentoCompras.PosItensORCAMENTO;
 begin
   ITENS.Close;
   Itens.sql.clear;
-  Itens.sql.add('select OCI.DESUM, OCI.QTDPRODUTO, OCI.PERIPI, '+
+  Itens.sql.add('select OCI.DESUM, OCI.QTDPRODUTO, OCI.PERIPI,  OCI.LARCHAPA, '+
+                              ' OCI.COMCHAPA, OCI.QTDCHAPA, '+
                               ' PRO.C_COD_PRO, PRO.C_NOM_PRO,'+
                               ' COR.COD_COR, COR.NOM_COR '+
                               ' from ORCAMENTOCOMPRAITEM OCI, CADPRODUTOS PRO, COR '+
@@ -310,6 +317,21 @@ begin
       PanelColor1.Height := 52;
     BFiltros.Caption := '>>';
   end;
+end;
+
+procedure TFOrcamentoCompras.BImprimirClick(Sender: TObject);
+begin
+
+end;
+
+{******************************************************************************}
+procedure TFOrcamentoCompras.ConfiguraPermissaoUsuario;
+begin
+  GPedidoItem.Columns[4].Visible := Config.ControlarEstoquedeChapas;
+  GPedidoItem.Columns[5].Visible := Config.ControlarEstoquedeChapas;
+  GPedidoItem.Columns[6].Visible := Config.ControlarEstoquedeChapas;
+  GPedidoItem.Columns[2].Visible := Config.EstoquePorCor;
+  GPedidoItem.Columns[3].Visible := Config.EstoquePorCor;
 end;
 
 {******************************************************************************}
