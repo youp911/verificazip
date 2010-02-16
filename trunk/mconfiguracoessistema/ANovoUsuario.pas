@@ -140,6 +140,9 @@ type
     SpeedButton6: TSpeedButton;
     Label19: TLabel;
     CadUsuariosC_CON_CAI: TWideStringField;
+    DBEditColor1: TDBEditColor;
+    Label20: TLabel;
+    CadUsuariosC_DES_EMA: TWideStringField;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ConfSenhaExit(Sender: TObject);

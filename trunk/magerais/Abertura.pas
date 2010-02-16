@@ -183,6 +183,7 @@ begin
       begin
         Varia.CodigoUsuario := Usuarios.FieldByName('I_COD_USU').AsInteger;
         Varia.NomeUsuario := Usuarios.FieldByName('C_NOM_USU').AsString;
+        varia.EmailUsuario := Usuarios.FieldByName('C_DES_EMA').AsString;
         Varia.CodRegiaoVenda := Usuarios.FieldByName('I_COD_REG').AsInteger;
         Varia.CodTecnico := Usuarios.FieldByName('I_COD_TEC').AsInteger;
         Varia.CodVendedor := Usuarios.FieldByName('I_COD_VEN').AsInteger;

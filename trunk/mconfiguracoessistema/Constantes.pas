@@ -111,6 +111,7 @@ type
       CodVendedor,
       CodComprador : Integer;
       NomeUsuario,
+      EmailUsuario,
       NomeComputador,
       CodigosVendedores,
       CodigosCondicaoPagamento : string;
@@ -622,6 +623,8 @@ type
     MostrarImagemProdutoNaTeladaCotacao : Boolean;
     AlturadoProdutonaGradedaCotacao : Boolean;
     BloquearProdutosnaCotacaosemCadastrodePreco : boolean;
+    ConfirmacaoEmailCotacaoParaoUsuario : Boolean;
+    ControlarAmostraAprovadanaCotacao : Boolean;
 
     //-----------------------Caixa
     VariosCaixasDia : Boolean;  // true permite abrir vários caixas no mesmo dia (um de cada vez).
@@ -1507,6 +1510,8 @@ begin
       NaImportacaodoSolidWorkAMateriaPrimabuscarPeloCodigo := TipoCheck( VpfTabela.fieldByName('C_SOW_IMC').AsString);
       AlturadoProdutonaGradedaCotacao := TipoCheck( VpfTabela.fieldByName('C_COT_APG').AsString);
       BloquearProdutosnaCotacaosemCadastrodePreco := TipoCheck(VpfTabela.fieldByName('C_COT_BPN').AsString);
+      ConfirmacaoEmailCotacaoParaoUsuario := TipoCheck(VpfTabela.fieldByName('C_COT_REU').AsString);
+      ControlarAmostraAprovadanaCotacao := TipoCheck(VpfTabela.fieldByName('C_COT_CAA').AsString);
     end;
   end;
 

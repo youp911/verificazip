@@ -540,6 +540,30 @@ begin
               if (VPANOMRELATORIO = 'AMOSTRAS POR DESENVOLVEDOR') then
               begin
                 AlterarVisibleDet([PPeriodo,PDesenvolvedor],true);
+              end
+            else
+              if (VPANOMRELATORIO = 'CLIENTES POR SITUACAO ANALITICO') or
+                 (VPANOMRELATORIO = 'CLIENTES POR SITUACAO SINTETICO') then
+              begin
+                AlterarVisibleDet([PVendedor,PCidade],true);
+              end
+            else
+              if (VPANOMRELATORIO = 'CONTATO CLIENTE') or
+                 (VPANOMRELATORIO = 'CLIENTES POR CIDADE E ESTADO ANALITICO') or
+                 (VPANOMRELATORIO = 'CLIENTES POR CIDADE E ESTADO SINTETICO') then
+              begin
+                AlterarVisibleDet([PVendedor,PCidade,PEstado,PSitCliente],true);
+              end
+            else
+              if (VPRNOMRELATORIO = 'CARTUCHO PESADO POR CELULA') or
+                 (VPRNOMRELATORIO = 'ANALISE DE CARTUCHOS PESADOS') then
+              begin
+                AlterarVisibleDet([PPeriodo, PFilial],true);
+              end
+            else
+              if (VPRNOMRELATORIO = 'ANALISE PEDIDO REPRESENTADA ANUAL')then
+              begin
+                AlterarVisibleDet([PPeriodo,PCliente,PVendedor,PPreposto, PTipoCotacao],true);
               end;
 end;
 
@@ -736,7 +760,29 @@ begin
                 dtRave.ImprimeAmostrasqueFaltamFinalizar
             else
               if (VPRNOMRELATORIO = 'AMOSTRAS POR DESENVOLVEDOR') then
-                dtRave.ImprimeQtdAmostrasPorDesenvolvedor(EDesenvolvedor.AInteiro,VprCaminhoRelatorio,LDesenvolvedor.Caption,CDataIni.Date,CDataFim.Date);
+                dtRave.ImprimeQtdAmostrasPorDesenvolvedor(EDesenvolvedor.AInteiro,VprCaminhoRelatorio,LDesenvolvedor.Caption,CDataIni.Date,CDataFim.Date)
+            else
+              if (VPRNOMRELATORIO = 'CLIENTES POR SITUACAO ANALITICO') then
+                dtRave.ImprimeClientesPorSituacaoAnalitico(EVendedor.AInteiro, VprCaminhoRelatorio, LCidade.Caption, LVendedor.Caption)
+            else
+              if (VPRNOMRELATORIO = 'CLIENTES POR SITUACAO SINTETICO') then
+                dtRave.ImprimeClientesPorSituacaoSintetico(EVendedor.AInteiro, VprCaminhoRelatorio, LCidade.Caption, LVendedor.Caption)
+            else
+              if (VPRNOMRELATORIO = 'CONTATO CLIENTE') then
+                dtRave.ImprimeContatoCliente(EVendedor.AInteiro, ESituacaoCliente.AInteiro, VprCaminhoRelatorio, LCidade.Caption, EEstado.Text, LVendedor.Caption, LSituacaoCliente.Caption)
+            else
+              if (VPRNOMRELATORIO = 'CLIENTES POR CIDADE E ESTADO ANALITICO') then
+                dtRave.ImprimeClientesPorCidadeEEstadoAnalitico(EVendedor.AInteiro, ESituacaoCliente.AInteiro, VprCaminhoRelatorio, LCidade.Caption, EEstado.Text, LVendedor.Caption, LSituacaoCliente.Caption)
+            else
+              if (VPRNOMRELATORIO = 'CLIENTES POR CIDADE E ESTADO SINTETICO') then
+                dtRave.ImprimeClientesPorCidadeEEstadoSintetico(EVendedor.AInteiro, ESituacaoCliente.AInteiro, VprCaminhoRelatorio, LCidade.Caption, EEstado.Text, LVendedor.Caption, LSituacaoCliente.Caption)
+            else
+              if (VPRNOMRELATORIO = 'CARTUCHO PESADO POR CELULA') then
+                dtRave.ImprimeCartuchoPesadoPorCelula(EFilial.AInteiro, CDataIni.Date, CDataFim.Date, LFilial.Caption,VprCaminhoRelatorio)
+            else
+              if (VPRNOMRELATORIO = 'ANALISE PEDIDO REPRESENTADA ANUAL') then
+                FunRave.ImprimeAnalisePedidosMensal(EFilial.AInteiro,ECliente.AInteiro,EVendedor.AInteiro, EPreposto.AInteiro, ETipoCotacao.AInteiro, VprCaminhoRelatorio,
+                                             LFilial.Caption,LCliente.Caption,LVendedor.Caption,LPreposto.Caption,LTipoCotacao.Caption, CDataIni.DateTime, CDataFim.Date);
   dtRave.free;
 end;
 

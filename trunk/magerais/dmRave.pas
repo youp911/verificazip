@@ -124,6 +124,10 @@ type
     procedure ImprimeQtdAmostrasPorDesenvolvedor(VpaCodDesenvolvedor : Integer;VpaCaminho, VpaNomDesenvolvedor : string;VpaDatInicio, VpaDatFim : TDateTime);
     procedure ImprimeClientesPorSituacaoAnalitico(VpaCodVendedor: Integer; VpaCaminho, VpaCidade, VpaNomVendedor: String);
     procedure ImprimeClientesPorSituacaoSintetico(VpaCodVendedor: Integer; VpaCaminho, VpaCidade, VpaNomVendedor: String);
+    procedure ImprimeContatoCliente(VpaCodVendedor, VpaCodSituacao: Integer; VpaCaminho, VpaCidade, VpaEstado, VpaNomVendedor, VpaSituacao: String);
+    procedure ImprimeClientesPorCidadeEEstadoAnalitico(VpaCodVendedor, VpaCodSituacao: Integer; VpaCaminho, VpaCidade, VpaEstado, VpaNomVendedor, VpaSituacao: String);
+    procedure ImprimeClientesPorCidadeEEstadoSintetico(VpaCodVendedor, VpaCodSituacao: Integer; VpaCaminho, VpaCidade, VpaEstado, VpaNomVendedor, VpaSituacao: String);
+    procedure ImprimeCartuchoPesadoPorCelula(VpaCodFilial: Integer; VpaDataIni, VpaDatFim: TDateTime; VpaNomFilial,VpaCaminhoRelatorio: String);
   end;
 
 
@@ -3031,6 +3035,162 @@ begin
   AdicionaSqlTabeLa(Principal,' GROUP BY CLI.I_COD_SIT, SIT.C_NOM_SIT                       ' +
                               ' ORDER BY SIT.C_NOM_SIT                                      ');
   Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeContatoCliente(VpaCodVendedor, VpaCodSituacao: Integer; VpaCaminho, VpaCidade, VpaEstado, VpaNomVendedor, VpaSituacao: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Contato Cliente';
+  Rave.projectfile := varia.PathRelatorios+'\Cliente\0500PLFAFI_Contato Cliente.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,'SELECT CLI.I_COD_CLI, CLI.C_NOM_CLI, CLI.C_FO1_CLI, CLI.C_BAI_CLI,   ' +
+                              '       CLI.C_CID_CLI, CLI.C_END_CLI, CON.NOMCONTATO, CON.DESTELEFONE,' +
+                              '       CON.DESEMAIL,                                                 ' +
+                              '       (SELECT Min(PRF.C_NOM_PRF) FROM CADPROFISSOES PRF WHERE  PRF.I_COD_PRF = CON.CODPROFISSAO) C_NOM_PRF ' +
+                              '  FROM CADCLIENTES CLI, CONTATOCLIENTE CON                           ' +
+                              ' WHERE CLI.I_COD_CLI (+)= CON.CODCLIENTE                             ');
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSqlTabela(Principal,'AND CLI.I_COD_VEN = '+IntToStr(VpaCodVendedor));
+    Rave.SetParam('VENDEDOR',VpaNomVendedor);
+  end;
+  if DeletaEspaco(VpaCidade) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_CID_CLI = '''+ VpaCidade + '''');
+    Rave.SetParam('CIDADE',VpaCidade);
+  end;
+  if DeletaEspaco(VpaEstado) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_EST_CLI = '''+ VpaEstado + '''');
+    Rave.SetParam('ESTADO',VpaEstado);
+  end;
+  if VpaCodSituacao <> 0 then
+  begin
+    AdicionaSqlTabela(Principal,'AND CLI.I_COD_SIT = '+IntToStr(VpaCodSituacao));
+    Rave.SetParam('SITUACAO',VpaSituacao);
+  end;
+
+  AdicionaSqlTabeLa(Principal,' ORDER BY CLI.I_COD_CLI,CLI.C_NOM_CLI, CLI.C_FO1_CLI, CLI.C_BAI_CLI, ' +
+                              '      CLI.C_CID_CLI, CLI.C_END_CLI, CON.NOMCONTATO, CON.DESTELEFONE, ' +
+                              '      CON.DESEMAIL                                                   ');
+  Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeClientesPorCidadeEEstadoAnalitico(VpaCodVendedor, VpaCodSituacao: Integer; VpaCaminho, VpaCidade, VpaEstado, VpaNomVendedor, VpaSituacao: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Clientes por Cidade e Estado Analitico';
+  Rave.projectfile := varia.PathRelatorios+'\Cliente\0600PLFAFI_Clientes por Cidade e Estado Analitico.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,' SELECT CLI.I_COD_CLI, CLI.C_NOM_CLI, CLI.C_CID_CLI, CLI.C_FO1_CLI, ' +
+                              '        CLI.C_END_CLI, CLI.I_NUM_END, CLI.C_BAI_CLI, CLI.I_COD_VEN, ' +
+                              '        VEN.C_NOM_VEN, CLI.C_EST_CLI                                ' +
+                              '   FROM CADCLIENTES CLI, CADVENDEDORES VEN                          ' +
+                              '  WHERE CLI.I_COD_VEN = VEN.I_COD_VEN                               ');
+
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSqlTabela(Principal,'AND CLI.I_COD_VEN = '+IntToStr(VpaCodVendedor));
+    Rave.SetParam('VENDEDOR',VpaNomVendedor);
+  end;
+  if DeletaEspaco(VpaCidade) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_CID_CLI = '''+ VpaCidade + '''');
+    Rave.SetParam('CIDADE',VpaCidade);
+  end;
+  if DeletaEspaco(VpaEstado) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND CLI.C_EST_CLI = '''+ VpaEstado + '''');
+    Rave.SetParam('ESTADO',VpaEstado);
+  end;
+  if VpaCodSituacao <> 0 then
+  begin
+    AdicionaSqlTabela(Principal,'AND CLI.I_COD_SIT = '+IntToStr(VpaCodSituacao));
+    Rave.SetParam('SITUACAO',VpaSituacao);
+  end;
+
+  AdicionaSQLTabela(Principal,'  ORDER BY CLI.C_EST_CLI, CLI.C_CID_CLI, CLI.C_NOM_CLI,CLI.I_COD_CLI' +
+                              '  ,CLI.C_FO1_CLI,CLI.C_END_CLI,CLI.I_NUM_END,CLI.C_BAI_CLI,         ' +
+                              '   VEN.C_NOM_VEN,CLI.I_COD_VEN                                      ');
+
+  Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeClientesPorCidadeEEstadoSintetico(VpaCodVendedor, VpaCodSituacao: Integer; VpaCaminho, VpaCidade, VpaEstado, VpaNomVendedor,VpaSituacao: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Clientes por Cidade e Estado Sintético';
+  Rave.projectfile := varia.PathRelatorios+'\Cliente\0700PLFAFI_Clientes por Cidade e Estado Sintetico.rav';
+  RvSystem1.defaultDest := rdPreview;
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,' SELECT C_EST_CLI, C_CID_CLI, COUNT(*) QTD      ' +
+                              '   FROM CADCLIENTES                             ' +
+                              '  WHERE 1=1                                     ');
+  if VpaCodVendedor <> 0 then
+  begin
+    AdicionaSqlTabela(Principal,'AND I_COD_VEN = '+IntToStr(VpaCodVendedor));
+    Rave.SetParam('VENDEDOR',VpaNomVendedor);
+  end;
+  if DeletaEspaco(VpaCidade) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND C_CID_CLI = '''+ VpaCidade + '''');
+    Rave.SetParam('CIDADE',VpaCidade);
+  end;
+  if DeletaEspaco(VpaEstado) <> '' then
+  begin
+    AdicionaSqlTabeLa(Principal,'AND C_EST_CLI = '''+ VpaEstado + '''');
+    Rave.SetParam('ESTADO',VpaEstado);
+  end;
+  if VpaCodSituacao <> 0 then
+  begin
+    AdicionaSqlTabela(Principal,'AND I_COD_SIT = '+IntToStr(VpaCodSituacao));
+    Rave.SetParam('SITUACAO',VpaSituacao);
+  end;
+  AdicionaSqlTabeLa(Principal,'  GROUP BY C_EST_CLI, C_CID_CLI                 ' +
+                              '  ORDER BY C_EST_CLI, C_CID_CLI                 ' );
+  Rave.SetParam('CAMINHO',VpaCaminho);
+  Rave.Execute;
+end;
+
+{******************************************************************************}
+procedure TdtRave.ImprimeCartuchoPesadoPorCelula(VpaCodFilial: Integer; VpaDataIni, VpaDatFim: TDateTime; VpaNomFilial,VpaCaminhoRelatorio: String);
+begin
+  Rave.close;
+  RvSystem1.SystemPrinter.Title := 'Eficácia - Cartucho Pesado por Célula';
+  Rave.projectfile := varia.PathRelatorios+'\Cartucho\0100PLFAFI_Cartucho Pesado por Celula.rav';
+  Rave.clearParams;
+  LimpaSqlTabela(Principal);
+  AdicionaSqlTabeLa(Principal,' SELECT EXTRACT(DAY FROM DATPESO) DIA, EXTRACT(DAY FROM DATPESO)||''/'' ' +
+                              '        || EXTRACT(MONTH FROM DATPESO) DATAPESO, CEL.NOMCELULA,         ' +
+                              '        COUNT(CEL.NOMCELULA) QTD                                        ' +
+                              ' FROM PESOCARTUCHO PES, CELULATRABALHO CEL                              ' +
+                              '  WHERE PES.CODCELULA = CEL.CODCELULA                                   ' +
+                        SQLTextoDataEntreAAAAMMDD('PES.DATPESO',VpaDataIni,VpaDatFim,true));
+  Rave.SetParam('DATPESO','Período de '+FormatDatetime('DD/MM/YYYY',VpaDataIni)+' até '+FormatDatetime('DD/MM/YYYY',VpaDatFim));
+  if vpacodfilial <> 0 then
+  begin
+    AdicionaSqlTabeLa(Principal,' AND PES.CODFILIAL = '+InttoStr(VpaCodFilial));
+    Rave.SetParam('FILIAL',VpaNomFilial);
+  end;
+
+  Rave.SetParam('CAMINHO',VpaCaminhoRelatorio);
+
+  AdicionaSqlTabeLa(Principal,' GROUP BY EXTRACT(DAY FROM DATPESO), EXTRACT(DAY FROM DATPESO)||''/''|| ' +
+                              '          EXTRACT(MONTH FROM DATPESO), CEL.NOMCELULA                    ' +
+                              ' ORDER BY 1                                                             ');
+  Principal.open;
+
   Rave.Execute;
 end;
 

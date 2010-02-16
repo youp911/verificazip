@@ -255,6 +255,10 @@ type
     Label28: TLabel;
     MovOrcamentosNOM_EMBALAGEM: TWideStringField;
     MovOrcamentosNOMECOR: TWideStringField;
+    MovOrcamentosD_APR_AMO: TSQLTimeStampField;
+    N15: TMenuItem;
+    AprovaAmostra1: TMenuItem;
+    EstornaAprovaoAmostra1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FlagClick(Sender: TObject);
@@ -340,6 +344,8 @@ type
     procedure MPedidosPendentesSemClienteMasterClick(Sender: TObject);
     procedure MAdicionarRomaneioSeparacaoClick(Sender: TObject);
     procedure ImprimirRomaneioSeparao1Click(Sender: TObject);
+    procedure AprovaAmostra1Click(Sender: TObject);
+    procedure EstornaAprovaoAmostra1Click(Sender: TObject);
   private
     TeclaPressionada,
     VprPressionadoR,
@@ -754,6 +760,21 @@ procedure TFCotacao.EProdutoKeyDown(Sender: TObject; var Key: Word;
 begin
   case key of
     vk_f3 : LocalizaProduto;
+  end;
+end;
+
+{**************** quando é pressionado alguma tecla ***************************}
+procedure TFCotacao.EstornaAprovaoAmostra1Click(Sender: TObject);
+var
+  VpfResultado : String;
+begin
+  if MovOrcamentosI_EMP_FIL.AsInteger <> 0 then
+  begin
+    VpfREsultado := FunCotacao.ExtornaAprovacaoAmostra(MovOrcamentosI_EMP_FIL.AsInteger,MovOrcamentosI_LAN_ORC.AsInteger,MovOrcamentosI_SEQ_MOV.AsInteger);
+    if VpfResultado <> '' then
+      aviso(VpfResultado)
+    else
+      PosMovOrcamento(MovOrcamentosI_EMP_FIL.AsString,MovOrcamentosI_LAN_ORC.AsString);
   end;
 end;
 
@@ -1326,6 +1347,7 @@ begin
     BCancelar.Visible := false;
     BtExtornar.Visible := false;
   end;
+  GridMov.Columns[RIndiceColuna(GridMov,'D_APR_AMO')].Visible := config.ControlarAmostraAprovadanaCotacao;
 end;
 
 {******************************************************************************}
@@ -1507,7 +1529,7 @@ begin
                           ' C_Imp_Fot, C_Fla_Res, Mov.N_Qtd_Bai, MOV.N_QTD_CON, MOV.I_COD_COR ||''-''||MOV.C_DES_COR C_DES_COR, MOV.C_DES_COR NOMECOR, '+
                           ' Pro.C_Nom_Pro, Pro.I_Seq_Pro, MOV.I_SEQ_MOV, MOV.C_NOM_PRO PRODUTOCOTACAO,' +
                           ' MOV.C_COD_PRO,'+
-                          ' EMB.NOM_EMBALAGEM ');
+                          ' EMB.NOM_EMBALAGEM, MOV.D_APR_AMO ');
 
     MovOrcamentos.sql.add(' from MovOrcamentos Mov, CadProdutos Pro, MovQdadeProduto QTD, EMBALAGEM EMB' +
                           ' Where mov.I_Emp_Fil = ' + VpaCodfilial +
@@ -1519,7 +1541,8 @@ begin
                           ' union ' +
                           ' Select Orc.I_Emp_Fil, Orc.I_Lan_Orc,Orc.N_Qtd_Ser, '+
                           ' Orc.N_Vlr_Ser,Orc.N_Vlr_Tot, ''SE''  Unis,  ''-'' Foto, '+
-                          ' ''-'' Res, N_QTD_BAI, 0,'' '', '' '' ,Ser.C_Nom_Ser, Ser.I_Cod_ser,ORC.I_COD_SER,SER.C_NOM_SER, Cast(Ser.I_Cod_Ser as VARChar2(20)) C_Cod_Pro , '' '''+
+                          ' ''-'' Res, N_QTD_BAI, 0,'' '', '' '' ,Ser.C_Nom_Ser, Ser.I_Cod_ser,ORC.I_COD_SER,SER.C_NOM_SER, Cast(Ser.I_Cod_Ser as VARChar2(20)) C_Cod_Pro , '' '', '+
+                          SQLTextoDataAAAAMMMDD(DATE)+' D_DAT_APR '+
                           ' from movservicoorcamento orc, cadservico ser ' +
                           ' Where orc.I_Emp_Fil = ' + VpaCodfilial +
                           ' and Orc.I_Lan_Orc = ' + VpaOrcamento +
@@ -1960,6 +1983,21 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFCotacao.AprovaAmostra1Click(Sender: TObject);
+var
+  VpfResultado : String;
+begin
+  if MovOrcamentosI_EMP_FIL.AsInteger <> 0 then
+  begin
+    VpfREsultado := FunCotacao.AprovaAmostra(MovOrcamentosI_EMP_FIL.AsInteger,MovOrcamentosI_LAN_ORC.AsInteger,MovOrcamentosI_SEQ_MOV.AsInteger);
+    if VpfResultado <> '' then
+      aviso(VpfResultado)
+    else
+      PosMovOrcamento(MovOrcamentosI_EMP_FIL.AsString,MovOrcamentosI_LAN_ORC.AsString);
+  end;
+end;
+
+{******************************************************************************}
 procedure TFCotacao.SelecionaTodasLinhas;
 begin
   CadOrcamento.First;
@@ -2116,9 +2154,7 @@ begin
   begin
     VprDOrcamento.Free;
     VprDOrcamento := TRBDOrcamento.cria;
-    VprDOrcamento.CodEmpFil := CadOrcamentoI_EMP_FIL.AsInteger;
-    VprDOrcamento.LanOrcamento := CadOrcamentoI_Lan_Orc.AsInteger;
-    FunCotacao.CarDOrcamento(VprDOrcamento);
+    FunCotacao.CarDOrcamento(VprDOrcamento,CadOrcamentoI_EMP_FIL.AsInteger,CadOrcamentoI_Lan_Orc.AsInteger);
     VpfDCliente := TRBDCliente.cria;
     VpfDCliente.CodCliente := VprDOrcamento.CodCliente;
     FunClientes.CarDCliente(VpfDCliente);

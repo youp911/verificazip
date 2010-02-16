@@ -168,6 +168,7 @@ Type
       destructor destroy;override;
 end;
 
+
 Type
   TRBDVendaClienteAno = class
     public
@@ -181,12 +182,26 @@ Type
 end;
 
 Type
+  TRBDVendaClienteRepresentada = class
+   public
+     NomRepresentada : String;
+     ValVenda : Double;
+      Anos : TList;
+     constructor cria;
+     destructor destroy;override;
+     function addAno : TRBDVendaClienteAno;
+  end;
+
+
+Type
   TRBDVendaCliente = class
     public
       Anos : TList;
+      Representadas : TList;
       Constructor cria;
       destructor destroy;override;
       function addAno : TRBDVendaClienteAno;
+      function addRepresentada : TRBDVendaClienteRepresentada;
 end;
 
 type
@@ -209,7 +224,8 @@ type
       VprCodProjeto,
       VprFilial,
       VprClienteMaster,
-      VprCliente : Integer;
+      VprCliente,
+      VprCodTipoCotacao : Integer;
       VprDatInicio,
       VprDatFim : TDateTime;
       VprAgruparPorEstado,
@@ -282,9 +298,12 @@ type
       procedure ImprimeRelResumoCaixas(VpaObjeto : TObject);
 
       procedure InicializaVendaCliente(VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente);
+      procedure InicializaVendaClienteRepresentada(VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente);
       function RMesVenda(VpaDVenda : TRBDVendaCliente;VpaMes, VpaAno : Integer) : TRBDVendaClienteMes;
+      function RMesVendaRepresentada(VpaDVenda : TRBDVendaCliente;VpaNomRepresentada : String; VpaMes, VpaAno : Integer) : TRBDVendaClienteMes;
       procedure AtualizaTotalVenda(VpaDVenda : TRBDVendaCliente);
       function CarValoresFaturadosCliente(VpaCodCliente : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente):boolean;
+      function CarValoresPedidosRepresentadaCliente(VpaCodCliente : Integer;VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente):boolean;
       function CarValoresPlanoContasMes(VpaPlanoContas : String; VpaDatInicio,VpaDatFim : TDateTime;VpaDVenda : TRBDVendaCliente):boolean;
       procedure CarValoresContasAPagar(VpaPlanoContas : String; VpaDatInicio,VpaDatFim : TDateTime;Var VpaValPago : Double;Var VpaValtotal : Double);
       procedure CarValorTrocasProdutos(VpaDProduto : TRBDProdutoRave; VpaDatInicio,VpaDatFim : TDateTime;VpaSeqProduto :Integer);
@@ -304,7 +323,7 @@ type
       procedure ConfiguraRelatorioPDF;
       procedure ImprimeRelEstoqueMinimo(VpaObjeto : TObject);
       procedure ImprimeRelAnaliseFaturamentoAnual(VpaObjeto : TObject);
-      procedure ImprimeRelAnalisePedidoAnual(VpaObjeto : TObject);
+      procedure ImprimeRelAnalisePedidosRepresentadaAnual(VpaObjeto : TObject);
       procedure ImprimeRelFechamentoEstoque(VpaObjeto : TObject);
       procedure ImprimeRelCPporPlanoContas(VpaObjeto : TObject);
       procedure ImprimeRelCPporPlanoContasSintetico(VpaObjeto : TObject);
@@ -355,6 +374,7 @@ type
       procedure ImprimeOrdemProducaoEtikArt(VpaDOrdemProducao : TRBDOrdemProducaoEtiqueta;VpaVisualizar : Boolean);
       procedure ImprimeRomaneioSeparacaoCotacao(VpaCotacoes : TList);
       procedure ImprimeAnaliseContratosLocacao(VpaCodTipoContrato, VpaCodCliente, VpaCodVendedor : Integer; VpaCaminho, VpaNomTipoCotrato, VpaNomVendedor, VpaNomCliente: string;VpaDatInicioAssinatura,VpaDatFimAssinatura : TDateTime; VpaSomenteNaoCancelados,VpaAnalitico : Boolean);
+      procedure ImprimeAnalisePedidosMensal(VpaCodFilial,VpaCodCliente,VpaCodVendedor, VpaCodPreposto, VpaCodTipoCotacao : Integer;VpaCaminho, VpaNomFilial,VpaNomCliente,VpaNomVendedor, VpaNomPreposto, VpaNomTipoCotacao : String;VpaDatInicio, VpaDatFim : TDateTime);
   end;
 implementation
 
@@ -420,6 +440,30 @@ destructor TRBDLeiturasContratoLocacaoRave.destroy;
 begin
 
   inherited;
+end;
+
+{ TRBDVendaClienteRepresentada }
+
+{******************************************************************************}
+function TRBDVendaClienteRepresentada.addAno: TRBDVendaClienteAno;
+begin
+  Result := TRBDVendaClienteAno.cria;
+  Anos.Add(result);
+end;
+
+{******************************************************************************}
+constructor TRBDVendaClienteRepresentada.cria;
+begin
+  inherited create;
+  Anos := TList.Create;
+end;
+
+{******************************************************************************}
+destructor TRBDVendaClienteRepresentada.destroy;
+begin
+  FreeTObjectsList(Anos);
+  Anos.Free;
+  inherited destroy;
 end;
 
 
@@ -495,6 +539,7 @@ end;
 )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))}
 { TRBDVendaClienteMes }
 
+
 {******************************************************************************}
 constructor TRBDVendaClienteMes.cria;
 begin
@@ -522,6 +567,7 @@ end;
 destructor TRBDVendaClienteAno.destroy;
 begin
   FreeTObjectsList(Meses);
+  Meses.Free;
   inherited destroy;
 end;
 
@@ -532,6 +578,7 @@ begin
   Meses.add(result);
 end;
 
+
 { TRBDVendaCliente }
 
 {******************************************************************************}
@@ -539,6 +586,7 @@ Constructor TRBDVendaCliente.cria;
 begin
   inherited create;
   Anos := TLIst.Create;
+  Representadas := TList.Create;
 end;
 
 {******************************************************************************}
@@ -546,6 +594,8 @@ destructor TRBDVendaCliente.destroy;
 begin
   FreeTObjectsList(Anos);
   Anos.free;
+  FreeTObjectsList(Representadas);
+  Representadas.Free;
   inherited destroy;
 end;
 
@@ -554,6 +604,13 @@ function TRBDVendaCliente.addAno : TRBDVendaClienteAno;
 begin
   Result := TRBDVendaClienteAno.cria;
   Anos.Add(result);
+end;
+
+{******************************************************************************}
+function TRBDVendaCliente.addRepresentada: TRBDVendaClienteRepresentada;
+begin
+  result := TRBDVendaClienteRepresentada.cria;
+  Representadas.Add(result);
 end;
 
 {(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((
@@ -3031,6 +3088,37 @@ begin
 end;
 
 {******************************************************************************}
+procedure TRBFunRave.InicializaVendaClienteRepresentada(VpaDatInicio,VpaDatFim: TDateTime; VpaDVenda: TRBDVendaCliente);
+var
+  VpfLacoAno, VpfLacoMes : Integer;
+  VpfDVendaAno : TRBDVendaClienteAno;
+  VpfDVendaMes : TRBDVendaClienteMes;
+  VpfDRepresentada : TRBDVendaClienteRepresentada;
+begin
+  VpaDVenda.Free;
+  VpaDVenda := TRBDVendaCliente.cria;
+  AdicionaSQLAbreTabela(Tabela,'Select CODREPRESENTADA, NOMFANTASIA '+
+                               ' from REPRESENTADA '+
+                               ' ORDER BY NOMFANTASIA ');
+  while not Tabela.eof do
+  begin
+    VpfDRepresentada := VpaDVenda.addRepresentada;
+    VpfDRepresentada.NomRepresentada := Tabela.FieldByName('NOMFANTASIA').AsString;
+    for VpfLacoAno := Ano(VpaDatInicio) to Ano(VpaDatFim) do
+    begin
+      VpfDVendaAno := VpfDRepresentada.addAno;
+      VpfDVendaAno.Ano := VpfLacoAno;
+      for VpfLacoMes := 1 to 12 do
+      begin
+        VpfDVendaMes := VpfDVendaAno.addMes;
+        VpfDVendaMes.Mes := VpfLacoMes;
+      end;
+    end;
+    Tabela.Next;
+  end;
+end;
+
+{******************************************************************************}
 function TRBFunRave.RMesVenda(VpaDVenda : TRBDVendaCliente;VpaMes, VpaAno : Integer) : TRBDVendaClienteMes;
 var
   VpfLacoAno, VpfLacoMes : Integer;
@@ -3048,6 +3136,37 @@ begin
         VpfDVendaMes := TRBDVendaClienteMes(VpfDVendaAno.Meses.Items[VpfLacoMes]);
         if VpfDVendaMes.Mes = VpaMes then
           exit(VpfDVendaMes);
+      end;
+    end;
+  end;
+end;
+
+{******************************************************************************}
+function TRBFunRave.RMesVendaRepresentada(VpaDVenda: TRBDVendaCliente; VpaNomRepresentada: String; VpaMes, VpaAno: Integer): TRBDVendaClienteMes;
+var
+  VpfLacoRepresentada, VpfLacoAno, VpfLacoMes : Integer;
+  VpfDVendaAno : TRBDVendaClienteAno;
+  VpfDVendaMes : TRBDVendaClienteMes;
+  VpfDVendaRepresentada : TRBDVendaClienteRepresentada;
+begin
+  result := nil;
+  for VpfLacoRepresentada := 0 to VpaDVenda.Representadas.Count - 1 do
+  begin
+    VpfDVendaRepresentada := TRBDVendaClienteRepresentada(VpaDVenda.Representadas.Items[VpflacoRepresentada]);
+    if VpfDVendaRepresentada.NomRepresentada = VpaNomRepresentada then
+    begin
+      for VpflacoAno := 0 to VpfDVendaRepresentada.Anos.Count - 1 do
+      begin
+        VpfDVendaAno := TRBDVendaClienteAno(VpfDVendaRepresentada.Anos.Items[VpfLacoAno]);
+        if VpfDVendaAno.Ano = VpaAno then
+        begin
+          for VpfLacoMes := 0 to VpfDVendaAno.Meses.Count - 1 do
+          begin
+            VpfDVendaMes := TRBDVendaClienteMes(VpfDVendaAno.Meses.Items[VpfLacoMes]);
+            if VpfDVendaMes.Mes = VpaMes then
+              exit(VpfDVendaMes);
+          end;
+        end;
       end;
     end;
   end;
@@ -3155,6 +3274,36 @@ begin
     Tabela.next;
   end;
   AtualizaTotalVenda(VpaDVenda);
+end;
+
+{******************************************************************************}
+function TRBFunRave.CarValoresPedidosRepresentadaCliente(VpaCodCliente: Integer;VpaDatInicio, VpaDatFim: TDateTime; VpaDVenda: TRBDVendaCliente): boolean;
+var
+  VpfDVendaMes : TRBDVendaClienteMes;
+begin
+  InicializaVendaClienteRepresentada(VpaDatInicio,VpaDatFim,VpaDVenda);
+  Tabela.Close;
+  LimpaSQLTabela(Tabela);
+  AdicionaSQLTabela(Tabela,'select SUM(N_VLR_TOT) TOTAL, REP.NOMFANTASIA, EXTRACT(Year FROM D_DAT_ORC) ANO, EXTRACT(MONTH FROM D_DAT_ORC) MES '+
+                               ' from CADORCAMENTOS ORC, REPRESENTADA REP  '+
+                               ' Where ORC.I_COD_CLI = '+IntToStr(VpaCodCliente)+
+                               ' AND ORC.C_IND_CAN = ''N'''+
+                               ' AND '+ SQLTextoRightJoin('ORC.I_COD_REP','REP.CODREPRESENTADA')+
+                               SQLTextoDataEntreAAAAMMDD('D_DAT_ORC',VpaDatInicio,VpaDatFim,true));
+  if VprCodTipoCotacao <> 0  then
+    AdicionaSQLTabela(Tabela,'and ORC.I_TIP_ORC = '+IntToStr(VprCodTipoCotacao));
+  AdicionaSQLTabela(Tabela,' GROUP BY  REP.NOMFANTASIA, EXTRACT(Year FROM D_DAT_ORC), EXTRACT(MONTH FROM D_DAT_ORC) '+
+                           ' ORDER BY 2,3,4');
+//  Tabela.SQL.SaveToFile('c:\consulta.sql');
+  Tabela.Open;
+  result := not Tabela.Eof;
+  while not Tabela.Eof do
+  begin
+    VpfDVendaMes := RMesVendaRepresentada(VpaDVenda,Tabela.FieldByName('NOMFANTASIA').AsString,Tabela.FieldByName('MES').AsInteger,Tabela.FieldByName('ANO').AsInteger);
+    VpfDVendaMes.ValVenda := Tabela.FieldByName('TOTAL').AsFloat;
+    Tabela.next;
+  end;
+//  AtualizaTotalVenda(VpaDVenda);
 end;
 
 {******************************************************************************}
@@ -3726,9 +3875,91 @@ begin
 end;
 
 {******************************************************************************}
-procedure TRBFunRave.ImprimeRelAnalisePedidoAnual(VpaObjeto: TObject);
+procedure TRBFunRave.ImprimeRelAnalisePedidosRepresentadaAnual(VpaObjeto: TObject);
+var
+  VpfVendedorAnterior : Integer;
+  VpfDVenda : TRBDVendaCliente;
+  VpfDVendaAno : TRBDVendaClienteAno;
+  VpfDVendaMes : TRBDVendaClienteMes;
+  VpfDVendaRepresentada : TRBDVendaClienteRepresentada;
+  VpfLacoRepresentada, VpfLacoAno,VpfLacoMes : Integer;
+  VpfNomCliente, VpfNomRepresentada : String;
 begin
+  VpfVendedorAnterior := 0;
+  VpfDVenda := TRBDVendaCliente.cria;
+  with RVSystem.BaseReport do begin
+    while not Clientes.Eof  do
+    begin
+      if VpfVendedorAnterior <> Clientes.FieldByName('I_COD_VEN').AsInteger then
+      begin
+        if VpfVendedorAnterior <> 0  then
+        begin
+          VprNomVendedor := Clientes.FieldByName('C_NOM_VEN').AsString;
+          NewPage;
+        end;
+        VpfVendedorAnterior := Clientes.FieldByName('I_COD_VEN').AsInteger;
+      end;
+      if CarValoresPedidosRepresentadaCliente(Clientes.FieldByName('I_COD_CLI').AsInteger,VprDatInicio,VprDatFim,VpfDVenda) then
+      begin
+            NewLine;
+            If LinesLeft<=1 Then
+              NewPage;
+        VpfNomCliente := ' '+Clientes.FieldByName('C_NOM_CLI').AsString;
+        PrintTab(VpfNomCliente);
+        for VpfLacoRepresentada := 0 to VpfDVenda.Representadas.Count - 1 do
+        begin
+          VpfDVendaRepresentada := TRBDVendaClienteRepresentada(VpfDVenda.Representadas.Items[VpfLacoRepresentada]);
+          VpfNomRepresentada :=  AdicionaCharE(' ',VpfDVendaRepresentada.NomRepresentada,15);
+          for VpfLacoAno := 0 to VpfDVendaRepresentada.Anos.Count - 1 do
+          begin
+            NewLine;
+            If LinesLeft<=1 Then
+              NewPage;
+            VpfDVendaAno := TRBDVendaClienteAno(VpfDVendaRepresentada.Anos.Items[VpfLacoAno]);
+            PrintTab(VpfNomRepresentada);
+            PrintTab(IntToStr(VpfDVendaAno.Ano));
+            for VpfLacoMes := 0 to VpfDVendaAno.Meses.Count - 1 do
+            begin
+              VpfDVendaMes := TRBDVendaClienteMes(VpfDVendaAno.Meses.Items[VpfLacoMes]);
+              if VpfDVendaMes.ValVenda <> 0 then
+              begin
+                if VpfDVendaMes.IndReducaoVenda then
+                  Italic := true;
+                PrintTab(FormatFloat('#,###,###,###,##0',VpfDVendaMes.ValVenda))
+              end
+              else
+                PrintTab('');
+              Italic := false;
+            end;
+            if VpfDVendaAno.IndReducaoVenda  then
+              bold := true;
+            PrintTab(FormatFloat('#,###,###,###,##0',VpfDVendaAno.ValVenda));
+            Bold := false;
+            VpfNomRepresentada := '';
+          end;
+        end;
+                    NewLine;
+            If LinesLeft<=1 Then
+              NewPage;
+      end;
+      Clientes.next;
+    end;
 
+    newline;
+    newline;
+    newline;
+    If LinesLeft<=1 Then
+      NewPage;
+    PrintTab('');
+    bold := true;
+    bold := true;
+    PrintTab('');
+    PrintTab('');
+    PrintTab('  ');
+    bold := false;
+  end;
+  Clientes.Close;
+  VpfDVenda.free;
 end;
 
 {******************************************************************************}
@@ -6041,5 +6272,56 @@ begin
   ConfiguraRelatorioPDF;
   RvSystem.execute;
 end;
+
+{******************************************************************************}
+procedure TRBFunRave.ImprimeAnalisePedidosMensal(VpaCodFilial, VpaCodCliente,VpaCodVendedor, VpaCodPreposto, VpaCodTipoCotacao: Integer; VpaCaminho,VpaNomFilial, VpaNomCliente, VpaNomVendedor, VpaNomPreposto, VpaNomTipoCotacao: String; VpaDatInicio, VpaDatFim: TDateTime);
+begin
+  RvSystem.Tag := 25;
+  VprDatInicio := VpaDatInicio;
+  VprDatFim := VpaDatFim;
+  VprCodTipoCotacao := VpaCodTipoCotacao;
+  LimpaSQlTabela(Clientes);
+  AdicionaSqltabela(Clientes,'SELECT VEN.C_NOM_VEN, VEN.I_COD_VEN, I_COD_CLI, C_NOM_CLI '+
+                             ' FROM CADCLIENTES CLI, CADVENDEDORES VEN '+
+                             ' WHERE '+SQLTextoRightJoin('CLI.I_COD_VEN','VEN.I_COD_VEN')+
+                             ' AND CLI.C_IND_CLI = ''S''');
+  if VpaCodCliente <> 0 then
+    AdicionaSqlTabela(Clientes,' and CLI.I_COD_CLI = '+InttoStr(VpaCodCliente));
+
+  if VpaCodVendedor <> 0  then
+    AdicionaSqlTabela(Clientes,' and CLI.I_COD_VEN = '+InttoStr(VpaCodVendedor));
+
+  if VpaCodPreposto <> 0  then
+    AdicionaSqlTabela(Clientes,' and CLI.I_VEN_PRE = '+InttoStr(VpaCodPreposto));
+
+  AdicionaSqlTabela(Clientes,'ORDER BY C_NOM_VEN, C_NOM_CLI');
+  Clientes.open;
+  VprNomVendedor := Clientes.FieldByName('C_NOM_VEN').AsString;
+  RvSystem.SystemPrinter.Orientation := poLandScape;
+
+  rvSystem.onBeforePrint := DefineTabelaAnaliseFaturamentoMensal;
+  rvSystem.onNewPage := ImprimeCabecalho;
+  rvSystem.onPrintFooter := Imprimerodape;
+  rvSystem.onPrint := ImprimeRelAnalisePedidosRepresentadaAnual;
+
+  VprCaminhoRelatorio := VpaCaminho;
+  VprNomeRelatorio := 'Analise Pedidos Representada Anual';
+
+  VprCabecalhoEsquerdo.Clear;
+  VprCabecalhoEsquerdo.add('Filial : ' +VpaNomFilial);
+  if VpaCodTipoCotacao <> 0 then
+    VprCabecalhoEsquerdo.Add('Tipo Cotação :'+ VpaNomTipoCotacao);
+  VprCabecalhoDireito.Clear;
+  if VpaCodCliente <> 0  then
+    VprCabecalhoDireito.add('Cliente : ' +VpaNomCliente);
+
+  if VpaCodPreposto <> 0  then
+    VprCabecalhoDireito.add('Preposto : ' +VpaNomPreposto);
+  if VpaCodVendedor <> 0 then
+    VprCabecalhoDireito.Add('Vendedor : '+VpaNomVendedor);
+  ConfiguraRelatorioPDF;
+  RvSystem.execute;
+end;
+
 
 end.

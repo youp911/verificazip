@@ -5,7 +5,7 @@ interface
        SQLExpr,IniFiles ;
 
 Const
-  CT_VersaoBanco = 1591;
+  CT_VersaoBanco = 1595;
   CT_VersaoInvalida = 'SISTEMA DESATUALIZADO!!! Este sistema já possui novas versões, essa versão pode não funcionar corretamente,  para o bom funcionamento do mesmo é necessário fazer a atualização...' ;
 
   CT_SenhaAtual = '9774';
@@ -1490,6 +1490,19 @@ begin
         ExecutaComandoSql(Aux,'UPDATE CFG_GERAL  SET C_COT_BPN = ''F''' );
         ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1591');
       end;
+      if VpaNumAtualizacao < 1592 Then
+      begin
+        VpfErro := '1592';
+        ExecutaComandoSql(Aux,'ALTER TABLE CADUSUARIOS ADD(C_DES_EMA VARCHAR2(120) NULL)' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1592');
+      end;
+      if VpaNumAtualizacao < 1593 Then
+      begin
+        VpfErro := '1593';
+        ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD(C_COT_REU CHAR(1) NULL)' );
+        ExecutaComandoSql(Aux,'UPDATE CFG_GERAL SET C_COT_REU = ''F''' );
+        ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1593');
+      end;
       VpfErro := AtualizaTabela1(VpaNumAtualizacao);
       if VpfErro = '' then
       begin
@@ -1535,11 +1548,18 @@ end;
 function TAtualiza.AtualizaTabela1(VpaNumAtualizacao : Integer): String;
 begin
   result := '';
-  if VpaNumAtualizacao < 1429 Then
+  if VpaNumAtualizacao < 1594 Then
   begin
-    result := '1429';
-//    ExecutaComandoSql(Aux,'');
-//    ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1429');
+    result := '1594';
+    ExecutaComandoSql(Aux,'ALTER TABLE CFG_GERAL ADD(C_COT_CAA CHAR(1) NULL)' );
+    ExecutaComandoSql(Aux,'UPDATE CFG_GERAL SET C_COT_CAA = ''F''' );
+    ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1594');
+  end;
+  if VpaNumAtualizacao < 1595 Then
+  begin
+    result := '1595';
+    ExecutaComandoSql(Aux,'ALTER TABLE MOVORCAMENTOS ADD(D_APR_AMO DATE NULL)' );
+    ExecutaComandoSql(Aux,'Update CFG_GERAL set I_Ult_Alt = 1595');
   end;
 end;
 

@@ -40,6 +40,7 @@ Type TRBFuncoesSistema = class(TRBLocalizaSistema)
     function CFGInventarioValido : String;
     procedure GravaLogExclusao(VpaNomTabela :String; VpaComandoSQL : String);
     function RNomUsuario(VpaCodUsuario : Integer):String;
+    function REmailUsuario(VpaCodUsuario : Integer) : String;
     function REmpresaFilial(VpaCodFilial : Integer) : Integer;
     function RNomFilial(VpaCodFilial : Integer) : String;
     function RNomComputador : String;
@@ -466,6 +467,15 @@ begin
   AdicionaSQLAbreTabela(SisAux,'Select * from CADUSUARIOS '+
                                ' Where I_COD_USU = '+ IntTostr(VpaCodUsuario));
   result := SisAux.FieldByName('C_NOM_USU').AsString;
+  SisAux.Close;
+end;
+
+{******************************************************************************}
+function TRBFuncoesSistema.REmailUsuario(VpaCodUsuario: Integer): String;
+begin
+  AdicionaSQLAbreTabela(SisAux,'Select C_DES_EMA from CADUSUARIOS '+
+                               ' Where I_COD_USU = '+ IntTostr(VpaCodUsuario));
+  result := SisAux.FieldByName('C_DES_EMA').AsString;
   SisAux.Close;
 end;
 

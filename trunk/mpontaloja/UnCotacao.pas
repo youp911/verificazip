@@ -132,6 +132,8 @@ type TFuncoesCotacao = class(TLocalizaCotacao)
     function ExtornaOrcamento(VpaCodFilial, VpaLanOrcamento : Integer) :String;
     procedure CancelaOrcamento(VpacodFilial,VpaLanOrcamento : Integer);
     function CancelaSaldoItemOrcamento(VpaCodFilial,VpaLanOrcamento, VpaSeqMovimento : Integer):string;
+    function AprovaAmostra(VpaCodFilial,VpaLanOrcamento, VpaSeqMovimento : Integer):string;
+    function ExtornaAprovacaoAmostra(VpaCodFilial,VpaLanOrcamento, VpaSeqMovimento : Integer):string;
     procedure cancelaFinanceiroNota(VpaCodigoFilial, VpaLanOrcamento : integer);
     procedure ReservaProduto(VpaSeqProduto, VpaUnidade : String; VpaQtd : Double);
     procedure BaixaReservaProdutoOrcamento(VpaCodFilial, VpaLanOrcamento : Integer);
@@ -949,6 +951,21 @@ begin
 end;
 
 {******************************************************************************}
+function TFuncoesCotacao.ExtornaAprovacaoAmostra(VpaCodFilial, VpaLanOrcamento,VpaSeqMovimento: Integer): string;
+begin
+  result := '';
+  AdicionaSQLAbreTabela(CotCadastro,'Select * from MOVORCAMENTOS '+
+                                    ' Where I_EMP_FIL = '+IntToStr(VpaCodFilial)+
+                                    ' and I_LAN_ORC = '+IntToStr(VpaLanOrcamento)+
+                                    ' and I_SEQ_MOV = '+IntToStr(VpaSeqMovimento));
+  CotCadastro.Edit;
+  CotCadastro.FieldByname('D_APR_AMO').clear;
+  CotCadastro.post;
+  result := CotCadastro.AMensagemErroGravacao;
+  CotCadastro.close;
+end;
+
+{******************************************************************************}
 function TFuncoesCotacao.ExtornaBrindeCliente(VpaDCotacao : TRBDOrcamento) : String;
 var
   VpfLaco : Integer;
@@ -1408,7 +1425,7 @@ begin
   VpaTexto.Add('  <td width=40%>');
   VpaTexto.add('    <a > <img src="cid:'+IntToStr(VpaDCotacao.CodEmpFil)+'.jpg" width='+IntToStr(varia.CRMTamanhoLogo)+' height = '+IntToStr(Varia.CRMAlturaLogo)+' boder=0>');
   VpaTexto.Add('  </td>');
-  VpaTexto.add('  <td width=20% align="center" > <font face="Verdana" size="5"><b>Pedido '+IntToStr(VpaDCotacao.LanOrcamento));
+  VpaTexto.add('  <td width=20% align="center" > <font face="Verdana" size="5"><b>'+RNomeTipoOrcamento(VpaDCotacao.CodTipoOrcamento)+' '+IntToStr(VpaDCotacao.LanOrcamento));
   if varia.CNPJFilial = CNPJ_HORNBURG then
     VpaTexto.Add('  <td width=40% align="right" > <font face="Verdana" size="5"><right> <a title="" href="http://www..com.br"> <img src="cid:R'+IntToStr(VpaDCotacao.CodRepresentada)+'.jpg" border="0"')
   else
@@ -1439,7 +1456,10 @@ begin
   VpaTexto.Add('  <td width=100% bgcolor=#6699FF ><font face="Verdana" size="3">');
   VpaTexto.add('   <br><center>');
   VpaTexto.Add('   <br>Data Emissao : '+FormatDateTime('DD/MM/YYY',VpaDCotacao.DatOrcamento));
-  VpaTexto.Add('   <br>Vendedor : '+RNomVendedor(VpaDCotacao.CodVendedor));
+  if (varia.CNPJFilial = CNPJ_HORNBURG) then
+    VpaTexto.Add('   <br>Vendedor : ALCI HORNBURG')
+  else
+    VpaTexto.Add('   <br>Vendedor : '+RNomVendedor(VpaDCotacao.CodVendedor));
   VpaTexto.add('   <br>');
   VpaTexto.Add('   <br>');
   VpaTexto.add('   <br>');
@@ -1640,6 +1660,8 @@ end;
 
 {******************************************************************************}
 function TFuncoesCotacao.EnviaEmail(VpaMensagem : TIdMessage;VpaSMTP : TIdSMTP) : string;
+var
+  VpfEmailUsuario : String;
 begin
   VpaMensagem.Priority := TIdMessagePriority(0);
   VpaMensagem.ContentType := 'multipart/mixed';
@@ -1652,7 +1674,8 @@ begin
   VpaSMTP.Port := 25;
   VpaSMTP.AuthType := satDefault;
 
-  VpaMensagem.ReceiptRecipient.Text  :=VpaMensagem.From.Text;
+  if VpaMensagem.ReceiptRecipient.Address = '' then
+    VpaMensagem.ReceiptRecipient.Text  :=VpaMensagem.From.Text;
 
   if VpaMensagem.ReceiptRecipient.Address = '' then
     result := 'E-MAIL DA FILIAL !!!'#13'É necessário preencher o e-mail da transportadora.';
@@ -3921,6 +3944,21 @@ begin
 end;
 
 {******************************************************************************}
+function TFuncoesCotacao.AprovaAmostra(VpaCodFilial, VpaLanOrcamento, VpaSeqMovimento: Integer): string;
+begin
+  result := '';
+  AdicionaSQLAbreTabela(CotCadastro,'Select * from MOVORCAMENTOS '+
+                                    ' Where I_EMP_FIL = '+IntToStr(VpaCodFilial)+
+                                    ' and I_LAN_ORC = '+IntToStr(VpaLanOrcamento)+
+                                    ' and I_SEQ_MOV = '+IntToStr(VpaSeqMovimento));
+  CotCadastro.Edit;
+  CotCadastro.FieldByname('D_APR_AMO').AsDateTime := Date;
+  CotCadastro.post;
+  result := CotCadastro.AMensagemErroGravacao;
+  CotCadastro.close;
+end;
+
+{******************************************************************************}
 procedure TFuncoesCotacao.AlteraPreposto(VpaDCotacao : trbdorcamento);
 var
   VpfComando : string;
@@ -4401,7 +4439,7 @@ end;
 function TFuncoesCotacao.EnviaEmailCliente(VpaDCotacao : TRBDOrcamento;VpaDCliente : TRBDCliente) : string;
 var
   VpfEmailTexto, VpfEmailHTML : TIdText;
-  VpfEmailVendedor,VpfEmailCliente, VpfNomAnexo : String;
+  VpfEmailVendedor,VpfEmailCliente, VpfNomAnexo, VpfEmailUsuario : String;
   VpfPDF, Vpfbmppart : TIdAttachmentFile;
   VpfChar : Char;
   VpfDRepresentada : TRBDRepresentada;
@@ -4493,6 +4531,16 @@ begin
     VpfEmailVendedor := REmailVencedor(VpaDCotacao.CodVendedor);
     if VpfEmailVendedor <> '' then
       VprMensagem.ReplyTo.EMailAddresses := VpfEmailVendedor;
+
+    //verifica se é para enviar o retorno para o usuario que digitou o pedido;
+    VpfEmailUsuario := sistema.REmailUsuario(VpaDCotacao.CodUsuario);
+    if config.ConfirmacaoEmailCotacaoParaoUsuario and (VpfEmailUsuario <> '') then
+    begin
+      VprMensagem.ReceiptRecipient.Address  := VpfEmailUsuario;
+      VprMensagem.ReceiptRecipient.Name  := varia.NomeFilial;
+    end
+    else
+      VprMensagem.ReceiptRecipient.Text  :='';
 
     result := EnviaEmail(VprMensagem,VprSMTP);
     if result = '' then

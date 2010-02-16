@@ -257,6 +257,8 @@ type
     SpeedButton10: TSpeedButton;
     Label62: TLabel;
     ERepresentada: TRBEditLocaliza;
+    MEmail: TPopupMenu;
+    EnviaremailTransportadora1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EClienteRetorno(Retorno1, Retorno2: String);
@@ -361,6 +363,7 @@ type
     procedure EClienteSelect(Sender: TObject);
     procedure Label11DblClick(Sender: TObject);
     procedure EFormaPagamentoCadastrar(Sender: TObject);
+    procedure EnviaremailTransportadora1Click(Sender: TObject);
   private
     { Private declarations }
     VprOperacao,
@@ -3390,6 +3393,16 @@ begin
 end;
 
 {******************************************************************************}
+procedure TFNovaCotacao.EnviaremailTransportadora1Click(Sender: TObject);
+var
+  VpfResultado : String;
+begin
+  VpfResultado := FunCotacao.EnviaEmailCotacaoTransportadora(VprDCotacao,VprDCliente);
+  if VpfREsultado <> '' then
+    aviso(VpfREsultado);
+end;
+
+{******************************************************************************}
 procedure TFNovaCotacao.GProdutosGetCellColor(Sender: TObject; ARow,
   ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
 var
@@ -3475,7 +3488,7 @@ procedure TFNovaCotacao.BEntregadorClick(Sender: TObject);
 var
   VpfResultado : String;
 begin
-  VpfResultado := FunCotacao.EnviaEmailCotacaoTransportadora(VprDCotacao,VprDCliente);
+  VpfResultado := FunCotacao.EnviaEmailCliente(VprDCotacao,VprDCliente);
   if VpfREsultado <> '' then
     aviso(VpfREsultado);
 end;

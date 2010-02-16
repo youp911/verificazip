@@ -674,7 +674,8 @@ var
   VpfLaco : Integer;
 begin
   Result:= '';
-  AdicionaSQLAbreTabela(Cadastro,'SELECT * FROM ESTAGIOPEDIDOCOMPRA');
+  AdicionaSQLAbreTabela(Cadastro,'SELECT * FROM ESTAGIOPEDIDOCOMPRA '+
+                                 ' Where CODFILIAL = 0 AND SEQPEDIDO = 0 AND SEQESTAGIO = 0');
 
 
   Cadastro.Insert;
