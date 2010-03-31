@@ -1,8 +1,0 @@
-Reporting-MTA: dns; portobelo.pucrs.br
-
-Final-Recipient: rfc822;ipctbib@pucrs.br
-Diagnostic-Code: smtp; 550 5.1.1 <ipctbib@pucrs.br>: Recipient address rejected: User unknown in local recipient table
-Remote-MTA: dns; rigel.pucrs.br
-Action: failed
-Status: 5.0.0
-

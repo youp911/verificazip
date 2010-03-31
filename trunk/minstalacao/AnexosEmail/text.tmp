@@ -1,8 +1,0 @@
-Reporting-MTA: dns; servidor.reloponto.com.br
-
-Final-Recipient: RFC822; m.schmoller@brturbo.com.br
-Action: failed
-Status: 5.5.0
-X-Supplementary-Info: <mail.reloponto.com.br #5.5.0 smtp;550-5.1.1 The email account that you tried to reach does not exist. Please>
-X-Display-Name: m.schmoller@brturbo.com.br
-

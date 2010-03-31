@@ -1,8 +1,0 @@
-Reporting-MTA: dns; servidor.reloponto.com.br
-
-Final-Recipient: RFC822; cassiva@sarah.br
-Action: failed
-Status: 5.2.1
-X-Supplementary-Info: <bsbmail00.sarah.br #5.2.1>
-X-Display-Name: Josefa Cassiva do Nascimento
-

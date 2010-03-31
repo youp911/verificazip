@@ -1,8 +1,0 @@
-Reporting-MTA: dns; servidor.reloponto.com.br
-
-Final-Recipient: RFC822; neupack@terra.com.br
-Action: failed
-Status: 5.5.0
-X-Supplementary-Info: <mail.reloponto.com.br #5.5.0 smtp;550 User unknown>
-X-Display-Name: neupack@terra.com.br
-
